@@ -4,7 +4,7 @@
 
     <div class="nav_menu">
       <div @click="getHomeBtn" :class="['nav_item',{'active': indexActive}]"><img class="nav_icon" src="../../assets/images/nav_home.png" alt="">首页</div>
-      <div :class="['nav_item',{'active': index ==current}]"
+      <div :class="['nav_item',{'active': index ==current && isIndexActive}]"
            v-for="(item,index) in navList"
            :key="index"
             @click="navClick(item,index)">
@@ -120,6 +120,7 @@
           icon: navSetting,
         }],
         indexActive: true, // 主页选中
+        isIndexActive: false, // 导航栏选中
         menuAddress: '/',  // 跳转地址
         current: '-1', // 下标
         navDrawer: false, // 菜单详单
@@ -133,11 +134,13 @@
           this.$router.push('/')
         };
         this.indexActive = true
+        this.isIndexActive = false
         this.current = '-1'
       },
       // 菜单跳转
       jumpAddress(val){
         this.indexActive = false
+        this.isIndexActive = true
         if(this.$route.path !== val.url){
           this.$router.push({
             path: val.url
