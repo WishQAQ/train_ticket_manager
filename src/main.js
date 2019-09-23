@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import App from './App.vue'
-import router, {powerRouterLazy} from './router'
+import router from './router'
+import { powerRouterLazy } from './router';//添加一个powerRouterLazy加载
 import './plugins/element.js'
 
 import store from './store'
@@ -11,6 +12,10 @@ axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded
 // 请求拦截器
 axios.interceptors.request.use(
     config => {
+      config.headers['X-Requested-With'] = 'XMLHttpRequest';
+      let regex = /.*csrftoken=([^;.]*).*$/; // 用于从cookie中匹配 csrftoken值
+      // config.headers['X-CSRFToken'] = 'QGOLEav1Ze';
+      config.headers['X-CSRFToken'] = document.cookie.match(regex) === null ? null : document.cookie.match(regex)[1];
       const token = store.state.token;
       token && (config.headers.Authorization = token);
       return config;
@@ -20,7 +25,7 @@ axios.interceptors.request.use(
     });
 
 // 全局样式表
-import "../public/base.less"
+import "../public/base.less";
 
 // 全局组件
 /**
@@ -31,27 +36,25 @@ import "../public/base.less"
 import PublicImage from '@/components/public/public_image';
 Vue.component('PublicImage', PublicImage);
 
-Vue.config.productionTip = false
+Vue.config.productionTip = false;
 
-
-
-// let generaMenu = (obj,data) =>{ /*循环router方法*/
-//   data.forEach((v,i)=>{
-//     obj.push(powerRouterLazy(v.name))
-//     if(v.children){
-//       generaMenu(obj[i].children,v.children)//递归children
-//     }
-//   })
-// };
+let generaMenu = (obj,data) =>{
+  data.forEach((v,i)=>{
+    obj.push(powerRouterLazy(v.name))
+    if(v.children){
+      generaMenu(obj[i].children,v.children) // 递归children
+    }
+  })
+};
 // router.beforeEach((to, from, next) => {
-//   let _role=store.getters.role
+//   let _role= store.getters.role;
 //   if(_role){ //判断role 是否存在
-//     if(store.getters.newrouter.length !== 0){//判断newrouter是否为空
+//     if(store.getters.newrouter.length !== 0){ // 判断newrouter是否为空
 //       next()
 //     }else{
 //       let newrouter=[]
-//       generaMenu(newrouter,_role)/*router循环*/
-//       router.addRoutes(newrouter) //添加动态路由
+//       generaMenu(newrouter,_role); // router循环
+//       router.addRoutes(newrouter); // 添加动态路由
 //       store.dispatch('Roles',newrouter).then(res => {
 //         next({...to})
 //       }).catch(() => {
@@ -59,17 +62,16 @@ Vue.config.productionTip = false
 //       })
 //     }
 //   }else{
-//     if (['/login'].indexOf(to.path) !== -1) {/*是否为login*/
+//     if (['/login'].indexOf(to.path) !== -1) {
 //       next()
 //     } else {
 //       next('/login')
 //     }
 //   }
-// });
-
-
+// })
 
 new Vue({
   router,
+  store,
   render: h => h(App)
 }).$mount('#app')

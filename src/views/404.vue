@@ -1,5 +1,7 @@
 <template>
-  <div>404</div>
+  <div>
+    404
+  </div>
 </template>
 
 <script>
@@ -8,6 +10,5 @@
   }
 </script>
 
-<style scoped>
-
+<style scoped lang="less">
 </style>

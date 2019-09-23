@@ -13,11 +13,6 @@
       'NavMenu': () => import('@/components/NavMenu'),
       'TabMenu':() => import('@/components/TabMenu')
     },
-    data(){
-      return {
-        newrouter: '' // this.$store.state.newrouter, // vuex的newrouter第一种展现形式
-      }
-    },
   }
 </script>
 

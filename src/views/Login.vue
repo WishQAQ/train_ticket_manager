@@ -17,13 +17,15 @@
 </template>
 
 <script>
+  import { loginByUserInfo }from '@/api/login'
+
   export default {
     name: "Login",
     data(){
       return {
         loginLogo: '', // 登录页logo
-        userName: '', // 用户名
-        userPassword: '', // 密码
+        userName: 'rainbow', // 用户名
+        userPassword: '123456', // 密码
 
         passwordChecked: false, // 是否记住密码
       }
@@ -42,10 +44,25 @@
           }else {
             _this.clearCookie();
           }
-          _this.$router.push({  // 页面跳转
-            path: '/home',
+          let data = {
+            account: _this.userName,
+            password: _this.userPassword
+          };
+
+          // api登录接口
+          loginByUserInfo(data).then(res =>{
+            console.log(res);
           });
-          _this.$message.success('正在登陆')
+
+          // 验证权限信息
+          _this.$store.dispatch('Logins',data).then(res => {
+            _this.$router.push({  // 页面跳转
+              path: '/',
+            });
+            _this.$message.success('正在登陆')
+          }).catch(() => {
+
+          })
         } else {
           _this.$message.warning('请填写完整您的登录信息')
         }

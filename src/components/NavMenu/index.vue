@@ -18,14 +18,22 @@
       </div>
     </div>
 
+<!--    <div  v-for="(v,i) in newrouter" :key="i">-->
+<!--      <router-link :to="{name:v.name}"  v-if="!v.children">{{v.name}}</router-link>-->
+<!--      <div  v-else-if="v.children">{{v.name}}</div>-->
+<!--      <div v-for="(k,j) in v.children">-->
+<!--        <router-link  :to="{name:k.name}">{{k.name}}</router-link>-->
+<!--      </div>-->
+<!--    </div>-->
+
     <el-dropdown class="nav_info" :tabindex="99">
       <div class="nav_message">
         <div class="info_avatar"><i class="el-icon-user-solid"></i></div>
         <div class="info_userName">姓名</div>
       </div>
       <el-dropdown-menu slot="dropdown" class="nav_info_btn">
-        <el-dropdown-item>个人设置</el-dropdown-item>
-        <el-dropdown-item @click="logout">退出</el-dropdown-item>
+        <el-dropdown-item><div @click="jumpUserSetting">个人设置</div></el-dropdown-item>
+        <el-dropdown-item><div @click="logout">退出</div></el-dropdown-item>
       </el-dropdown-menu>
     </el-dropdown>
 
@@ -49,16 +57,14 @@
   import navClient from '@/assets/images/nav_client.png';  // 客户后台
   import navSetting from '@/assets/images/nav_setting.png';  // 系统配置
 
-
   import navUser from '@/assets/images/nav_user.png';  // 系统配置
 
-
-
   export default {
-    props: ['newrouter'],
     name: "index",
     data(){
       return {
+        newrouter:this.$store.state.newrouter,
+
         navList:[{
           name: '文档中心',
           icon: navDocument,
@@ -118,6 +124,11 @@
         },{
           name: '系统配置',
           icon: navSetting,
+          children:[{
+            name: '菜单管理',
+            icon: navUser,
+            url: '/menuSetting',
+          }]
         }],
         indexActive: true, // 主页选中
         isIndexActive: false, // 导航栏选中
@@ -137,6 +148,10 @@
         this.isIndexActive = false
         this.current = '-1'
       },
+      // 跳转个人设置
+      jumpUserSetting(){
+        this.$router.push({path: '/setting'})
+      },
       // 菜单跳转
       jumpAddress(val){
         this.indexActive = false
@@ -151,11 +166,11 @@
       // 导航栏点击
       navClick(val,index){
         this.current = index;  // 获取下标
-        this.navDrawer = true;  // 打开菜单详单
         if(val.children){ // 菜单详单高度
+          this.navDrawer = true;  // 打开菜单详单
           this.navDrawerHeight = val.children.length * 46 + 16 + 'px'
         } else {
-          this.navDrawerHeight = '100px'
+          this.navDrawer = false;
         }
       },
       // 点击遮罩关闭导航栏菜单
@@ -165,9 +180,16 @@
 
       // 为登出按钮
       logout(){
-          this.$store.dispatch('Logout').then(() => {
+        console.log('登出');
+
+        this.$axios.get('http://oa.huimin.dev.cq1080.com/user/account/exit')
+            .then(res =>{
+              console.log(res);
+            })
+
+        this.$store.dispatch('Logout').then(() => {
           this.$router.push({ path: '/login' });
-        }).catch(err => {
+          }).catch(err => {
           this.$message.error(err);
         });
       }

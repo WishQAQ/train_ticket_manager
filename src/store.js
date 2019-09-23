@@ -1,7 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import { loginByUserInfo }from '@/request/api'
-
+import { loginByUserInfo }from '@/api/login'
 Vue.use(Vuex)
 
 export default new Vuex.Store({
@@ -27,15 +26,15 @@ export default new Vuex.Store({
     },
   },
   actions: {
-    Logins({ commit }, info){/*登陆方法*/
+    Logins({ commit }, info){
       return new Promise((resolve, reject) => {
         let data={};
-        loginByUserInfo.map(function (item) { //获取所以用户信息
+        loginByUserInfo.map(item=> { //获取所以用户信息
           if(info.username === item.username || info.pew === item.pew){
             commit('SET_USERNAME',item.username);  //将username和role进行存储
             sessionStorage.setItem('USERNAME', item.username); //存入 session
             commit('SET_ROLE',item.role);
-            sessionStorage.setItem('ROLE',JSON.stringify(item.role)); //存入 session
+            sessionStorage.setItem('ROLE',JSON.stringify(item.role));
             return data={username:item.username,introduce:item.introduce};
           }else{
             return data;
@@ -54,7 +53,7 @@ export default new Vuex.Store({
         reject(error);
       });
     },
-    Logout({ commit, state }) {/*登出方法*/
+    Logout({ commit, state }) {
       return new Promise((resolve, reject) => {
         commit('SET_USERNAME','');
         commit('SET_ROLE','');
