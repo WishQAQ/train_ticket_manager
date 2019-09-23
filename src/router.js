@@ -17,11 +17,11 @@ export default new Router({
         component: () => import('@/views/index')
       },{
         path: '/setting',
-        name: '个人设置',
+        name: 'setting',
         component: () => import('@/views/DocumentCenter/userSetting')
       },{
         path: '/menuSetting',
-        name: '菜单设置',
+        name: 'menuSetting',
         component: () => import('@/views/SystemSettings/menuSetting')
       }]
     },{

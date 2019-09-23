@@ -143,7 +143,7 @@
       getHomeBtn(){
         if(this.$route.path !== '/'){
           this.$router.push('/')
-        };
+        }
         this.indexActive = true
         this.isIndexActive = false
         this.current = '-1'

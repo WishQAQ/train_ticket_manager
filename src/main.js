@@ -46,29 +46,29 @@ let generaMenu = (obj,data) =>{
     }
   })
 };
-// router.beforeEach((to, from, next) => {
-//   let _role= store.getters.role;
-//   if(_role){ //判断role 是否存在
-//     if(store.getters.newrouter.length !== 0){ // 判断newrouter是否为空
-//       next()
-//     }else{
-//       let newrouter=[]
-//       generaMenu(newrouter,_role); // router循环
-//       router.addRoutes(newrouter); // 添加动态路由
-//       store.dispatch('Roles',newrouter).then(res => {
-//         next({...to})
-//       }).catch(() => {
-//
-//       })
-//     }
-//   }else{
-//     if (['/login'].indexOf(to.path) !== -1) {
-//       next()
-//     } else {
-//       next('/login')
-//     }
-//   }
-// })
+router.beforeEach((to, from, next) => {
+  let _role= store.getters.role;
+  if(_role){ //判断role 是否存在
+    if(store.getters.newrouter.length !== 0){ // 判断newrouter是否为空
+      next()
+    }else{
+      let newrouter=[]
+      generaMenu(newrouter,_role); // router循环
+      router.addRoutes(newrouter); // 添加动态路由
+      store.dispatch('Roles',newrouter).then(res => {
+        next({...to})
+      }).catch(() => {
+
+      })
+    }
+  }else{
+    if (['/login'].indexOf(to.path) !== -1) {
+      next()
+    } else {
+      next('/login')
+    }
+  }
+})
 
 new Vue({
   router,
