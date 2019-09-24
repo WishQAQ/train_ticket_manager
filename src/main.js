@@ -6,26 +6,41 @@ import './plugins/element.js'
 
 import store from './store'
 
+import Router from 'vue-router'
+
+const originalPush = Router.prototype.push
+Router.prototype.push = function push(location) {
+  return originalPush.call(this, location).catch(err => err)
+}
+
+
 import axios from "axios";
 Vue.prototype.$axios = axios;
-axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded;charset=UTF-8';
+
+import qs from 'qs'
+// Vue.prototype.$axios = axios;
+axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
 // 请求拦截器
 axios.interceptors.request.use(
     config => {
-      config.headers['X-Requested-With'] = 'XMLHttpRequest';
-      let regex = /.*csrftoken=([^;.]*).*$/; // 用于从cookie中匹配 csrftoken值
-      // config.headers['X-CSRFToken'] = 'QGOLEav1Ze';
-      config.headers['X-CSRFToken'] = document.cookie.match(regex) === null ? null : document.cookie.match(regex)[1];
-      const token = store.state.token;
-      token && (config.headers.Authorization = token);
+      if(sessionStorage.CSRF){
+        config.headers['csrf'] = sessionStorage.CSRF;
+      }
+      if (config.method === 'post') {
+        config.data = qs.stringify(config.data)
+      }
       return config;
     },
     error => {
-      return Promise.error(error);
+      console.log(error)
+      Promise.reject(error)
     });
+
 
 // 全局样式表
 import "../public/base.less";
+// 公用方法
+import "../src/utlis/tools"
 
 // 全局组件
 /**
@@ -40,11 +55,17 @@ Vue.config.productionTip = false;
 
 let generaMenu = (obj,data) =>{
   data.forEach((v,i)=>{
-    obj.push(powerRouterLazy(v.name))
+    obj.push(powerRouterLazy(v.menu_english_name))
     if(v.children){
       generaMenu(obj[i].children,v.children) // 递归children
     }
+    obj.map(res =>{
+      if(res.name === v.menu_english_name){
+        res['menuName'] = v.menu_name
+      }
+    })
   })
+
 };
 router.beforeEach((to, from, next) => {
   let _role= store.getters.role;

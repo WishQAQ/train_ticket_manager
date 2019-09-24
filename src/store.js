@@ -10,13 +10,13 @@ export default new Vuex.Store({
     newrouter: [],
   },
   getters: {
-    username: state => state.username,
+    username: state => state.nickname,
     role: state => state.role,
     newrouter: state => state.newrouter
   },
   mutations: {
     SET_USERNAME:(state, username) => {
-      state.username = username;
+      state.nickname = username;
     },
     SET_ROLE:(state, role) => {
       state.role = role;
@@ -29,18 +29,13 @@ export default new Vuex.Store({
     Logins({ commit }, info){
       return new Promise((resolve, reject) => {
         let data={};
-        loginByUserInfo.map(item=> { //获取所以用户信息
-          if(info.username === item.username || info.pew === item.pew){
-            commit('SET_USERNAME',item.username);  //将username和role进行存储
-            sessionStorage.setItem('USERNAME', item.username); //存入 session
-            commit('SET_ROLE',item.role);
-            sessionStorage.setItem('ROLE',JSON.stringify(item.role));
-            return data={username:item.username,introduce:item.introduce};
-          }else{
-            return data;
-          }
-        });
-        resolve(data);
+        //获取所以用户信息
+        commit('SET_USERNAME',info.nickname);  //将username和role进行存储
+        sessionStorage.setItem('USERNAME', info.nickname); //存入 session
+        commit('SET_ROLE',info.permission.ownedMenus);
+        sessionStorage.setItem('ROLE',JSON.stringify(info.permission.ownedMenus));
+        return data= {username:info.nickname,introduce:info.permission.role_name};
+
       }).catch(error => {
         reject(error);
       });
@@ -60,6 +55,7 @@ export default new Vuex.Store({
         commit('SET_NEWROUER',[]);
         sessionStorage.removeItem('USERNAME');
         sessionStorage.removeItem('ROLE');
+        sessionStorage.removeItem('CSRF');
         resolve();
       }).catch(error => {
         reject(error);

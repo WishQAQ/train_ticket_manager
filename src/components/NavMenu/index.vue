@@ -3,13 +3,14 @@
     <div class="nav_logo" @click="getHomeBtn()">To Hcp 车票管理系统</div>
 
     <div class="nav_menu">
-      <div @click="getHomeBtn" :class="['nav_item',{'active': indexActive}]"><img class="nav_icon" src="../../assets/images/nav_home.png" alt="">首页</div>
+<!--      <div @click="getHomeBtn" :class="['nav_item',{'active': indexActive}]"><img class="nav_icon" src="../../assets/images/nav_home.png" alt="">首页</div>-->
       <div :class="['nav_item',{'active': index ==current && isIndexActive}]"
-           v-for="(item,index) in navList"
+           v-for="(item,index) in newrouter"
            :key="index"
+           v-if="item.menuName"
             @click="navClick(item,index)">
         <img class="nav_icon" :src="item.icon" alt="">
-        {{item.name}}
+        {{item.menuName}}
         <transition name="el-fade-in-linear">
           <div class="nav_menu_more" v-if="navDrawer">
             <div @click="jumpAddress(cItem)" class="more_list" v-if="index ==current" v-for="(cItem,cIndex) in item.children" :key="cIndex"><img :src="cItem.icon" alt="">{{cItem.name}}</div>
@@ -18,18 +19,10 @@
       </div>
     </div>
 
-<!--    <div  v-for="(v,i) in newrouter" :key="i">-->
-<!--      <router-link :to="{name:v.name}"  v-if="!v.children">{{v.name}}</router-link>-->
-<!--      <div  v-else-if="v.children">{{v.name}}</div>-->
-<!--      <div v-for="(k,j) in v.children">-->
-<!--        <router-link  :to="{name:k.name}">{{k.name}}</router-link>-->
-<!--      </div>-->
-<!--    </div>-->
-
     <el-dropdown class="nav_info" :tabindex="99">
       <div class="nav_message">
         <div class="info_avatar"><i class="el-icon-user-solid"></i></div>
-        <div class="info_userName">姓名</div>
+        <div class="info_userName">{{userName || '未命名'}}</div>
       </div>
       <el-dropdown-menu slot="dropdown" class="nav_info_btn">
         <el-dropdown-item><div @click="jumpUserSetting">个人设置</div></el-dropdown-item>
@@ -49,87 +42,14 @@
 </template>
 
 <script>
-  import navDocument from '@/assets/images/nav_document.png';  // 文档中心
-  import navOrder from '@/assets/images/nav_order.png';  // 订单系统
-  import navPassenger from '@/assets/images/nav_passenger.png';  // 乘客系统
-  import navFinance from '@/assets/images/nav_finance.png';  // 财务系统
-  import navRailway from '@/assets/images/nav_railway.png';  // 铁路官网
-  import navClient from '@/assets/images/nav_client.png';  // 客户后台
-  import navSetting from '@/assets/images/nav_setting.png';  // 系统配置
-
-  import navUser from '@/assets/images/nav_user.png';  // 系统配置
-
   export default {
     name: "index",
     data(){
       return {
-        newrouter:this.$store.state.newrouter,
+        newrouter: [],
 
-        navList:[{
-          name: '文档中心',
-          icon: navDocument,
-          children:[{
-            name: '个人设置',
-            icon: navUser,
-            url: '/setting',
-          },{
-            name: '内部通讯录',
-            icon: navUser,
-            url: '',
-          },{
-            name: '帮助文档',
-            icon: navUser,
-            url: '',
-          },{
-            name: '新闻中心',
-            icon: navUser,
-            url: '',
-          }]
-        },{
-          name: '订单系统',
-          icon: navOrder,
-          children:[{
-            name: '订单管理',
-            icon: navUser,
-            url: '',
-          },{
-            name: '历史订单查询',
-            icon: navUser,
-            url: '',
-          },{
-            name: '不明订单',
-            icon: navUser,
-            url: '',
-          },{
-            name: '新备注订单列表',
-            icon: navUser,
-            url: '',
-          },{
-            name: '回收订单',
-            icon: navUser,
-            url: '',
-          }]
-        },{
-          name: '乘客系统',
-          icon: navPassenger,
-        },{
-          name: '财务系统',
-          icon: navFinance,
-        },{
-          name: '铁路官网',
-          icon: navRailway,
-        },{
-          name: '客户后台',
-          icon: navClient,
-        },{
-          name: '系统配置',
-          icon: navSetting,
-          children:[{
-            name: '菜单管理',
-            icon: navUser,
-            url: '/menuSetting',
-          }]
-        }],
+        userName: sessionStorage.USERNAME,
+
         indexActive: true, // 主页选中
         isIndexActive: false, // 导航栏选中
         menuAddress: '/',  // 跳转地址
@@ -137,6 +57,10 @@
         navDrawer: false, // 菜单详单
         navDrawerHeight: '', //
       }
+    },
+    mounted(){
+      let newRouter = this.$store.state.newrouter
+      this.newrouter = newRouter
     },
     methods:{
       // 跳转首页
@@ -156,9 +80,9 @@
       jumpAddress(val){
         this.indexActive = false
         this.isIndexActive = true
-        if(this.$route.path !== val.url){
+        if(this.$route.path !== val.path){
           this.$router.push({
-            path: val.url
+            path: val.path
           })
         }
       },
@@ -172,6 +96,11 @@
         } else {
           this.navDrawer = false;
         }
+        if(val.path){
+          this.$router.push({
+            path: val.path
+          })
+        }
       },
       // 点击遮罩关闭导航栏菜单
       closeNavMenu(){
@@ -182,11 +111,10 @@
       logout(){
         console.log('登出');
 
-        this.$axios.get('http://oa.huimin.dev.cq1080.com/user/account/exit')
+        this.$axios.get('/user/account/exit')
             .then(res =>{
               console.log(res);
             })
-
         this.$store.dispatch('Logout').then(() => {
           this.$router.push({ path: '/login' });
           }).catch(err => {
@@ -207,7 +135,6 @@
     padding: 0 30px;
     background:rgba(38,153,251,1);
     position: relative;
-    z-index: 99999;
     .nav_logo{
       font-size:22px;
       color:rgba(255,255,255,1);

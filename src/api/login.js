@@ -1,11 +1,39 @@
 import axios from "axios";
-export function loginByUserInfo(username, password) {
-  return axios.post('/api/user/account/login', username, password).then(res =>{})
-}
+import store from '@/store'
+import router from '@/router'
 
-// export const loginByUserInfo = [
-//   {"id": 1, "username": "admin", "pew": 123456, "role": [{ "name":"/"},{ "name":"Setting"}, {"name": "yellow"}, {"name": "blue"},{ "name":"all"}] , "introduce":"我可以看见全部页面"},
-//   {"id": 2, "username": "a", "pew": 123456, "role": [{ "name":"home"},{"name": "blue"},{ "name":"all"}] , "introduce":"我可以看到home,blue和all页面"},
-//   {"id": 3, "username": "b", "pew": 123456, "role": [{ "name":"home"},{ "name":"red"}], "introduce":"我可以看见red和home页面"},
-//   {"id": 3, "username": "c", "pew": 123456, "role": [{ "name":"home"},{ "name":"red"},{ "name":"all"}], "introduce":"我可以看见home，red和all页面"},
-// ]
+import {Message} from 'element-ui'
+
+export function loginByUserInfo(username, password) {
+   axios.post('http://oa.huimin.dev.cq1080.com/account/login', username, password).then(res =>{
+    sessionStorage.setItem('CSRF', res.data.result.csrf);
+    if(res.data.code === 0){
+      // 页面跳转
+      Message.success({
+        message: '正在登录'
+      })
+      setTimeout(() =>{
+        router.push('/');
+      },300)
+    }else {
+      Message.error({
+        message: res.data.msg,
+        type: "error"
+      })
+    }
+
+    // 验证权限信息
+    store.dispatch('Logins',res.data.result).then(res => {
+    }).catch(() => {
+
+    })
+
+     return res.data.result
+  })
+       .catch(() =>{
+         Message.error({
+           message: '登录失败，请稍后重试',
+           type: "error"
+         })
+       })
+}

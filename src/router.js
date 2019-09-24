@@ -10,21 +10,6 @@ export default new Router({
       name: 'login',
       component: () => import('@/views/login')
     },{
-      path: '/',
-      component: () => import('@/views/home'),
-      children: [{
-        path: '/',
-        component: () => import('@/views/index')
-      },{
-        path: '/setting',
-        name: 'setting',
-        component: () => import('@/views/DocumentCenter/userSetting')
-      },{
-        path: '/menuSetting',
-        name: 'menuSetting',
-        component: () => import('@/views/SystemSettings/menuSetting')
-      }]
-    },{
       path: '/404',
       name: '404',
       component: () => import('@/views/404'),
@@ -34,10 +19,13 @@ export default new Router({
 export function powerRouterLazy(name) {
   switch (name) {
     case 'home':
-      return {path: '/', name: 'home', component: () => import('@/views/login')}
+      return {path: '/', name: 'home', component: () => import('@/views/index')}
       break;
     case 'setting':
       return {path: '/setting', name: 'setting', component: () => import('@/views/DocumentCenter/userSetting')}
+      break;
+    case 'menuSetting':
+      return {path: '/menuSetting', name: 'menuSetting', component: () => import('@/views/SystemSettings/menuSetting')}
       break;
     // case 'all':
     //   return {path: '/all', name: 'all', component: all,children: []}

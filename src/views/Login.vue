@@ -50,19 +50,7 @@
           };
 
           // api登录接口
-          loginByUserInfo(data).then(res =>{
-            console.log(res);
-          });
-
-          // 验证权限信息
-          _this.$store.dispatch('Logins',data).then(res => {
-            _this.$router.push({  // 页面跳转
-              path: '/',
-            });
-            _this.$message.success('正在登陆')
-          }).catch(() => {
-
-          })
+          loginByUserInfo(data)
         } else {
           _this.$message.warning('请填写完整您的登录信息')
         }
