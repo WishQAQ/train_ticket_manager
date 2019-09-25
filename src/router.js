@@ -24,8 +24,12 @@ export function powerRouterLazy(name) {
     case 'setting':
       return {path: '/setting', name: 'setting', component: () => import('@/views/DocumentCenter/userSetting')}
       break;
-    case 'menuSetting':
-      return {path: '/menuSetting', name: 'menuSetting', component: () => import('@/views/SystemSettings/menuSetting')}
+    case 'systemSetting':
+      return { path: '/systemSetting', name: 'systemSetting' ,component: () => import('@/views/SystemSettings/index'),children: [
+          {path: '/menuSetting', name: 'menuSetting', component: () => import('@/views/SystemSettings/menuSetting')},
+          {path: '/userSetting', name: 'userSetting', component: () => import('@/views/SystemSettings/userSetting')},
+          {path: '/roleSetting', name: 'roleSetting', component: () => import('@/views/SystemSettings/roleSetting')},
+        ]}
       break;
     // case 'all':
     //   return {path: '/all', name: 'all', component: all,children: []}

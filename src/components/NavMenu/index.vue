@@ -9,11 +9,17 @@
            :key="index"
            v-if="item.menuName"
             @click="navClick(item,index)">
-        <img class="nav_icon" :src="item.icon" alt="">
+        <span class="nav_icon"><i :class="['iconfont',item.icon]"></i></span>
         {{item.menuName}}
         <transition name="el-fade-in-linear">
           <div class="nav_menu_more" v-if="navDrawer">
-            <div @click="jumpAddress(cItem)" class="more_list" v-if="index ==current" v-for="(cItem,cIndex) in item.children" :key="cIndex"><img :src="cItem.icon" alt="">{{cItem.name}}</div>
+            <div @click="jumpAddress(cItem)"
+                 class="more_list"
+                 v-if="index ==current"
+                 v-for="(cItem,cIndex) in item.children"
+                 :key="cIndex">
+              <span class="more_icon"><i :class="['iconfont',cItem.icon]"></i></span>{{cItem.menuName}}
+            </div>
           </div>
         </transition>
       </div>
@@ -59,8 +65,7 @@
       }
     },
     mounted(){
-      let newRouter = this.$store.state.newrouter
-      this.newrouter = newRouter
+      this.newrouter = this.$store.state.newrouter
     },
     methods:{
       // 跳转首页
@@ -95,12 +100,13 @@
           this.navDrawerHeight = val.children.length * 46 + 16 + 'px'
         } else {
           this.navDrawer = false;
+          if(val.path){
+            this.$router.push({
+              path: val.path
+            })
+          }
         }
-        if(val.path){
-          this.$router.push({
-            path: val.path
-          })
-        }
+
       },
       // 点击遮罩关闭导航栏菜单
       closeNavMenu(){
@@ -109,11 +115,8 @@
 
       // 为登出按钮
       logout(){
-        console.log('登出');
-
-        this.$axios.get('/user/account/exit')
+        this.$axios.get('/user/exit')
             .then(res =>{
-              console.log(res);
             })
         this.$store.dispatch('Logout').then(() => {
           this.$router.push({ path: '/login' });
@@ -148,6 +151,9 @@
     .nav_menu{
       flex: 1;
       height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
       .nav_item{
         cursor: pointer;
         padding: 0 14px;
@@ -157,7 +163,6 @@
         color:rgba(255,255,255,1);
         position: relative;
         height: 100%;
-        flex: 1;
         &:not(:last-child){
           margin-right: 13px;
         }
@@ -170,8 +175,13 @@
         .nav_icon{
           width: 20px;
           height: 20px;
-          object-fit: contain;
+          display: flex;
+          align-items: center;
           margin-right: 10px;
+          >i{
+            font-size: 20px;
+            color: #fff;
+          }
         }
 
         .nav_menu_more{
@@ -192,11 +202,17 @@
             &:not(:last-child){
               margin-bottom: 25px;
             }
-            >img{
+            >.more_icon{
               width: 20px;
               height: 20px;
-              object-fit: contain;
               margin-right: 10px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              >i{
+                font-size: 20px;
+                color: #fff;
+              }
             }
           }
         }

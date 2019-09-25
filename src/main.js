@@ -62,6 +62,15 @@ let generaMenu = (obj,data) =>{
     obj.map(res =>{
       if(res.name === v.menu_english_name){
         res['menuName'] = v.menu_name
+        res['icon'] = v.icon
+        if(res.children){
+          res.children.forEach((cres,ci) =>{
+            if(cres.name === v.childrenMenu[ci].menu_english_name){
+              cres['menuName'] = v.childrenMenu[ci].menu_name
+              cres['icon'] = v.childrenMenu[ci].icon
+            }
+          })
+        }
       }
     })
   })

@@ -1,9 +1,9 @@
 <template>
-  <div class="menu_setting">
+  <div class="menu_setting" v-loading="loading">
     <div class="left_menu">
       <div class="menu_title">
-        <el-button type="primary">新增</el-button>
-        <el-button type="danger" :disabled="showDelete">删除</el-button>
+        <el-button type="primary" @click="addTreeList">新增</el-button>
+        <el-button type="danger" :disabled="showDelete" @click="deleteBtn">删除</el-button>
         <el-button type="primary" @click="getData('refresh')">刷新</el-button>
       </div>
 
@@ -13,16 +13,18 @@
           show-checkbox
           node-key="id"
           ref="tree"
+          :render-after-expand="false"
+          @check-change="handleNodeClick"
           @node-click="treeClick"
           :props="defaultProps">
       </el-tree>
 
     </div>
     <div class="right_form">
-      <div class="title">修改菜单</div>
+      <div class="title">{{addTree?'新增菜单':'修改菜单'}}</div>
       <el-form class="form_main" label-width="80px">
         <el-form-item label="上级ID">
-          <el-input :disabled="showInput" v-model="menuMessage.parent_id"></el-input>
+          <el-input :disabled="true" v-model="menuMessage.parent_id"></el-input>
         </el-form-item>
 
         <el-form-item label="名称">
@@ -62,12 +64,19 @@
     name: "menuSetting",
     data(){
       return {
+        loading: true, // 加载
+
         menuList: [],  // 列表
+
+        addTree: false,  // 新建菜单
+        parentId: '', // 上级ID
+        menuId: '', // 菜单ID
 
         menuMessage: '',  // 列表内容
         showInput: true, // 禁用form表单
 
         showDelete: true, // 禁用删除按钮
+        deleteId: [],
 
         menuType: '', // 下拉菜单
 
@@ -86,15 +95,43 @@
        * @date 2019/9/24
       */
       getData(val){
+        this.loading = true
         this.$axios.get('/api/authority/menu/showAll')
             .then(res =>{
               if(res.data.code === 0){
                 this.menuList = res.data.result
+                this.loading = false
                 if(val === 'refresh'){
                   this.$message.success('刷新成功')
+                  this.menuMessage = {}
+                  this.parentId = ''
+                  this.menuId = ''
+                  this.menuType = '';
+                } else if(val === 'delete'){
+                  this.$message.success('删除成功')
                 }
               }
             })
+      },
+
+      /**
+       * @Description: 新增菜单
+       * @author Wish
+       * @date 2019/9/25
+      */
+      addTreeList(){
+        this.addTree = true; // 打开新建选项
+        this.showInput = false;  // 打开input框
+        this.menuType = '';
+        this.menuMessage={
+          parent_id: this.menuId,
+          menu_name: '',
+          menu_english_name: '',
+          icon: '',
+          sort: '',
+          type: '',
+        }; // 清空input框值
+        console.log(this.menuMessage.parent_id);
       },
 
       /**
@@ -103,8 +140,10 @@
        * @date 2019/9/24
       */
       treeClick(data){
+        this.addTree = false
         this.menuMessage = JSON.parse(JSON.stringify(data))
-
+        this.parentId = this.menuMessage.parent_id
+        this.menuId = this.menuMessage.menu_id
         if(this.menuMessage.type === 0){
           this.menuType = '菜单'
         }else {
@@ -118,7 +157,44 @@
        * @author Wish
        * @date 2019/9/24
       */
+      handleNodeClick(data, checked, indeterminate){
+        this.showDelete = !checked
+      },
 
+      /**
+       * @Description: 删除指定节点
+       * @author Wish
+       * @date 2019/9/25
+      */
+      deleteBtn(){
+        this.$confirm('当您点击确定按钮后，这些记录将会被彻底删除，如果其包含子记录，也将一并删除！', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          let menuId = this.$refs.tree.getCheckedNodes()
+          menuId.map(res =>{
+            this.deleteId.push(res.menu_id)
+          })
+          let data = {
+            menuId: String(this.deleteId)
+          }
+          console.log(data);
+          this.$axios.post('/api/authority/menu/del',data)
+              .then(res =>{
+                if(res.data.code === 0){
+                  this.menuList= []
+                  this.showDelete = true
+                  this.deleteId= []
+                  this.getData('delete')
+                }else {
+                  this.$message.error(res.data.msg)
+                }
+              })
+        }).catch(() =>{
+
+        })
+      },
 
       /**
        * @Description: 下拉菜单选择
@@ -133,11 +209,18 @@
         }
       },
 
+      /**
+       * @Description: 提交按钮
+       * @author Wish
+       * @date 2019/9/25
+      */
       submitBtn(){
-        this.showInput = true
-        if(!this.menuMessage.menu_name && !this.menuMessage.type){
+        if(this.menuMessage.menu_name ==='' || this.menuMessage.type ==='' || this.menuMessage.menu_english_name ===''){
           this.$message.warning('请填写完整信息')
+          console.log(this.menuMessage);
+          this.showInput = false;
         } else {
+          this.showInput = true
           if(this.menuMessage.subButton){
             delete this.menuMessage.subButton
           } else if(this.menuMessage.subMenu){
@@ -145,21 +228,33 @@
           }
           this.menuMessage['menuId'] = this.menuMessage.menu_id
           delete this.menuMessage.menu_id
-          console.log(this.menuMessage);
-          this.$axios.post('/api/authority/menu/edit',this.menuMessage)
-              .then(res =>{
-                if(res.data.code === 0){
-                  this.showInput = false
-                  this.$message.success('保存成功')
-                  this.getData()
-                } else {
-                  this.$message.warning(res.data.msg)
-                }
-              })
+          if(this.addTree){  // 新增
+            this.$axios.post('/api/authority/menu/add',this.menuMessage)
+                .then(res =>{
+                  if(res.data.code === 0){
+                    this.showInput = true
+                    this.$message.success('新建成功')
+                    this.menuMessage = '';
+                    this.menuType = '';
+                    this.getData()
+                  } else {
+                    this.$message.warning(res.data.msg)
+                  }
+                })
+          }else {  // 修改
+            this.$axios.post('/api/authority/menu/edit',this.menuMessage)
+                .then(res =>{
+                  if(res.data.code === 0){
+                    this.showInput = false
+                    this.$message.success('保存成功')
+                    this.getData()
+                  } else {
+                    this.$message.warning(res.data.msg)
+                  }
+                })
+          }
         }
-
       },
-
     },
     created() {
       this.getData()
