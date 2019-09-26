@@ -56,10 +56,10 @@ Vue.config.productionTip = false;
 let generaMenu = (obj,data) =>{
   data.forEach((v,i)=>{
     obj.push(powerRouterLazy(v.menu_english_name))
-    if(v.children){
-      generaMenu(obj[i].children,v.children) // 递归children
-    }
-    obj.map(res =>{
+    // if(v.children){
+    //   generaMenu(obj[i].children,v.children) // 递归children
+    // }
+    obj.forEach(res =>{
       if(res.name === v.menu_english_name){
         res['menuName'] = v.menu_name
         res['icon'] = v.icon

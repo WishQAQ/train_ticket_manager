@@ -18,7 +18,7 @@
                  v-if="index ==current"
                  v-for="(cItem,cIndex) in item.children"
                  :key="cIndex">
-              <span class="more_icon"><i :class="['iconfont',cItem.icon]"></i></span>{{cItem.menuName}}
+              <span class="more_icon"><i :class="['iconfont',cItem.icon]"></i></span>{{cItem.menuName || cItem.name}}
             </div>
           </div>
         </transition>
@@ -189,7 +189,7 @@
           left: 18px;
           top: 96px;
           width: 100%;
-          z-index: 10;
+          z-index: 100;
           .more_list{
             display: flex;
             align-items: center;
@@ -260,6 +260,7 @@
       top: 80px;
       display: flex;
       flex-direction: column;
+      z-index: 99;
       .nav_list_mask{
         background:rgba(238,247,255,1);
         flex-shrink: 0;

@@ -13,7 +13,7 @@
           <el-input v-model="ruleForm.confirmPassword" placeholder="请输入再次确认密码" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item>
-          <el-button class="submit_btn">修改</el-button>
+          <el-button class="submit_btn" @click="postPassword('ruleForm')" :loading="loading">修改</el-button>
         </el-form-item>
       </el-form>
 
@@ -52,6 +52,8 @@
         }
       };
       return {
+        loading: false,
+
         ruleForm: {
           oldPassword: '',
           newPassword: '',
@@ -70,6 +72,30 @@
         }
       }
     },
+    methods:{
+      postPassword(ruleForm){
+        this.$refs[ruleForm].validate((valid) => {
+          if (valid) {
+            this.loading = true
+            let data = {}
+            data['oldPwd'] = this.ruleForm['oldPassword']
+            data['newPwd'] = this.ruleForm['confirmPassword']
+            this.$axios.post('/api/user/revise',data)
+                .then(res =>{
+                  this.loading = false
+                  if(res.data.code === 0){
+                    this.$message.success('修改成功')
+                    this.ruleForm = {}
+                  }else {
+                    this.$message.warning(res.data.msg)
+                  }
+                })
+          } else {
+            return false;
+          }
+        });
+      },
+    }
   }
 </script>
 
