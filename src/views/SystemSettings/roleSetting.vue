@@ -66,10 +66,19 @@
       <div class="title">{{showAddForm?'新增角色':'编辑角色'}}</div>
       <el-form class="tree_form" ref="form" label-width="120px">
         <el-form-item label="角色名称">
-          <el-input v-model="userInfo.role_name"></el-input>
+          <el-input
+              maxlength="10"
+              show-word-limit
+              :disabled="userInfo.role_name === '超级管理员'"
+              v-model="userInfo.role_name">
+          </el-input>
         </el-form-item>
         <el-form-item label="角色说明">
-          <el-input v-model="userInfo.desc"></el-input>
+          <el-input
+              maxlength="50"
+              show-word-limit
+              v-model="userInfo.desc">
+          </el-input>
         </el-form-item>
         <el-form-item label="角色权限">
           <el-tree

@@ -21,23 +21,25 @@ export function powerRouterLazy(name) {
     case 'home':
       return {path: '/', name: 'home', component: () => import('@/views/index')}
       break;
-    case 'documentSystem':
+    case 'documentSystem':  // 文档中心
       return {path: '/documentSystem', name: 'documentSystem', component: () => import('@/views/DocumentCenter/index'),children: [
           {path: '/setting', name: 'setting', component: () => import('@/views/DocumentCenter/userSetting')},
           {path: '/addressBook', name: 'addressBook', component: () => import('@/views/DocumentCenter/addressBook')},
           {path: '/helpDocument', name: 'helpDocument', component: () => import('@/views/DocumentCenter/helpDocument')},
-        ]}
+        ]};
       break;
-    case 'systemSetting':
-      return { path: '/systemSetting', name: 'systemSetting' ,component: () => import('@/views/SystemSettings/index'),children: [
+    case 'passengerSystem':  // 乘客系统
+      return { path: '/passengerSystem', name: 'passengerSystem', component: () => import('@/views/PassengerSystem/index'),children: [
+          { path: '/allTickets', name: 'allTickets', component: () => import('@/views/PassengerSystem/allTickets') },
+    ]};
+      break;
+    case 'systemSetting':  // 系统配置
+      return { path: '/systemSetting', name: 'systemSetting', component: () => import('@/views/SystemSettings/index'),children: [
           {path: '/menuSetting', name: 'menuSetting', component: () => import('@/views/SystemSettings/menuSetting')},
           {path: '/userSetting', name: 'userSetting', component: () => import('@/views/SystemSettings/userSetting')},
           {path: '/roleSetting', name: 'roleSetting', component: () => import('@/views/SystemSettings/roleSetting')},
-        ]}
+        ]};
       break;
-    // case 'all':
-    //   return {path: '/all', name: 'all', component: all,children: []}
-    //   break;
     default:
       return {path: '/404', name: '404', component: () => import('@/views/404'),}
   }

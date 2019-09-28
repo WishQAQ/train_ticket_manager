@@ -1,42 +1,50 @@
 <template>
   <div class="tab_menu">
-    <div :class="[{active: editableTabsValue < 0},'tab_index']" @click="checkIndex">
+    <div :class="[{active: editableTabsValue === '0'},'tab_index']" @click="checkIndex">
       <img class="tab_icon" src="../../assets/images/index.png" alt="">
       首页
     </div>
     <el-tabs v-model="editableTabsValue" type="card" closable @tab-remove="removeTab">
       <el-tab-pane
           v-for="(item, index) in editableTabs"
-          :key="index"
-          :label="item.title"
+          :key="item.name"
           :name="item.name"
       >
+        <span slot="label"><i :class="['iconfont',item.icon]"></i> {{item.menuName}}</span>
       </el-tab-pane>
     </el-tabs>
-
-
 
   </div>
 </template>
 
 <script>
+  import bus from '../../utlis/bus';
+
   export default {
     name: "index",
     data() {
       return {
-        editableTabsValue: '-1',
+        editableTabsValue: '0',
         editableTabs: [],
-        tabIndex: 2
+        tabIndex: 0
       }
     },
     methods: {
       // 选中首页
       checkIndex(){
-        this.editableTabsValue = '-1';  // 关闭其余标签选中状态
+        this.editableTabsValue = '0';  // 关闭其余标签选中状态
+      },
+
+      getNavStatus(){
+        //监听'getNavStatus'事件
+        bus.$on('getNavStatus',res => {
+          this.editableTabs.push(res)
+          this.editableTabsValue = ++this.tabIndex + '';
+        })
+
       },
 
       addTab(targetName) {
-        let newTabName = ++this.tabIndex + '';
         this.editableTabs.push({
           title: 'New Tab',
           name: newTabName,
@@ -61,6 +69,13 @@
         this.editableTabsValue = activeName;
         this.editableTabs = tabs.filter(tab => tab.name !== targetName);
       }
+    },
+    mounted(){
+      this.getNavStatus();
+    },
+    beforeDestroy(){
+      //取消监听'getNavStatus'事件
+      bus.$off('getNavStatus');
     }
   }
 </script>
@@ -88,7 +103,6 @@
     .tab_icon{
       width: 15px;
       height: 15px;
-      object-fit: contain;
       margin-right: 5px;
     }
 

@@ -29,11 +29,25 @@ export function loginByUserInfo(username, password) {
     })
 
      return res.data.result
-  })
-       .catch(() =>{
+  }).catch(() =>{
          Message.error({
            message: '登录失败，请稍后重试',
            type: "error"
          })
        })
+}
+
+
+export function userExit() {
+  axios.get('http://oa.huimin.dev.cq1080.com/user/account/exit')
+      .then(res =>{
+        this.$store.dispatch('Logout').then(() => {
+          this.$router.push({ path: '/login' });
+        }).catch(err => {
+          this.$message.error(err);
+        });
+
+  }).catch(() =>{
+
+      })
 }

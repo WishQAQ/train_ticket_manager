@@ -2,7 +2,7 @@
   <div class="nav">
     <div class="nav_logo" @click="getHomeBtn()">To Hcp 车票管理系统</div>
 
-    <div class="nav_menu">
+    <div class="nav_menu" v-if="newrouter">
 <!--      <div @click="getHomeBtn" :class="['nav_item',{'active': indexActive}]"><img class="nav_icon" src="../../assets/images/nav_home.png" alt="">首页</div>-->
       <div :class="['nav_item',{'active': index ==current && isIndexActive}]"
            v-for="(item,index) in newrouter"
@@ -15,17 +15,17 @@
           <div class="nav_menu_more" v-if="navDrawer">
             <div @click="jumpAddress(cItem)"
                  class="more_list"
-                 v-if="index ==current"
-                 v-for="(cItem,cIndex) in item.children"
+                 v-if="index ==current && cItem.menuName"
+                 v-for="(cItem,cIndex) in childrenList"
                  :key="cIndex">
-              <span class="more_icon"><i :class="['iconfont',cItem.icon]"></i></span>{{cItem.menuName || cItem.name}}
+              <span class="more_icon"><i :class="['iconfont',cItem.icon]"></i></span>{{cItem.menuName}}
             </div>
           </div>
         </transition>
       </div>
     </div>
 
-    <el-dropdown class="nav_info" :tabindex="99">
+    <el-dropdown class="nav_info" :tabindex="99" trigger="click">
       <div class="nav_message">
         <div class="info_avatar"><i class="el-icon-user-solid"></i></div>
         <div class="info_userName">{{userName || '未命名'}}</div>
@@ -48,11 +48,14 @@
 </template>
 
 <script>
+  import bus from '../../utlis/bus';
+  import { userExit }from '@/api/login'
   export default {
     name: "index",
     data(){
       return {
-        newrouter: [],
+        newrouter: [],  // 导航地址
+        childrenList: [], // 子地址
 
         userName: sessionStorage.USERNAME,
 
@@ -83,6 +86,7 @@
       },
       // 菜单跳转
       jumpAddress(val){
+        bus.$emit('getNavStatus',val);
         this.indexActive = false
         this.isIndexActive = true
         if(this.$route.path !== val.path){
@@ -94,10 +98,16 @@
 
       // 导航栏点击
       navClick(val,index){
+        this.childrenList= []
         this.current = index;  // 获取下标
         if(val.children){ // 菜单详单高度
+          val.children.map(res =>{
+            if(res.menuName){
+              this.childrenList.push(res)
+            }
+          })
           this.navDrawer = true;  // 打开菜单详单
-          this.navDrawerHeight = val.children.length * 46 + 16 + 'px'
+          this.navDrawerHeight = this.childrenList.length * 46 + 16 + 'px'
         } else {
           this.navDrawer = false;
           if(val.path){
@@ -115,14 +125,7 @@
 
       // 为登出按钮
       logout(){
-        this.$axios.get('/user/exit')
-            .then(res =>{
-            })
-        this.$store.dispatch('Logout').then(() => {
-          this.$router.push({ path: '/login' });
-          }).catch(err => {
-          this.$message.error(err);
-        });
+        userExit()
       }
 
     }
@@ -189,7 +192,7 @@
           left: 18px;
           top: 96px;
           width: 100%;
-          z-index: 100;
+          z-index: 2002;
           .more_list{
             display: flex;
             align-items: center;
@@ -211,7 +214,7 @@
               justify-content: center;
               >i{
                 font-size: 20px;
-                color: #fff;
+                color: rgba(38, 153, 251, 0.8);
               }
             }
           }
@@ -260,7 +263,7 @@
       top: 80px;
       display: flex;
       flex-direction: column;
-      z-index: 99;
+      z-index: 2001;
       .nav_list_mask{
         background:rgba(238,247,255,1);
         flex-shrink: 0;

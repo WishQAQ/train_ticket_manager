@@ -99,7 +99,11 @@
         custom-class="add_dialog">
       <el-form class="detail_main" ref="form" label-width="80px">
         <el-form-item label="标题">
-          <el-input v-model="detailForm.title"></el-input>
+          <el-input maxlength="50"
+                    show-word-limit
+                    v-model="detailForm.title">
+
+          </el-input>
         </el-form-item>
         <el-form-item label="通知选择">
           <div class="select_box" @click="addSelectBtn">
@@ -253,6 +257,7 @@
                 this.addDialog = true
                 this.detailForm['title'] = dataList[0].title
                 this.detailForm['content'] = dataList[0].content
+                this.detailForm['condition'] = dataList[0].id
                 this.selectPersonnelList = dataList[0].person
                 // let viewObjects = dataList[0].view_objects.split(',');// 切割人员id
                 // viewObjects.forEach(e =>{  // 遍历人员id数组，并添加键值存入保存人员数组 person

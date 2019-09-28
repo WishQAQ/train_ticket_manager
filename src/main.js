@@ -32,7 +32,6 @@ axios.interceptors.request.use(
       return config;
     },
     error => {
-      console.log(error)
       Promise.reject(error)
     });
 
@@ -52,23 +51,21 @@ import PublicImage from '@/components/public/public_image';
 Vue.component('PublicImage', PublicImage);
 
 Vue.config.productionTip = false;
-
 let generaMenu = (obj,data) =>{
   data.forEach((v,i)=>{
     obj.push(powerRouterLazy(v.menu_english_name))
-    // if(v.children){
-    //   generaMenu(obj[i].children,v.children) // 递归children
-    // }
     obj.forEach(res =>{
       if(res.name === v.menu_english_name){
         res['menuName'] = v.menu_name
         res['icon'] = v.icon
         if(res.children){
-          res.children.forEach((cres,ci) =>{
-            if(cres.name === v.childrenMenu[ci].menu_english_name){
-              cres['menuName'] = v.childrenMenu[ci].menu_name
-              cres['icon'] = v.childrenMenu[ci].icon
-            }
+          v.childrenMenu.map(rcrs =>{
+            res.children.forEach(cres =>{
+              if(cres.name === rcrs.menu_english_name){
+                cres['menuName'] = rcrs.menu_name
+                cres['icon'] = rcrs.icon
+              }
+            })
           })
         }
       }

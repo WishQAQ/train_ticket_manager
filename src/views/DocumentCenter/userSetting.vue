@@ -4,13 +4,28 @@
       <div class="title">修改密码</div>
       <el-form status-icon :model="ruleForm" :rules="rules" ref="ruleForm" label-width="100px" class="setting_form">
         <el-form-item label="旧密码" prop="oldPassword">
-          <el-input v-model="ruleForm.oldPassword" placeholder="请输入旧密码"></el-input>
+          <el-input
+              maxlength="6"
+              show-word-limit
+              v-model="ruleForm.oldPassword"
+              placeholder="请输入旧密码">
+          </el-input>
         </el-form-item>
         <el-form-item label="新密码" prop="newPassword">
-          <el-input v-model="ruleForm.newPassword" placeholder="请输入新密码" autocomplete="off"></el-input>
+          <el-input
+              v-model="ruleForm.newPassword"
+              placeholder="请输入新密码"
+              autocomplete="off">
+          </el-input>
         </el-form-item>
         <el-form-item label="确认新密码" prop="confirmPassword">
-          <el-input v-model="ruleForm.confirmPassword" placeholder="请输入再次确认密码" autocomplete="off"></el-input>
+          <el-input
+              maxlength="6"
+              show-word-limit
+              v-model="ruleForm.confirmPassword"
+              placeholder="请输入再次确认密码"
+              autocomplete="off">
+          </el-input>
         </el-form-item>
         <el-form-item>
           <el-button class="submit_btn" @click="postPassword('ruleForm')" :loading="loading">修改</el-button>
