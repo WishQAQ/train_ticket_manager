@@ -52,4 +52,27 @@ Vue.prototype.$timestampFormat =(timestamp) => {
       return  Y + '年' + zeroize(m) + '月' + zeroize(d) + '日 ' + zeroize(H) + ':' + zeroize(i);
     }
   }
+};
+
+/**
+ * @Description: 账号效验，只能为数字与字母组合
+ * @author Wish
+ * @date 2019/9/29
+*/
+
+Vue.prototype.$checkAccount = (data) => {
+  let account =  /^[0-9a-zA-Z]*$/;  //判断字符串是否为数字和字母组合
+  return account.test(data);
+};
+
+
+/**
+ * @Description: 文字效验，只能为中文字符
+ * @author Wish
+ * @date 2019/9/29
+*/
+
+Vue.prototype.$checkText = (data) =>{
+  let text =/^[\u4E00-\u9FA5]+$/;
+  return text.test(data);
 }

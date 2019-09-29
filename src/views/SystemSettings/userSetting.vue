@@ -2,7 +2,7 @@
   <div class="userSetting" v-loading="loading">
     <div class="left_main">
       <div class="left_header">
-        <el-button>新增用户</el-button>
+        <el-button @click="addUserInfo">新增用户</el-button>
         <el-input v-model="searchInput" placeholder="用户名名称/账号"></el-input>
         <el-button>搜索</el-button>
       </div>
@@ -78,8 +78,21 @@
     </div>
 
     <div class="right_main" v-loading="formLoading">
-      <div class="right_header">新增用户</div>
+      <div class="right_header">{{addUserInfoStatic?'新增用户':'编辑用户'}}</div>
       <el-form class="user_form" ref="form" label-width="120px">
+        <el-form-item label="用户类型">
+          <el-select v-model="userInfo.type" @change="selectUserType" placeholder="请选择账户类型">
+            <el-option label="内部账号" value="0"></el-option>
+            <el-option label="客户商账号" value="1"></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="姓名">
+          <el-input
+              maxlength="10"
+              show-word-limit
+              v-model="userInfo.nickname">
+          </el-input>
+        </el-form-item>
         <el-form-item label="用户名">
           <el-input
               maxlength="10"
@@ -101,6 +114,46 @@
           </el-input>
         </el-form-item>
 
+        <el-form-item label="选择角色">
+          <el-select clearable v-model="roleCheckList" multiple placeholder="请选择">
+            <el-option
+                v-for="item in roleList"
+                :key="item.role_id"
+                :label="item.role_name"
+                :value="item.role_id">
+            </el-option>
+          </el-select>
+        </el-form-item>
+
+        <el-form-item label="所属旅行社" v-if="userInfo.type === '1'">
+          <el-select v-model="travelAgencyType" placeholder="请选择所属旅行社">
+            <el-option label="旅行社1" value="0"></el-option>
+            <el-option label="旅行社2" value="1"></el-option>
+            <el-option label="旅行社3" value="2"></el-option>
+            <el-option label="旅行社4" value="3"></el-option>
+            <el-option label="旅行社5" value="4"></el-option>
+            <el-option label="旅行社6" value="5"></el-option>
+          </el-select>
+        </el-form-item>
+
+        <el-form-item label="所属组">
+          <el-cascader-panel
+              @change="cascaderClick"
+              v-model="groupCheckList"
+              :options="groupList"
+              :show-all-levels="false"
+              :props="{
+                multiple: true,
+                checkStrictly: true,
+                label:'group_name',
+                children:'subGroup',
+                value:'id',
+                emitPath: false,}">
+          </el-cascader-panel>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="submitBtn">保存</el-button>
+        </el-form-item>
 
       </el-form>
 
@@ -115,6 +168,7 @@
     data(){
       return {
         loading: true, // 全屏页面加载
+        addUserInfoStatic: true, // 新增用户
         searchInput: '',  // 搜索框
 
         userData: [],  // 用户列表
@@ -122,36 +176,87 @@
         userInfo: {},  // 用户详细信息
         formLoading: false, // 用户详细信息加载
 
+        roleCheckList: [], // 角色选中列表
+        roleList: [], // 角色列表
+
+        groupCheckList: [], // 组选中列表
+        groupList: [], // 组列表
+
+        travelAgencyType: '', // 所属旅行社
+        showTravelAgency: false, // 显示旅行社选项
       }
     },
     methods:{
+      /**
+       * @Description: 获取用户列表
+       * @author Wish
+       * @date 2019/9/29
+      */
       getData(){
-        this.loading = true
+        this.closeData()
+        this.loading = true;
         this.$axios.get('/api/user/showAccount')
             .then(res =>{
               if(res.data.code === 0){
-                this.loading = false
+                this.loading = false;
                 this.userData = res.data.result.data
               }
             })
       },
+
+      /**
+       * @Description: 新增用户按钮
+       * @author Wish
+       * @date 2019/9/29
+      */
+      addUserInfo(){
+        this.addUserInfoStatic = true
+        this.$refs.singleTable.setCurrentRow();
+        this.userInfo = {}
+      },
+
+      /**
+       * @Description: 清空输入框值
+       * @author Wish
+       * @date 2019/9/29
+      */
+      closeData(){
+        this.userInfo = {}
+        this.roleCheckList = []
+        this.groupCheckList = []
+      },
+
       /**
        * @Description: table行选中
        * @author Wish
        * @date 2019/9/28
       */
       handleCurrentChange(val){
-        this.formLoading = true
+        this.formLoading = true;
+        this.addUserInfoStatic = false;
         let data = {
           condition: val.target
-        }
+        };
         this.$axios.post('/api/user/getOneAccount',data)
             .then(res =>{
               if(res.data.code === 0){
-                this.formLoading = false
+                this.closeData()
+
+                this.formLoading = false;
                 this.userInfo = res.data.result[0]
+                this.userInfo.type = this.userInfo.type === 0?'内部账号':'客户商账号'
+                if(this.userInfo.groups){
+                  this.userInfo.groups.map(item =>{
+                    this.groupCheckList.push(item.id)
+                  })
+                }
+                if(this.userInfo.role_id){
+                  this.roleCheckList.push(this.userInfo.role_id)
+                }
+
+              }else {
+                this.$message.warning(res.data.msg)
               }
-              console.log(this.userInfo);
             })
       },
 
@@ -173,9 +278,76 @@
         console.log(val);
       },
 
+      /**
+       * @Description: 账号类型选择
+       * @author Wish
+       * @date 2019/9/29
+      */
+      selectUserType(){
+        this.showTravelAgency = this.userTypeSelect === "1";
+      },
+
+      /**
+       * @Description: 用户组选择
+       * @author Wish
+       * @date 2019/9/29
+      */
+      cascaderClick(){
+        console.log(this.groupCheckList);
+      },
+
+      /**
+       * @Description: 获取角色列表
+       * @author Wish
+       * @date 2019/9/29
+      */
+      getRoleData(){
+        this.formLoading = true;
+        this.$axios.get('/api/authority/role/show/0')
+            .then(res =>{
+              if(res.data.code === 0){
+                this.formLoading = false;
+                this.roleList = res.data.result.data
+              }
+            })
+      },
+      /**
+       * @Description: 获取组列表
+       * @author Wish
+       * @date 2019/9/29
+      */
+      getGroupData(){
+        this.formLoading = true;
+        this.$axios.get('/api/user/group/obtain')
+            .then(res =>{
+              if(res.data.code === 0){
+                this.formLoading = false;
+                this.groupList = res.data.result
+              }
+            })
+      },
+
+      /**
+       * @Description: 提交数据
+       * @author Wish
+       * @date 2019/9/29
+      */
+      submitBtn(){
+        this.userInfo.type = JSON.parse(JSON.stringify(this.userInfo.type === '内部账号'?'0':'1'))
+        this.userInfo['pertGroups'] = String(this.groupCheckList)
+        this.userInfo['role_id'] = String(this.roleCheckList)
+        if(this.addUserInfoStatic){
+
+        }
+
+        console.log(this.userInfo);
+      },
+
     },
     created() {
-      this.getData()
+      this.getData();
+      this.getRoleData();
+      this.getGroupData()
     }
   }
 </script>
@@ -201,6 +373,7 @@
     }
     .right_main{
       flex: 1;
+      flex-shrink: 0;
       background: #fff;
       .right_header{
         display: flex;
@@ -210,6 +383,10 @@
         border-bottom:1px solid rgba(38,153,251,.5);
         font-size:18px;
         color:rgba(51,148,250,1);
+        margin-bottom: 30px;
+      }
+      .user_form{
+        width: 80%;
       }
     }
   }
