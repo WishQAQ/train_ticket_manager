@@ -8,7 +8,7 @@ export default new Router({
     {
       path: '/login',
       name: 'login',
-      component: () => import('@/views/login')
+      component: () => import('@/views/Login')
     },{
       path: '/404',
       name: '404',
@@ -19,7 +19,7 @@ export default new Router({
 export function powerRouterLazy(name) {
   switch (name) {
     case 'home':
-      return {path: '/', name: 'home', component: () => import('@/views/index')}
+      return {path: '/', name: 'home', component: () => import('@/views/Index')}
       break;
     case 'documentSystem':  // 文档中心
       return {path: '/documentSystem', name: 'documentSystem', component: () => import('@/views/DocumentCenter/index'),children: [

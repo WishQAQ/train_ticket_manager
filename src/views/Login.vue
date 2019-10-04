@@ -33,6 +33,14 @@
     mounted() {
       this.getCookie();
     },
+    created(){
+      /**
+       * @Description: 修改导航栏显示状态
+       * @author Wish
+       * @data 2019/10/4
+      */
+      this.$store.state.showHeader = false
+    },
     methods:{
       submitLogin(){
         let _this = this;

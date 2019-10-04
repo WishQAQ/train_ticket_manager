@@ -1,8 +1,8 @@
 <template>
   <div id="app">
-    <nav-menu></nav-menu>
-    <tab-menu></tab-menu>
-    <router-view class="content" ref="views"></router-view>
+    <nav-menu v-if="$store.state.showHeader"></nav-menu>
+    <tab-menu v-if="$store.state.showHeader"></tab-menu>
+    <router-view class="content"></router-view>
   </div>
 </template>
 

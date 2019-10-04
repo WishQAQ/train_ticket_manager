@@ -8,6 +8,7 @@ export default new Vuex.Store({
     username: sessionStorage.getItem('USERNAME'),
     role: JSON.parse(sessionStorage.getItem('ROLE')),
     newrouter: [],
+    showHeader: true
   },
   getters: {
     username: state => state.nickname,
