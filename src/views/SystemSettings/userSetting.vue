@@ -339,8 +339,6 @@
         if(this.addUserInfoStatic){
 
         }
-
-        console.log(this.userInfo);
       },
 
     },

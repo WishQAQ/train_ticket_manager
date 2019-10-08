@@ -39,15 +39,16 @@ export function loginByUserInfo(username, password) {
 
 
 export function userExit() {
-  axios.get('http://oa.huimin.dev.cq1080.com/user/account/exit')
-      .then(res =>{
-        this.$store.dispatch('Logout').then(() => {
-          this.$router.push({ path: '/login' });
-        }).catch(err => {
-          this.$message.error(err);
-        });
-
-  }).catch(() =>{
-
-      })
+  store.dispatch('Logout').then(() => {
+    router.push({ path: '/login' });
+  }).catch(err => {
+    Message.error(err);
+  });
+  // axios.get('http://oa.huimin.dev.cq1080.com/user/account/exit')
+  //     .then(res =>{
+  //
+  //
+  // }).catch(() =>{
+  //
+  //     })
 }

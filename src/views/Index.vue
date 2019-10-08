@@ -173,6 +173,7 @@
       },
     },
     created() {
+      this.$store.state.showHeader = true
       this.getDocumentData()
       this.getNewData()
     }
