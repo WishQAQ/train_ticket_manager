@@ -68,7 +68,7 @@
 
 
     <el-dialog
-        title="添加客户"
+        :title="dialogType?'添加客户':'修改客户'"
         modal-append-to-body
         append-to-body
         :show-close="false"
@@ -84,7 +84,7 @@
           <el-input v-model="addDataForm.prefix"></el-input>
         </el-form-item>
         <el-form-item label="联系方式">
-          <el-input v-model="addDataForm.contact"></el-input>
+          <el-input  maxlength="11" show-word-limit v-model="addDataForm.contact"></el-input>
         </el-form-item>
         <el-form-item label="地址">
           <el-input v-model="addDataForm.address"></el-input>
@@ -107,8 +107,9 @@
       return {
         loading: true,
 
-        addDialog: true, // 添加弹窗
+        addDialog: false, // 添加弹窗
         addDataForm: {},
+        dialogType: true,  // 弹窗状态
 
         searchName: '', // 客户名搜索
         searchTelPhone: '', // 手机号搜索
@@ -134,7 +135,9 @@
        * @date 2019/10/8
       */
       addClient(){
-
+        this.addDialog = true
+        this.dialogType = true
+        this.addDataForm = {}
       },
 
       /**
@@ -142,15 +145,42 @@
        * @author Wish
        * @date 2019/10/8
       */
-      submitAdd(){},
+      submitAdd(){
+        if(this.dialogType){  // 新建
+          this.$axios.post('/api/user/customer/add',this.addDataForm)
+              .then(res =>{
+                this.$message.success('保存成功')
+                this.getDataList()
+                this.addDialog = false
+              })
+        }else { // 修改
+          this.addDataForm['type'] = 0
+          this.$axios.post('/api/user/customer/operation',this.addDataForm)
+              .then(res =>{
+                this.$message.success('保存成功')
+                this.getDataList()
+                this.addDialog = false
+              })
+        }
+      },
 
       /**
        * @Description: 编辑按钮
        * @author Wish
        * @date 2019/10/8
       */
-      editBtn(){
-
+      editBtn(val){
+        this.addDataForm = {}
+        this.dialogType = false
+        val['prefix'] = val.order_prefix
+        val['condition'] = val.id
+        this.addDialog = true
+        this.addDataForm = JSON.parse(JSON.stringify(val))
+        delete this.addDataForm.created_at
+        delete this.addDataForm.order_prefix
+        delete this.addDataForm.status
+        delete this.addDataForm.updated_at
+        delete this.addDataForm.id
       },
 
       /**

@@ -41,6 +41,7 @@ export function powerRouterLazy(name) {
           {path: '/seatSetting', name: 'seatSetting', component: () => import('@/views/SystemSettings/seatSetting'),meta:{name: '席别管理'}},  // 席别管理
           {path: '/ticketSetting', name: 'ticketSetting', component: () => import('@/views/SystemSettings/seatSetting'),meta:{name: '票种管理'}},  // 票种管理
           {path: '/clientSetting', name: 'clientSetting', component: () => import('@/views/SystemSettings/clientSetting')},  // 客户管理
+          {path: '/ticketStatistics', name: 'ticketStatistics', component: () => import('@/views/SystemSettings/ticketStatistics'),meta:{name: '网票统计'}},  // 客户管理
         ]};
       break;
     default:

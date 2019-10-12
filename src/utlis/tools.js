@@ -76,3 +76,30 @@ Vue.prototype.$checkText = (data) =>{
   let text =/^[\u4E00-\u9FA5]+$/;
   return text.test(data);
 }
+
+/**
+ * @Description: 时间戳转换
+ * @author Wish
+ * @date 2019/9/29
+ */
+Vue.prototype.$getTime = (data) =>{
+  if(data){
+    let date = new Date(data);
+
+    let year = date.getFullYear();
+    let month = date.getMonth() + 1;
+    let day = date.getDate();
+    let hour = date.getHours();
+    let minute = date.getMinutes();
+    let second = date.getSeconds();
+    return year
+        + "-" + (month < 10 ? "0" + month : month)
+        + "-" + (day < 10 ? "0" + day : day)
+        + " " + (hour < 10 ? "0" + hour : hour)
+        + ":" + (minute < 10 ? "0" + minute : minute)
+        + ":" + (second < 10 ? "0" + second : second);
+  }else {
+    return data
+  }
+
+}

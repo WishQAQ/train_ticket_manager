@@ -96,6 +96,30 @@
           </el-tree>
         </el-form-item>
 
+        <el-form-item label="权限字段" v-loading="roleListLoading">
+          <div class="role_box">
+            <div class="role_list" v-for="item in roleList" :key="item.id">
+              <div class="role_name">{{item.name}}</div>
+              <div class="role_setting">
+                <el-switch
+                    @change="roleSwitch(item)"
+                    v-model="item.is_show"
+                    active-color="#13ce66"
+                    inactive-text="是否显示">
+                </el-switch>
+
+                <el-switch
+                    @change="roleSwitch(item)"
+                    v-if="item.is_show"
+                    v-model="item.is_read_in"
+                    active-color="#13ce66"
+                    inactive-text="可否写入">
+                </el-switch>
+              </div>
+            </div>
+          </div>
+        </el-form-item>
+
         <el-form-item>
           <el-button @click="submitBtn">保存</el-button>
         </el-form-item>
@@ -107,6 +131,7 @@
 </template>
 
 <script>
+  let roleArray = []
   export default {
     name: "roleSetting",
     data(){
@@ -117,6 +142,14 @@
         searchUserName: '',  // 用户名搜索
         userData: [],  // 角色列表
 
+        roleList: [{
+            is_read_in: false,
+            is_show: false
+          }], // 权限字段列表
+        roleListLoading: true,
+        roleShow: false, // 是否显示
+        roleRead: false, // 可否写入
+
         showAddForm: true,  // 新增菜单
 
         userName: '', // 角色名
@@ -125,7 +158,8 @@
 
         userInfo: {  // 角色详细信息
           role_name: '',
-          desc: ''
+          desc: '',
+          permission_field: []
         },
 
         checkedRoleList: [], // 选中列表
@@ -272,6 +306,7 @@
               }
             })
       },
+
       /**
        * @Description: 选中节点
        * @author Wish
@@ -294,6 +329,8 @@
         this.initialization()
         this.showAddForm = false
         this.treeLoading = true
+        this.userInfo['permission_field'] = []
+
         if(val){
           this.userRoleId = val.role_id
           this.$axios.get('/api/authority/role/showOne/'+this.userRoleId)
@@ -309,11 +346,56 @@
                   if(this.userInfo.ownedPermissions.length >=1){
                     this.roleCheckedList = this.userInfo.ownedPermissions.split(',')
                   }
+
+                  /**
+                   * @Description: 设置默认选中权限字段
+                   * @author Wish
+                   * @date 2019/10/12
+                  */
+                  this.roleList.map(roleRes =>{
+                    delete roleRes.is_read_in
+                    delete roleRes.is_show
+                  })
+
+                  val.permission_field.forEach(item =>{
+                    this.roleList.forEach(cItem =>{
+                      if(item.name === cItem.name){
+                        cItem['is_read_in'] = item.is_read_in === 0
+                        cItem['is_show'] = item.is_show === 0
+                        if(cItem.is_read_in || cItem.is_show){
+                          roleArray.push(cItem)
+                        }
+                      }
+                    })
+                  })
                 }else {
                   this.$message.warning(res.data.msg)
                 }
               })
         }
+      },
+
+      /**
+       * @Description: 开启or关闭权限字段
+       * @author Wish
+       * @date 2019/10/12
+      */
+      roleSwitch(val){
+        if(!val.is_show){
+          val.is_read_in = false
+        }
+        roleArray.push(val)
+        roleArray = [...new Set(roleArray)]
+        this.userInfo['permission_field'] = roleArray
+      },
+
+      getRoleData(){
+        this.$axios.post('/api/authority/role/getRoleField')
+            .then(res =>{
+              this.roleListLoading = false
+              this.roleList = res.data.result
+              this.userInfo['permission_field'] = []
+            })
       },
 
       /**
@@ -323,6 +405,15 @@
       */
       submitBtn(){
         if(this.userInfo.role_name){
+          let roleListData = JSON.parse(JSON.stringify(this.userInfo.permission_field))
+          roleListData.map(res =>{
+            res['field_id'] = res.id;
+            res.is_read_in =  res.is_read_in ? 0 : 1
+            res.is_show =  res.is_show ? 0 : 1
+            delete res.id
+            return delete res.name
+          })
+          this.userInfo['permission_field'] = JSON.stringify(roleListData)
           if(this.showAddForm){
             this.userInfo['permissionList'] = String(this.checkedRoleList)
             this.$axios.post('/api/authority/role/add',this.userInfo)
@@ -361,6 +452,7 @@
     },
     created() {
       this.getDataList()
+      this.getRoleData()
     },
     mounted() {
       this.getData()
@@ -403,6 +495,47 @@
       }
       .tree_form{
         max-width: 800px;
+        height: calc( 100% - 108px);
+        overflow-y: auto;
+        padding-right: 15px;
+        /deep/.el-form-item{
+          .el-form-item__content{
+            line-height: unset;
+            .role_box{
+              display: flex;
+              flex-direction: column;
+              line-height: unset;
+              padding-left: 15px;
+              .role_list{
+                line-height: unset;
+                height: 26px;
+                display: flex;
+                align-items: center;
+                padding-left: 5px;
+                &:hover{
+                  background: rgba(0,0,0,.03);
+                }
+                .role_name{
+                  color: #606266;
+                  width: 30%;
+                }
+                .role_setting{
+                  display: flex;
+                  align-items: center;
+                  width: 70%;
+                  justify-content: space-evenly;
+                  /deep/.el-switch{
+                    .el-switch__label{
+                      &.is-active{
+                        color: unset;
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     }
   }
