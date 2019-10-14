@@ -329,7 +329,7 @@
         this.initialization()
         this.showAddForm = false
         this.treeLoading = true
-        this.userInfo['permission_field'] = []
+        this.userInfo.permission_field = []
 
         if(val){
           this.userRoleId = val.role_id
@@ -364,6 +364,8 @@
                         cItem['is_show'] = item.is_show === 0
                         if(cItem.is_read_in || cItem.is_show){
                           roleArray.push(cItem)
+                          roleArray = [...new Set(roleArray)]
+                          console.log(roleArray);
                         }
                       }
                     })
@@ -387,6 +389,7 @@
         roleArray.push(val)
         roleArray = [...new Set(roleArray)]
         this.userInfo['permission_field'] = roleArray
+        console.log(this.userInfo['permission_field']);
       },
 
       getRoleData(){

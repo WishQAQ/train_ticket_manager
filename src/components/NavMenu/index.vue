@@ -1,7 +1,6 @@
 <template>
   <div class="nav">
     <div class="nav_logo" @click="getHomeBtn()">To Hcp 车票管理系统</div>
-
     <div class="nav_menu" v-if="newrouter">
 <!--      <div @click="getHomeBtn" :class="['nav_item',{'active': indexActive}]"><img class="nav_icon" src="../../assets/images/nav_home.png" alt="">首页</div>-->
       <div :class="['nav_item',{'active': index ==current && isIndexActive}]"

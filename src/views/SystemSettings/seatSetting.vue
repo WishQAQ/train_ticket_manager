@@ -257,15 +257,13 @@
           this.$message.warning('请填写名称')
         }
       },
-      fetchData(newVal, oldVa) {
-        if(newVal.name !== oldVa.name){
-          this.urlType = newVal.meta.name === '席别管理';
-          this.getDataList()
-        }
-      }
     },
-    watch:{
-      $route: ["fetchData"]
+    watch: {
+      '$route'(to, from) {
+        this.loading = true;
+        this.urlType = this.$route.meta.name === '席别管理';
+        this.getDataList();
+      },
     },
     mounted(){
 

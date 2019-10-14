@@ -37,7 +37,11 @@
         </el-form-item>
 
         <el-form-item label="地址">
-          <el-input :disabled="showInput" v-model="menuMessage.menu_english_name"></el-input>
+          <el-input
+              :disabled="showInput"
+              maxlength="15"
+              show-word-limit
+              v-model="menuMessage.menu_english_name"></el-input>
         </el-form-item>
 
         <el-form-item label="类型">

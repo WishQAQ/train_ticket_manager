@@ -30,8 +30,9 @@ export function powerRouterLazy(name) {
       break;
     case 'passengerSystem':  // 乘客系统
       return { path: '/passengerSystem', name: 'passengerSystem', component: () => import('@/views/PassengerSystem/index'),children: [
-          { path: '/allTickets', name: 'allTickets', component: () => import('@/views/PassengerSystem/allTickets') },  // 全部车票
-    ]};
+          { path: '/allTickets', name: 'allTickets', component: () => import('@/views/PassengerSystem/allTickets'),meta:{name: '全部车票'}},  // 全部车票
+          { path: '/notIssued', name: 'notIssued', component: () => import('@/views/PassengerSystem/allTickets'),meta:{name: '未出票订单'}},  // 未出票订单
+        ]};
       break;
     case 'systemSetting':  // 系统配置
       return { path: '/systemSetting', name: 'systemSetting', component: () => import('@/views/SystemSettings/index'),children: [
@@ -41,7 +42,10 @@ export function powerRouterLazy(name) {
           {path: '/seatSetting', name: 'seatSetting', component: () => import('@/views/SystemSettings/seatSetting'),meta:{name: '席别管理'}},  // 席别管理
           {path: '/ticketSetting', name: 'ticketSetting', component: () => import('@/views/SystemSettings/seatSetting'),meta:{name: '票种管理'}},  // 票种管理
           {path: '/clientSetting', name: 'clientSetting', component: () => import('@/views/SystemSettings/clientSetting')},  // 客户管理
-          {path: '/ticketStatistics', name: 'ticketStatistics', component: () => import('@/views/SystemSettings/ticketStatistics'),meta:{name: '网票统计'}},  // 客户管理
+          {path: '/ticketStatistics', name: 'ticketStatistics', component: () => import('@/views/SystemSettings/ticketStatistics'),meta:{name: '网票统计'}},  // 网票统计
+          {path: '/paperTicket', name: 'paperTicket', component: () => import('@/views/SystemSettings/ticketStatistics'),meta:{name: '纸票统计'}},  // 纸票统计
+          {path: '/eTicket', name: 'eTicket', component: () => import('@/views/SystemSettings/ticketStatistics'),meta:{name: '电子票统计'}},  // 电子票统计
+          {path: '/accountSetting', name: 'accountSetting', component: () => import('@/views/SystemSettings/accountSetting'),meta:{name: '账号管理'}},  // 账号管理
         ]};
       break;
     default:

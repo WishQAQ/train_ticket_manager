@@ -1,5 +1,5 @@
 <template>
-  <div class="ticketStatistics">
+  <div class="ticketStatistics" v-loading="loading">
     <div class="ticket_header">
 
     </div>
@@ -34,6 +34,7 @@
             label="到站">
         </el-table-column>
         <el-table-column
+            sortable
             label="乘车日期">
           <template slot-scope="scope">
             {{$getTime(scope.row.riding_time)}}
@@ -44,30 +45,45 @@
             label="席别名称">
         </el-table-column>
         <el-table-column
-            prop="ticket_type"
             label="票类">
+          <template slot-scope="scope">
+            {{scope.row.ticket_type === 0?'电子票':
+            scope.row.ticket_type === 1?'网票':
+            scope.row.ticket_type === 2?'纸票':''}}
+          </template>
         </el-table-column>
         <el-table-column
+            sortable
             prop="ticket_price"
             label="票价">
         </el-table-column>
         <el-table-column
+            sortable
             prop="missed_meals_money"
             label="误餐费">
         </el-table-column>
         <el-table-column
+            sortable
             prop="refund_fee"
             label="退票款">
         </el-table-column>
         <el-table-column
+            sortable
             prop="ticket_fare"
             label="出票款">
         </el-table-column>
         <el-table-column
-            prop="ticket_status"
             label="车票状态">
+          <template slot-scope="scope">
+            {{scope.row.ticket_status === 0?'未出票':
+            scope.row.ticket_status === 1?'已出票':
+            scope.row.ticket_status === 2?'已取消票':
+            scope.row.ticket_status === 3?'已改签':
+            scope.row.ticket_status === 4?'已退票':'数据异常 '}}
+          </template>
         </el-table-column>
         <el-table-column
+            sortable
             prop="ticketing_time"
             label="出票时间">
         </el-table-column>
@@ -82,19 +98,29 @@
     data(){
       return {
         routerType: this.$route.meta.name, // 路由类型
-
+        urlType: '',
+        loading: true,
         ticketData: [], // 车票数据
-
-
       }
     },
     methods:{
       getDataList(){
-        let urlType = this.routerType === '网票统计'?'1':''
-        this.$axios.get('/api/system/ticketType/'+urlType)
+        this.loading = true
+        this.urlType = this.routerType === '网票统计'?'1':
+            this.routerType === '纸票统计'? '2':
+                this.routerType === '电子票统计'? '3':''
+        this.$axios.get('/api/system/ticketType/'+this.urlType)
             .then(res =>{
               this.ticketData = res.data.result.data
+              this.loading = false
             })
+      },
+    },
+    watch: {
+      '$route'(to, from) {
+        this.loading = true;
+        this.routerType = this.$route.meta.name;
+        this.getDataList();
       },
     },
     created() {
@@ -107,6 +133,6 @@
   .ticketStatistics{
     display: flex;
     flex-direction: column;
-    padding: 80px 5%;
+    padding: 80px 2%;
   }
 </style>
