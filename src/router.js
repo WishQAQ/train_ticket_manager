@@ -45,7 +45,9 @@ export function powerRouterLazy(name) {
           {path: '/ticketStatistics', name: 'ticketStatistics', component: () => import('@/views/SystemSettings/ticketStatistics'),meta:{name: '网票统计'}},  // 网票统计
           {path: '/paperTicket', name: 'paperTicket', component: () => import('@/views/SystemSettings/ticketStatistics'),meta:{name: '纸票统计'}},  // 纸票统计
           {path: '/eTicket', name: 'eTicket', component: () => import('@/views/SystemSettings/ticketStatistics'),meta:{name: '电子票统计'}},  // 电子票统计
-          {path: '/accountSetting', name: 'accountSetting', component: () => import('@/views/SystemSettings/accountSetting'),meta:{name: '账号管理'}},  // 账号管理
+          {path: '/accountSetting', name: 'accountSetting', component: () => import('@/views/SystemSettings/accountSetting'),meta:{name: '账号管理'}},  // 12306账号管理
+          {path: '/account', name: 'account', component: () => import('@/views/SystemSettings/account')},  // 12306账号
+          {path: '/billerSetting', name: 'billerSetting', component: () => import('@/views/SystemSettings/billerSetting')},  // 发单人配置
         ]};
       break;
     default:
