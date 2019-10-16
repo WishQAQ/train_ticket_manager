@@ -88,6 +88,12 @@
             label="出票时间">
         </el-table-column>
       </el-table>
+      <Pagination
+          ref="pagination"
+          :pageData="paginationList"
+          @jumpSize="jumpSize"
+          @jumpPage="jumpPage">
+      </Pagination>
     </div>
   </div>
 </template>
@@ -95,12 +101,19 @@
 <script>
   export default {
     name: "ticketStatistics",
+    components:{
+      'Pagination': () => import('@/components/Pagination')
+    },
     data(){
       return {
         routerType: this.$route.meta.name, // 路由类型
         urlType: '',
         loading: true,
         ticketData: [], // 车票数据
+
+        paginationList: {},
+        per_page: 10,
+        page: '',
       }
     },
     methods:{
@@ -108,12 +121,31 @@
         this.loading = true
         this.urlType = this.routerType === '网票统计'?'1':
             this.routerType === '纸票统计'? '2':
-                this.routerType === '电子票统计'? '3':''
-        this.$axios.get('/api/system/ticketType/'+this.urlType)
+                this.routerType === '电子票统计'? '0':''
+        let data = {
+          page: this.page || null,
+        }
+        this.$axios.get('/api/system/ticketType/'+this.urlType,{params:data})
             .then(res =>{
               this.ticketData = res.data.result.data
               this.loading = false
+              this.paginationList = res.data.result
             })
+      },
+
+
+      /**
+       * @Description: 分页器
+       * @author Wish
+       * @data 2019/10/16
+      */
+      jumpSize(val){
+        this.per_page = val
+        this.getDataList()
+      },
+      jumpPage(val){
+        this.page = val
+        this.getDataList()
       },
     },
     watch: {

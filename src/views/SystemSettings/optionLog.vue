@@ -51,16 +51,12 @@
         </el-table-column>
       </el-table>
 
-      <el-pagination
-          background
-          class="table_pagination"
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
-          :page-sizes="[10, 15, 20, 25]"
-          :current-page.sync="paginationList.current_page"
-          layout="sizes, prev, pager, next"
-          :total="paginationList.total">
-      </el-pagination>
+      <Pagination
+          ref="pagination"
+          :pageData="paginationList"
+          @jumpSize="jumpSize"
+          @jumpPage="jumpPage">
+      </Pagination>
 
     </div>
 
@@ -70,6 +66,9 @@
 <script>
   export default {
     name: "optionLog",
+    components:{
+      'Pagination': () => import('@/components/Pagination')
+    },
     data(){
       return {
         loading: true,
@@ -78,13 +77,14 @@
           user_name: '',
           remark: '',
         },
-        paginationList: {},  // 分页数据
+        paginationList: {},
         per_page: 10,
         page: '',
       }
     },
     methods:{
       getData(){
+        this.loading = true
         let data = {
           page: this.page || null,
         }
@@ -113,18 +113,17 @@
       /**
        * @Description: 分页器
        * @author Wish
-       * @date 2019/10/10
-       */
-      // 每页条数
-      handleSizeChange(size) {
-        this.per_page = size
+       * @data 2019/10/16
+      */
+      jumpSize(val){
+        this.per_page = val
         this.getData()
       },
-      // 跳转页面
-      handleCurrentChange(current) {
-        this.page = current
+      jumpPage(val){
+        this.page = val
         this.getData()
       },
+
     },
     created() {
       this.getData()

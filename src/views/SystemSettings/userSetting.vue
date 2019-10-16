@@ -73,6 +73,14 @@
             </template>
           </el-table-column>
         </el-table>
+
+        <Pagination
+            ref="pagination"
+            :pageData="paginationList"
+            @jumpSize="jumpSize"
+            @jumpPage="jumpPage">
+        </Pagination>
+
       </div>
 
     </div>
@@ -165,6 +173,9 @@
 <script>
   export default {
     name: "userSetting",
+    components:{
+      'Pagination': () => import('@/components/Pagination')
+    },
     data(){
       return {
         loading: true, // 全屏页面加载
@@ -184,6 +195,10 @@
 
         travelAgencyType: '', // 所属旅行社
         showTravelAgency: false, // 显示旅行社选项
+
+        paginationList: {},
+        per_page: 10,
+        page: '',
       }
     },
     methods:{
@@ -195,11 +210,15 @@
       getData(){
         this.closeData()
         this.loading = true;
-        this.$axios.get('/api/user/showAccount')
+        let data = {
+          page: this.page || null,
+        }
+        this.$axios.get('/api/user/showAccount/'+this.per_page || null,{params:data})
             .then(res =>{
               if(res.data.code === 0){
                 this.loading = false;
                 this.userData = res.data.result.data
+                this.paginationList = res.data.result
               }
             })
       },
@@ -339,6 +358,20 @@
         if(this.addUserInfoStatic){
 
         }
+      },
+
+      /**
+       * @Description: 分页器
+       * @author Wish
+       * @data 2019/10/16
+      */
+      jumpSize(val){
+        this.per_page = val
+        this.getData()
+      },
+      jumpPage(val){
+        this.page = val
+        this.getData()
       },
 
     },

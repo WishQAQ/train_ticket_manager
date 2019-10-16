@@ -64,6 +64,12 @@
           </template>
         </el-table-column>
       </el-table>
+      <Pagination
+          ref="pagination"
+          :pageData="paginationList"
+          @jumpSize="jumpSize"
+          @jumpPage="jumpPage">
+      </Pagination>
     </div>
 
 
@@ -103,6 +109,9 @@
 <script>
   export default {
     name: "clientSetting",
+    components:{
+      'Pagination': () => import('@/components/Pagination')
+    },
     data(){
       return {
         loading: true,
@@ -115,16 +124,24 @@
         searchTelPhone: '', // 手机号搜索
 
         clientData: [],  // 客户管理列表
+
+        paginationList: {},
+        per_page: 10,
+        page: ''
       }
     },
     methods:{
       getDataList(){
         this.loading = true
-        this.$axios.get('/api/user/customer/show')
+        let data = {
+          page: this.page || null,
+        }
+        this.$axios.get('/api/user/customer/show/'+this.per_page || null,{params:data})
             .then(res =>{
               if(res.data.code === 0){
                 this.loading = false
                this.clientData = res.data.result.data
+                this.paginationList = res.data.result
               }
             })
       },
@@ -229,6 +246,20 @@
               })
         }).catch(() =>{})
       },
+
+      /**
+       * @Description: 分页器
+       * @author Wish
+       * @data 2019/10/16
+      */
+      jumpSize(val){
+        this.per_page = val
+        this.getDataList()
+      },
+      jumpPage(val){
+        this.page = val
+        this.getDataList()
+      }
     },
     created() {
       this.getDataList()

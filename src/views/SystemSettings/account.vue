@@ -33,6 +33,13 @@
       </el-table-column>
     </el-table>
 
+    <Pagination
+        ref="pagination"
+        :pageData="paginationList"
+        @jumpSize="jumpSize"
+        @jumpPage="jumpPage">
+    </Pagination>
+
     <el-dialog
         title="添加备注"
         width="400px"
@@ -61,6 +68,9 @@
 <script>
   export default {
     name: "account",
+    components:{
+      'Pagination': () => import('@/components/Pagination')
+    },
     data(){
       return {
         loading: true,
@@ -70,15 +80,23 @@
 
         remarksDialog: false, // 备注弹窗
         accountRemarks: '', // 备注
+
+        paginationList: {},
+        per_page: 10,
+        page: '',
       }
     },
     methods:{
       getDataList(){
         this.loading = true
-        this.$axios.get('/api/system/12306_account/showMe')
+        let data = {
+          page: this.page || null,
+        }
+        this.$axios.get('/api/system/12306_account/showMe/'+this.per_page || null,{params:data})
             .then(res =>{
               this.loading = false
               this.tableData = res.data.result.data
+              this.paginationList = res.data.result
             })
       },
 
@@ -113,7 +131,22 @@
               this.$message.success('提交成功')
 
             })
-      }
+      },
+
+      /**
+       * @Description: 分页器
+       * @author Wish
+       * @data 2019/10/16
+      */
+      jumpSize(val){
+        this.per_page = val
+        this.getData()
+      },
+      jumpPage(val){
+        this.page = val
+        this.getData()
+      },
+
     },
     created() {
       this.getDataList()
@@ -123,8 +156,6 @@
 
 <style scoped lang="less">
   .account{
-    display: flex;
-    flex-direction: column;
     padding: 80px 15%;
     .addRemarks{
       cursor: pointer;

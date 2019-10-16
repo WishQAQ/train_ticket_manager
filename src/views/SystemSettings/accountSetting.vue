@@ -39,6 +39,14 @@
             label="出票员">
         </el-table-column>
       </el-table>
+
+      <Pagination
+          ref="pagination"
+          :pageData="paginationList"
+          @jumpSize="jumpSize"
+          @jumpPage="jumpPage">
+      </Pagination>
+
     </div>
 
     <el-dialog
@@ -97,6 +105,9 @@
 <script>
   export default {
     name: "accountSetting",
+    components:{
+      'Pagination': () => import('@/components/Pagination')
+    },
     data(){
       return {
         loading: true, // 加载
@@ -110,15 +121,23 @@
         assignDialog: false, // 批量分配
         assignSelect: '',  // 分配选择
         assignList: [], // 分配人员列表
+
+        paginationList: {},
+        per_page: 10,
+        page: '',
       }
     },
     methods: {
       getDataList(){
         this.loading = true
-        this.$axios.get('/api/system/12306_account/show')
+        let data = {
+          page: this.page || null,
+        }
+        this.$axios.get('/api/system/12306_account/show/'+this.per_page || null,{params:data})
             .then(res =>{
               this.loading = false;
               this.tableData = res.data.result.data
+              this.paginationList = res.data.result
               this.selectList = []
             })
       },
@@ -215,6 +234,20 @@
             .then(res =>{
               this.assignList = res.data.result
             })
+      },
+
+      /**
+       * @Description: 分页器
+       * @author Wish
+       * @data 2019/10/16
+      */
+      jumpSize(val){
+        this.per_page = val
+        this.getData()
+      },
+      jumpPage(val){
+        this.page = val
+        this.getData()
       },
 
     },

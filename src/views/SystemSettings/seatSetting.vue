@@ -57,6 +57,13 @@
         </el-table-column>
       </el-table>
 
+      <Pagination
+          ref="pagination"
+          :pageData="paginationList"
+          @jumpSize="jumpSize"
+          @jumpPage="jumpPage">
+      </Pagination>
+
     </div>
     <div class="right_main">
       <div class="title">{{editType?'编辑':'新增'}}{{urlType?'席别':'票种'}}</div>
@@ -78,6 +85,9 @@
   let urlAddress;
   export default {
     name: "seatSetting",
+    components:{
+      'Pagination': () => import('@/components/Pagination')
+    },
     data(){
       return {
         urlType: this.$route.meta.name === '席别管理', // 系别管理or票种管理
@@ -94,18 +104,25 @@
         seatName: '', // 新增or编辑 名称
 
         submitLoading: false, // 提交按钮
+
+        paginationList: {},
+        per_page: 10,
+        page: '',
       }
     },
     methods:{
       getDataList(){
         this.loading = true
         urlAddress = this.urlType?'fareWell':'ticketSpecies';
-
-        this.$axios.get('/api/system/'+urlAddress+'/show')
+        let data = {
+          page: this.page || null,
+        }
+        this.$axios.get('/api/system/'+urlAddress+'/show/'+this.per_page || null,{params:data})
             .then(res =>{
               if(res.data.code === 0){
                 this.loading = false
                 this.seatTableData = res.data.result.data
+                this.paginationList = res.data.result
               }else {
                 this.$message.warning(res.msg)
               }
@@ -257,6 +274,21 @@
           this.$message.warning('请填写名称')
         }
       },
+
+      /**
+       * @Description: 分页器
+       * @author Wish
+       * @data 2019/10/16
+      */
+      jumpSize(val){
+        this.per_page = val
+        this.getData()
+      },
+      jumpPage(val){
+        this.page = val
+        this.getData()
+      },
+
     },
     watch: {
       '$route'(to, from) {

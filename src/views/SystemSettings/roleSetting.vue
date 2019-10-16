@@ -60,6 +60,14 @@
             </template>
           </el-table-column>
         </el-table>
+
+        <Pagination
+            ref="pagination"
+            :pageData="paginationList"
+            @jumpSize="jumpSize"
+            @jumpPage="jumpPage">
+        </Pagination>
+
       </div>
     </div>
     <div class="right_tree" v-loading="treeLoading">
@@ -134,6 +142,9 @@
   let roleArray = []
   export default {
     name: "roleSetting",
+    components:{
+      'Pagination': () => import('@/components/Pagination')
+    },
     data(){
       return {
         loading: true,
@@ -171,6 +182,10 @@
           children: 'subMenu',
           label: 'menu_name'
         },
+
+        paginationList: {},
+        per_page: 10,
+        page: '',
       }
     },
     methods:{
@@ -180,11 +195,17 @@
        * @date 2019/9/25
       */
       getDataList(){
-        this.$axios.get('/api/authority/role/show/'+'1')
+        this.loading = true
+        let data = {
+          page: this.page || null,
+        }
+
+        this.$axios.get('/api/authority/role/show/'+'1',{params:data})
             .then(res =>{
               if(res.data.code === 0){
                 this.loading = false
                 this.userData = res.data.result.data
+                this.paginationList = res.data.result
               }
             })
       },
@@ -451,6 +472,20 @@
         }else {
           this.$message.warning('请填写角色名称')
         }
+      },
+
+      /**
+       * @Description: 分页器
+       * @author Wish
+       * @data 2019/10/16
+      */
+      jumpSize(val){
+        this.per_page = val
+        this.getData()
+      },
+      jumpPage(val){
+        this.page = val
+        this.getData()
       },
     },
     created() {

@@ -59,6 +59,13 @@
 
     </div>
 
+    <Pagination
+        ref="pagination"
+        :pageData="paginationList"
+        @jumpSize="jumpSize"
+        @jumpPage="jumpPage">
+    </Pagination>
+
 
     <el-dialog
         title="发单人"
@@ -95,6 +102,9 @@
 <script>
   export default {
     name: "billerSetting",
+    components:{
+      'Pagination': () => import('@/components/Pagination')
+    },
     data(){
       return {
         loading: true,
@@ -114,15 +124,23 @@
         qq: '',
         target: '',
         condition: '',
+
+        paginationList: {},
+        per_page: 10,
+        page: '',
       }
     },
     methods:{
       getDataList(){
         this.loading = true
-        this.$axios.get('/api/user/issuer/show')
+        let data = {
+          page: this.page || null,
+        }
+        this.$axios.get('/api/user/issuer/show/'+this.per_page || null,{params:data})
             .then(res =>{
               this.loading = false
               this.dataList = res.data.result.data
+              this.paginationList = res.data.result
             })
       },
 
@@ -265,10 +283,23 @@
             this.optionUserInfo(data,message)
             this.userInfoDialog = false
           }
-
         }
-
       },
+
+      /**
+       * @Description: 分页器
+       * @author Wish
+       * @data 2019/10/16
+      */
+      jumpSize(val){
+        this.per_page = val
+        this.getData()
+      },
+      jumpPage(val){
+        this.page = val
+        this.getData()
+      },
+
     },
     created() {
       this.getDataList()

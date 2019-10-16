@@ -27,3 +27,42 @@ npm run lint
 
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
+
+分页器
+```
+components:{
+  'Pagination': () => import('@/components/Pagination')
+},
+```
+```
+<Pagination 
+  ref="pagination" 
+  :pageData="paginationList"
+  @jumpSize="jumpSize" 
+  @jumpPage="jumpPage">
+</Pagination>
+
+this.paginationList = res.data.result
+```
+```
+paginationList: {},
+per_page: 10,
+page: '',
+```
+```
+jumpSize(val){
+  this.per_page = val
+  this.getData()
+},
+jumpPage(val){
+  this.page = val
+  this.getData()
+},
+```
+```
+let data = {
+  page: this.page || null,
+}
+
+/'+this.per_page || null,{params:data}
+```
