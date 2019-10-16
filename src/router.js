@@ -48,6 +48,7 @@ export function powerRouterLazy(name) {
           {path: '/accountSetting', name: 'accountSetting', component: () => import('@/views/SystemSettings/accountSetting'),meta:{name: '账号管理'}},  // 12306账号管理
           {path: '/account', name: 'account', component: () => import('@/views/SystemSettings/account')},  // 12306账号
           {path: '/billerSetting', name: 'billerSetting', component: () => import('@/views/SystemSettings/billerSetting')},  // 发单人配置
+          {path: '/optionLog', name: 'optionLog', component: () => import('@/views/SystemSettings/optionLog')},  // 操作日志
         ]};
       break;
     default:
