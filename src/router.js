@@ -30,8 +30,12 @@ export function powerRouterLazy(name) {
       break;
     case 'orderSystem':  // 订单系统
       return {path: '/orderSystem', name: 'orderSystem', component: () => import('@/views/OrderSystem/index'),children: [
-          {path: '/orderManagement', name: 'orderManagement', component: () => import('@/views/OrderSystem/orderManagement')},  // 订单管理
-          {path: '/orderDetails', name: 'orderDetails', component: () => import('@/views/OrderSystem/orderDetails')},  // 订单详情
+          {path: '/orderManagement', name: 'orderManagement', component: () => import('@/views/OrderSystem/orderManagement'),meta:{name: '订单管理'}},  // 订单管理
+          {path: '/orderDetails', name: 'orderDetails', component: () => import('@/views/OrderSystem/orderDetails'),meta:{name: '订单详情'}},  // 订单详情
+          {path: '/orderDetails', name: 'orderDetails', component: () => import('@/views/OrderSystem/orderDetails'),meta:{name: '历史订单查询'}},  // 历史订单查询
+          {path: '/orderDetails', name: 'orderDetails', component: () => import('@/views/OrderSystem/orderDetails'),meta:{name: '不明订单'}},  // 不明订单
+          {path: '/orderDetails', name: 'orderDetails', component: () => import('@/views/OrderSystem/orderDetails'),meta:{name: '新备注订单列表'}},  // 新备注订单列表
+          {path: '/orderDetails', name: 'orderDetails', component: () => import('@/views/OrderSystem/orderDetails'),meta:{name: '回收订单'}},  // 回收订单
         ]};
       break;
     case 'passengerSystem':  // 乘客系统

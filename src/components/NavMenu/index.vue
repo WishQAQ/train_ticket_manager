@@ -148,6 +148,7 @@
     padding: 0 30px;
     background:rgba(38,153,251,1);
     position: relative;
+    min-width: 1500px;
     .nav_logo{
       font-size:22px;
       color:rgba(255,255,255,1);

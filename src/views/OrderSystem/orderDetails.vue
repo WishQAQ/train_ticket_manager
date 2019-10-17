@@ -44,6 +44,32 @@
       <el-button>查看</el-button>
     </div>
 
+    <div class="order_passenger_search">
+      <div class="search_box">
+        <el-input v-model="passengerSearch.info" clearable placeholder="请输入乘客信息/支付账号/流水账号/12306账号"></el-input>
+        <el-input v-model="passengerSearch.train_number" clearable placeholder="请输入车次"></el-input>
+        <el-input v-model="passengerSearch.departure_station" clearable placeholder="请输入发站地址"></el-input>
+        <el-input v-model="passengerSearch.arrive_station" clearable placeholder="请输入到站地址"></el-input>
+        <el-date-picker
+            v-model="passengerSearch.trip_time"
+            type="date"
+            placeholder="请选择行程时间">
+        </el-date-picker>
+        <el-date-picker
+            v-model="passengerSearch.draw_bill_time"
+            type="date"
+            placeholder="请选择出票时间">
+        </el-date-picker>
+        <el-input v-model="passengerSearch.ticket_type" clearable placeholder="请选择票类"></el-input>
+        <el-input v-model="passengerSearch.ticket_status" clearable placeholder="请选择车票状态"></el-input>
+        <el-button @click="passengerSearchBtn">搜索</el-button>
+      </div>
+      <div class="search_btn">
+        <el-button @click="hiddenTable">隐藏</el-button>
+        <el-button>导出菜单</el-button>
+      </div>
+    </div>
+
     <!-- 订单表格 -->
     <div class="order_passenger">
       <!-- 单程表格 -->
@@ -69,13 +95,13 @@
 
     <div class="order_details_bottom">
       <!-- 订单备注表格 -->
-      <div class="order_remarks_table">
+      <div class="order_bottom_table">
         <div class="table_header"></div>
         <div class="table_main">
           <el-table
-              :data="orderRemarks.info"
-              border
-              style="width: 100%">
+              width="100%"
+              :data="orderRemarks"
+              border>
             <el-table-column
                 label="序号"
                 align="center"
@@ -86,28 +112,30 @@
             </el-table-column>
             <el-table-column
                 label="备注人"
-                prop="">
+                prop="nickname">
             </el-table-column>
             <el-table-column
-                laber="备注"
-                prop="">
+                label="备注"
+                prop="remarks">
             </el-table-column>
             <el-table-column
-                laber="时间"
-                prop="">
+                label="时间">
+              <template slot-scope="scope">
+                {{$getTime(scope.row.updated_at * 1000)}}
+              </template>
             </el-table-column>
           </el-table>
         </div>
       </div>
 
       <!-- 订单操作日志表格 -->
-      <div class="order_log_table">
+      <div class="order_bottom_table">
         <div class="table_header"></div>
         <div class="table_main">
           <el-table
-              :data="orderLog.info"
-              border
-              style="width: 100%">
+              width="100%"
+              :data="orderLog"
+              border>
             <el-table-column
                 label="序号"
                 align="center"
@@ -118,23 +146,25 @@
             </el-table-column>
             <el-table-column
                 label="备注人"
-                prop="">
+                prop="nickname">
             </el-table-column>
             <el-table-column
-                laber="动作"
-                prop="">
+                label="动作"
+                prop="action">
             </el-table-column>
             <el-table-column
-                laber="字段"
-                prop="">
+                label="字段"
+                prop="field">
             </el-table-column>
             <el-table-column
-                laber="写入值"
-                prop="">
+                label="写入值"
+                prop="read_in">
             </el-table-column>
             <el-table-column
-                laber="时间"
-                prop="">
+                label="时间">
+              <template slot-scope="scope">
+                {{$getTime(scope.row.updated_at * 1000)}}
+              </template>
             </el-table-column>
           </el-table>
         </div>
@@ -166,6 +196,17 @@
         passengerInfoOne: [],  // 往返表格数据
         passengerInfoTwo: [], // 中转表格数据
         passengerInfoThree: [], // 中转往返表格数据
+
+        passengerSearch: { // 乘客信息搜索
+          info: '',
+          train_number: '',
+          departure_station: '',
+          arrive_station: '',
+          trip_time: '',
+          draw_bill_time: '',
+          ticket_type: '',
+          ticket_status: '',
+        },
 
         selectPassengerList: [], // 乘客信息多选列表
 
@@ -232,6 +273,49 @@
               })
             })
       },
+
+
+      /**
+       * @Description: 乘客信息搜索
+       * @author Wish
+       * @date 2019/10/17
+      */
+      passengerSearchBtn(){
+        this.loading = true;
+        this.passengerInfo = []
+        this.passengerInfoZero = []
+        this.passengerInfoOne = []
+        this.passengerInfoTwo = []
+        this.passengerInfoThree = []
+        this.passengerSearch['trip_time'] = this.$dateToMs(this.passengerSearch.trip_time) / 1000
+        this.passengerSearch['draw_bill_time'] = this.$dateToMs(this.passengerSearch.draw_bill_time) / 1000
+        this.$axios.post('/api/order/detailsRoute/'+this.orderSn,this.passengerSearch)
+            .then(res =>{
+              console.log(res);
+              this.loading = false
+              this.passengerInfo = res.data
+              this.passengerInfo.forEach(item =>{
+                if(item.route_type === 0){  // 单程
+                  this.passengerInfoZero.push(item)
+                }else if(item.route_type === 1){  // 往返
+                  this.passengerInfoOne.push(item)
+                }else if(item.route_type === 2){  // 中转
+                  this.passengerInfoTwo.push(item)
+                }else if(item.route_type === 3){  // 中转往返
+                  this.passengerInfoThree.push(item)
+                }
+              })
+            })
+      },
+
+      /**
+       * @Description: 隐藏乘车信息表格按钮
+       * @author Wish
+       * @date 2019/10/17
+      */
+      hiddenTable(){
+        console.log('1');
+      },
       
       /**
        * @Description: 获取订单跟踪备注列表
@@ -239,9 +323,13 @@
        * @date 2019/10/17
       */
       getOrderRemarks(){
-        this.$axios.get('/api/order/list/trackingRemarks/'+this.orderSn)
+        this.$axios.get('/api/order/trackingRemarks/'+this.orderSn)
             .then(res =>{
-              this.orderRemarks = res.data.data[0]
+              if(res.data.code === 0){
+                this.orderRemarks = res.data.result.data
+              }else {
+                this.$message.warning(res.data.msg)
+              }
             })
       },
 
@@ -251,9 +339,13 @@
        * @date 2019/10/17
       */
       getOrderLog(){
-        this.$axios.get('/api/order/list/actionLog/'+this.orderSn)
+        this.$axios.get('/api/order/actionLog/'+this.orderSn)
             .then(res =>{
-              this.orderLog = res.data.data[0]
+              if(res.data.code === 0){
+                this.orderLog = res.data.result.data
+              }else {
+                this.$message.warning(res.data.msg)
+              }
             })
       },
 
@@ -383,6 +475,24 @@
     }
 
 
+    .order_passenger_search{
+      margin-bottom: 40px;
+      .search_box{
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+        /deep/.el-input{
+          margin-right: 15px;
+        }
+      }
+      .search_btn{
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+    }
+
+
     .order_passenger{
       .passenger_table{
         margin-bottom: 40px;
@@ -392,9 +502,17 @@
       }
     }
 
-    .order_remarks_table{
+    .order_details_bottom{
+      display: flex;
+      .order_bottom_table{
+        width: 50%;
 
+        &:last-child{
+          margin-left: 40px;
+        }
+      }
     }
+
 
   }
 </style>

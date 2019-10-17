@@ -100,5 +100,18 @@ Vue.prototype.$getTime = (data) =>{
   }else {
     return data
   }
+}
 
+
+/**
+ * @Description: 标准时间转时间戳
+ * @author Wish
+ * @date 2019/10/17
+*/
+Vue.prototype.$dateToMs = (data) =>{
+  if(data){
+    return new Date(data).getTime();
+  }else {
+    return data
+  }
 }
