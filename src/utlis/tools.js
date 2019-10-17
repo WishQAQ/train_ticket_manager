@@ -85,7 +85,6 @@ Vue.prototype.$checkText = (data) =>{
 Vue.prototype.$getTime = (data) =>{
   if(data){
     let date = new Date(data);
-
     let year = date.getFullYear();
     let month = date.getMonth() + 1;
     let day = date.getDate();

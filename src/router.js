@@ -19,13 +19,19 @@ export default new Router({
 export function powerRouterLazy(name) {
   switch (name) {
     case 'home':
-      return {path: '/', name: 'home', component: () => import('@/views/Index')}
+      return {path: '/', name: 'home', component: () => import('@/views/index')}
       break;
     case 'documentSystem':  // 文档中心
       return {path: '/documentSystem', name: 'documentSystem', component: () => import('@/views/DocumentCenter/index'),children: [
           {path: '/setting', name: 'setting', component: () => import('@/views/DocumentCenter/userSetting')},  // 个人设置
           {path: '/addressBook', name: 'addressBook', component: () => import('@/views/DocumentCenter/addressBook')},  // 内部通讯录
           {path: '/helpDocument', name: 'helpDocument', component: () => import('@/views/DocumentCenter/helpDocument')},  // 帮助文档
+        ]};
+      break;
+    case 'orderSystem':  // 订单系统
+      return {path: '/orderSystem', name: 'orderSystem', component: () => import('@/views/OrderSystem/index'),children: [
+          {path: '/orderManagement', name: 'orderManagement', component: () => import('@/views/OrderSystem/orderManagement')},  // 订单管理
+          {path: '/orderDetails', name: 'orderDetails', component: () => import('@/views/OrderSystem/orderDetails')},  // 订单详情
         ]};
       break;
     case 'passengerSystem':  // 乘客系统

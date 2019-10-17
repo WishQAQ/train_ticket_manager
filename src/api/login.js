@@ -44,11 +44,4 @@ export function userExit() {
   }).catch(err => {
     Message.error(err);
   });
-  // axios.get('http://oa.huimin.dev.cq1080.com/user/account/exit')
-  //     .then(res =>{
-  //
-  //
-  // }).catch(() =>{
-  //
-  //     })
 }

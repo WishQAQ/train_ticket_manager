@@ -140,7 +140,6 @@
           sort: '',
           type: '',
         }; // 清空input框值
-        console.log(this.menuMessage.parent_id);
       },
 
       /**

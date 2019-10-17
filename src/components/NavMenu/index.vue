@@ -124,7 +124,15 @@
 
       // 为登出按钮
       logout(){
-        userExit()
+        this.$axios.get('/api/user/exit')
+            .then(res =>{
+              if(res.data.code === 0){
+                userExit()
+                this.$message.success('退出成功')
+              }else {
+                this.$message.warning(res.data.msg)
+              }
+            })
       }
 
     }

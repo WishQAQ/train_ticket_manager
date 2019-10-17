@@ -68,6 +68,14 @@
             </template>
           </el-table-column>
         </el-table>
+
+        <Pagination
+            ref="pagination"
+            :pageData="paginationList"
+            @jumpSize="jumpSize"
+            @jumpPage="jumpPage">
+        </Pagination>
+
       </div>
     </div>
 
@@ -178,6 +186,9 @@
         this.$refs.personnelTree.filter(val);
       }
     },
+    components:{
+      'Pagination': () => import('@/components/Pagination')
+    },
     name: "helpDocument",
     data(){
       return {
@@ -209,6 +220,10 @@
           label: 'account'
         },
         selectPersonnelList: [], // 已选中人员列表
+
+        paginationList: {},
+        per_page: 10,
+        page: '',
       }
     },
     methods:{
@@ -219,10 +234,15 @@
       */
       getData(){
         this.loading = true
-        this.$axios.get('/api/notice/show/0')
+        let data = {
+          page: this.page || null,
+          per_page: this.per_page
+        }
+        this.$axios.get('/api/notice/show/0',{params:data})
             .then(res =>{
               this.loading = false
               this.helpTableData = res.data.data
+              this.paginationList = res.data
             })
       },
       
@@ -496,7 +516,22 @@
               })
         }).catch(() =>{})
 
-      }
+      },
+
+      /**
+       * @Description: 分页器
+       * @author Wish
+       * @date 2019/10/17
+      */
+      jumpSize(val){
+        this.per_page = val
+        this.getData()
+      },
+      jumpPage(val){
+        this.page = val
+        this.getData()
+      },
+
 
     },
     created() {

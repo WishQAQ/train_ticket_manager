@@ -198,6 +198,7 @@
         this.loading = true
         let data = {
           page: this.page || null,
+          per_page: this.per_page
         }
 
         this.$axios.get('/api/authority/role/show/'+'1',{params:data})
