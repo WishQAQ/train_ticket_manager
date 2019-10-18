@@ -56,7 +56,6 @@
             account: _this.userName,
             password: _this.userPassword
           };
-
           // api登录接口
           loginByUserInfo(data)
         } else {

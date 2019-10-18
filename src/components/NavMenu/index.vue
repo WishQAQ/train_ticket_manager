@@ -14,7 +14,7 @@
           <div class="nav_menu_more" v-if="navDrawer">
             <div @click="jumpAddress(cItem)"
                  class="more_list"
-                 v-if="index ==current && cItem.menuName"
+                 v-if="index === current && cItem.menuName && !cItem.meta.hidden"
                  v-for="(cItem,cIndex) in childrenList"
                  :key="cIndex">
               <span class="more_icon"><i :class="['iconfont',cItem.icon]"></i></span>{{cItem.menuName}}

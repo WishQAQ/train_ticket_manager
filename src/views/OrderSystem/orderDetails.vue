@@ -1,18 +1,43 @@
 <template>
   <div class="orderDetails" v-loading="loading">
-    <el-button class="edit_order_btn" type="primary">编辑订单</el-button>
-    <div class="order_header">
+    <el-button class="edit_order_btn" type="primary" v-if="urlType === 'details'">编辑订单</el-button>
+    <div class="order_header" v-if="urlType !== 'add'">
       <div class="header_title" @click="openHeaderDetailsBtn">
         <i v-if="!headerDetails" class="el-icon-circle-plus-outline"></i>
         <i v-else class="el-icon-remove-outline"></i>
         订单Q群原始信息
       </div>
-      <el-button class="header_btn">**文档标题**</el-button>
+      <el-button class="header_btn" v-if="urlType === 'details'">**文档标题**</el-button>
+    </div>
+
+    <div class="order_header_add" v-if="urlType === 'add'">
+      <div class="add_title">订单Q群原始信息</div>
+      <div class="add_input">
+        <el-input
+            placeholder="订单号:1215502465; 行程:9.19上海-北戴河G1214; 9.24北京-上海G11; 乘客/出票:杨国妹 310110196211056302; 杨玉珍 310110196905100443; 指定车票类型:网票"
+            type="textarea"
+            resize="none"
+            :rows="6"
+            :disabled="addBtnDisabled"
+            v-model="AddGroupOriginData">
+        </el-input>
+      </div>
+      <el-button v-if="!addBtnType" class="add_btn" @click="addBtnType = true">保存</el-button>
+      <el-button v-if="addBtnType" class="add_btn" @click="addGroupBtn" :disabled="addBtnDisabled">识别</el-button>
     </div>
 
     <!-- Q群信息展开 -->
     <el-collapse-transition>
-      <div class="header_header_details" v-show="headerDetails">{{orderInfo.group_origin_data || '暂无需求信息'}}</div>
+      <div class="header_header_details" v-show="headerDetails">
+        <el-input
+            placeholder="暂无需求信息"
+            type="textarea"
+            resize="none"
+            :rows="6"
+            v-model="orderInfo.group_origin_data"
+            :disabled="inputDisabled">
+        </el-input>
+      </div>
     </el-collapse-transition>
 
     <!-- 用户初始信息 -->
@@ -21,15 +46,46 @@
         <p class="title">订单号</p>
         <div class="info_header_table">
           <div>{{orderInfo.order_sn}}</div>
-          <div>发单人 {{orderInfo.dName}}</div>
-          <div>客户 {{orderInfo.cname}}</div>
-          <div>旧单号 {{orderInfo.old_order_sn}}</div>
+          <div>
+            <span>发单人</span>
+            <el-input
+                placeholder="请输入发单人"
+                v-model="orderInfo.dName"
+                :disabled="inputDisabled">
+            </el-input>
+          </div>
+          <div><span>客户</span>
+            <el-input
+                placeholder="请输入客户名称"
+                v-model="orderInfo.cname"
+                :disabled="inputDisabled">
+            </el-input>
+          </div>
+          <div>
+            <span>旧单号</span>
+            <el-input
+                placeholder="请输入旧单号"
+                v-model="orderInfo.old_order_sn"
+                :disabled="inputDisabled">
+            </el-input>
+          </div>
         </div>
       </div>
       <div class="info_content">
         <p class="title">备注信息</p>
         <div class="info_content_table">
-          <div class="info_remarks">{{orderInfo.remarks || '暂无备注信息'}}</div>
+          <div class="info_remarks">
+            <el-input
+                placeholder="暂无备注信息"
+                type="textarea"
+                :rows="3"
+                maxlength="180"
+                show-word-limit
+                resize="none"
+                v-model="orderInfo.remarks"
+                :disabled="inputDisabled">
+            </el-input>
+          </div>
           <div class="info_upload_image">证件照片</div>
         </div>
       </div>
@@ -39,7 +95,7 @@
     </div>
 
     <!-- 广告 -->
-    <div class="order_carousel">
+    <div class="order_carousel" v-if="urlType !== 'add'">
       <div class="carousel_main">新闻轮播</div>
       <el-button>查看</el-button>
     </div>
@@ -186,7 +242,17 @@
     data(){
       return {
         loading: true,
-        orderSn: 'xy183210142019', // 订单号
+        orderSn: '', // 订单号
+
+        urlType: '', // 页面类型
+        inputDisabled: false, // 页面输入框禁用
+
+        /***
+         * 新增订单
+         */
+        AddGroupOriginData: '',  // 模糊查询Q群信息
+        addBtnType: false,  // 保存 or 识别按钮切换
+        addBtnDisabled: false, // 识别按钮
 
         orderInfo: [], // 订单详情列表
         headerDetails: false, // 原始Q群需求初始状态
@@ -239,6 +305,28 @@
             })
       },
 
+      urlTypeSelect(){
+        if(this.$route.query.type === 'details'){  // 详情页面
+          this.orderSn = this.$route.query.order_sn
+          this.urlType = this.$route.query.type
+          this.inputDisabled = true
+        }else if(this.$route.query.type === 'edit'){  // 修改页面
+          this.orderSn = this.$route.query.order_sn
+          this.urlType = this.$route.query.type
+          this.inputDisabled = false
+        }else if(this.$route.query.type === 'add'){  // 新增页面
+          this.urlType = this.$route.query.type
+          this.inputDisabled = true
+          this.loading = false
+        }
+
+        if(this.urlType !== 'add'){
+          this.getDataList()  // 订单数据
+          this.getPassengerList()  // 乘客数据
+          this.getOrderRemarks()  // 订单备注数据
+          this.getOrderLog()  // 订单操作日志数据
+        }
+      },
 
       /**
        * @Description: 打开or关闭原始Q群需求
@@ -273,7 +361,6 @@
               })
             })
       },
-
 
       /**
        * @Description: 乘客信息搜索
@@ -349,20 +436,65 @@
             })
       },
 
+      /**
+       * @Description: 新增Q群信息
+       * @author Wish
+       * @date 2019/10/18
+      */
+      addGroupBtn(){
+        if(this.AddGroupOriginData){
+          let data ={
+            group_origin_data: this.AddGroupOriginData
+          }
+          this.$axios.post('/api/order/recognize/show',data)
+              .then(res =>{
+                if(res.data.code === 0){
+                  this.inputDisabled = false
+                  this.addBtnDisabled = true
+                  let dataList = res.data.result
+                  this.orderInfo.order_sn = dataList.orderNumber.new
+                  this.orderInfo.old_order_sn = dataList.orderNumber.old
+                }else {
+                  this.$message.warning(res.data.msg)
+                }
+              })
+        }else {
+          this.$message.warning('请输入订单原始信息')
+        }
+      },
 
     },
     created() {
-      this.getDataList()  // 订单数据
+      this.urlTypeSelect()
     },
     mounted() {
-      this.getPassengerList()  // 乘客数据
-      this.getOrderRemarks()  // 订单备注数据
-      this.getOrderLog()  // 订单操作日志数据
+
     }
   }
 </script>
 
 <style scoped lang="less">
+  /deep/.el-input{
+    &.is-disabled{
+      .el-input__inner{
+        background: transparent;
+        border: unset;
+        color: black;
+        cursor: text;
+      }
+    }
+  }
+  /deep/.el-textarea{
+    &.is-disabled{
+      .el-textarea__inner{
+        background: transparent;
+        border: unset;
+        color: black;
+        cursor: text;
+      }
+    }
+  }
+
   .orderDetails{
     padding: 80px;
     .edit_order_btn{
@@ -379,7 +511,6 @@
         background:rgba(238,247,255,1);
         border-radius:7px;
         height: 40px;
-        margin-right: 55px;
         display: inline-flex;
         align-items: center;
         padding-left: 15px;
@@ -388,6 +519,25 @@
         >i{
           margin-right: 10px;
         }
+      }
+      .header_btn{
+        margin-left: 55px;
+      }
+    }
+
+    .order_header_add{
+      display: flex;
+      align-items: center;
+      margin-bottom: 40px;
+      .add_title{
+        width: 150px;
+        flex-shrink: 0;
+      }
+      .add_input{
+        width: 100%;
+      }
+      .add_btn{
+        margin-left: 20px;
       }
     }
 
@@ -404,8 +554,10 @@
       width: 100%;
       margin-bottom: 45px;
       .title{
-        width: 70px;
+        width: 150px;
         flex-shrink: 0;
+        text-align: right;
+        padding-right: 15px;
       }
       .info_header{
         display: flex;
@@ -423,6 +575,10 @@
             padding-left: 15px;
             &:not(:last-child){
               border-right: 1px solid #ebeef5;
+            }
+            span{
+              display: inline-flex;
+              margin-right: 10px;
             }
           }
         }
@@ -455,7 +611,7 @@
         }
       }
       .info_upload{
-        margin-left: 70px;
+        margin-left: 150px;
         border: 1px solid #ebeef5;
         border-top: unset;
         height: 160px;
@@ -512,7 +668,5 @@
         }
       }
     }
-
-
   }
 </style>

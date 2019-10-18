@@ -1,7 +1,7 @@
 <template>
   <div class="orderManagement" v-loading="loading">
     <div class="table_header">
-      <el-button>新增订单</el-button>
+      <el-button @click="jumpDetailsBtn('add')">新增订单</el-button>
       <el-input v-model="orderSearch.order" placeholder="订单号查询"></el-input>
       <el-input v-model="orderSearch.order_status" placeholder="处理中订单查询"></el-input>
       <el-input v-model="orderSearch.customer" placeholder="客户选择查询"></el-input>
@@ -10,6 +10,13 @@
       <el-input v-model="orderSearch.issuer" placeholder="发单人查询"></el-input>
       <el-input v-model="orderSearch.submitter" placeholder="提交人查询"></el-input>
       <el-input v-model="orderSearch.ticket_teller" placeholder="出票员查询"></el-input>
+      <el-date-picker
+          v-model="orderSearch.time"
+          type="daterange"
+          range-separator="至"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期">
+      </el-date-picker>
     </div>
     <div class="table_main">
       <div class="table_content">
@@ -61,12 +68,12 @@
               <el-dropdown trigger="click">
                 <el-button size="mini">操作</el-button>
                 <el-dropdown-menu slot="dropdown">
-                  <el-dropdown-item><div>详情</div></el-dropdown-item>
+                  <el-dropdown-item><div @click="jumpDetailsBtn('details',item)">详情</div></el-dropdown-item>
                   <el-dropdown-item><div @click="addRemarksBtn(item)">备注</div></el-dropdown-item>
                   <el-dropdown-item><div @click="editOrderType(item,true)">设为不明订单</div></el-dropdown-item>
                   <el-dropdown-item><div @click="editOrderTop(item)">{{item.is_top === 0 ? '标红置顶': '取消标红置顶'}}</div></el-dropdown-item>
                   <el-dropdown-item><div>合并订单</div></el-dropdown-item>
-                  <el-dropdown-item><div @click="editBtn(item)">编辑</div></el-dropdown-item>
+                  <el-dropdown-item><div @click="jumpDetailsBtn('edit',item)">编辑</div></el-dropdown-item>
                   <el-dropdown-item><div @click="editOrderType(item,false)">删除</div></el-dropdown-item>
                 </el-dropdown-menu>
               </el-dropdown>
@@ -169,6 +176,38 @@
       },
 
       /**
+       * @Description: 跳转详情
+       * @author Wish
+       * @date 2019/10/18
+      */
+      jumpDetailsBtn(type,val){
+        if(type === 'details'){
+          this.$router.push({
+            path: '/orderDetails',
+            query:{
+              order_sn: val.order_sn,
+              type: 'details'
+            }
+          })
+        }else if(type === 'edit'){
+          this.$router.push({
+            path: '/orderDetails',
+            query:{
+              order_sn: val.order_sn,
+              type: 'edit'
+            }
+          })
+        }else if(type === 'add'){
+          this.$router.push({
+            path: '/orderDetails',
+            query:{
+              type: 'add'
+            }
+          })
+        }
+      },
+
+      /**
        * @Description: 添加备注
        * @author Wish
        * @date 2019/10/17
@@ -192,7 +231,7 @@
         this.$axios.post('/api/order/operateOrderTop',data)
             .then(res =>{
               if(res.data.code === 0){
-                this.$message.success('标红置顶成功')
+                this.$message.success('设置成功')
                 this.getDataList()
               }else {
                 this.$message.warning(res.data.msg)

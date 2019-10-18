@@ -88,6 +88,24 @@
             label="出票时间">
         </el-table-column>
       </el-table>
+      <div class="table_bottom">
+        <Pagination
+            ref="pagination"
+            :pageData="paginationList"
+            @jumpSize="jumpSize"
+            @jumpPage="jumpPage">
+        </Pagination>
+        <el-dropdown trigger="click">
+          <el-button>导出</el-button>
+          <el-dropdown-menu slot="dropdown">
+            <el-dropdown-item>导出当前页面</el-dropdown-item>
+            <el-dropdown-item><div @click="exportAllTable()">导出全部</div></el-dropdown-item>
+          </el-dropdown-menu>
+        </el-dropdown>
+      </div>
+
+      <a href="http://oa.huimin.dev.cq1080.com/system/exportTicket/0">123123123</a>
+
     </div>
   </div>
 </template>
@@ -95,23 +113,62 @@
 <script>
   export default {
     name: "allTickets",
+    components:{
+      'Pagination': () => import('@/components/Pagination')
+    },
     data(){
       return {
         loading: true,
         routerType: this.$route.meta.name,
-        ticketData: []
+        ticketData: [],
+
+        rulType: '',  // 页面类型
+
+        paginationList: {},
+        per_page: 10,
+        page: '',
       }
     },
     methods:{
       getData(){
         this.loading = true
-        let rulType =  this.$route.meta.name === '全部车票'?'0':
+        this.rulType =  this.$route.meta.name === '全部车票'?'0':
             this.$route.meta.name === '未出票订单' ?'1':''
-        this.$axios.get('/api/system/passengerTicket/' + rulType)
+        let data = {
+          page: this.page || null,
+        }
+        this.$axios.get('/api/system/passengerTicket/' + this.rulType + '/'+this.per_page || null,{params:data})
             .then(res =>{
               this.ticketData = res.data.result.data
+              this.paginationList = res.data.result
               this.loading = false
             })
+      },
+
+      /**
+       * @Description: 导出
+       * @author Wish
+       * @date 2019/10/18
+      */
+      exportAllTable(data){
+        this.$axios.get('/api/system/exportTicket/'+this.rulType)
+            .then(res =>{
+              console.log(res);
+            })
+      },
+
+      /**
+       * @Description: 分页器
+       * @author Wish
+       * @date 2019/10/18
+      */
+      jumpSize(val){
+        this.per_page = val
+        this.getData()
+      },
+      jumpPage(val){
+        this.page = val
+        this.getData()
       },
     },
     watch: {
@@ -132,5 +189,10 @@
     display: flex;
     flex-direction: column;
     padding: 80px 2%;
+    .table_bottom{
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+    }
   }
 </style>

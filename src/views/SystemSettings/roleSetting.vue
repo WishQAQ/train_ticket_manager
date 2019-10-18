@@ -387,7 +387,6 @@
                         if(cItem.is_read_in || cItem.is_show){
                           roleArray.push(cItem)
                           roleArray = [...new Set(roleArray)]
-                          console.log(roleArray);
                         }
                       }
                     })
