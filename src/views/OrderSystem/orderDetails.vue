@@ -94,140 +94,166 @@
       </div>
     </div>
 
-    <!-- 广告 -->
-    <div class="order_carousel" v-if="urlType !== 'add'">
-      <div class="carousel_main">新闻轮播</div>
-      <el-button>查看</el-button>
-    </div>
 
-    <div class="order_passenger_search">
-      <div class="search_box">
-        <el-input v-model="passengerSearch.info" clearable placeholder="请输入乘客信息/支付账号/流水账号/12306账号"></el-input>
-        <el-input v-model="passengerSearch.train_number" clearable placeholder="请输入车次"></el-input>
-        <el-input v-model="passengerSearch.departure_station" clearable placeholder="请输入发站地址"></el-input>
-        <el-input v-model="passengerSearch.arrive_station" clearable placeholder="请输入到站地址"></el-input>
-        <el-date-picker
-            v-model="passengerSearch.trip_time"
-            type="date"
-            placeholder="请选择行程时间">
-        </el-date-picker>
-        <el-date-picker
-            v-model="passengerSearch.draw_bill_time"
-            type="date"
-            placeholder="请选择出票时间">
-        </el-date-picker>
-        <el-input v-model="passengerSearch.ticket_type" clearable placeholder="请选择票类"></el-input>
-        <el-input v-model="passengerSearch.ticket_status" clearable placeholder="请选择车票状态"></el-input>
-        <el-button @click="passengerSearchBtn">搜索</el-button>
-      </div>
-      <div class="search_btn">
-        <el-button @click="hiddenTable">隐藏</el-button>
-        <el-button>导出菜单</el-button>
-      </div>
-    </div>
+    <!-- 新增表格 -->
+    <div v-if="urlType === 'add'">
 
-    <!-- 订单表格 -->
-    <div class="order_passenger">
-      <!-- 单程表格 -->
-      <div class="passenger_table" v-if="passengerInfoZero.length > 0">
-        <div class="table_header_message"></div>
-        <div class="table_header_message_two"></div>
-      </div>
-
-      <!-- 往返表格 -->
-      <div class="passenger_table"
-           v-for="(item,index) in passengerInfoTwo"
-           :key="index"
-           v-if="passengerInfoTwo.length > 0">
-        <div
-            v-for="(cItem,cIndex) in item.route_config"
-            :key="cIndex"
-            class="passenger_table_route">
-          <TrainTimesHeader :trainHeaderData="cItem" :trainHeaderType="item.route_type"></TrainTimesHeader>
-          <TrainTimesTable :tableData="cItem.passengers.data"></TrainTimesTable>
+      <div class="add_table" v-for="(item, index) in addTrainMessage" :key="index">
+        <div class="add_main" v-for="(cItem, cIndex) in item.info" :key="cIndex">
+          <div class="add_table_header">
+            <el-button>隐藏</el-button>
+            <el-button>增加表</el-button>
+            <el-button>删除表</el-button>
+            <el-button>内容清空</el-button>
+            <el-button>批量删除</el-button>
+            <el-button>保存</el-button>
+          </div>
+          <OneWayTable v-if="item.type === 0" :tableHeader="cItem" :tableData="addTrainTable" :tableTrainType="addTrainType"></OneWayTable>
+          <OneWayTable v-if="item.type === 1" :tableHeader="cItem" :tableData="addTrainTable" :tableTrainType="addTrainType"></OneWayTable>
         </div>
+
+
+
       </div>
+
+      <el-button>全部保存</el-button>
+
     </div>
 
-    <div class="order_details_bottom">
-      <!-- 订单备注表格 -->
-      <div class="order_bottom_table">
-        <div class="table_header"></div>
-        <div class="table_main">
-          <el-table
-              width="100%"
-              :data="orderRemarks"
-              border>
-            <el-table-column
-                label="序号"
-                align="center"
-                width="50px">
-              <template slot-scope="scope">
-                {{scope.$index+1}}
-              </template>
-            </el-table-column>
-            <el-table-column
-                label="备注人"
-                prop="nickname">
-            </el-table-column>
-            <el-table-column
-                label="备注"
-                prop="remarks">
-            </el-table-column>
-            <el-table-column
-                label="时间">
-              <template slot-scope="scope">
-                {{$getTime(scope.row.updated_at * 1000)}}
-              </template>
-            </el-table-column>
-          </el-table>
+    <!-- 详情or编辑 表格 -->
+    <div v-if="urlType !== 'add'">
+      <!-- 广告 -->
+      <div class="order_carousel">
+        <div class="carousel_main">新闻轮播</div>
+        <el-button>查看</el-button>
+      </div>
+
+      <div class="order_passenger_search">
+        <div class="search_box">
+          <el-input v-model="passengerSearch.info" clearable placeholder="请输入乘客信息/支付账号/流水账号/12306账号"></el-input>
+          <el-input v-model="passengerSearch.train_number" clearable placeholder="请输入车次"></el-input>
+          <el-input v-model="passengerSearch.departure_station" clearable placeholder="请输入发站地址"></el-input>
+          <el-input v-model="passengerSearch.arrive_station" clearable placeholder="请输入到站地址"></el-input>
+          <el-date-picker
+              v-model="passengerSearch.trip_time"
+              type="date"
+              placeholder="请选择行程时间">
+          </el-date-picker>
+          <el-date-picker
+              v-model="passengerSearch.draw_bill_time"
+              type="date"
+              placeholder="请选择出票时间">
+          </el-date-picker>
+          <el-input v-model="passengerSearch.ticket_type" clearable placeholder="请选择票类"></el-input>
+          <el-input v-model="passengerSearch.ticket_status" clearable placeholder="请选择车票状态"></el-input>
+          <el-button @click="passengerSearchBtn">搜索</el-button>
+        </div>
+        <div class="search_btn">
+          <el-button @click="hiddenTable">隐藏</el-button>
+          <el-button>导出菜单</el-button>
         </div>
       </div>
 
-      <!-- 订单操作日志表格 -->
-      <div class="order_bottom_table">
-        <div class="table_header"></div>
-        <div class="table_main">
-          <el-table
-              width="100%"
-              :data="orderLog"
-              border>
-            <el-table-column
-                label="序号"
-                align="center"
-                width="50px">
-              <template slot-scope="scope">
-                {{scope.$index+1}}
-              </template>
-            </el-table-column>
-            <el-table-column
-                label="备注人"
-                prop="nickname">
-            </el-table-column>
-            <el-table-column
-                label="动作"
-                prop="action">
-            </el-table-column>
-            <el-table-column
-                label="字段"
-                prop="field">
-            </el-table-column>
-            <el-table-column
-                label="写入值"
-                prop="read_in">
-            </el-table-column>
-            <el-table-column
-                label="时间">
-              <template slot-scope="scope">
-                {{$getTime(scope.row.updated_at * 1000)}}
-              </template>
-            </el-table-column>
-          </el-table>
+      <!-- 订单表格 -->
+      <div class="order_passenger">
+        <!-- 单程表格 -->
+        <div class="passenger_table" v-if="passengerInfoZero.length > 0">
+          <div class="table_header_message"></div>
+          <div class="table_header_message_two"></div>
+        </div>
+
+        <!-- 往返表格 -->
+        <div class="passenger_table"
+             v-for="(item,index) in passengerInfoTwo"
+             :key="index">
+          <div
+              v-for="(cItem,cIndex) in item.route_config"
+              :key="cIndex"
+              class="passenger_table_route">
+            <TrainTimesHeader :trainHeaderData="cItem" :trainHeaderType="item.route_type"></TrainTimesHeader>
+            <TrainTimesTable :tableData="cItem.passengers.data"></TrainTimesTable>
+          </div>
+        </div>
+      </div>
+
+      <div class="order_details_bottom">
+        <!-- 订单备注表格 -->
+        <div class="order_bottom_table">
+          <div class="table_header"></div>
+          <div class="table_main">
+            <el-table
+                width="100%"
+                :data="orderRemarks"
+                border>
+              <el-table-column
+                  label="序号"
+                  align="center"
+                  width="50px">
+                <template slot-scope="scope">
+                  {{scope.$index+1}}
+                </template>
+              </el-table-column>
+              <el-table-column
+                  label="备注人"
+                  prop="nickname">
+              </el-table-column>
+              <el-table-column
+                  label="备注"
+                  prop="remarks">
+              </el-table-column>
+              <el-table-column
+                  label="时间">
+                <template slot-scope="scope">
+                  {{$getTime(scope.row.updated_at * 1000)}}
+                </template>
+              </el-table-column>
+            </el-table>
+          </div>
+        </div>
+
+        <!-- 订单操作日志表格 -->
+        <div class="order_bottom_table">
+          <div class="table_header"></div>
+          <div class="table_main">
+            <el-table
+                width="100%"
+                :data="orderLog"
+                border>
+              <el-table-column
+                  label="序号"
+                  align="center"
+                  width="50px">
+                <template slot-scope="scope">
+                  {{scope.$index+1}}
+                </template>
+              </el-table-column>
+              <el-table-column
+                  label="备注人"
+                  prop="nickname">
+              </el-table-column>
+              <el-table-column
+                  label="动作"
+                  prop="action">
+              </el-table-column>
+              <el-table-column
+                  label="字段"
+                  prop="field">
+              </el-table-column>
+              <el-table-column
+                  label="写入值"
+                  prop="read_in">
+              </el-table-column>
+              <el-table-column
+                  label="时间">
+                <template slot-scope="scope">
+                  {{$getTime(scope.row.updated_at * 1000)}}
+                </template>
+              </el-table-column>
+            </el-table>
+          </div>
         </div>
       </div>
     </div>
-
-
 
   </div>
 </template>
@@ -237,7 +263,9 @@
     name: "orderDetails",
     components:{
       'TrainTimesHeader': () => import('@/components/TrainTimesHeader/index'),
-      'TrainTimesTable': () => import('@/components/TrainTimesTable/index')
+      'TrainTimesTable': () => import('@/components/TrainTimesTable/index'),
+
+      'OneWayTable': () => import('@/components/AddOrderTable/OneWayTable'), // 单程表格
     },
     data(){
       return {
@@ -273,6 +301,10 @@
           ticket_type: '',
           ticket_status: '',
         },
+
+        addTrainMessage: [], // 新增获取车次信息
+        addTrainTable: [], // 新增获取乘客表格信息
+        addTrainType: '', // 新增乘客车票类型
 
         selectPassengerList: [], // 乘客信息多选列表
 
@@ -442,6 +474,7 @@
        * @date 2019/10/18
       */
       addGroupBtn(){
+        this.addBtnDisabled = true
         if(this.AddGroupOriginData){
           let data ={
             group_origin_data: this.AddGroupOriginData
@@ -454,6 +487,12 @@
                   let dataList = res.data.result
                   this.orderInfo.order_sn = dataList.orderNumber.new
                   this.orderInfo.old_order_sn = dataList.orderNumber.old
+
+                  // 车次
+                  this.addTrainMessage = dataList.trips
+                  this.addTrainTable = dataList.passengers
+                  this.addTrainType = dataList.ticketType
+
                 }else {
                   this.$message.warning(res.data.msg)
                 }
@@ -549,7 +588,19 @@
       width: 100%;
     }
 
+    // 新增
+    .add_table_header{
+      margin-bottom: 20px;
+    }
+    .add_table{
+      .add_main{
+        margin-bottom: 40px;
+      }
+    }
 
+
+
+    // 详情or编辑
     .order_info{
       width: 100%;
       margin-bottom: 45px;
@@ -618,7 +669,6 @@
       }
     }
 
-
     .order_carousel{
       display: flex;
       align-items: center;
@@ -629,7 +679,6 @@
         width: 100%;
       }
     }
-
 
     .order_passenger_search{
       margin-bottom: 40px;
