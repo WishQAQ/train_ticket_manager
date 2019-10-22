@@ -183,6 +183,7 @@
         searchInput: '',  // 搜索框
 
         userData: [],  // 用户列表
+        userId: '',
 
         userInfo: {},  // 用户详细信息
         formLoading: false, // 用户详细信息加载
@@ -243,6 +244,7 @@
         this.userInfo = {}
         this.roleCheckList = []
         this.groupCheckList = []
+        this.userId = ''
       },
 
       /**
@@ -253,6 +255,8 @@
       handleCurrentChange(val){
         this.formLoading = true;
         this.addUserInfoStatic = false;
+
+        this.userId = val.target
         let data = {
           condition: val.target
         };
@@ -303,7 +307,7 @@
        * @date 2019/9/29
       */
       selectUserType(){
-        this.showTravelAgency = this.userTypeSelect === "1";
+        this.showTravelAgency = this.userInfo.type === 1;
       },
 
       /**
@@ -352,15 +356,40 @@
        * @date 2019/9/29
       */
       submitBtn(){
-        this.userInfo.type = JSON.parse(JSON.stringify(this.userInfo.type === '内部账号'?'0':'1'))
         this.userInfo['pertGroups'] = String(this.groupCheckList)
         this.userInfo['role_id'] = String(this.roleCheckList)
-        if(this.addUserInfoStatic){
-
+        if(this.addUserInfoStatic){  // 新增
+          if(this.addUserInfoStatic){
+          }else {
+          }
+          this.$axios.post('/api/user/addAccount',this.userInfo)
+              .then(res =>{
+                if(res.data.code === 0){
+                  this.$message.success('保存成功')
+                  this.getData()
+                }else {
+                  this.$message.warning(res.data.msg)
+                }
+              })
+        }else {  // 编辑
+          this.userInfo['condition'] = this.userInfo.target
+          delete this.userInfo['target']
+          this.userInfo.type = JSON.parse(JSON.stringify(this.userInfo.type === '内部账号'?'0':'1'))
+          this.$axios.post('/api/user/addAccount',this.userInfo)
+              .then(res =>{
+                if(res.data.code === 0){
+                  this.$message.success('保存成功')
+                  this.getData()
+                }else {
+                  this.$message.warning(res.data.msg)
+                }
+              })
         }
+
+
       },
 
-      /**
+  /**
        * @Description: 分页器
        * @author Wish
        * @data 2019/10/16

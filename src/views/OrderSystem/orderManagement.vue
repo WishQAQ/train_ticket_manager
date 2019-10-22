@@ -55,7 +55,7 @@
                 <div>{{cItem.Cname}}</div>
                 <div>{{cItem.fdName}}</div>
                 <div>{{cItem.order_status === 0 ? '处理中':'已处理'}}</div>
-                <div>未知</div>
+                <div>{{cItem.finance_status === 0 ?'未结算' :'已结算'}}</div>
                 <div>
                   <p v-for="(dItem, dIndex) in cItem.desc" :key="dIndex" v-if="dItem.is_important === 1">
                     <span class="important_remarks">{{dItem.remarks}}</span>
@@ -362,8 +362,10 @@
           display: flex;
           align-items: center;
           justify-content: center;
+          flex-direction: column;
           min-height: 50px;
           .main_list{
+            flex: 1;
             display: flex;
             align-items: center;
             border: 1px solid #ebeef5;

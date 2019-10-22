@@ -10,6 +10,8 @@
       <el-button class="header_btn" v-if="urlType === 'details'">**文档标题**</el-button>
     </div>
 
+
+
     <div class="order_header_add" v-if="urlType === 'add'">
       <div class="add_title">订单Q群原始信息</div>
       <div class="add_input">
@@ -86,7 +88,19 @@
                 :disabled="inputDisabled">
             </el-input>
           </div>
-          <div class="info_upload_image">证件照片</div>
+          <div class="info_upload_image">
+            <el-upload
+                class="upload-demo"
+                :multiple="false"
+                :auto-upload="false"
+                action="/"
+                :before-upload="beforeUpload"
+                :limit="1"
+                :file-list="fileList">
+              <el-button size="small" type="primary">点击上传</el-button>
+              <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
+            </el-upload>
+          </div>
         </div>
       </div>
       <div class="info_upload">
@@ -94,29 +108,13 @@
       </div>
     </div>
 
-
     <!-- 新增表格 -->
     <div v-if="urlType === 'add'">
-
-      <div class="add_table" v-for="(item, index) in addTrainMessage" :key="index">
-        <div class="add_main" v-for="(cItem, cIndex) in item.info" :key="cIndex">
-          <div class="add_table_header">
-            <el-button>隐藏</el-button>
-            <el-button>增加表</el-button>
-            <el-button>删除表</el-button>
-            <el-button>内容清空</el-button>
-            <el-button>批量删除</el-button>
-            <el-button>保存</el-button>
-          </div>
-          <OneWayTable v-if="item.type === 0" :tableHeader="cItem" :tableData="addTrainTable" :tableTrainType="addTrainType"></OneWayTable>
-          <OneWayTable v-if="item.type === 1" :tableHeader="cItem" :tableData="addTrainTable" :tableTrainType="addTrainType"></OneWayTable>
-        </div>
-
-
-
+      <div class="add_table" v-for="(item, index) in addDataList.trips" :key="index">
+        <AddOrderTable :tableType="item.type" :headerData="item" :tableData="addDataList"></AddOrderTable>
       </div>
 
-      <el-button>全部保存</el-button>
+      <el-button @click="allAddSubmit">全部保存</el-button>
 
     </div>
 
@@ -265,7 +263,7 @@
       'TrainTimesHeader': () => import('@/components/TrainTimesHeader/index'),
       'TrainTimesTable': () => import('@/components/TrainTimesTable/index'),
 
-      'OneWayTable': () => import('@/components/AddOrderTable/OneWayTable'), // 单程表格
+      'AddOrderTable': () => import('@/components/AddOrderTable/index'), // 单程表格
     },
     data(){
       return {
@@ -285,6 +283,11 @@
         orderInfo: [], // 订单详情列表
         headerDetails: false, // 原始Q群需求初始状态
 
+        /***
+         * 上传
+         */
+        fileList: [], // 上传文件列表
+
         passengerInfo: [], // 乘客信息列表 筛选表格状态 0:单程 1：往返 2：中转 3：中转往返
         passengerInfoZero: [], // 单程表格数据
         passengerInfoOne: [],  // 往返表格数据
@@ -302,7 +305,7 @@
           ticket_status: '',
         },
 
-        addTrainMessage: [], // 新增获取车次信息
+        addDataList: [], // 新增获取车次信息
         addTrainTable: [], // 新增获取乘客表格信息
         addTrainType: '', // 新增乘客车票类型
 
@@ -359,6 +362,35 @@
           this.getOrderLog()  // 订单操作日志数据
         }
       },
+
+      /**
+       * @Description: 上传
+       * @author Wish
+       * @date 2019/10/22
+      */
+      beforeUpload (file) {
+        console.log(file);
+        this.fileList.push(file)
+        let data = new FormData()
+        data.append('file', file)
+        data.append('type', 'order')
+        this.$axios({url:'/api/upload/graph/single',
+          method: 'post',
+          data: data,
+          headers:{'Content-Type': "multipart/form-data"}}
+        ).then(res =>{
+          if(res.data.code === 0){
+            this.$message.success('上传成功')
+            this.fileList = []
+          }else {
+            this.$message.warning(res.data.msg)
+          }
+        })
+
+        // return false // 返回false不会自动上传
+      },
+
+
 
       /**
        * @Description: 打开or关闭原始Q群需求
@@ -484,14 +516,12 @@
                 if(res.data.code === 0){
                   this.inputDisabled = false
                   this.addBtnDisabled = true
-                  let dataList = res.data.result
-                  this.orderInfo.order_sn = dataList.orderNumber.new
-                  this.orderInfo.old_order_sn = dataList.orderNumber.old
+                  this.addDataList = res.data.result
+                  this.orderInfo.order_sn = this.addDataList.orderNumber.new
+                  this.orderInfo.old_order_sn = this.addDataList.orderNumber.old
 
                   // 车次
-                  this.addTrainMessage = dataList.trips
-                  this.addTrainTable = dataList.passengers
-                  this.addTrainType = dataList.ticketType
+
 
                 }else {
                   this.$message.warning(res.data.msg)
@@ -500,6 +530,31 @@
         }else {
           this.$message.warning('请输入订单原始信息')
         }
+      },
+
+      /**
+       * @Description: 新增全部保存
+       * @author Wish
+       * @date 2019/10/22
+      */
+      allAddSubmit(){
+        let data ={
+          order_sn: this.orderInfo.order_sn, // 主订单号
+          old_order_sn: this.orderInfo.old_order_sn,  // 旧订单号
+          customer: '', // 客户商标识
+          issuer: '', // 发单人标识
+          origin_data: '', // Q群原始信息
+          route_type: '',
+          certificates: '',
+          source_file: '',
+          ticket_photos: '',
+          remarks: '',
+          route: '',
+        }
+        this.$axios.post('/api/order/add',data)
+            .then(res =>{
+              console.log(res);
+            })
       },
 
     },
@@ -591,11 +646,6 @@
     // 新增
     .add_table_header{
       margin-bottom: 20px;
-    }
-    .add_table{
-      .add_main{
-        margin-bottom: 40px;
-      }
     }
 
 
