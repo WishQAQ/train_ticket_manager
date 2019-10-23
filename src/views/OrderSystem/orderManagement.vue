@@ -38,7 +38,7 @@
           <div style="width: 80px;flex-shrink: 0;">操作</div>
         </div>
         <div class="content_main">
-          <div class="main_list" v-for="(item, index) in tableData" :key="index">
+          <div class="main_list" v-for="(item, index) in tableData" :key="index" @dblclick="doubleClickDetails(item)">
             <div class="list_num">
               <div style="width: 60px">{{index+1}}</div>
               <div style="width: 60px">
@@ -208,6 +208,21 @@
       },
 
       /**
+       * @Description: 双击跳转详情
+       * @author Wish
+       * @date 2019/10/23
+      */
+      doubleClickDetails(val){
+        this.$router.push({
+          path: '/orderDetails',
+          query: {
+            order_sn: val.order_sn,
+            type: 'details'
+          }
+        })
+      },
+
+      /**
        * @Description: 添加备注
        * @author Wish
        * @date 2019/10/17
@@ -371,6 +386,10 @@
             border: 1px solid #ebeef5;
             border-top: unset;
             width: 100%;
+            transition: all .3s;
+            &:hover{
+              background: #f9f9f9;
+            }
             .list_num{
               display: flex;
               height: 100%;

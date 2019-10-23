@@ -92,7 +92,6 @@
             <el-upload
                 class="upload-demo"
                 :multiple="false"
-                :auto-upload="false"
                 action="/"
                 :before-upload="beforeUpload"
                 :limit="1"
@@ -111,7 +110,7 @@
     <!-- 新增表格 -->
     <div v-if="urlType === 'add'">
       <div class="add_table" v-for="(item, index) in addDataList.trips" :key="index">
-        <AddOrderTable :tableType="item.type" :headerData="item" :tableData="addDataList"></AddOrderTable>
+        <AddOrderTable :tableType="String(item.type)" :headerData="item" :tableData="addDataList"></AddOrderTable>
       </div>
 
       <el-button @click="allAddSubmit">全部保存</el-button>
@@ -387,7 +386,7 @@
           }
         })
 
-        // return false // 返回false不会自动上传
+        return false // 返回false不会自动上传
       },
 
 
