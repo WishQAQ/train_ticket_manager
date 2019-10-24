@@ -49,19 +49,27 @@
         <div class="info_header_table">
           <div>{{orderInfo.order_sn}}</div>
           <div>
-            <span>发单人</span>
-            <el-input
-                placeholder="请输入发单人"
-                v-model="orderInfo.dName"
-                :disabled="inputDisabled">
-            </el-input>
+            <span>客户商</span>
+            <el-select  @change="getBillerData(customerName)" v-model="customerName" :disabled="inputDisabled" placeholder="请选择">
+              <el-option
+
+                  v-for="item in customerList"
+                  :key="item.id"
+                  :label="item.name"
+                  :value="item.identity">
+              </el-option>
+            </el-select>
           </div>
-          <div><span>客户</span>
-            <el-input
-                placeholder="请输入客户名称"
-                v-model="orderInfo.cname"
-                :disabled="inputDisabled">
-            </el-input>
+          <div>
+            <span>发单人</span>
+            <el-select v-model="billerName" :disabled="inputDisabled" placeholder="请选择">
+              <el-option
+                  v-for="item in billerList"
+                  :key="item.id"
+                  :label="item.name"
+                  :value="item.id">
+              </el-option>
+            </el-select>
           </div>
           <div>
             <span>旧单号</span>
@@ -370,7 +378,16 @@
         addBtnType: false,  // 保存 or 识别按钮切换
         addBtnDisabled: false, // 识别按钮
 
-        orderInfo: [], // 订单详情列表
+        orderInfo: {
+          cname: '',
+          dName: ''
+        }, // 订单详情列表
+
+        customerName:  '', // 客户商
+        customerList: [],
+        billerName: '',  // 发单人
+        billerList: [],
+
         headerDetails: false, // 原始Q群需求初始状态
 
         /***
@@ -422,6 +439,7 @@
               if(res.data.code === 0){
                 this.loading = false
                 res.data.result.forEach(res =>{
+                  console.log(res);
                   this.orderInfo = res
                 })
               }else {
@@ -528,7 +546,7 @@
       hiddenTable(){
         console.log('1');
       },
-      
+
       /**
        * @Description: 获取订单跟踪备注列表
        * @author Wish
@@ -561,6 +579,24 @@
             })
       },
 
+      getCustomerData(){
+        this.$axios.get('/api/user/customer/showAll')
+          .then(res =>{
+            if(res.data.code === 0){
+              this.customerList = res.data.result
+            }
+          })
+      },
+      getBillerData(data){
+        if(data){
+          this.customerList.forEach(res => {
+            if(res.identity === data){
+              this.billerList = res.issuer
+            }
+          })
+        }
+      },
+
       /**
        * @Description: 新增Q群信息
        * @author Wish
@@ -581,43 +617,33 @@
                   this.orderInfo.order_sn = this.addDataList.orderNumber.new
                   this.orderInfo.old_order_sn = this.addDataList.orderNumber.old
 
-                  let trainObj = {}
-                  let trainUserInfo = {}
-                  let trainUserMessage = {}
-                  this.addDataList.trips.forEach(item =>{
-                    console.log(item);
-                    trainObj['type'] = item.type // 车票类型
-                    trainObj['token'] = item.token  // token
-                    trainObj['info'] = []
-                    item.info.forEach(cItem =>{
-                      // console.log(cItem);
-                      trainUserInfo['initial_station'] = cItem.route[0]  // 发站
-                      trainUserInfo['stop_station'] = cItem.route[1] // 到站
-                      trainUserInfo['riding_time'] = cItem.ride_date  // 发车时间
-                      trainUserInfo['trips_number'] = cItem.train_number  // 车次
-                      trainUserInfo['passenger'] = []
-                      cItem.passenger.forEach(dItem =>{
-                        // console.log(dItem);
-                        trainUserMessage['name'] = dItem.name  // 用户名
-                        trainUserMessage['IDCard'] = dItem.card  // 身份证
-                        trainUserMessage['ticket_type'] = dItem.is_child === 0 ? '成人票' :'儿童票'   // 车票类型
-                        trainUserMessage['ticket_species'] = this.addDataList.ticketType  // 车票类型
-                        trainUserMessage['remarks'] = ''  // 备注
-                        trainUserMessage['missed_meals_money'] = '5'  // 误餐费
-                        return trainUserInfo.passenger.push(trainUserMessage)
-                      })
-                      return trainObj.info.push(trainUserInfo)
-                    })
-                    return this.addTrainTableArray.push(trainObj)
-
-                  })
-                  // console.log(trainUserInfo.passenger);
-                  console.log(this.addTrainTableArray);
                   /**
                    * @Description: 重组新增数组
                    * @author Wish
                    * @date 2019/10/24
-                  */
+                   */
+
+                  this.addDataList.trips.forEach(item =>{
+                    item.info.forEach(cItem =>{
+                      cItem['initial_station'] = cItem.route[0]  // 发站
+                      cItem['stop_station'] = cItem.route[1] // 到站
+                      cItem['riding_time'] = cItem.ride_date  // 发车时间
+                      cItem['trips_number'] = cItem.train_number  // 车次
+                      delete cItem.route
+                      delete cItem.ride_date
+                      delete cItem.train_number
+                      cItem.passenger.forEach(dItem =>{
+                        dItem['IDCard'] = dItem.card  // 身份证
+                        dItem['ticket_type'] = dItem.is_child === 0 ? '成人票' :'儿童票'   // 车票类型
+                        dItem['ticket_species'] = this.addDataList.ticketType  // 车票类型
+                        dItem['remarks'] = ''  // 备注
+                        dItem['missed_meals_money'] = '5'  // 误餐费
+                        delete dItem.card
+                        delete dItem.is_child
+                      })
+                    })
+                  })
+                  this.addTrainTableArray = JSON.parse(JSON.stringify(this.addDataList.trips))
 
 
                 }else {
@@ -636,28 +662,30 @@
       */
       allAddSubmit(){
         console.log(this.addTrainTableArray);
-        // let data ={
-        //   order_sn: this.orderInfo.order_sn, // 主订单号
-        //   old_order_sn: this.orderInfo.old_order_sn,  // 旧订单号
-        //   customer: '', // 客户商标识
-        //   issuer: '', // 发单人标识
-        //   origin_data: '', // Q群原始信息
-        //   route_type: '',
-        //   certificates: '',
-        //   source_file: '',
-        //   ticket_photos: '',
-        //   remarks: '',
-        //   route: '',
-        // }
-        // this.$axios.post('/api/order/add',data)
-        //     .then(res =>{
-        //       console.log(res);
-        //     })
+        let data ={
+          order_sn: this.orderInfo.order_sn, // 主订单号
+          old_order_sn: this.orderInfo.old_order_sn,  // 旧订单号
+          customer: this.customerName, // 客户商标识
+          issuer: this.billerName, // 发单人标识
+          origin_data: this.AddGroupOriginData, // Q群原始信息
+          route_type: 0,
+          certificates: '',
+          source_file: '',
+          ticket_photos: '',
+          remarks: '',
+          route: JSON.stringify(this.addTrainTableArray),
+        }
+        this.$axios.post('/api/order/add',data)
+            .then(res =>{
+              console.log(res);
+            })
       },
 
     },
     created() {
       this.urlTypeSelect()
+
+      this.getCustomerData()  // 获取客户商列表
     },
     mounted() {
 
