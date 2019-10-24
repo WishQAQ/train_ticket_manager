@@ -89,16 +89,7 @@
             </el-input>
           </div>
           <div class="info_upload_image">
-            <el-upload
-                class="upload-demo"
-                :multiple="false"
-                action="/"
-                :before-upload="beforeUpload"
-                :limit="1"
-                :file-list="fileList">
-              <el-button size="small" type="primary">点击上传</el-button>
-              <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
-            </el-upload>
+            <UploadLeaflet></UploadLeaflet>
           </div>
         </div>
       </div>
@@ -109,8 +100,106 @@
 
     <!-- 新增表格 -->
     <div v-if="urlType === 'add'">
-      <div class="add_table" v-for="(item, index) in addDataList.trips" :key="index">
-        <AddOrderTable :tableType="String(item.type)" :headerData="item" :tableData="addDataList"></AddOrderTable>
+      <div class="add_table" v-for="(item, index) in addTrainTableArray" :key="index">
+        <div class="addOrderTable">
+          <div class="add_table_header">
+            <el-button>隐藏</el-button>
+            <el-button>增加表</el-button>
+            <el-button>删除表</el-button>
+            <el-button>内容清空</el-button>
+            <el-button>批量删除</el-button>
+            <el-button>保存</el-button>
+          </div>
+
+          <div class="table"
+               v-for="(cItem, cIndex) in item.info"
+               :key="cIndex">
+            <!-- 单程表头 -->
+            <div class="table_header">
+              <div>路线{{item.type === 0? '一：单程':
+                item.type === 1? '二：往返':
+                item.type === 2? '三：中转':
+                item.type === 3? '四：中转往返': ''}}</div>
+              <div>行程时间：{{cItem.riding_time}}</div>
+              <div class="table_header_train">
+                <p>{{cItem.initial_station}}</p>
+                <div>{{cItem.trips_number}}</div>
+                <p>{{cItem.stop_station}}</p>
+              </div>
+            </div>
+
+            <el-table
+                border
+                ref="multipleTable"
+                tooltip-effect="dark"
+                :data="cItem.passenger"
+                style="width: 100%">
+              <el-table-column
+                  width="60"
+                  align="center"
+                  label="序号">
+                <template slot-scope="scope"> {{scope.$index + 1}}</template>
+              </el-table-column>
+              <el-table-column
+                  type="selection"
+                  align="center"
+                  width="50">
+              </el-table-column>
+              <el-table-column
+                  label="姓名">
+                <template slot-scope="scope">
+                  <el-input v-model="scope.row.name"></el-input>
+                </template>
+              </el-table-column>
+              <el-table-column
+                  label="身份证信息">
+                <template slot-scope="scope">
+                  <el-input v-model="scope.row.IDCard"></el-input>
+                </template>
+              </el-table-column>
+              <el-table-column
+                  label="票种">
+                <template slot-scope="scope">
+                  <el-select v-model="scope.row.ticket_type" placeholder="请选择">
+                    <el-option label="成人票" value="成人票"></el-option>
+                    <el-option label="儿童票" value="儿童票"></el-option>
+                  </el-select>
+                </template>
+              </el-table-column>
+              <el-table-column
+                  label="车票类型">
+                <template slot-scope="scope">
+                  <el-select v-model="scope.row.ticket_species" placeholder="请选择">
+                    <el-option label="网票" value="网票"></el-option>
+                    <el-option label="纸票" value="纸票"></el-option>
+                    <el-option label="电子票" value="电子票"></el-option>
+                  </el-select>
+                </template>
+              </el-table-column>
+              <el-table-column
+                  label="误餐费">
+                <template slot-scope="scope">
+                  <el-input v-model="scope.row.missed_meals_money"></el-input>
+                </template>
+              </el-table-column>
+              <el-table-column
+                  label="备注">
+                <template slot-scope="scope">
+                  <el-input v-model="scope.row.remarks"></el-input>
+                </template>
+              </el-table-column>
+              <el-table-column
+                  width="80px"
+                  align="center"
+                  label="操作">
+                <template slot-scope="scope">
+                  <el-button size="mini">删除</el-button>
+                </template>
+              </el-table-column>
+            </el-table>
+          </div>
+
+        </div>
       </div>
 
       <el-button @click="allAddSubmit">全部保存</el-button>
@@ -262,6 +351,8 @@
       'TrainTimesHeader': () => import('@/components/TrainTimesHeader/index'),
       'TrainTimesTable': () => import('@/components/TrainTimesTable/index'),
 
+      'UploadLeaflet': () => import('@/components/UploadLeaflet/index'),
+
       'AddOrderTable': () => import('@/components/AddOrderTable/index'), // 单程表格
     },
     data(){
@@ -305,7 +396,7 @@
         },
 
         addDataList: [], // 新增获取车次信息
-        addTrainTable: [], // 新增获取乘客表格信息
+        addTrainTableArray: [], // 新增获取乘客表格信息
         addTrainType: '', // 新增乘客车票类型
 
         selectPassengerList: [], // 乘客信息多选列表
@@ -361,35 +452,6 @@
           this.getOrderLog()  // 订单操作日志数据
         }
       },
-
-      /**
-       * @Description: 上传
-       * @author Wish
-       * @date 2019/10/22
-      */
-      beforeUpload (file) {
-        console.log(file);
-        this.fileList.push(file)
-        let data = new FormData()
-        data.append('file', file)
-        data.append('type', 'order')
-        this.$axios({url:'/api/upload/graph/single',
-          method: 'post',
-          data: data,
-          headers:{'Content-Type': "multipart/form-data"}}
-        ).then(res =>{
-          if(res.data.code === 0){
-            this.$message.success('上传成功')
-            this.fileList = []
-          }else {
-            this.$message.warning(res.data.msg)
-          }
-        })
-
-        return false // 返回false不会自动上传
-      },
-
-
 
       /**
        * @Description: 打开or关闭原始Q群需求
@@ -519,7 +581,43 @@
                   this.orderInfo.order_sn = this.addDataList.orderNumber.new
                   this.orderInfo.old_order_sn = this.addDataList.orderNumber.old
 
-                  // 车次
+                  let trainObj = {}
+                  let trainUserInfo = {}
+                  let trainUserMessage = {}
+                  this.addDataList.trips.forEach(item =>{
+                    console.log(item);
+                    trainObj['type'] = item.type // 车票类型
+                    trainObj['token'] = item.token  // token
+                    trainObj['info'] = []
+                    item.info.forEach(cItem =>{
+                      // console.log(cItem);
+                      trainUserInfo['initial_station'] = cItem.route[0]  // 发站
+                      trainUserInfo['stop_station'] = cItem.route[1] // 到站
+                      trainUserInfo['riding_time'] = cItem.ride_date  // 发车时间
+                      trainUserInfo['trips_number'] = cItem.train_number  // 车次
+                      trainUserInfo['passenger'] = []
+                      cItem.passenger.forEach(dItem =>{
+                        // console.log(dItem);
+                        trainUserMessage['name'] = dItem.name  // 用户名
+                        trainUserMessage['IDCard'] = dItem.card  // 身份证
+                        trainUserMessage['ticket_type'] = dItem.is_child === 0 ? '成人票' :'儿童票'   // 车票类型
+                        trainUserMessage['ticket_species'] = this.addDataList.ticketType  // 车票类型
+                        trainUserMessage['remarks'] = ''  // 备注
+                        trainUserMessage['missed_meals_money'] = '5'  // 误餐费
+                        return trainUserInfo.passenger.push(trainUserMessage)
+                      })
+                      return trainObj.info.push(trainUserInfo)
+                    })
+                    return this.addTrainTableArray.push(trainObj)
+
+                  })
+                  // console.log(trainUserInfo.passenger);
+                  console.log(this.addTrainTableArray);
+                  /**
+                   * @Description: 重组新增数组
+                   * @author Wish
+                   * @date 2019/10/24
+                  */
 
 
                 }else {
@@ -537,23 +635,24 @@
        * @date 2019/10/22
       */
       allAddSubmit(){
-        let data ={
-          order_sn: this.orderInfo.order_sn, // 主订单号
-          old_order_sn: this.orderInfo.old_order_sn,  // 旧订单号
-          customer: '', // 客户商标识
-          issuer: '', // 发单人标识
-          origin_data: '', // Q群原始信息
-          route_type: '',
-          certificates: '',
-          source_file: '',
-          ticket_photos: '',
-          remarks: '',
-          route: '',
-        }
-        this.$axios.post('/api/order/add',data)
-            .then(res =>{
-              console.log(res);
-            })
+        console.log(this.addTrainTableArray);
+        // let data ={
+        //   order_sn: this.orderInfo.order_sn, // 主订单号
+        //   old_order_sn: this.orderInfo.old_order_sn,  // 旧订单号
+        //   customer: '', // 客户商标识
+        //   issuer: '', // 发单人标识
+        //   origin_data: '', // Q群原始信息
+        //   route_type: '',
+        //   certificates: '',
+        //   source_file: '',
+        //   ticket_photos: '',
+        //   remarks: '',
+        //   route: '',
+        // }
+        // this.$axios.post('/api/order/add',data)
+        //     .then(res =>{
+        //       console.log(res);
+        //     })
       },
 
     },
@@ -643,9 +742,33 @@
     }
 
     // 新增
-    .add_table_header{
-      margin-bottom: 20px;
+    .addOrderTable{
+      margin-bottom: 60px;
+      .add_table_header{
+        margin-bottom: 20px;
+      }
+      .table{
+        .table_header{
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 0 20px;
+          font-size:16px;
+          color:rgba(51,148,250,1);
+          width: 100%;
+          height:65px;
+          background:rgba(238,247,255,1);
+          .table_header_train{
+            display: flex;
+            align-items: center;
+            >div{
+              margin: 0 10px;
+            }
+          }
+        }
+      }
     }
+
 
 
 
