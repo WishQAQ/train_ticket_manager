@@ -38,6 +38,17 @@ export function powerRouterLazy(name) {
           {path: '/recyclingOrder', name: 'recyclingOrder', component: () => import('@/views/OrderSystem/orderDetails'),meta:{name: '回收订单',hidden: false}},  // 回收订单
         ]};
       break;
+    case 'financialSystem':  // 财务系统
+      return { path: '/financialSystem', name: 'financialSystem', component: () => import('@/views/FinancialSystem/index'),children: [
+          { path: '/settledOrder', name: 'settledOrder', component: () => import('@/views/FinancialSystem/settledOrder'),meta:{name: '已结算订单',hidden: false}},  // 已结算订单
+          { path: '/openOrder', name: 'openOrder', component: () => import('@/views/FinancialSystem/openOrder'),meta:{name: '待结算订单',hidden: false}},  // 待结算订单
+          { path: '/chargeOffOrder', name: 'chargeOffOrder', component: () => import('@/views/FinancialSystem/chargeOffOrder'),meta:{name: '出账中订单',hidden: false}},  // 出账中订单
+          { path: '/notChargeOff', name: 'notChargeOff', component: () => import('@/views/FinancialSystem/notChargeOff'),meta:{name: '未出账订单',hidden: false}},  // 未出账订单
+          { path: '/billingQuery', name: 'billingQuery', component: () => import('@/views/FinancialSystem/billingQuery'),meta:{name: '对账单查询',hidden: false}},  // 对账单查询
+          { path: '/billingInfo', name: 'billingInfo', component: () => import('@/views/FinancialSystem/billingInfo'),meta:{name: '对账单详情',hidden: false}},  // 对账单详情
+          { path: '/batchChecking', name: 'batchChecking', component: () => import('@/views/FinancialSystem/batchChecking'),meta:{name: '批量对账',hidden: false}},  // 批量对账
+        ]};
+      break;
     case 'passengerSystem':  // 乘客系统
       return { path: '/passengerSystem', name: 'passengerSystem', component: () => import('@/views/PassengerSystem/index'),children: [
           { path: '/allTickets', name: 'allTickets', component: () => import('@/views/PassengerSystem/allTickets'),meta:{name: '全部车票',hidden: false}},  // 全部车票
