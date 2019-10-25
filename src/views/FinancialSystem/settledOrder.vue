@@ -3,42 +3,44 @@
   <div class="content" v-loading="loading">
     <div class="top">
       <div>
-        <el-input style="width: 225px;" placeholder="请输入您要查询的订单号" v-model="order_sn" clearable></el-input>
+        <el-input style="width: 225px;" placeholder="请输入您要查询的订单号" v-model="searchForm.order_sn" clearable></el-input>
       </div>
       <div>
-        <el-select v-model="order_status"  placeholder="任务进度">
+        <el-select v-model="searchForm.order_status"  placeholder="任务进度" clearable>
           <el-option value="0" label="未处理"></el-option>
           <el-option value="1" label="已处理"></el-option>
         </el-select>
       </div>
       <div>
-        <el-select v-model="loss_status"  placeholder="亏盈状态">
+        <el-select v-model="searchForm.loss_status"  placeholder="亏盈状态" clearable>
           <el-option value="0" label="亏损"></el-option>
           <el-option value="1" label="保本"></el-option>
           <el-option value="2" label="盈利"></el-option>
         </el-select>
       </div>
       <div>
-        <el-select v-model="customer" placeholder="客户选择">
+        <el-select v-model="searchForm.customer" placeholder="客户选择" clearable>
           <el-option v-for="item in client" :key="item.id" :label="item.name" :value="item.identity"></el-option>
         </el-select>
       </div>
       <div class="block">
         <el-date-picker
-            v-model="begin"
+            clearable
+            v-model="searchForm.begin"
             type="date"
             placeholder="开始时间">
         </el-date-picker>
       </div>
       <div class="block">
         <el-date-picker
-            v-model="end"
+            clearable
+            v-model="searchForm.end"
             type="date"
             placeholder="结束时间">
         </el-date-picker>
       </div>
       <div>
-        <el-input placeholder="发单人" v-model="issuer" clearable></el-input>
+        <el-input clearable placeholder="发单人" v-model="searchForm.issuer" clearable></el-input>
       </div>
       <div>
         <el-button type="primary" @click="search">搜索</el-button>
@@ -75,83 +77,113 @@
           </el-table-column>
           <el-table-column
               align="center"
+              width="80"
               label="Q群需求">
-            <el-button size="mini" @click="">查看</el-button>
+            <template slot-scope="scope">
+              <el-button size="mini" @click="openQDialog(scope.row.group_origin_data)">查看</el-button>
+            </template>
           </el-table-column>
-
           <el-table-column
               prop="customer_name"
               align="center"
+              min-width="120"
               label="客户">
+            <template slot-scope="scope">
+              {{scope.row.customer_name+'+'+scope.row.issuer_name}}
+            </template>
           </el-table-column>
         </el-table-column>
-
         <el-table-column
+            prop="verification_item"
             align="center"
             label="核收项">
           <el-table-column
-              prop="ticket_price"
               align="center"
               label="总票价">
+            <template slot-scope="scope">{{scope.row.verification_item.ticket_price}}</template>
           </el-table-column>
           <el-table-column
-              prop="missed_meals_money"
               align="center"
               label="总餐费">
+            <template slot-scope="scope">{{scope.row.verification_item.missed_meals_money}}</template>
           </el-table-column>
           <el-table-column
-              prop="refund_fee"
               align="center"
               label="总退款">
+            <template slot-scope="scope">{{scope.row.verification_item.refund_fee}}</template>
           </el-table-column>
           <el-table-column
-              prop="express_fee"
               align="center"
               label="总快递费">
+            <template slot-scope="scope">{{scope.row.verification_item.express_fee}}</template>
           </el-table-column>
           <el-table-column
-              prop="refund_fare"
               align="center"
-              label="交通费">
+              label="退改交通费">
+            <template slot-scope="scope">{{scope.row.verification_item.refund_fare}}</template>
           </el-table-column>
         </el-table-column>
+
+          <el-table-column
+              v-if="viewsType === 0"
+              prop="receivables"
+              align="center"
+              label="应收款">
+          </el-table-column>
+          <el-table-column
+              v-if="viewsType === 0"
+              prop="actual_receipts"
+              align="center"
+              label="实收款">
+          </el-table-column>
+          <el-table-column
+              v-if="viewsType === 0"
+              align="center"
+              label="债途">
+            <template slot-scope="scope">
+              {{scope.row.receivables - scope.row.actual_receipts}}
+            </template>
+          </el-table-column>
+
+
+
 
         <el-table-column
             align="center"
             label="成本项">
           <el-table-column
-              prop="ticket_fare"
               align="center"
               label="总出票费">
+            <template slot-scope="scope">{{scope.row.verification_item.ticket_fare}}</template>
           </el-table-column>
           <el-table-column
-              prop="compensation_fee"
               align="center"
               label="总赔付费">
+            <template slot-scope="scope">{{scope.row.cost_item[0].compensation_fee}}</template>
           </el-table-column>
           <el-table-column
-              prop="total_discount"
               align="center"
               label="优惠总额">
+            <template slot-scope="scope">{{scope.row.cost_item[0].total_discount}}</template>
           </el-table-column>
           <el-table-column
-              prop="express_fee"
               align="center"
               label="快递支出">
+            <template slot-scope="scope">{{scope.row.cost_item[0].express_fee}}</template>
           </el-table-column>
         </el-table-column>
 
-        <el-table-column
-            prop="actual_receipts"
-            align="center"
-            label="实收款">
-        </el-table-column>
+<!--        <el-table-column-->
+<!--            prop="actual_receipts"-->
+<!--            align="center"-->
+<!--            label="实收款">-->
+<!--        </el-table-column>-->
 
-        <el-table-column
-            prop="profit"
-            align="center"
-            label="利润">
-        </el-table-column>
+<!--        <el-table-column-->
+<!--            prop="profit"-->
+<!--            align="center"-->
+<!--            label="利润">-->
+<!--        </el-table-column>-->
 
         <el-table-column
             prop="bill_numbers"
@@ -159,31 +191,35 @@
             label="对账单号">
         </el-table-column>
 
-        <el-table-column
-            prop="amount2"
-            align="center"
-            label="实付款">
-        </el-table-column>
+<!--        <el-table-column-->
+<!--            prop="amount2"-->
+<!--            align="center"-->
+<!--            label="实付款">-->
+<!--        </el-table-column>-->
 
         <el-table-column
             prop="order_status"
             align="center"
             label="订单状态">
+          <template slot-scope="scope">
+            {{scope.row.order_status === 0?'未处理':'已处理'}}
+          </template>
         </el-table-column>
 
         <el-table-column
             label="操作"
+            fixed="right"
             width="80">
           <template slot-scope="scope">
             <el-dropdown trigger="click">
               <el-button size="mini">操作</el-button>
               <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item><el-button type="text" @click="dialogTableVisible = true">详情</el-button></el-dropdown-item>
-                <el-dropdown-item><el-button type="text" @click="">备注</el-button></el-dropdown-item>
-                <el-dropdown-item><el-button type="text" @click="">上传汇款凭证</el-button></el-dropdown-item>
-                <el-dropdown-item><el-button type="text" @click="">上传收款凭证</el-button></el-dropdown-item>
-                <el-dropdown-item><el-button type="text" @click="toggleSelection(scope.row)">移除多选</el-button></el-dropdown-item>
-                <el-dropdown-item><el-button type="text" @click="">解除锁定</el-button></el-dropdown-item>
+                <el-dropdown-item><div @click="dialogTableVisible = true">详情</div></el-dropdown-item>
+                <el-dropdown-item><div @click="">备注</div></el-dropdown-item>
+                <el-dropdown-item><div @click="">上传汇款凭证</div></el-dropdown-item>
+                <el-dropdown-item><div @click="">上传收款凭证</div></el-dropdown-item>
+                <el-dropdown-item><div @click="toggleSelection(scope.row)">移除多选</div></el-dropdown-item>
+                <el-dropdown-item><div @click="">解除锁定</div></el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
           </template>
@@ -258,7 +294,7 @@
           </table>
         </div>
       </el-dialog>
-
+x
       <el-button  class="export" @click="" >导出</el-button>
       <div class="pages">
         <Pagination
@@ -293,24 +329,30 @@
     },
     data(){
       return {
-        loading: false,
-        order_sn: '',
-        order_status: '',
-        customer: '',
-        loss_status: '',
-        issuer: '',
-        begin: '',
-        end: '',
-        client: [],
-        dialogTableVisible: false,
+        loading: false,  // 加载
+        tableData: [],
+
+        viewsType: '',  // 页面类型
+
+        searchForm: {  // 搜索
+          order_sn: '',  // 单号
+          order_status: '',  // 旧单号
+          customer: '',
+          loss_status: '',
+          issuer: '',
+          begin: '',
+          end: '',
+        },
+
+        client: [],  // 发单人列表
+        dialogTableVisible: false,  // 详情弹窗
+
         paginationList: {},
         per_page: 10,
         page: '',
-        tableData: []
       }
     },
     methods:{
-
       //移除多选
       toggleSelection(row) {
         this.$refs.multipleTable.toggleRowSelection(row,false);
@@ -323,21 +365,13 @@
               this.client = res.data.result;
             })
       },
-
       //获取列表
       getData(){
-        let postData = {
-          order_sn: this.order_sn,
-          order_status: this.order_status,
-          customer: this.customer,
-          issuer: this.issuer,
-          begin: this.begin,
-          end: this.begin
-        };
         this.loading = true;
-        this.$axios.post('/api/finance/getInfo/0/'+this.per_page,postData)
+        this.$axios.post('/api/finance/getInfo/'+this.viewsType+'/'+this.per_page,this.searchForm)
             .then(res =>{
               this.tableData = res.data.data;
+              console.log(this.tableData);
               this.loading = false;
               this.paginationList = res.data;
             })
@@ -347,6 +381,18 @@
         this.page = '';
         this.getData()
       },
+
+      /**
+       * @Description: 查看Q群信息
+       * @author Wish
+       * @date 2019/10/25
+      */
+      openQDialog(val){
+        console.log(val);
+      },
+
+
+
       //修改分页条数
       jumpSize(val){
         this.per_page = val
@@ -358,7 +404,23 @@
         this.getData()
       },
     },
+    watch: {
+      '$route'(to, from) {
+        this.viewsType =  this.$route.meta.name === '待结算订单'? 0:
+            this.$route.meta.name === '已结算订单'? 1:
+                this.$route.meta.name === '未出账订单'? 2:
+                    this.$route.meta.name === '出账中订单'? 3: ''
+        console.log(this.viewsType);
+        this.getData();
+        this.getClient();
+      },
+    },
     created() {
+      this.viewsType =  this.$route.meta.name === '待结算订单'? 0:
+          this.$route.meta.name === '已结算订单'? 1:
+              this.$route.meta.name === '未出账订单'? 2:
+                  this.$route.meta.name === '出账中订单'? 3: ''
+      console.log(this.viewsType);
       this.getData();
       this.getClient();
     }

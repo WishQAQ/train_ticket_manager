@@ -41,9 +41,9 @@ export function powerRouterLazy(name) {
     case 'financialSystem':  // 财务系统
       return { path: '/financialSystem', name: 'financialSystem', component: () => import('@/views/FinancialSystem/index'),children: [
           { path: '/settledOrder', name: 'settledOrder', component: () => import('@/views/FinancialSystem/settledOrder'),meta:{name: '已结算订单',hidden: false}},  // 已结算订单
-          { path: '/openOrder', name: 'openOrder', component: () => import('@/views/FinancialSystem/openOrder'),meta:{name: '待结算订单',hidden: false}},  // 待结算订单
-          { path: '/chargeOffOrder', name: 'chargeOffOrder', component: () => import('@/views/FinancialSystem/chargeOffOrder'),meta:{name: '出账中订单',hidden: false}},  // 出账中订单
-          { path: '/notChargeOff', name: 'notChargeOff', component: () => import('@/views/FinancialSystem/notChargeOff'),meta:{name: '未出账订单',hidden: false}},  // 未出账订单
+          { path: '/openOrder', name: 'openOrder', component: () => import('@/views/FinancialSystem/settledOrder'),meta:{name: '待结算订单',hidden: false}},  // 待结算订单
+          { path: '/chargeOffOrder', name: 'chargeOffOrder', component: () => import('@/views/FinancialSystem/settledOrder'),meta:{name: '出账中订单',hidden: false}},  // 出账中订单
+          { path: '/notChargeOff', name: 'notChargeOff', component: () => import('@/views/FinancialSystem/settledOrder'),meta:{name: '未出账订单',hidden: false}},  // 未出账订单
           { path: '/billingQuery', name: 'billingQuery', component: () => import('@/views/FinancialSystem/billingQuery'),meta:{name: '对账单查询',hidden: false}},  // 对账单查询
           { path: '/billingInfo', name: 'billingInfo', component: () => import('@/views/FinancialSystem/billingInfo'),meta:{name: '对账单详情',hidden: false}},  // 对账单详情
           { path: '/batchChecking', name: 'batchChecking', component: () => import('@/views/FinancialSystem/batchChecking'),meta:{name: '批量对账',hidden: false}},  // 批量对账
