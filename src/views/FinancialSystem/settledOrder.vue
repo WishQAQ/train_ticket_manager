@@ -214,7 +214,7 @@
             <el-dropdown trigger="click">
               <el-button size="mini">操作</el-button>
               <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item><div @click="dialogTableVisible = true">详情</div></el-dropdown-item>
+                <el-dropdown-item><div @click="openDetailsDialog(scope.row)">详情</div></el-dropdown-item>
                 <el-dropdown-item><div @click="">备注</div></el-dropdown-item>
                 <el-dropdown-item><div @click="">上传汇款凭证</div></el-dropdown-item>
                 <el-dropdown-item><div @click="">上传收款凭证</div></el-dropdown-item>
@@ -294,7 +294,7 @@
           </table>
         </div>
       </el-dialog>
-x
+
       <el-button  class="export" @click="" >导出</el-button>
       <div class="pages">
         <Pagination
@@ -389,6 +389,16 @@ x
       */
       openQDialog(val){
         console.log(val);
+      },
+
+      /**
+       * @Description: 打开详情弹窗
+       * @author Wish
+       * @date 2019/10/25
+      */
+      openDetailsDialog(val){
+        console.log(val);
+        this.dialogTableVisible = true
       },
 
 
