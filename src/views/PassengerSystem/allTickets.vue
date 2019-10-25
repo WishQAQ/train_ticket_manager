@@ -1,7 +1,21 @@
 <template>
   <div class="tickets" v-loading="loading">
     <div class="ticket_header">
-
+      <el-input v-model="searchForm.info" placeholder="请输入乘客信息/支付账号/流水账号/12306账号"></el-input>
+      <el-select v-model="searchForm.order_status" placeholder="请选择订单状态">
+        <el-option label="已处理订单" value="1"></el-option>
+        <el-option label="未处理订单" value="2"></el-option>
+      </el-select>
+      <el-input v-model="searchForm.departure" placeholder="发站"></el-input>
+      <el-input v-model="searchForm.arrive" placeholder="到站"></el-input>
+      <el-date-picker
+          v-model="searchForm.time"
+          type="daterange"
+          range-separator="至"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期">
+      </el-date-picker>
+      <el-button @click="submitSearchBtn">搜索</el-button>
     </div>
     <div class="ticket_main">
       <el-table
@@ -120,6 +134,10 @@
         routerType: this.$route.meta.name,
         ticketData: [],
 
+        searchForm: {  // 搜索
+
+        },
+
         rulType: '',  // 页面类型
 
         paginationList: {},
@@ -141,6 +159,15 @@
               this.paginationList = res.data.result
               this.loading = false
             })
+      },
+
+      /**
+       * @Description: 搜索
+       * @author Wish
+       * @date 2019/10/25
+      */
+      submitSearchBtn(){
+        console.log(this.searchForm.time[0]);
       },
 
       /**

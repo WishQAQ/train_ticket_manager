@@ -115,3 +115,12 @@ Vue.prototype.$dateToMs = (data) =>{
     return data
   }
 }
+
+/**
+ * @Description: 时间格式转时间戳
+ * @author Wish
+ * @date 2019/10/25
+*/
+Vue.prototype.$dateToDate = (data) =>{
+  return Math.round(new Date(data).getTime()/1000)
+}

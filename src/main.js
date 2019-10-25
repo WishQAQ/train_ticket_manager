@@ -18,7 +18,6 @@ import axios from "axios";
 Vue.prototype.$axios = axios;
 
 import qs from 'qs'
-// Vue.prototype.$axios = axios;
 axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
 // 请求拦截器
 axios.interceptors.request.use(
@@ -26,9 +25,9 @@ axios.interceptors.request.use(
       if(sessionStorage.CSRF){
         config.headers['csrf'] = sessionStorage.CSRF;
       }
-      if (config.method === 'post') {
-        config.data = qs.stringify(config.data)
-      }
+      // if (config.method === 'post') {
+      //   config.data = qs.stringify(config.data)
+      // }
       return config;
     },
     error => {

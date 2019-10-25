@@ -11,7 +11,6 @@
     </div>
 
 
-
     <div class="order_header_add" v-if="urlType === 'add'">
       <div class="add_title">订单Q群原始信息</div>
       <div class="add_input">
@@ -24,7 +23,7 @@
             v-model="AddGroupOriginData">
         </el-input>
       </div>
-      <el-button v-if="!addBtnType" class="add_btn" @click="addBtnType = true">保存</el-button>
+      <el-button v-if="!addBtnType" class="add_btn" @click="saveGroupBtn()">保存</el-button>
       <el-button v-if="addBtnType" class="add_btn" @click="addGroupBtn" :disabled="addBtnDisabled">识别</el-button>
     </div>
 
@@ -97,11 +96,15 @@
             </el-input>
           </div>
           <div class="info_upload_image">
-            <UploadLeaflet></UploadLeaflet>
+
           </div>
         </div>
       </div>
-      <div class="info_upload">
+      <div class="add_upload" v-if="urlType === 'add'">
+        <UploadLeaflet :messageText="'证件照片'"></UploadLeaflet>
+        <UploadLeaflet :messageText="'源文件'"></UploadLeaflet>
+      </div>
+      <div class="info_upload" v-if="urlType !== 'add'">
           车票照片
       </div>
     </div>
@@ -138,6 +141,8 @@
 
             <el-table
                 border
+                @select="tableSelect"
+                @select-all="tableSelect"
                 ref="multipleTable"
                 tooltip-effect="dark"
                 :data="cItem.passenger"
@@ -201,7 +206,7 @@
                   align="center"
                   label="操作">
                 <template slot-scope="scope">
-                  <el-button size="mini">删除</el-button>
+                  <el-button size="mini" @click="deleteList(scope.row)">删除</el-button>
                 </template>
               </el-table-column>
             </el-table>
@@ -210,7 +215,7 @@
         </div>
       </div>
 
-      <el-button @click="allAddSubmit">全部保存</el-button>
+      <el-button v-if="addTrainTableArray.length > 0" @click="allAddSubmit">全部保存</el-button>
 
     </div>
 
@@ -361,7 +366,6 @@
 
       'UploadLeaflet': () => import('@/components/UploadLeaflet/index'),
 
-      'AddOrderTable': () => import('@/components/AddOrderTable/index'), // 单程表格
     },
     data(){
       return {
@@ -375,6 +379,8 @@
          * 新增订单
          */
         AddGroupOriginData: '',  // 模糊查询Q群信息
+
+        saveGroupMessage: '', // 初始信息保存
         addBtnType: false,  // 保存 or 识别按钮切换
         addBtnDisabled: false, // 识别按钮
 
@@ -602,7 +608,12 @@
        * @author Wish
        * @date 2019/10/18
       */
+      saveGroupBtn(){
+        this.addBtnType = true
+        this.saveGroupMessage = JSON.parse(JSON.stringify(this.AddGroupOriginData))
+      },
       addGroupBtn(){
+        this.$message.success('数据识别中')
         this.addBtnDisabled = true
         if(this.AddGroupOriginData){
           let data ={
@@ -611,20 +622,19 @@
           this.$axios.post('/api/order/recognize/show',data)
               .then(res =>{
                 if(res.data.code === 0){
+                  this.$message.success('识别完成')
                   this.inputDisabled = false
                   this.addBtnDisabled = true
                   this.addDataList = res.data.result
                   this.orderInfo.order_sn = this.addDataList.orderNumber.new
                   this.orderInfo.old_order_sn = this.addDataList.orderNumber.old
-
                   /**
                    * @Description: 重组新增数组
                    * @author Wish
                    * @date 2019/10/24
                    */
-
-                  this.addDataList.trips.forEach(item =>{
-                    item.info.forEach(cItem =>{
+                  if(this.addDataList.trips.type === 0){
+                    this.addDataList.trips.info.forEach(cItem =>{
                       cItem['initial_station'] = cItem.route[0]  // 发站
                       cItem['stop_station'] = cItem.route[1] // 到站
                       cItem['riding_time'] = cItem.ride_date  // 发车时间
@@ -634,18 +644,44 @@
                       delete cItem.train_number
                       cItem.passenger.forEach(dItem =>{
                         dItem['IDCard'] = dItem.card  // 身份证
+                        dItem['ticket_type'] = dItem.is_child    // 车票类型
                         dItem['ticket_type'] = dItem.is_child === 0 ? '成人票' :'儿童票'   // 车票类型
-                        dItem['ticket_species'] = this.addDataList.ticketType  // 车票类型
+                        dItem['ticket_species'] = this.addDataList.ticketType
                         dItem['remarks'] = ''  // 备注
                         dItem['missed_meals_money'] = '5'  // 误餐费
                         delete dItem.card
                         delete dItem.is_child
                       })
                     })
-                  })
-                  this.addTrainTableArray = JSON.parse(JSON.stringify(this.addDataList.trips))
+                    this.addTrainTableArray.push(JSON.parse(JSON.stringify(this.addDataList.trips)))
 
+                  }else {
+                    this.addDataList.trips.forEach(item =>{
+                      item.info.forEach(cItem =>{
+                        cItem['initial_station'] = cItem.route[0]  // 发站
+                        cItem['stop_station'] = cItem.route[1] // 到站
+                        cItem['riding_time'] = cItem.ride_date  // 发车时间
+                        cItem['trips_number'] = cItem.train_number  // 车次
+                        delete cItem.route
+                        delete cItem.ride_date
+                        delete cItem.train_number
+                        cItem.passenger.forEach(dItem =>{
+                          dItem['IDCard'] = dItem.card  // 身份证
+                          dItem['ticket_type'] = dItem.is_child    // 车票类型
+                          dItem['ticket_type'] = dItem.is_child === 0 ? '成人票' :'儿童票'   // 车票类型
+                          dItem['ticket_species'] = this.addDataList.ticketType
+                          dItem['remarks'] = ''  // 备注
+                          dItem['missed_meals_money'] = '5'  // 误餐费
+                          delete dItem.card
+                          delete dItem.is_child
+                        })
+                      })
+                    })
+                    this.addTrainTableArray = JSON.parse(JSON.stringify(this.addDataList.trips))
 
+                  }
+
+                  console.log(this.addTrainTableArray);
                 }else {
                   this.$message.warning(res.data.msg)
                 }
@@ -656,28 +692,62 @@
       },
 
       /**
+       * @Description: 删除按钮
+       * @author Wish
+       * @date 2019/10/25
+      */
+      deleteList(data){
+        console.log(data);
+      },
+
+      /**
+       * @Description: 多选按钮
+       * @author Wish
+       * @date 2019/10/25
+      */
+      tableSelect(v){
+        console.log(v);
+      },
+
+      /**
        * @Description: 新增全部保存
        * @author Wish
        * @date 2019/10/22
       */
       allAddSubmit(){
-        console.log(this.addTrainTableArray);
+        let orderList = JSON.parse(JSON.stringify(this.addTrainTableArray))
+        orderList.forEach(item =>{
+          item.info.forEach(cItem =>{
+            cItem.riding_time = this.$dateToDate(cItem.riding_time)  // 发车时间
+            cItem.passenger.forEach(dItem =>{
+              dItem.ticket_type = dItem.ticket_type === '成人票' ? 0 :1   // 车票类型
+              dItem.ticket_species = dItem.ticket_species === '电子票' ? 0:
+                  dItem.ticket_species === '网票' ? 1:
+                      dItem.ticket_species === '纸票' ? 2: '' // 车票类型 0:电子票、1:网票、2:纸票
+            })
+          })
+        })
+
         let data ={
           order_sn: this.orderInfo.order_sn, // 主订单号
           old_order_sn: this.orderInfo.old_order_sn,  // 旧订单号
           customer: this.customerName, // 客户商标识
           issuer: this.billerName, // 发单人标识
-          origin_data: this.AddGroupOriginData, // Q群原始信息
+          origin_data: this.saveGroupMessage, // Q群原始信息
           route_type: 0,
           certificates: '',
           source_file: '',
           ticket_photos: '',
           remarks: '',
-          route: JSON.stringify(this.addTrainTableArray),
+          route: JSON.stringify(orderList),
         }
         this.$axios.post('/api/order/add',data)
             .then(res =>{
-              console.log(res);
+              if(res.data.code === 0){
+                this.$message.success('保存成功')
+              }else {
+                this.$message.warning(res.data.msg)
+              }
             })
       },
 
@@ -860,6 +930,13 @@
             flex-direction: column;
           }
         }
+      }
+      .add_upload{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-left: 150px;
+        height: 120px;
       }
       .info_upload{
         margin-left: 150px;
