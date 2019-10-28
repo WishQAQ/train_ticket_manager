@@ -172,11 +172,11 @@
       */
       submitOrderInfo(){
         let data ={
-          bill_number: '',
-          orders: '',
-          receivables: '',
-          payment: '',
-          remark: '',
+          bill_number: this.orderId,
+          orders: this.orderInfo.orderId,
+          receivables: this.upload_receipt,
+          payment: this.upload_payment,
+          remark: this.orderMarker,
           begin: this.$dateToMs(this.orderTime[0]) / 1000,
           end: this.$dateToMs(this.orderTime[1]) / 1000
         }

@@ -224,7 +224,9 @@
                 <el-dropdown-item><div @click="openUploadDialog(2,scope.row)">上传收款凭证</div></el-dropdown-item>
                 <el-dropdown-item><div @click="toggleSelection(scope.row)">移除多选</div></el-dropdown-item>
                 <el-dropdown-item><div @click="changeOrderType(scope.row)">{{scope.row.is_lock === 1? '解除锁定': '锁定'}}</div></el-dropdown-item>
-                <el-dropdown-item v-if="viewsType !== 1"><div @click="jumpBatchStatement(scope.row)">对账</div></el-dropdown-item>
+                <el-dropdown-item v-if="viewsType !== 1 && $numberSubtract(scope.row.receivables,scope.row.actual_receipts) > 0">
+                  <div @click="jumpBatchStatement(scope.row)">对账</div>
+                </el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
           </template>
