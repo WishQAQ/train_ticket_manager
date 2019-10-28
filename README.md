@@ -66,3 +66,21 @@ let data = {
 
 /'+this.per_page || null,{params:data}
 ```
+
+
+单图片上传
+```
+ components:{
+      'UploadImage': () => import('@/components/UploadLeaflet')
+    },
+
+<UploadImage @uploadAddress="uploadImages" ref="uploadImage"></UploadImage>
+
+ uploadImages(val){
+   if(val){
+     this.upload_image = val
+   }
+ },
+
+this.$refs.uploadImage.closedImage()
+```

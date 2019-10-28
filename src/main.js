@@ -31,7 +31,8 @@ axios.interceptors.request.use(
       return config;
     },
     error => {
-      Promise.reject(error)
+      console.log('111');
+      return Promise.reject(error);
     });
 
 

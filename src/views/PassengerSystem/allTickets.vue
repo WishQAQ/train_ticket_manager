@@ -113,7 +113,7 @@
           <el-button>导出</el-button>
           <el-dropdown-menu slot="dropdown">
             <el-dropdown-item>导出当前页面</el-dropdown-item>
-            <el-dropdown-item><div @click="exportAllTable()">导出全部</div></el-dropdown-item>
+            <el-dropdown-item><div @click="exportAllTable(0)">导出全部</div></el-dropdown-item>
           </el-dropdown-menu>
         </el-dropdown>
       </div>
@@ -176,10 +176,36 @@
        * @date 2019/10/18
       */
       exportAllTable(data){
-        this.$axios.get('/api/system/exportTicket/'+this.rulType)
-            .then(res =>{
-              console.log(res);
-            })
+        this.$axios({
+          url: '/api/system/exportTicket/'+data,
+          method: 'get',
+          responseType: 'blob'
+        }).then(res =>{
+          console.log(res);
+          if (res.data.type === "application/json") {
+            this.$message({
+              type: "error",
+              message: "下载失败，文件不存在或权限不足"
+            });
+          } else {
+            let blob = new Blob([res.data]);
+            if (window.navigator.msSaveOrOpenBlob) {
+              navigator.msSaveBlob(blob);
+              console.log(blob);
+            } else {
+              let link = document.createElement("a");
+              let evt = document.createEvent("HTMLEvents");
+              evt.initEvent("click", false, false);
+              link.href = URL.createObjectURL(blob);
+              link.download = '';
+              link.style.display = "none";
+              document.body.appendChild(link);
+              link.click();
+              window.URL.revokeObjectURL(link.href);
+              console.log(link);
+            }
+          }
+        })
       },
 
       /**

@@ -104,6 +104,26 @@ Vue.prototype.$getTime = (data) =>{
 
 
 /**
+ * @Description: 时间戳转换 年月日
+ * @author Wish
+ * @date 2019/9/29
+ */
+Vue.prototype.$getTimeYear = (data) =>{
+  if(data){
+    let date = new Date(data);
+    let year = date.getFullYear();
+    let month = date.getMonth() + 1;
+    let day = date.getDate();
+
+    return year
+        + "-" + (month < 10 ? "0" + month : month)
+        + "-" + (day < 10 ? "0" + day : day)
+  }else {
+    return data
+  }
+}
+
+/**
  * @Description: 标准时间转时间戳
  * @author Wish
  * @date 2019/10/17
@@ -123,4 +143,28 @@ Vue.prototype.$dateToMs = (data) =>{
 */
 Vue.prototype.$dateToDate = (data) =>{
   return Math.round(new Date(data).getTime()/1000)
+}
+
+/**
+ * @Description: 多客户处理
+ * @author Wish
+ * @date 2019/10/28
+*/
+Vue.prototype.$multiUserProcess = (data) =>{
+  let newArr = new Array()
+  data.forEach(res =>{
+    newArr.push(res.name)
+  })
+  newArr = Array.from(new Set(newArr))
+  return String(newArr)
+}
+
+/**
+ * @Description: 加减小数处理
+ * @author Wish
+ * @date 2019/10/28
+*/
+Vue.prototype.$numberSubtract = (begin,end) =>{
+  let newNum = parseFloat(begin) - parseFloat(end)
+  return newNum.toFixed(2)
 }

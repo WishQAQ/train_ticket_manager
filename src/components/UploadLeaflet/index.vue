@@ -60,12 +60,15 @@
             .then(res =>{
               if(res.data.code === 0){
                 this.imageUrl = 'http://oa.huimin.dev.cq1080.com/'+res.data.result
-                this.$message.success('上传成功')
+                this.$emit('uploadAddress', res.data.result)
               }else {
                 this.imageUrl = ''
                 this.$message.warning(res.data.msg)
               }
         })
+      },
+      closedImage(){
+        this.imageUrl = ''
       },
     }
   }

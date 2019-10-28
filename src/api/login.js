@@ -6,7 +6,8 @@ import {Message} from 'element-ui'
 
 export function loginByUserInfo(username, password) {
    axios.post('http://oa.huimin.dev.cq1080.com/account/login', username, password).then(res =>{
-    sessionStorage.setItem('CSRF', res.data.result.csrf);
+     console.log(res);
+     sessionStorage.setItem('CSRF', res.data.result.csrf);
     if(res.data.code === 0){
       // 页面跳转
       Message.success({

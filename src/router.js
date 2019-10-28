@@ -44,9 +44,9 @@ export function powerRouterLazy(name) {
           { path: '/openOrder', name: 'openOrder', component: () => import('@/views/FinancialSystem/settledOrder'),meta:{name: '待结算订单',hidden: false}},  // 待结算订单
           { path: '/chargeOffOrder', name: 'chargeOffOrder', component: () => import('@/views/FinancialSystem/settledOrder'),meta:{name: '出账中订单',hidden: false}},  // 出账中订单
           { path: '/notChargeOff', name: 'notChargeOff', component: () => import('@/views/FinancialSystem/settledOrder'),meta:{name: '未出账订单',hidden: false}},  // 未出账订单
-          { path: '/billingQuery', name: 'billingQuery', component: () => import('@/views/FinancialSystem/billingQuery'),meta:{name: '对账单查询',hidden: false}},  // 对账单查询
-          { path: '/billingInfo', name: 'billingInfo', component: () => import('@/views/FinancialSystem/billingInfo'),meta:{name: '对账单详情',hidden: false}},  // 对账单详情
-          { path: '/batchChecking', name: 'batchChecking', component: () => import('@/views/FinancialSystem/batchChecking'),meta:{name: '批量对账',hidden: false}},  // 批量对账
+          { path: '/statement', name: 'statement', component: () => import('@/views/FinancialSystem/statement'),meta:{hidden: false}},  // 对账单查询
+          { path: '/statementInfo', name: 'statementInfo', component: () => import('@/views/FinancialSystem/statementInfo'),meta:{hidden: true}},  // 对账单详情
+          { path: '/batchStatement', name: 'batchStatement', component: () => import('@/views/FinancialSystem/batchStatement'),meta:{hidden: true}},  // 批量对账
         ]};
       break;
     case 'passengerSystem':  // 乘客系统

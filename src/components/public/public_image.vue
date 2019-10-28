@@ -1,5 +1,5 @@
 <template>
-  <el-image class="public_image" :style="url?'':{background:'#f5f7fa'}" :src="url" :fit="fit">
+  <el-image class="public_image" :style="url?'':{background:'#f5f7fa'}" :src="'http://oa.huimin.dev.cq1080.com/'+url" :fit="fit">
     <div slot="error" class="image-slot">
       <i class="el-icon-picture-outline"></i>
     </div>
@@ -30,5 +30,7 @@
     justify-content: center;
     color: #909399;
     font-size: 30px;
+    width: 100%;
+    height: 100%;
   }
 </style>

@@ -161,6 +161,9 @@
               this.paginationList = res.data
               this.selectList = []
             })
+            .catch(() =>{
+              this.$message.warning('数据请求失败，请稍后重试')
+            })
       },
 
       /**
