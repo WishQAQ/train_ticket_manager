@@ -4,13 +4,13 @@
       <img class="tab_icon" src="../../assets/images/index.png" alt="">
       首页
     </div>
-    <el-tabs v-model="editableTabsValue" type="card" closable @tab-remove="removeTab">
+    <el-tabs v-model="editableTabsValue" type="card" closable @tab-remove="removeTab" @tab-click="jumpTabPage">
       <el-tab-pane
           v-for="(item, index) in editableTabs"
           :key="index"
           :name="item.name"
       >
-        <router-link class="tab_link" :to="item.path" slot="label"><i :class="['iconfont',item.icon]"></i> {{item.menuName}}</router-link>
+        <div class="tab_link" slot="label"><i :class="['iconfont',item.icon]"></i> {{item.menuName}}</div>
       </el-tab-pane>
     </el-tabs>
 
@@ -43,6 +43,18 @@
         bus.$on('getNavStatus',res => {
           this.editableTabs.push(res)
           this.editableTabsValue = ++this.tabIndex + '';
+        })
+      },
+
+      /**
+       * @Description: 跳转页面
+       * @author Wish
+       * @date 2019/10/29
+      */
+      jumpTabPage(val,data){
+        console.log(val);
+        this.$router.push({
+          name: val.name
         })
       },
 
