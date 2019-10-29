@@ -1,5 +1,10 @@
 <template>
-  <el-image class="public_image" :style="url?'':{background:'#f5f7fa'}" :src="'http://oa.huimin.dev.cq1080.com/'+url" :fit="fit">
+  <el-image
+      class="public_image"
+      :style="url?'':{background:'#f5f7fa'}"
+      :src="'http://oa.huimin.dev.cq1080.com/'+url"
+      :preview-src-list="urlList || false"
+      :fit="fit">
     <div slot="error" class="image-slot">
       <i class="el-icon-picture-outline"></i>
     </div>
@@ -16,9 +21,24 @@
       fit:{
         type: String,
         default: ()=> 'cover'
+      },
+      preview: {
+        type: Boolean,
+        default: () => false
       }
     },
     name: "public_image",
+    data(){
+      return {
+        urlList: []
+      }
+    },
+    mounted() {
+      if(this.preview){
+        let url = 'http://oa.huimin.dev.cq1080.com/'+ this.url
+        this.urlList.push(url)
+      }
+    }
   }
 </script>
 

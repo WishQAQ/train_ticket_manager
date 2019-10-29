@@ -74,6 +74,11 @@
 </template>
 
 <script>
+  window.onbeforeunload = onbeforeunload_handler;
+  function onbeforeunload_handler() {
+    return "确认退出?";
+  }
+
   export default {
     name: "batchStatement",
     components:{
@@ -90,6 +95,8 @@
 
         uploadOrderFile: false,  // 导入账单文件弹窗
         orderFile: '', // 订单文件
+        orderFileData: [],  // 后台返回的订单文件列表
+
         orderMarker: '', // 备注
       }
     },
@@ -155,6 +162,7 @@
               .then(res =>{
                 if(res.data.code === 0){
                   this.uploadOrderFile = false
+                  this.orderFileData = res.data.result
                 }else {
                   this.$message.warning(res.data.msg)
                 }
@@ -171,24 +179,37 @@
        * @date 2019/10/28
       */
       submitOrderInfo(){
+        let dataId = this.orderInfo.orderId.split(',')
+        let dataArr = []
+        for(let i=0;i< dataId.length; i++){
+          dataArr.push({
+            order_sn:  dataId[i]
+          })
+        }
         let data ={
           bill_number: this.orderId,
-          orders: this.orderInfo.orderId,
+          orders: JSON.stringify(dataArr),
+          bill_file: JSON.stringify(this.orderFileData),
           receivables: this.upload_receipt,
           payment: this.upload_payment,
           remark: this.orderMarker,
-          begin: this.$dateToMs(this.orderTime[0]) / 1000,
-          end: this.$dateToMs(this.orderTime[1]) / 1000
+          begin: this.$dateToMs(this.orderTime[0]) / 1000 || null,
+          end: this.$dateToMs(this.orderTime[1]) / 1000 || null
         }
-        console.log(data);
-        // this.$axios.post('/api/finance/batchBill',data)
-        //     .then(res =>{
-        //       if(res.data.code === 0){
-        //
-        //       }else {
-        //         this.$message.warning(res.data.msg)
-        //       }
-        //     })
+
+        if(this.orderFile){
+          this.$axios.post('/api/finance/batchBill',data)
+              .then(res =>{
+                if(res.data.code === 0){
+                  this.$message.success('保存成功')
+                }else {
+                  this.$message.warning(res.data.msg)
+                }
+              })
+        }else {
+          this.$message.warning('您还未导入账单文件')
+        }
+
       },
     },
     created() {

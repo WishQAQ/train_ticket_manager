@@ -10,7 +10,7 @@
             @click="navClick(item,index)">
         <span class="nav_icon"><i :class="['iconfont',item.icon]"></i></span>
         {{item.menuName}}
-        <transition name="el-fade-in-linear">
+
           <div class="nav_menu_more" v-if="navDrawer">
             <div @click="jumpAddress(cItem)"
                  class="more_list"
@@ -20,7 +20,6 @@
               <span class="more_icon"><i :class="['iconfont',cItem.icon]"></i></span>{{cItem.menuName}}
             </div>
           </div>
-        </transition>
       </div>
     </div>
 
@@ -35,12 +34,12 @@
       </el-dropdown-menu>
     </el-dropdown>
 
-    <transition name="el-fade-in">
+
       <div class="nav_mask" v-if="navDrawer">
         <div class="nav_list_mask" :style="{height: navDrawerHeight}"></div>
         <div class="nav_mask_click" @click="closeNavMenu"></div>
       </div>
-    </transition>
+
 
 
   </div>
@@ -88,6 +87,7 @@
         bus.$emit('getNavStatus',val);
         this.indexActive = false
         this.isIndexActive = true
+        this.navDrawer = false
         if(this.$route.path !== val.path){
           this.$router.push({
             path: val.path
@@ -124,6 +124,9 @@
 
       // 为登出按钮
       logout(){
+        this.$router.push({
+          name: 'login'
+        })
         this.$axios.get('/api/user/exit')
             .then(res =>{
               if(res.data.code === 0){

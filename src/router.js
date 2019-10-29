@@ -32,10 +32,10 @@ export function powerRouterLazy(name) {
       return {path: '/orderSystem', name: 'orderSystem', component: () => import('@/views/OrderSystem/index'),children: [
           {path: '/orderManagement', name: 'orderManagement', component: () => import('@/views/OrderSystem/orderManagement'),meta:{name: '订单管理',hidden: false}},  // 订单管理
           {path: '/orderDetails', name: 'orderDetails', component: () => import('@/views/OrderSystem/orderDetails'),meta:{name: '订单详情',hidden: true}},  // 订单详情
-          {path: '/historicalOrder', name: 'historicalOrder', component: () => import('@/views/OrderSystem/orderDetails'),meta:{name: '历史订单查询',hidden: false}},  // 历史订单查询
-          {path: '/UnOrder', name: 'UnOrder', component: () => import('@/views/OrderSystem/orderDetails'),meta:{name: '不明订单',hidden: false}},  // 不明订单
-          {path: '/remarksOrder', name: 'remarksOrder', component: () => import('@/views/OrderSystem/orderDetails'),meta:{name: '新备注订单列表',hidden: false}},  // 新备注订单列表
-          {path: '/recyclingOrder', name: 'recyclingOrder', component: () => import('@/views/OrderSystem/orderDetails'),meta:{name: '回收订单',hidden: false}},  // 回收订单
+          {path: '/historicalOrder', name: 'historicalOrder', component: () => import('@/views/OrderSystem/orderManagement'),meta:{name: '历史订单查询',hidden: false}},  // 历史订单查询
+          {path: '/UnOrder', name: 'UnOrder', component: () => import('@/views/OrderSystem/orderManagement'),meta:{name: '不明订单',hidden: false}},  // 不明订单
+          {path: '/remarksOrder', name: 'remarksOrder', component: () => import('@/views/OrderSystem/orderManagement'),meta:{name: '新备注订单列表',hidden: false}},  // 新备注订单列表
+          {path: '/recyclingOrder', name: 'recyclingOrder', component: () => import('@/views/OrderSystem/orderManagement'),meta:{name: '回收订单',hidden: false}},  // 回收订单
         ]};
       break;
     case 'financialSystem':  // 财务系统

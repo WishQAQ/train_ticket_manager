@@ -1,4 +1,3 @@
-<!--已结算订单-->
 <template>
   <div class="content" v-loading="loading">
     <div class="top">
@@ -225,7 +224,7 @@
                 <el-dropdown-item><div @click="toggleSelection(scope.row)">移除多选</div></el-dropdown-item>
                 <el-dropdown-item><div @click="changeOrderType(scope.row)">{{scope.row.is_lock === 1? '解除锁定': '锁定'}}</div></el-dropdown-item>
                 <el-dropdown-item v-if="viewsType !== 1 && $numberSubtract(scope.row.receivables,scope.row.actual_receipts) > 0">
-                  <div @click="jumpBatchStatement(scope.row)">对账</div>
+                  <div @click="openBatchDialog(scope.row)">对账</div>
                 </el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
@@ -357,15 +356,14 @@
           <div class="order_table">
             <div class="order_title">收支汇款底单</div>
             <div class="order_table_images">
-              <PublicImage :url="detailsImages.remittance_voucher"></PublicImage>
-              <PublicImage :url="detailsImages.collection_voucher"></PublicImage>
+              <PublicImage :url="detailsImages.remittance_voucher" :preview="true"></PublicImage>
+              <PublicImage :url="detailsImages.collection_voucher" :preview="true"></PublicImage>
             </div>
           </div>
         </div>
       </el-dialog>
 
       <!-- 上传汇款凭证 -->
-      <!-- 添加备注信息 -->
       <el-dialog
           :title="uploadType?'上传汇款凭证':'上传付款凭证'"
           width="30%"
@@ -380,6 +378,28 @@
         <div slot="footer" class="dialog-footer">
           <el-button @click="uploadDialog = false">取 消</el-button>
           <el-button type="primary" @click="submitUpload">确 定</el-button>
+        </div>
+      </el-dialog>
+
+      <!-- 单个对账 -->
+      <el-dialog
+          title="对账"
+          width="30%"
+          :show-close="false"
+          :close-on-click-modal="false"
+          :close-on-press-escape="false"
+          :visible.sync="batchDialog">
+        <div class="upload_dialog">
+          <el-form>
+            <el-form-item label="实收款">
+              <el-input v-model="batchMessage"></el-input>
+            </el-form-item>
+          </el-form>
+        </div>
+
+        <div slot="footer" class="dialog-footer">
+          <el-button @click="batchDialog = false">取 消</el-button>
+          <el-button type="primary" @click="submitBatch" :loading="submitLoading">确 定</el-button>
         </div>
       </el-dialog>
 
@@ -471,6 +491,11 @@
         uploadDialog: false, // 上传弹窗
         uploadType: true, // 上传类型
         upload_image: '',  // 图片路径
+
+        batchDialog: false, // 单个对账
+        batchMessage: '', // 单个对账内容
+        batchId: '', // 对账ID
+        submitLoading: true,
 
         dataTotal: {}, // 页面总价合计
 
@@ -736,8 +761,8 @@
        * @date 2019/10/28
       */
       jumpBatchStatement(){
-        let orderSn = new Array();
-        let customerList = new Array();
+        let orderSn = [];
+        let customerList = [];
         this.selectList.forEach(res =>{
           orderSn.push(res.order_sn)
           customerList.push(res.customer)
@@ -752,6 +777,70 @@
             order_num : String(this.selectList.length),
           }
         })
+      },
+
+      /**
+       * @Description: 打开单个对账弹窗
+       * @author Wish
+       * @date 2019/10/29
+      */
+      openBatchDialog(val){
+        this.orderId = val.order_sn
+        this.batchMessage = ''
+        this.batchId = ''
+        this.batchDialog = true
+        this.submitLoading = true
+        this.$message.success('正在获取对账单号，请勿刷新页面')
+
+        let data ={
+          customer: val.customer,
+          order_num: 1
+        }
+        this.$axios.post('/api/finance/obtain',data)
+            .then(res =>{
+              if(res.data.code === 0){
+                this.batchId = res.data.result
+                this.$message.success('获取成功')
+                this.submitLoading = false
+              }else {
+                this.$message.warning(res.data.msg)
+              }
+            })
+      },
+      /**
+       * @Description: 单个对账提交
+       * @author Wish
+       * @date 2019/10/29
+      */
+      submitBatch(){
+        let dataForm = {
+          order_sn: this.orderId
+        }
+        let dataArr = []
+        dataArr.push(dataForm)
+
+        let fileForm = {
+          order_sn: this.orderId,
+          actual_receipts: this.batchMessage
+        }
+        let fileArr = []
+        fileArr.push(fileForm)
+
+        let data ={
+          bill_number: this.batchId,
+          orders: JSON.stringify(dataArr),
+          bill_file: JSON.stringify(fileArr),
+        }
+        this.$axios.post('/api/finance/batchBill',data)
+            .then(res =>{
+              if(res.data.code === 0){
+                this.batchDialog = false
+                this.$message.success('保存成功')
+              }else {
+                this.$message.warning(res.data.msg)
+              }
+
+            })
       },
 
       //移除多选
@@ -880,7 +969,11 @@
             width: 100%;
             display: flex;
             align-items: center;
-            justify-content: space-around;
+            >div{
+              width: 200px;
+              height: 200px;
+              margin: 0 30px 0 0;
+            }
           }
         }
       }

@@ -84,3 +84,13 @@ let data = {
 
 this.$refs.uploadImage.closedImage()
 ```
+
+图片组件
+```
+'PublicImage': () => import('@/components/public/public_image'),
+<PublicImage :url="imagesAddres" :preview="true"></PublicImage>
+
+url: 图片地址
+preview： true 开启点击大图预览
+fit： cover 图片拉伸方式
+```

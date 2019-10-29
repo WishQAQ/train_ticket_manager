@@ -42,6 +42,8 @@ export function loginByUserInfo(username, password) {
 export function userExit() {
   store.dispatch('Logout').then(() => {
     router.push({ path: '/login' });
+    localStorage.clear();
+    sessionStorage.clear();
   }).catch(err => {
     Message.error(err);
   });

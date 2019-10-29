@@ -78,7 +78,6 @@
         this.loading = true
         this.$axios.get('/api/finance/getStatementData')
             .then(res =>{
-              console.log(res);
               if(res.data.code === 0){
                 this.loading = false
                 this.tableData = res.data.result
@@ -90,12 +89,11 @@
       },
       handledTable(val){
         this.$router.push({
-          path: 'statementInfo',
+          name: 'statementInfo',
           query:{
             condition: val.bill_number
           },
         })
-        console.log(val);
       }
     },
     created() {

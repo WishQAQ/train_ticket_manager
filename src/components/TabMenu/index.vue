@@ -7,10 +7,10 @@
     <el-tabs v-model="editableTabsValue" type="card" closable @tab-remove="removeTab">
       <el-tab-pane
           v-for="(item, index) in editableTabs"
-          :key="item.name"
+          :key="index"
           :name="item.name"
       >
-        <span slot="label"><i :class="['iconfont',item.icon]"></i> {{item.menuName}}</span>
+        <router-link class="tab_link" :to="item.path" slot="label"><i :class="['iconfont',item.icon]"></i> {{item.menuName}}</router-link>
       </el-tab-pane>
     </el-tabs>
 
@@ -33,6 +33,9 @@
       // 选中首页
       checkIndex(){
         this.editableTabsValue = '0';  // 关闭其余标签选中状态
+        this.$router.push({
+          name: 'home'
+        })
       },
 
       getNavStatus(){
@@ -41,7 +44,6 @@
           this.editableTabs.push(res)
           this.editableTabsValue = ++this.tabIndex + '';
         })
-
       },
 
       addTab(targetName) {
@@ -106,6 +108,7 @@
       margin-right: 5px;
     }
 
+
     /*样式清理*/
     /deep/.el-tabs{
       height: 100%;
@@ -126,12 +129,17 @@
                 line-height: 48px;
                 border: unset;
                 height: 100%;
-                font-size:16px;
-                color:rgba(38,153,251,.5);
+                .tab_link{
+                  font-size:16px;
+                  color:rgba(38,153,251,.5);
+                }
                 &.is-active{
-                  color:rgba(38,153,251,1);
                   opacity:1;
                   background: #fff;
+                  .tab_link{
+                    font-size:16px;
+                    color:rgba(38,153,251,1);
+                  }
                 }
               }
             }

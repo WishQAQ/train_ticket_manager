@@ -98,7 +98,7 @@ Vue.prototype.$getTime = (data) =>{
         + ":" + (minute < 10 ? "0" + minute : minute)
         + ":" + (second < 10 ? "0" + second : second);
   }else {
-    return data
+    return null
   }
 }
 

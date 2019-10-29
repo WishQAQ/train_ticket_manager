@@ -1,22 +1,24 @@
 <template>
   <div class="orderManagement" v-loading="loading">
     <div class="table_header">
-      <el-button @click="jumpDetailsBtn('add')">新增订单</el-button>
-      <el-input v-model="orderSearch.order" placeholder="订单号查询"></el-input>
-      <el-input v-model="orderSearch.order_status" placeholder="处理中订单查询"></el-input>
-      <el-input v-model="orderSearch.customer" placeholder="客户选择查询"></el-input>
-      <el-input v-model="orderSearch.departure" placeholder="发站查询"></el-input>
-      <el-input v-model="orderSearch.arrival" placeholder="到站查询"></el-input>
-      <el-input v-model="orderSearch.issuer" placeholder="发单人查询"></el-input>
-      <el-input v-model="orderSearch.submitter" placeholder="提交人查询"></el-input>
-      <el-input v-model="orderSearch.ticket_teller" placeholder="出票员查询"></el-input>
-      <el-date-picker
+      <div v-if="viewsType === 0"><el-button @click="jumpDetailsBtn('add')">新增订单</el-button></div>
+      <div v-if="viewsType === 2"><el-button>批量还原</el-button></div>
+      <div><el-input v-model="orderSearch.order" placeholder="订单号查询"></el-input></div>
+      <div><el-input v-model="orderSearch.order_status" placeholder="处理中订单查询"></el-input></div>
+      <div><el-input v-model="orderSearch.customer" placeholder="客户选择查询"></el-input></div>
+      <div><el-input v-model="orderSearch.departure" placeholder="发站查询"></el-input></div>
+      <div><el-input v-model="orderSearch.arrival" placeholder="到站查询"></el-input></div>
+      <div><el-input v-model="orderSearch.issuer" placeholder="发单人查询"></el-input></div>
+      <div><el-input v-model="orderSearch.submitter" placeholder="提交人查询"></el-input></div>
+      <div><el-input v-model="orderSearch.ticket_teller" placeholder="出票员查询"></el-input></div>
+       <div><el-date-picker
           v-model="orderSearch.time"
           type="daterange"
           range-separator="至"
           start-placeholder="开始日期"
           end-placeholder="结束日期">
-      </el-date-picker>
+       </el-date-picker></div>
+      <div><el-button>搜索</el-button></div>
     </div>
     <div class="table_main">
       <div class="table_content">
@@ -65,18 +67,20 @@
               </div>
             </div>
             <div class="option_box">
-              <el-dropdown trigger="click">
+              <el-dropdown trigger="click" v-if="viewsType !== 2">
                 <el-button size="mini">操作</el-button>
                 <el-dropdown-menu slot="dropdown">
                   <el-dropdown-item><div @click="jumpDetailsBtn('details',item)">详情</div></el-dropdown-item>
                   <el-dropdown-item><div @click="addRemarksBtn(item)">备注</div></el-dropdown-item>
-                  <el-dropdown-item><div @click="editOrderType(item,true)">设为不明订单</div></el-dropdown-item>
+                  <el-dropdown-item v-if="viewsType === 1"><div @click="editOrderType(item,0)">取消不明订单</div></el-dropdown-item>
+                  <el-dropdown-item v-else><div @click="editOrderType(item,1)">设为不明订单</div></el-dropdown-item>
                   <el-dropdown-item><div @click="editOrderTop(item)">{{item.is_top === 0 ? '标红置顶': '取消标红置顶'}}</div></el-dropdown-item>
-                  <el-dropdown-item><div>合并订单</div></el-dropdown-item>
+                  <el-dropdown-item v-if="viewsType === 0"><div>合并订单</div></el-dropdown-item>
                   <el-dropdown-item><div @click="jumpDetailsBtn('edit',item)">编辑</div></el-dropdown-item>
-                  <el-dropdown-item><div @click="editOrderType(item,false)">删除</div></el-dropdown-item>
+                  <el-dropdown-item><div @click="editOrderType(item,2)">删除</div></el-dropdown-item>
                 </el-dropdown-menu>
               </el-dropdown>
+              <el-button v-else size="mini" @click="reductionOrder(item)">还原</el-button>
             </div>
           </div>
 
@@ -150,6 +154,12 @@
     methods:{
       getDataList(){
         this.loading = true
+        this.viewsType =  this.$route.meta.name === '订单管理'? 0:
+            this.$route.meta.name === '不明订单'? 1:
+                this.$route.meta.name === '回收订单'? 2:
+                    this.$route.meta.name === '历史订单查询'? 3:
+                        this.$route.meta.name === '新备注订单列表'? 4: ''
+
         let data = {
           page: this.page || null,
           per_page: this.per_page
@@ -263,19 +273,34 @@
        * @date 2019/10/17
       */
       editOrderType(val,type){
-        let data = {
-          order_sn: val.order_sn,
-          type: type?1:2
-        }
-        this.$axios.post('/api/order/operateOrderType',data)
-            .then(res =>{
-              if(res.data.code === 0){
-                this.$message.success(type?'设为不明订单成功':'删除订单成功')
-                this.getDataList()
-              }else {
-                this.$message.warning(res.data.msg)
-              }
-            })
+        this.$confirm(
+            type === 1?'此操作会把所选订单修改为不明订单, 是否继续?':
+                type === 2?'此操作删除所选订单, 是否继续?':
+                    type === 0?'此操作会把所选订单还原为正常订单, 是否继续?':'',
+            '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          this.loading = true
+          let data = {
+            order_sn: val.order_sn,
+            type: type
+          }
+          this.$axios.post('/api/order/operateOrderType',data)
+              .then(res =>{
+                if(res.data.code === 0){
+                  this.$message.success(
+                      type === 1?'设为不明订单成功':
+                          type === 2?'删除订单成功':
+                              type === 0?'还原不明订单成功':'')
+                  this.getDataList()
+                }else {
+                  this.$message.warning(res.data.msg)
+                }
+              })
+        }).catch(() => {});
+
       },
 
       /**
@@ -334,10 +359,52 @@
         this.page = val
         this.getData()
       },
+
+      /**
+       * @Description: 回收订单操作
+       * @author Wish
+       * @date 2019/10/29
+      */
+      /**
+       * @Description: 还原订单
+       * @author Wish
+       * @date 2019/10/29
+      */
+      reductionOrder(val){
+        this.$confirm('此操作将还原所选订单, 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          let data ={
+            orderList: val.order_sn,
+          }
+         this.$axios.post('/api/order/restoreOrder',data)
+             .then(res =>{
+                if(res.data.code === 0){
+                  this.$message.success('还原成功')
+                  this.getDataList()
+                }else {
+                  this.$message.warning(res.data.msg)
+                }
+             })
+        }).catch(() => {});
+      },
     },
     created() {
       this.getDataList()
-    }
+    },
+
+    watch: {
+      '$route'(to, from) {
+        this.viewsType =  this.$route.meta.name === '订单管理'? 0:
+            this.$route.meta.name === '不明订单'? 1:
+                this.$route.meta.name === '回收订单'? 2:
+                    this.$route.meta.name === '历史订单查询'? 3:
+                        this.$route.meta.name === '新备注订单列表'? 4: ''
+        this.getDataList();
+      },
+    },
 
   }
 </script>
@@ -350,8 +417,9 @@
       align-items: center;
       flex-wrap: wrap;
       margin-bottom: 40px;
-      /deep/.el-input{
+      >div{
         margin-right: 15px;
+        margin-bottom: 10px;
       }
     }
     .table_main{
