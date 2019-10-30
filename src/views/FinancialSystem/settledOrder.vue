@@ -39,11 +39,11 @@
         </el-date-picker>
       </div>
       <div>
-        <el-input clearable placeholder="发单人" v-model="searchForm.issuer" clearable></el-input>
+        <el-input clearable placeholder="发单人" v-model="searchForm.issuer"></el-input>
       </div>
       <div>
         <el-button type="primary" @click="search">搜索</el-button>
-        <el-button v-if="viewsType !== 1" type="primary" @click="jumpBatchStatement()">批量对账</el-button>
+        <el-button v-if="viewsType !== 1" :disabled="selectList.length < 1" type="primary" @click="jumpBatchStatement()">批量对账</el-button>
       </div>
     </div>
     <div class="center">
@@ -158,17 +158,29 @@
           <el-table-column
               align="center"
               label="总赔付费">
-            <template slot-scope="scope">{{scope.row.cost_item[0].compensation_fee}}</template>
+            <template slot-scope="scope">
+              <div class="table_row_edit" @blur="openEditInput($event,scope.row,'compensation_fee')" contentEditable>
+                {{scope.row.cost_item[0].compensation_fee}}
+              </div>
+            </template>
           </el-table-column>
           <el-table-column
               align="center"
               label="优惠总额">
-            <template slot-scope="scope">{{scope.row.cost_item[0].total_discount}}</template>
+            <template slot-scope="scope">
+              <div class="table_row_edit" @blur="openEditInput($event,scope.row,'total_discount')" contentEditable>
+                {{scope.row.cost_item[0].total_discount}}
+              </div>
+            </template>
           </el-table-column>
           <el-table-column
               align="center"
               label="快递支出">
-            <template slot-scope="scope">{{scope.row.cost_item[0].express_fee}}</template>
+            <template slot-scope="scope">
+              <div class="table_row_edit" @blur="openEditInput($event,scope.row,'express_fee')" contentEditable>
+                {{scope.row.cost_item[0].express_fee}}
+              </div>
+            </template>
           </el-table-column>
         </el-table-column>
 
@@ -188,9 +200,15 @@
         </el-table-column>
 
         <el-table-column
-            prop="bill_numbers"
             align="center"
             label="对账单号">
+          <template slot-scope="scope">
+            <span
+                class="statement_number"
+                @click="jumpOrderDetails(item)"
+                v-for="(item,index) in scope.row.bill_numbers"
+                :key="index">{{item}}</span>
+          </template>
         </el-table-column>
 
         <el-table-column
@@ -465,6 +483,9 @@
         groupDialog: false, // Q群需求信息弹窗
         groupMessage: '', // Q群需求信息
 
+        showEditInput: false, // 单元格修改
+        editTotalData: '', // 修改数据
+
         remarkDialog: false, // 备注弹窗
         remarkMessage: '12312', // 备注信息
         orderId: '', // 订单号ID
@@ -514,6 +535,9 @@
         this.$axios.post('/api/finance/getInfo/'+this.viewsType+'/'+this.per_page,this.searchForm)
             .then(res =>{
               this.tableData = res.data.data;
+              this.tableData.forEach(item =>{
+                return item.bill_numbers =item.bill_numbers.split(',')
+              })
               this.loading = false;
               this.paginationList = res.data;
               this.getDataTotal()
@@ -557,6 +581,58 @@
         this.groupDialog = true
         this.groupMessage = ''
         this.groupMessage = val
+      },
+
+      /**
+       * @Description: 打开修改单元格
+       * @author Wish
+       * @date 2019/10/30
+      */
+      openEditInput(editData,data,dataName){
+        let editText = editData.target.innerText
+        let orderId = data.order_sn
+        let orderName = data.cost_item[0].dataName
+        if(editText !== orderName){
+          let data ={
+            order_sn: orderId,
+            field: dataName,
+            value: editText
+          }
+          this.$axios.post('/api/finance/editCellContent',data)
+              .then(res =>{
+                if(res.data.code === 0){
+                  this.$message.success('修改成功')
+                  this.getData()
+                }else {
+                  this.$message.warning(res.data.msg)
+                  this.getData()
+                  editData.target.innerText =  orderName || null
+                }
+              })
+        }
+      },
+
+      /**
+       * @Description: 单元格文本框失去焦点提交数据
+       * @author Wish
+       * @date 2019/10/30
+      */
+      closedEditTotal(){
+
+      },
+
+      /**
+       * @Description: 点击单号跳转对账详情页
+       * @author Wish
+       * @date 2019/10/30
+      */
+      jumpOrderDetails(val){
+        this.$router.push({
+          path: 'statementInfo',
+          query: {
+            condition: val
+          }
+        })
       },
 
       /**
@@ -930,6 +1006,38 @@
       }
     }
     .center{
+      .statement_number{
+        display: inline-flex;
+        cursor: pointer;
+        &::after{
+          content: ','
+        }
+        &:hover{
+          color: #409EFF;
+        }
+      }
+
+      .table_row_edit{
+        width: 100%;
+        min-height: 25px;
+        cursor: pointer;
+        position: relative;
+        text-align: left;
+        padding-left: 5px;
+        /*display: flex;*/
+        /*align-items: center;*/
+        /*justify-content: center;*/
+        /*&:hover{*/
+        /*  &::before{*/
+        /*    content: '添加内容';*/
+        /*    background-color: #606266;*/
+        /*    color: #fff;*/
+        /*    padding: 0 5px;*/
+        /*    position: absolute;*/
+        /*  }*/
+        /*}*/
+      }
+
       .export{
         margin-top: 20px;
         float: right;

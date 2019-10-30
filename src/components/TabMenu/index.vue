@@ -7,10 +7,10 @@
     <el-tabs v-model="editableTabsValue" type="card" closable @tab-remove="removeTab" @tab-click="jumpTabPage">
       <el-tab-pane
           v-for="(item, index) in editableTabs"
-          :key="index"
+          :key="item.name"
           :name="item.name"
       >
-        <div class="tab_link" slot="label"><i :class="['iconfont',item.icon]"></i> {{item.menuName}}</div>
+        <span class="tab_link" slot="label"><i :class="['iconfont',item.icon]"></i> {{item.menuName}}</span>
       </el-tab-pane>
     </el-tabs>
 
@@ -52,7 +52,6 @@
        * @date 2019/10/29
       */
       jumpTabPage(val,data){
-        console.log(val);
         this.$router.push({
           name: val.name
         })
@@ -82,6 +81,16 @@
 
         this.editableTabsValue = activeName;
         this.editableTabs = tabs.filter(tab => tab.name !== targetName);
+        if(this.editableTabs.length > 0){
+          const last = this.editableTabs[this.editableTabs.length - 1];
+          this.$router.push({
+            name: last.name
+          })
+        }else if(this.editableTabs.length < 1){
+          this.$router.push({
+            name: 'home'
+          })
+        }
       }
     },
     mounted(){

@@ -168,3 +168,16 @@ Vue.prototype.$numberSubtract = (begin,end) =>{
   let newNum = parseFloat(begin) - parseFloat(end)
   return newNum.toFixed(2)
 }
+
+/**
+ * @Description: 订单详情手机号隐藏
+ * @author Wish
+ * @date 2019/10/30
+*/
+Vue.prototype.$aliPayOrTelPhone = (data) =>{
+  if((/^1[3456789]\d{9}$/.test(data))){
+    return data.replace(/(\d{3})\d{4}(\d{4})/, "$1****$2");
+  }else {
+    return data
+  }
+}

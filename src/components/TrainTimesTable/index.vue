@@ -20,8 +20,8 @@
         </template>
       </el-table-column>
       <el-table-column
-          width="90px"
-          label="是否合并">
+          width="65px"
+          label="合并">
         <template slot-scope="scope">
           {{scope.row.is_merge === 0 ? '已合并' : '未合并'}}
         </template>
@@ -82,8 +82,10 @@
           label="出票时间">
       </el-table-column>
       <el-table-column
-          prop="payment_account"
           label="支付账号">
+        <template slot-scope="scope">
+          {{$aliPayOrTelPhone(scope.row.payment_account)}}
+        </template>
       </el-table-column>
       <el-table-column
           prop="payment_flow_number"
@@ -111,6 +113,7 @@
         // this.selectPassengerList = v.map(res =>{
         //   return res.id;
         // });
+        this.$emit('checkTableData',v)
       },
     }
   }

@@ -270,7 +270,6 @@
               if(res.data.code === 0){
                 this.receiptImage = res.data.result.collection_voucher.split(',')
                 this.paymentImage = res.data.result.remittance_voucher.split(',')
-                console.log(this.paymentImage);
               }else {
                 this.$message.warning(res.data.msg)
               }

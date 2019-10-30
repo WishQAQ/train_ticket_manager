@@ -14,7 +14,9 @@ export function loginByUserInfo(username, password) {
         message: '正在登录'
       })
       setTimeout(() =>{
-        router.push('/');
+        router.push({
+          name: 'home'
+        });
       },300)
     }else {
       Message.error({

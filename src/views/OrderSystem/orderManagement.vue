@@ -62,6 +62,7 @@
                   <p v-for="(dItem, dIndex) in cItem.desc" :key="dIndex" v-if="dItem.is_important === 1">
                     <span class="important_remarks">{{dItem.remarks}}</span>
                   </p>
+                  <p v-if="viewsType === 4">{{cItem.desc[0].remarks}}</p>
                   <!--<span style="font-size: 10px; color: #bebebe">暂无重要备注</span>-->
                 </div>
               </div>
