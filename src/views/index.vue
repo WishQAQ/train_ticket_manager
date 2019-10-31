@@ -1,6 +1,5 @@
 <template>
   <div class="index">
-
     <div class="fast_title">
       <p>快捷入口</p>
       <el-button :class="['refresh_btn',{'click': isClick}]" @click="refreshClick" :disabled="refreshStatus"></el-button>
@@ -18,7 +17,7 @@
         <div class="main_box">
           <div class="title">
             <p>帮助文档</p>
-            <div @click="jumpDocument()">更多<span></span></div>
+            <div @click="jumpDetails('helpDocument')">更多<span></span></div>
           </div>
           <div class="main_content" v-loading="dLoading">
             <div class="main_list" v-for="(item,index) in documentList" :key="index">
@@ -31,7 +30,7 @@
         <div class="main_box">
           <div class="title">
             <p>新闻列表</p>
-            <div>更多<span></span></div>
+            <div @click="jumpDetails('newsContent')">更多<span></span></div>
           </div>
           <div class="main_content" v-loading="nLoading">
             <div class="main_list" v-for="(item,index) in newList" :key="index">
@@ -43,12 +42,8 @@
         </div>
       </div>
       <div class="right_main">
-        <div class="title">
-          <p>便签墙</p>
-          <div @click="rightAddBtn">新增</div>
-        </div>
         <note ref="note" v-if="true"></note>
-        <notice v-if="false"></notice>
+        <notice v-if="true"></notice>
       </div>
     </div>
 
@@ -166,9 +161,9 @@
        * @author Wish
        * @date 2019/9/28
       */
-      jumpDocument(){
+      jumpDetails(val){
         this.$router.push({
-          path: '/helpDocument'
+          name: val
         })
       },
     },

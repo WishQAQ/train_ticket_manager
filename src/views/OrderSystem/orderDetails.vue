@@ -268,7 +268,7 @@
             <el-button type="primary" :disabled="checkedTableList.length < 1" v-if="urlType === 'edit'">批量修改</el-button>
             <el-button type="primary"
                        @click="deleteOrderList"
-                       :disabled="checkedTableList.length < 1"
+                       :disabled="deleteUserList.length < 1"
                        v-if="urlType === 'edit'">
               批量删除</el-button>
           </div>
@@ -325,7 +325,7 @@
               </div>
               <div>检票口：{{cItem.ticket_check}}</div>
             </div>
-            <TrainTimesTable v-on:checkTableData="checkTableList" :tableData="cItem.passengers.data"></TrainTimesTable>
+            <TrainTimesTable v-on:checkTableData="checkTableList" :orderInfo="item" :tableData="cItem.passengers.data"></TrainTimesTable>
           </div>
         </div>
       </div>
@@ -552,6 +552,11 @@
         addUserInfo: '', // 新增乘客输入框
 
         checkedTableList: [], // 表格多选列表
+        orderId: '', // 删除订单id
+        orderRouteId: [], // 删除乘客路线id
+        orderRouteToken: '', // 删除乘客路线token
+        orderUserId: [], // 删除乘客Id
+        deleteUserList: [],  // 多选删除乘客列表
       }
     },
     methods:{
@@ -666,7 +671,7 @@
        * @date 2019/10/17
       */
       hiddenTable(){
-        console.log('1');
+
       },
 
       /**
@@ -727,8 +732,6 @@
           })
         }
       },
-
-
 
       /**
        * @Description: 路线多选
@@ -837,8 +840,35 @@
        * @author Wish
        * @date 2019/10/30
       */
-      checkTableList(val){
-        this.checkedTableList = val
+      checkTableList(userId,routeId,orderId){
+        console.log(userId,routeId,orderId);
+        let newArr = {}
+
+        if(userId.length > 0){
+          newArr['order_sn'] = String(orderId)
+          newArr['passengers'] = String(userId)
+          newArr['route_id'] = String(routeId)
+          this.deleteUserList.push(newArr)
+        }
+        console.log(this.deleteUserList);
+        // // this.checkedTableList = val
+        // this.orderId = dataInfo.order_sn
+        // this.orderRouteToken = dataInfo.parent_id
+        //
+        // val.forEach(item =>{
+        //   this.orderRouteId = item.route
+        //   this.orderUserId = item.id
+        // })
+        //
+        // let newObj = {}
+        // newObj['token'] = this.orderRouteToken
+        // newObj['route_id'] = String(this.orderRouteId)
+        // newObj['passengers'] = String(this.orderUserId)
+        //
+        // this.deleteUserList.push(newObj)
+        // this.deleteUserList = [...new Set(this.deleteUserList)]
+        //
+        // console.log(this.deleteUserList);
       },
       /**
        * @Description: 删除乘客列表
@@ -851,7 +881,24 @@
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-
+          // this.deleteUserList.push({
+          //   token: this.orderRouteToken,
+          //   route_id: String(this.orderRouteId),
+          //   passengers: String(this.orderUserId)
+          // })
+          let data = {
+            order_sn: this.orderId,
+            info: JSON.stringify(this.deleteUserList)
+          }
+          this.$axios.post('/api/order/operate/delPassengers',data)
+              .then(res =>{
+                if(res.data.code === 0){
+                  this.$message.success('删除成功')
+                  this.getPassengerList()
+                }else {
+                  this.$message.warning(res.data.msg)
+                }
+              })
         }).catch(() => {});
       },
 
@@ -1035,6 +1082,9 @@
         border: unset;
         color: black;
         cursor: text;
+      }
+      .el-input__suffix{
+        display: none;
       }
     }
   }

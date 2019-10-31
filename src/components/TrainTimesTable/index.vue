@@ -20,10 +20,10 @@
         </template>
       </el-table-column>
       <el-table-column
-          width="65px"
+          width="50"
           label="合并">
         <template slot-scope="scope">
-          {{scope.row.is_merge === 0 ? '已合并' : '未合并'}}
+          {{scope.row.is_merge === 0 ? '是' : '否'}}
         </template>
       </el-table-column>
       <el-table-column
@@ -36,11 +36,21 @@
         </template>
       </el-table-column>
       <el-table-column
+          width="65"
           label="票类">
         <template slot-scope="scope">
           {{scope.row.ticket_type === 0?'电子票':
           scope.row.ticket_type === 1?'网票':
-          scope.row.ticket_type === 2?'纸票':''}}
+          scope.row.ticket_type === 2?'纸票':scope.row.ticket_type}}
+<!--          <el-select-->
+<!--              v-model="scope.row.ticket_type === 0?'电子票':-->
+<!--                       scope.row.ticket_type === 1?'网票':-->
+<!--                       scope.row.ticket_type === 2?'纸票':scope.row.ticket_type"-->
+<!--              placeholder="请选择">-->
+<!--            <el-option label="电子票" value="0"></el-option>-->
+<!--            <el-option label="网票" value="1"></el-option>-->
+<!--            <el-option label="纸票" value="2"></el-option>-->
+<!--          </el-select>-->
         </template>
       </el-table-column>
       <el-table-column
@@ -102,7 +112,7 @@
 <script>
   export default {
     name: "index",
-    props: ['tableData'],
+    props: ['tableData','orderInfo'],
     methods: {
       /**
        * @Description: 多选按钮
@@ -110,10 +120,16 @@
        * @date 2019/10/17
        */
       tableSelect(v,r){
-        // this.selectPassengerList = v.map(res =>{
-        //   return res.id;
-        // });
-        this.$emit('checkTableData',v)
+        let userId = []
+        userId = v.map(res =>{
+          return res.id;
+        });
+        let routeId = []
+        routeId = v.map(res =>{
+          return res.route;
+        });
+        routeId = [...new Set(routeId)]
+        this.$emit('checkTableData',userId,routeId,this.orderInfo.order_sn)
       },
     }
   }

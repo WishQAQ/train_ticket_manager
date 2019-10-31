@@ -1,85 +1,93 @@
 <template>
-  <div class="note" v-loading="loading">
-    <drag-resize
-        v-for="(item,index) in noteData"
-        :key="index"
-        class="note_card"
-        :w="width"
-        :h="height"
-        :x="item.xAxis"
-        :y="item.yAxis"
-        :parentH="500"
-        :isActive="item.id === noteId"
-        :isResizable="false"
-        :parentLimitation="true"
-        @deactivated="onDeactivated"
-        @clicked="onActivated(item)"
-        v-on:dragging="changePosition">
-      <div class="note_main">
-        <div class="note_header">
-          <p>{{item.title}}</p>
-          <span class="el-icon-close" v-if="item.id === noteId" @click="deleteNote(item)"></span>
+  <div class="note">
+    <div class="title">
+      <p>便签墙</p>
+      <div @click="openNote">新增</div>
+    </div>
+    <div class="note_main" v-loading="loading">
+
+      <drag-resize
+          v-for="(item,index) in noteData"
+          :key="index"
+          class="note_card"
+          :w="width"
+          :h="height"
+          :x="item.xAxis"
+          :y="item.yAxis"
+          :parentH="500"
+          :isActive="item.id === noteId"
+          :isResizable="false"
+          :parentLimitation="true"
+          @deactivated="onDeactivated"
+          @clicked="onActivated(item)"
+          v-on:dragging="changePosition">
+        <div class="note_main">
+          <div class="note_header">
+            <p>{{item.title}}</p>
+            <span class="el-icon-close" v-if="item.id === noteId" @click="deleteNote(item)"></span>
+          </div>
+          <div class="content">{{item.content}}</div>
+          <div class="time">{{$timestampFormat(Date.parse(item.time)/1000)}}</div>
         </div>
-        <div class="content">{{item.content}}</div>
-        <div class="time">{{$timestampFormat(Date.parse(item.time)/1000)}}</div>
-      </div>
 
-      <div v-if="item.id === noteId" class="bottom_btn">
-        <p @click="openEditBtn(item)">编辑</p>
-        <p @click="viewNoteBtn(item)">查看全文</p>
-      </div>
-    </drag-resize>
-
-    <el-dialog
-        :title="editNote?'新增便签墙':'编辑便签墙'"
-        modal-append-to-body
-        append-to-body
-        custom-class="add_note_dialog"
-        :visible.sync="addDialog"
-        :close-on-click-modal="false"
-        :close-on-press-escape="false"
-        :show-close="false">
-      <el-form class="addNoteForm" ref="form" label-width="80px">
-        <el-form-item label="标题">
-          <el-input
-              maxlength="50"
-              show-word-limit
-              v-model="noteForm.title"
-              placeholder="填写便签墙标题">
-          </el-input>
-        </el-form-item>
-        <el-form-item label="内容">
-          <el-input
-              maxlength="200"
-              show-word-limit
-              type="textarea"
-              :rows="10"
-              v-model="noteForm.content"
-              placeholder="填写便签墙内容">
-          </el-input>
-        </el-form-item>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button @click="closeAddDialog">取 消</el-button>
-        <el-button type="primary" :loading="showSubmitAddBtn" @click="submitAddDialog">确 定</el-button>
-      </div>
-    </el-dialog>
-
-    <el-dialog
-        title="查看便签墙"
-        modal-append-to-body
-        append-to-body
-        custom-class="view_note_dialog"
-        :visible.sync="viewDialog">
-      <div class="viewNote">
-        <div class="title">{{noteForm.title}}</div>
-        <div class="content">{{noteForm.content}}</div>
-        <el-divider></el-divider>
-        <div class="bottom">
-          <p>{{noteForm.time}}</p>
+        <div v-if="item.id === noteId" class="bottom_btn">
+          <p @click="openEditBtn(item)">编辑</p>
+          <p @click="viewNoteBtn(item)">查看全文</p>
         </div>
-      </div>
-    </el-dialog>
+      </drag-resize>
+
+      <el-dialog
+          :title="editNote?'新增便签墙':'编辑便签墙'"
+          modal-append-to-body
+          append-to-body
+          custom-class="add_note_dialog"
+          :visible.sync="addDialog"
+          :close-on-click-modal="false"
+          :close-on-press-escape="false"
+          :show-close="false">
+        <el-form class="addNoteForm" ref="form" label-width="80px">
+          <el-form-item label="标题">
+            <el-input
+                maxlength="50"
+                show-word-limit
+                v-model="noteForm.title"
+                placeholder="填写便签墙标题">
+            </el-input>
+          </el-form-item>
+          <el-form-item label="内容">
+            <el-input
+                maxlength="200"
+                show-word-limit
+                type="textarea"
+                :rows="10"
+                v-model="noteForm.content"
+                placeholder="填写便签墙内容">
+            </el-input>
+          </el-form-item>
+        </el-form>
+        <div slot="footer" class="dialog-footer">
+          <el-button @click="closeAddDialog">取 消</el-button>
+          <el-button type="primary" :loading="showSubmitAddBtn" @click="submitAddDialog">确 定</el-button>
+        </div>
+      </el-dialog>
+
+      <el-dialog
+          title="查看便签墙"
+          modal-append-to-body
+          append-to-body
+          custom-class="view_note_dialog"
+          :visible.sync="viewDialog">
+        <div class="viewNote">
+          <div class="title">{{noteForm.title}}</div>
+          <div class="content">{{noteForm.content}}</div>
+          <el-divider></el-divider>
+          <div class="bottom">
+            <p>{{noteForm.time}}</p>
+          </div>
+        </div>
+      </el-dialog>
+
+    </div>
 
   </div>
 </template>
@@ -258,90 +266,122 @@
 
 <style scoped lang="less">
   .note{
-    position: relative;
-    min-height: 500px;
-    overflow: hidden;
-
-    .note_card{
-      border-radius: 8px;
-      padding: 12px;
-      background: #F0F8FF;
+    .title{
       display: flex;
-      flex-direction: column;
+      align-items: center;
       justify-content: space-between;
-      transition: height .3s, width .3s;
-      cursor: move;
-      box-shadow:0 2px 3px rgba(0,0,0,0.05);
-      &.active{
-        width: 230px !important;
-        height: 275px !important;
-        background: #E5F3FF;
-        box-shadow:0 3px 6px rgba(0,0,0,0.1);
-        z-index: 1 !important;
-        &::before{
-          display: none;
-        }
-        .note_main{
-          opacity: 1;
-          .content{
-            -webkit-line-clamp: 8;
-            -webkit-box-orient: vertical;
-            text-indent: 2em;
-          }
+      height:48px;
+      background:rgba(238,247,255,1);
+      border-radius:6px 6px 0 0;
+      padding: 0 22px;
+      margin-bottom: 20px;
+      >p{
+        font-size:16px;
+        color:rgba(38,153,251,1);
+      }
+      >div{
+        display: flex;
+        align-items: center;
+        font-size:16px;
+        color:rgba(38,153,251,1);
+        cursor: pointer;
+        span{
+          margin-left: 10px;
+          display: flex;
+          background: url("../../assets/images/fast_more.png") no-repeat;
+          background-size: contain;
+          width: 20px;
+          height: 20px;
+          cursor: pointer;
         }
       }
-      .note_main{
-        opacity: .5;
-        .note_header{
+    }
+    .note_main{
+      position: relative;
+      min-height: 500px;
+      overflow: hidden;
+      .note_card{
+        border-radius: 8px;
+        padding: 12px;
+        background: #F0F8FF;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        transition: height .3s, width .3s;
+        cursor: move;
+        box-shadow:0 2px 3px rgba(0,0,0,0.05);
+        &.active{
+          width: 230px !important;
+          height: 275px !important;
+          background: #E5F3FF;
+          box-shadow:0 3px 6px rgba(0,0,0,0.1);
+          z-index: 1 !important;
+          &::before{
+            display: none;
+          }
+          .note_main{
+            opacity: 1;
+            .content{
+              -webkit-line-clamp: 8;
+              -webkit-box-orient: vertical;
+              text-indent: 2em;
+            }
+          }
+        }
+        .note_main{
+          opacity: .5;
+          .note_header{
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            >p{
+              flex: 1;
+              font-size:14px;
+              color:rgba(38,153,251,1);
+              overflow: hidden;
+              white-space: nowrap;
+              text-overflow: ellipsis;
+            }
+            >span{
+              cursor: pointer;
+              color:rgba(38,153,251,1);
+              flex-shrink: 0;
+            }
+          }
+          .content{
+            font-size:10px;
+            color:rgba(38,153,251,1);
+            text-align: justify;
+            display: -webkit-box;
+            overflow: hidden;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            margin-bottom: 10px;
+            transition: all .3s;
+          }
+          .user_name{
+            margin-bottom: 10px;
+          }
+          .time,.user_name{
+            font-size:10px;
+            color:rgba(38,153,251,1);
+          }
+        }
+
+        .bottom_btn{
           display: flex;
           align-items: center;
           justify-content: space-between;
-          margin-bottom: 12px;
+          font-size:14px;
+          color:rgba(38,153,251,1);
           >p{
-            flex: 1;
-            font-size:14px;
-            color:rgba(38,153,251,1);
-            overflow: hidden;
-            white-space: nowrap;
-            text-overflow: ellipsis;
-          }
-          >span{
             cursor: pointer;
-            color:rgba(38,153,251,1);
-            flex-shrink: 0;
+            display: inline-flex;
           }
-        }
-        .content{
-          font-size:10px;
-          color:rgba(38,153,251,1);
-          text-align: justify;
-          display: -webkit-box;
-          overflow: hidden;
-          -webkit-line-clamp: 3;
-          -webkit-box-orient: vertical;
-          margin-bottom: 10px;
-          transition: all .3s;
-        }
-        .user_name{
-          margin-bottom: 10px;
-        }
-        .time,.user_name{
-          font-size:10px;
-          color:rgba(38,153,251,1);
         }
       }
 
-      .bottom_btn{
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        font-size:14px;
-        color:rgba(38,153,251,1);
-        >p{
-          cursor: pointer;
-          display: inline-flex;
-        }
-      }
     }
   }
 

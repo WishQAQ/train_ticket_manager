@@ -133,7 +133,7 @@
 
 <style scoped lang="less">
   .optionLog{
-    padding: 80px 15%;
+    padding: 80px 5%;
     .table_header{
       display: flex;
       align-items: center;
