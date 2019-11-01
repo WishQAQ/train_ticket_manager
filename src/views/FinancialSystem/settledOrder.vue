@@ -390,7 +390,7 @@
           :close-on-press-escape="false"
           :visible.sync="uploadDialog">
         <div class="upload_dialog">
-          <UploadImage @uploadAddress="uploadImages" ref="uploadImage"></UploadImage>
+          <UploadImage @uploadAddress="uploadImages" :uploadType="'finance'" ref="uploadImage"></UploadImage>
         </div>
 
         <div slot="footer" class="dialog-footer">
@@ -536,7 +536,9 @@
             .then(res =>{
               this.tableData = res.data.data;
               this.tableData.forEach(item =>{
-                return item.bill_numbers =item.bill_numbers.split(',')
+                if(item.bill_numbers){
+                  return item.bill_numbers =item.bill_numbers.split(',')
+                }
               })
               this.loading = false;
               this.paginationList = res.data;
@@ -768,7 +770,7 @@
         this.orderId = data.order_sn
         this.uploadDialog = true
         this.upload_image = ''
-        this.$refs.uploadImage.closedImage()
+        // this.$refs.uploadImage.closedImage()
         if(index === 1){
           this.uploadType = true
         }else if(index === 2){

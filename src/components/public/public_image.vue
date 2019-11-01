@@ -1,8 +1,7 @@
 <template>
   <el-image
       class="public_image"
-      :style="url?'':{background:'#f5f7fa'}"
-      :src="'http://oa.huimin.dev.cq1080.com/'+url"
+      :src="isNaN(url) ? 'http://oa.huimin.dev.cq1080.com/'+url: ''"
       :preview-src-list="urlList || false"
       :fit="fit">
     <div slot="error" class="image-slot">

@@ -2,7 +2,7 @@
   <div class="login">
     <div class="title">To Hcp 车票管理系统</div>
     <div class="main">
-      <public-image class="main_title" :url="loginLogo" :fit="'contain'"></public-image>
+      <el-image class="main_title" :src="loginLogo"></el-image>
       <form>
         <el-input class="login_input" placeholder="请输入用户名" v-model="userName"></el-input>
         <el-input class="login_input" placeholder="请输入密码" show-password v-model="userPassword"></el-input>
@@ -18,12 +18,13 @@
 
 <script>
   import { loginByUserInfo }from '@/api/login'
+  import LogoImage from '../../public/logo.jpg'
 
   export default {
     name: "Login",
     data(){
       return {
-        loginLogo: '', // 登录页logo
+        loginLogo: LogoImage, // 登录页logo
         userName: 'rainbow', // 用户名
         userPassword: '123456', // 密码
 
@@ -124,7 +125,8 @@
         width: 100px;
         height: 100px;
         overflow: hidden;
-        margin-bottom: 40px;
+        margin: 0 auto 40px;
+        display: flex;
       }
 
       .login_input{

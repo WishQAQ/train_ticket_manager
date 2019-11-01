@@ -13,7 +13,7 @@
       <div v-else>
         <i class="el-icon-upload"></i>
         <div class="el-upload__text">将{{messageText}}拖到此处，或<em>点击上传</em></div>
-        <div class="el-upload__tip" slot="tip">大小不能超过20M</div>
+<!--        <div class="el-upload__tip" slot="tip">大小不能超过20M</div>-->
       </div>
     </el-upload>
   </div>
@@ -22,7 +22,17 @@
 <script>
   export default {
     name: "UploadLeaflet",
-    props: ['messageText'],
+    // props: ['messageText','uploadType'],
+    props:{
+      messageText:{
+        type: String,
+        default: () => ''
+      },
+      uploadType:{
+        type: String,
+        default: () => 'order'
+      },
+    },
     data(){
       return {
         uploadLoading: false,
@@ -54,7 +64,7 @@
       beforeUpload (file) {
         this.$message.success('上传中，请勿刷新页面')
         let uploadData = new FormData();
-        uploadData.append('type', 'order')
+        uploadData.append('type', String(this.uploadType))
         uploadData.append('file', file)
         this.$axios.post('/api/upload/graph/single',uploadData)
             .then(res =>{
@@ -66,9 +76,10 @@
                 this.$message.warning(res.data.msg)
               }
         })
+        return false
       },
       closedImage(){
-        this.imageUrl = ''
+        this.imageUrl = false
       },
     }
   }
@@ -79,11 +90,7 @@
     width: 100%;
     height: 100%;
     .upload_main{
-      width: 100%;
-      height: 100%;
       /deep/.el-upload {
-        width: 100%;
-        height: 100%;
         border: 1px dashed #d9d9d9;
         cursor: pointer;
         position: relative;
@@ -111,8 +118,13 @@
       }
       /deep/.el-upload{
         .el-upload-dragger{
-          width: 100%;
-          height: 100%;
+          background-color: unset;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: unset;
+          min-height: 100px;
+          height: unset;
           .el-icon-upload{
             margin: unset;
           }

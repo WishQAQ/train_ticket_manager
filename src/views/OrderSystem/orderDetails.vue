@@ -95,6 +95,12 @@
             </el-input>
           </div>
           <div class="info_upload_image">
+            <UploadLeaflet
+                v-if="urlType === 'edit'"
+                v-on:uploadAddress="uploadIdPhoto"
+                :defaultPhoto="orderInfo.certificates"
+                :messageText="'证件照片'"></UploadLeaflet>
+            <PublicImage v-else :url="orderInfo.certificates"></PublicImage>
 
           </div>
         </div>
@@ -104,7 +110,27 @@
         <UploadLeaflet :messageText="'源文件'"></UploadLeaflet>
       </div>
       <div class="info_upload" v-if="urlType !== 'add'">
-          车票照片
+        <div class="upload_image_main">
+          <div class="ticket_photo_box">
+            <el-image v-for="(item,index) in ticketPhotoList" :key="index" :src="'http://oa.huimin.dev.cq1080.com/'+item"></el-image>
+          </div>
+          <UploadLeaflet
+              v-if="urlType === 'edit'"
+              ref="uploadImage"
+              v-on:uploadAddress="uploadIdTicketPhoto"
+              :messageText="'车票照片'"></UploadLeaflet>
+          <PublicImage
+              v-else
+              v-for="(item,index) in orderInfo.ticket_photos || 5"
+              :key="index"
+              :url="isNaN(item)? item : ''">
+          </PublicImage>
+        </div>
+        <div class="info_message_box">
+          <p>车票照片</p>
+          <el-button v-if="urlType === 'edit'" type="primary" size="mini">车票/快递单上传</el-button>
+          <el-button v-else type="primary" size="mini">下载所有图片</el-button>
+        </div>
       </div>
     </div>
 
@@ -265,7 +291,12 @@
         <div class="search_btn">
           <div>
             <el-button @click="hiddenTable">隐藏</el-button>
-            <el-button type="primary" :disabled="checkedTableList.length < 1" v-if="urlType === 'edit'">批量修改</el-button>
+            <el-button type="primary"
+                       @click="openBatchEdit"
+                       :loading="batchEditLoading"
+                       :disabled="deleteUserList.length < 1"
+                       v-if="urlType === 'edit'">
+              批量修改</el-button>
             <el-button type="primary"
                        @click="deleteOrderList"
                        :disabled="deleteUserList.length < 1"
@@ -426,7 +457,7 @@
     <!-- 添加乘客弹窗 -->
     <el-dialog
         title="添加乘客"
-        width="50%"
+        width="60%"
         :close-on-click-modal="false"
         :close-on-press-escape="false"
         :show-close="false"
@@ -444,7 +475,7 @@
             userListHeader.route_type === 2 ?'中转' :
             userListHeader.route_type === 3 ?'中转往返' :''}}
           </div>
-          <div>行程时间：<span>{{$getTime(item.riding_time * 1000)}}</span></div>
+          <div>行程时间：<span>{{$getTimeYear(item.riding_time * 1000)}}</span></div>
           <div>
             乘车区间：
             <span>{{item.departure_station}}</span>
@@ -470,6 +501,116 @@
       </div>
     </el-dialog>
 
+    <!-- 批量修改 -->
+    <el-dialog
+        title="批量修改"
+        :width="batchEditData.info.information.length > 2?'80%':'50%'"
+        :close-on-click-modal="false"
+        :close-on-press-escape="false"
+        :show-close="false"
+        custom-class="batch_edit_dialog"
+        :visible.sync="batchEditDialog">
+      <div class="dialog_main"
+           v-for="(item,index) in batchEditInfo"
+           :key="index">
+        <div class="main_box">
+          <div class="main_box_title">原路线信息</div>
+          <div class="main_box_content" :style="{ opacity: '.5'}">
+            <div class="content_route" v-for="(cItem,cIndex) in item.route" :key="cIndex">
+              <div>{{$getTimeYear(cItem.riding_time * 1000)}}</div>
+              <div class="route_message">
+                <span>{{cItem.departure_station}}</span>
+                <p>{{cItem.trips_number}}</p>
+                <span>{{cItem.arrival_station}}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="main_box">
+          <div class="main_box_title">车票状态</div>
+          <div class="main_box_content">
+            <el-select v-model="item.ticket_status" placeholder="请选择">
+              <el-option label="已出票" value="1"></el-option>
+              <el-option label="已取消票" value="2"></el-option>
+              <el-option label="已改签" value="3"></el-option>
+              <el-option label="已退票" value="4"></el-option>
+            </el-select>
+          </div>
+        </div>
+        <div class="ticket_box" v-if="item.ticket_status === '1'">
+          <div class="main_box">
+            <div class="main_box_title"></div>
+            <div class="main_box_content">
+              <div class="content_route" v-for="(cItem,cIndex) in item.route" :key="cIndex">
+                <div>
+                  <time :value="cItem.riding_time * 1000"></time>
+                  <el-date-picker
+                      v-model="cItem.riding_time * 1000"
+                      type="date"
+                      placeholder="选择日期">
+                  </el-date-picker>
+                </div>
+                <div class="route_message">
+                  <span>{{cItem.departure_station}}</span>
+                  <p>{{cItem.trips_number}}</p>
+                  <span>{{cItem.arrival_station}}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="main_box">
+            <div class="main_box_title">票类</div>
+            <div class="main_box_content"></div>
+          </div>
+          <div class="main_box">
+            <div class="main_box_title">席别席位</div>
+            <div class="main_box_content"></div>
+          </div>
+          <div class="main_box">
+            <div class="main_box_title">票价</div>
+            <div class="main_box_content"></div>
+          </div>
+          <div class="main_box">
+            <div class="main_box_title">儿童票价</div>
+            <div class="main_box_content"></div>
+          </div>
+          <div class="main_box">
+            <div class="main_box_title">误餐费</div>
+            <div class="main_box_content"></div>
+          </div>
+          <div class="main_box">
+            <div class="main_box_title">出票费</div>
+            <div class="main_box_content"></div>
+          </div>
+        </div>
+
+        <div class="ticket_box" v-if="item.ticket_status === '3'">
+          <div class="main_box">
+            <div class="main_box_title">修改行程</div>
+            <div class="main_box_content">
+
+            </div>
+          </div>
+          <div class="main_box">
+            <div class="main_box_title">席别席位</div>
+            <div class="main_box_content">
+              <el-select-dropdown placeholder="请选择席别席位">
+                <el-option laber="" value=""></el-option>
+                <el-option label="" value=""></el-option>
+                <el-option label="" value=""></el-option>
+              </el-select-dropdown>
+
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="batchEditDialog = false">取 消</el-button>
+        <el-button type="primary" @click="submitBatchEditDialog()">确 定</el-button>
+      </div>
+    </el-dialog>
+
   </div>
 </template>
 
@@ -478,9 +619,9 @@
     name: "orderDetails",
     components:{
       'TrainTimesTable': () => import('@/components/TrainTimesTable/index'),
-
+      'PublicImage':() => import('@/components/public/public_image'),
       'UploadLeaflet': () => import('@/components/UploadLeaflet/index'),
-
+      'UploadMultiplePictures': () => import('@/components/UploadMultiplePictures/index')
     },
     data(){
       return {
@@ -516,6 +657,8 @@
          */
         fileList: [], // 上传文件列表
 
+        ticketPhotoList: [], // 车票图片列表
+
         passengerInfo: [], // 乘客信息列表 筛选表格状态 0:单程 1：往返 2：中转 3：中转往返
 
         passengerSearch: { // 乘客信息搜索
@@ -545,6 +688,9 @@
         /***
          * 编辑
          */
+        orderId: '', // 订单id
+        orderToken: '', // 订单token
+
         addRemarksMessage: '', // 新增备注信息
 
         addUserDialog: false, // 添加乘客弹窗
@@ -552,11 +698,21 @@
         addUserInfo: '', // 新增乘客输入框
 
         checkedTableList: [], // 表格多选列表
-        orderId: '', // 删除订单id
         orderRouteId: [], // 删除乘客路线id
         orderRouteToken: '', // 删除乘客路线token
         orderUserId: [], // 删除乘客Id
         deleteUserList: [],  // 多选删除乘客列表
+        batchEditLoading: false, // 批量修改加载
+
+        batchEditDialog: false, // 批量修改弹窗
+        batchEditList: [], // 批量修改列表
+        batchEditData: {  // 基本信息
+          info: {
+            information: []
+          }
+        },
+        batchEditInfo: [],
+        selectTicketStatus: '', // 选择车票状态
       }
     },
     methods:{
@@ -576,6 +732,9 @@
                 this.loading = false
                 res.data.result.forEach(res =>{
                   this.orderInfo = res
+                  if(this.orderInfo.ticket_photos){
+                    this.orderInfo.ticket_photos = this.orderInfo.ticket_photos.split(',')
+                  }
                 })
               }else {
                 this.$message.warning(res.data.msg)
@@ -734,6 +893,31 @@
       },
 
       /**
+       * @Description: 上传证件照片
+       * @author Wish
+       * @date 2019/11/1
+      */
+      uploadIdPhoto(val){
+        console.log(val);
+      },
+
+      /**
+       * @Description: 上传车票图片
+       * @author Wish
+       * @date 2019/11/1
+      */
+      uploadIdTicketPhoto(val){
+        console.log(val);
+        if(this.ticketPhotoList.length < 5){
+          this.ticketPhotoList.push(val)
+        }else {
+          this.$message.warning('最多上传五张图片')
+        }
+        this.$refs.uploadImage.closedImage()
+
+      },
+
+      /**
        * @Description: 路线多选
        * @author Wish
        * @date 2019/10/30
@@ -744,7 +928,6 @@
           this.checkedOrderList = val
         }
       },
-
 
       /**
        * @Description: 编辑按钮
@@ -840,8 +1023,8 @@
        * @author Wish
        * @date 2019/10/30
       */
-      checkTableList(userId,routeId,orderId){
-        console.log(userId,routeId,orderId);
+      checkTableList(userId,routeId,orderId,orderToken){
+        console.log(userId,routeId,orderId,orderToken);
         let newArr = {}
 
         if(userId.length > 0){
@@ -850,25 +1033,16 @@
           newArr['route_id'] = String(routeId)
           this.deleteUserList.push(newArr)
         }
-        console.log(this.deleteUserList);
-        // // this.checkedTableList = val
-        // this.orderId = dataInfo.order_sn
-        // this.orderRouteToken = dataInfo.parent_id
-        //
-        // val.forEach(item =>{
-        //   this.orderRouteId = item.route
-        //   this.orderUserId = item.id
-        // })
-        //
-        // let newObj = {}
-        // newObj['token'] = this.orderRouteToken
-        // newObj['route_id'] = String(this.orderRouteId)
-        // newObj['passengers'] = String(this.orderUserId)
-        //
-        // this.deleteUserList.push(newObj)
-        // this.deleteUserList = [...new Set(this.deleteUserList)]
-        //
-        // console.log(this.deleteUserList);
+
+        this.orderId = orderId
+        this.orderToken = orderToken
+
+        this.batchEditList.push({
+          'passengers': String(userId),
+          'route_id': String(routeId)
+        })
+        JSON.stringify(this.batchEditList)
+        console.log(this.batchEditList);
       },
       /**
        * @Description: 删除乘客列表
@@ -900,6 +1074,52 @@
                 }
               })
         }).catch(() => {});
+      },
+
+
+      /**
+       * @Description: 打开批量修改弹窗
+       * @author Wish
+       * @date 2019/11/1
+      */
+      openBatchEdit(){
+        this.batchEditLoading = true
+        this.$message.success('正在整理所选路线乘客信息，请勿刷新页面')
+        let newArr = {}
+        newArr['token'] = this.orderToken
+        newArr['information'] = this.batchEditList
+        let data ={
+          order_sn: this.orderId,
+          info: JSON.stringify(newArr)
+        }
+        this.$axios.post('/api/order/routeInfo/1',data)
+            .then(res =>{
+              if(res.data.code === 0){
+                this.batchEditDialog = true
+                this.batchEditLoading = false
+                this.batchEditData = res.data.result
+                this.batchEditInfo = JSON.parse(JSON.stringify(this.batchEditData.info.information))
+                this.batchEditInfo.forEach(item =>{
+                  item.ticket_status = item.ticket_status === 0 ? '未出票':
+                      item.ticket_status === 1 ? '已出票':
+                          item.ticket_status === 2 ? '已取消票':
+                              item.ticket_status === 3 ? '已改签':
+                                  item.ticket_status === 4 ? '已退票': ''
+                })
+              }else {
+                this.batchEditLoading = false
+                this.$message.warning(res.data.msg)
+              }
+            })
+      },
+
+      /**
+       * @Description: 批量修改提交
+       * @author Wish
+       * @date 2019/11/1
+      */
+      submitBatchEditDialog(){
+
       },
 
 
@@ -1225,7 +1445,7 @@
           display: flex;
           align-items: center;
           width: 100%;
-          height: 100px;
+          min-height: 100px;
           border: 1px solid #ebeef5;
           border-top: unset;
           .info_remarks{
@@ -1235,9 +1455,9 @@
             padding: 15px;
           }
           .info_upload_image{
-            width: 180px;
+            width: 240px;
             flex-shrink: 0;
-            height: 100%;
+            /*height: 100px;*/
             display: flex;
             align-items: center;
             justify-content: center;
@@ -1256,7 +1476,53 @@
         margin-left: 150px;
         border: 1px solid #ebeef5;
         border-top: unset;
-        height: 160px;
+        min-height: 160px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 30px;
+        .upload_image_main{
+          display: flex;
+          align-items: center;
+          .public_image{
+            margin-right: 40px;
+            width: 140px;
+            height: 100px;
+          }
+        }
+        .ticket_photo_box{
+          display: flex;
+          align-items: center;
+          /deep/.el-image{
+            width: 100px;
+            height: 100px;
+            margin-right: 20px;
+          }
+        }
+        .UploadLeaflet{
+          width: 120px;
+        }
+        .public_image{
+          &:not(:last-child){
+            margin-right: 5%;
+          }
+        }
+        .info_message_box{
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          flex-direction: column;
+          margin-left: 50px;
+          width: 120px;
+          height: 100%;
+          flex-shrink: 0;
+          >p{
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
+        }
       }
     }
 
@@ -1433,6 +1699,81 @@
         .order_user_message{
           /deep/.el-textarea__inner{
             border-radius: unset;
+          }
+        }
+      }
+    }
+
+    /*批量编辑*/
+    /deep/.batch_edit_dialog{
+      .el-dialog__body{
+        display: flex;
+        align-items: flex-start;
+        padding: 30px 50px;
+      }
+      .dialog_main{
+        flex: 1;
+        &:not(:last-child){
+          margin-right: 3%;
+        }
+        .main_box{
+          display: flex;
+          align-items: center;
+          border: 1px solid #ebeef5;
+          min-height: 57px;
+          &:not(:last-child){
+            border-bottom: unset;
+          }
+          .main_box_title{
+            padding-left: 15px;
+            width: 140px;
+            min-height: 57px;
+            border-right: 1px solid #ebeef5;
+            height: 100%;
+            display: flex;
+            align-items: center;
+          }
+          .main_box_content{
+            width: 100%;
+            height: 100%;
+            padding-left: 15px;
+            .content_route{
+              display: flex;
+              align-items: center;
+              .route_message{
+                display: flex;
+                align-items: center;
+                margin-left: 10px;
+                >p{
+                  width: 90px;
+                  display: inline-flex;
+                  justify-content: center;
+                  height: 25px;
+                  margin: 0 18px;
+                  position: relative;
+                  &::after{
+                    content: '';
+                    position: absolute;
+                    width: 90%;
+                    left: 0;
+                    bottom: 0;
+                    height: 1px;
+                    background:  rgba(38,153,251,1);
+                  }
+                  &::before{
+                    content: '';
+                    position: absolute;
+                    right: 0;
+                    bottom: -5px;
+                    width: 0;
+                    height: 0;
+                    border-top: 6px solid transparent;
+                    border-bottom: 6px solid transparent;
+                    border-left: 6px solid rgba(38,153,251,1);
+                  }
+                }
+              }
+            }
           }
         }
       }

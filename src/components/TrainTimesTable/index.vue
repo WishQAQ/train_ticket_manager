@@ -129,7 +129,7 @@
           return res.route;
         });
         routeId = [...new Set(routeId)]
-        this.$emit('checkTableData',userId,routeId,this.orderInfo.order_sn)
+        this.$emit('checkTableData',userId,routeId,this.orderInfo.order_sn,this.orderInfo.parent_id)
       },
     }
   }
