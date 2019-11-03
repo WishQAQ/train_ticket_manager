@@ -594,11 +594,11 @@
           <div class="main_box">
             <div class="main_box_title">席别席位</div>
             <div class="main_box_content">
-              <el-select-dropdown placeholder="请选择席别席位">
-                <el-option laber="" value=""></el-option>
-                <el-option label="" value=""></el-option>
-                <el-option label="" value=""></el-option>
-              </el-select-dropdown>
+              <el-select v-model="seatType" placeholder="请选择席别席位">
+                <el-option label="一等座" value="1"></el-option>
+                <el-option label="二等座" value="2"></el-option>
+                <el-option label="三等座" value="3"></el-option>
+              </el-select>
 
             </div>
           </div>
@@ -713,6 +713,8 @@
         },
         batchEditInfo: [],
         selectTicketStatus: '', // 选择车票状态
+
+        seatType: [], // 席别席位
       }
     },
     methods:{
