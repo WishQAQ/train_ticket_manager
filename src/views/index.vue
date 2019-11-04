@@ -69,15 +69,15 @@
         fastList: [{  // 快捷入口
           url: fastOrder,
           name: '订单号查询',
-          link: '',
+          link: 'orderManagement',
         },{
           url: fastPassenger,
           name: '乘客查询',
-          link: '',
+          link: 'allTickets',
         },{
           url: fastFinance,
           name: '待结算查询',
-          link: '',
+          link: 'openOrder',
         },{
           url: fastTicket,
           name: '余票查询',

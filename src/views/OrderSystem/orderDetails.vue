@@ -1625,6 +1625,9 @@
           .medium{
             margin-right: 30px;
             width: 450px;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
           }
         }
 

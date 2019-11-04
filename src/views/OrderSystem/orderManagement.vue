@@ -76,7 +76,7 @@
                   <el-dropdown-item v-if="viewsType === 1"><div @click="editOrderType(item,0)">取消不明订单</div></el-dropdown-item>
                   <el-dropdown-item v-else><div @click="editOrderType(item,1)">设为不明订单</div></el-dropdown-item>
                   <el-dropdown-item><div @click="editOrderTop(item)">{{item.is_top === 0 ? '标红置顶': '取消标红置顶'}}</div></el-dropdown-item>
-                  <el-dropdown-item v-if="viewsType === 0"><div>合并订单</div></el-dropdown-item>
+                  <el-dropdown-item v-if="viewsType === 0"><div @click="openMergerOrderDialog(item)">合并订单</div></el-dropdown-item>
                   <el-dropdown-item><div @click="jumpDetailsBtn('edit',item)">编辑</div></el-dropdown-item>
                   <el-dropdown-item><div @click="editOrderType(item,2)">删除</div></el-dropdown-item>
                 </el-dropdown-menu>
@@ -121,6 +121,30 @@
       </div>
     </el-dialog>
 
+    <el-dialog
+        title="合并订单"
+        width="400px"
+        :close-on-click-modal="false"
+        :close-on-press-escape="false"
+        :show-close="false"
+        custom-class="add_remarks_dialog"
+        :visible.sync="mergerOrderDialog">
+      <div class="dialog_main">
+        <el-select v-model="mergerOrder" placeholder="请选择">
+          <el-option
+              v-for="item in mergerOrderList"
+              :key="item.id"
+              :label="item.order_sn"
+              :value="item.order_sn">
+          </el-option>
+        </el-select>
+      </div>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="mergerOrderDialog = false">取 消</el-button>
+        <el-button type="primary" @click="submitMergerOrderDialog()">确 定</el-button>
+      </div>
+    </el-dialog>
+
   </div>
 </template>
 
@@ -146,6 +170,10 @@
         addRemarksDialog: false, // 添加备注弹窗
         remarksInput: '', // 备注信息
         importantRemarks: false, // 是否设置为重要备注
+
+        mergerOrderDialog: false, // 合并订单弹窗
+        mergerOrderList: [], // 有效订单列表
+        mergerOrder: '', // 选中订单
 
         paginationList: {},
         per_page: 10,
@@ -302,6 +330,51 @@
               })
         }).catch(() => {});
 
+      },
+
+      /**
+       * @Description: 合并订单按钮
+       * @author Wish
+       * @date 2019/11/4
+      */
+      openMergerOrderDialog(val){
+        this.mergerOrder = ''
+        this.$message.success('正在获取所有订单列表，请稍等')
+        this.orderId = val.order_sn
+        this.$axios.get('/api/order/obtainList/0')
+            .then(res =>{
+              if(res.data.code === 0){
+                this.mergerOrderDialog = true
+                this.mergerOrderList = res.data.result
+              }else {
+                this.$message.warning(res.data.msg)
+              }
+            })
+      },
+
+      /**
+       * @Description: 提交合并订单
+       * @author Wish
+       * @date 2019/11/4
+      */
+      submitMergerOrderDialog(){
+        if(this.mergerOrder){
+          let data ={
+            sourceOrder: this.orderId,
+            targetOrder: this.mergerOrder
+          }
+          this.$axios.post('/api/order/operateOrderMerge',data)
+              .then(res =>{
+                if(res.data.code === 0){
+                  this.$message.success('合并成功')
+                  this.mergerOrderDialog = false
+                }else {
+                  this.$message.warning(res.data.msg)
+                }
+              })
+        }else {
+          this.$message.warning('请选择需要合并的订单号')
+        }
       },
 
       /**

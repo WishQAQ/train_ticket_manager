@@ -240,6 +240,11 @@
     display: flex;
     flex-direction: column;
     padding: 80px 2%;
+    .ticket_header{
+      display: flex;
+      align-items: center;
+      margin-bottom: 40px;
+    }
     .table_bottom{
       display: flex;
       align-items: flex-end;

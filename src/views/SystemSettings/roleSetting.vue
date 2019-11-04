@@ -409,6 +409,7 @@
         }
         roleArray.push(val)
         roleArray = [...new Set(roleArray)]
+        console.log(roleArray);
         this.userInfo['permission_field'] = roleArray
         console.log(this.userInfo['permission_field']);
       },
@@ -417,7 +418,7 @@
         this.$axios.post('/api/authority/role/getRoleField')
             .then(res =>{
               this.roleListLoading = false
-              this.roleList = res.data.result
+              this.roleList = JSON.parse(JSON.stringify(res.data.result))
               this.userInfo['permission_field'] = []
             })
       },
@@ -429,7 +430,7 @@
       */
       submitBtn(){
         if(this.userInfo.role_name){
-          let roleListData = JSON.parse(JSON.stringify(this.userInfo.permission_field))
+          let roleListData = this.userInfo.permission_field || []
           roleListData.map(res =>{
             res['field_id'] = res.id;
             res.is_read_in =  res.is_read_in ? 0 : 1

@@ -52,6 +52,7 @@
           @select="tableSelect"
           @select-all="tableSelect"
           :data="tableData"
+          v-if="showTable"
           border
           style="width: 100%; margin-top: 20px">
         <el-table-column
@@ -463,6 +464,7 @@
     },
     data(){
       return {
+        showTable: false,
         loading: false,  // 加载
         tableData: [],
 
@@ -535,6 +537,7 @@
         this.$axios.post('/api/finance/getInfo/'+this.viewsType+'/'+this.per_page,this.searchForm)
             .then(res =>{
               this.tableData = res.data.data;
+              this.showTable = true
               this.tableData.forEach(item =>{
                 if(item.bill_numbers){
                   return item.bill_numbers =item.bill_numbers.split(',')
@@ -977,10 +980,15 @@
         this.viewsType =  this.$route.meta.name === '待结算订单'? 0:
             this.$route.meta.name === '已结算订单'? 1:
                 this.$route.meta.name === '未出账订单'? 2:
-                    this.$route.meta.name === '出账中订单'? 3: ''
-        console.log(this.viewsType);
+                    this.$route.meta.name === '出账中订单'? 3: this.$route.meta.name
         this.getData();
         this.getClient();
+        this.showTable = false
+        this.$nextTick(() => {
+          this.showTable = true
+        })
+
+
       },
     },
     created() {
@@ -988,7 +996,7 @@
       this.viewsType =  this.$route.meta.name === '待结算订单'? 0:
           this.$route.meta.name === '已结算订单'? 1:
               this.$route.meta.name === '未出账订单'? 2:
-                  this.$route.meta.name === '出账中订单'? 3: ''
+                  this.$route.meta.name === '出账中订单'? 3: this.$route.meta.name
       this.getData();
       this.getClient();
     }

@@ -41,6 +41,9 @@
        * @data 2019/10/4
       */
       this.$store.state.showHeader = false
+
+      localStorage.clear();
+      sessionStorage.clear();
     },
     methods:{
       submitLogin(){

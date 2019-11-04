@@ -92,7 +92,7 @@
           <div class="source">{{detailMessage.source || '暂无创建人信息'}}</div>
           <div class="time">{{detailMessage.created_at || '暂无创建时间'}}</div>
         </div>
-        <div class="content">{{detailMessage.content || '暂无文档内容'}}</div>
+        <div class="content" v-html="detailMessage.content || '暂无文档内容'"></div>
       </div>
     </el-dialog>
 
