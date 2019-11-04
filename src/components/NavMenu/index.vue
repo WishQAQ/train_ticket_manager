@@ -11,7 +11,7 @@
         <span class="nav_icon"><i :class="['iconfont',item.icon]"></i></span>
         {{item.menuName}}
 
-          <div class="nav_menu_more" v-if="navDrawer">
+          <div class="nav_menu_more" v-show="navDrawer">
             <div @click="jumpAddress(cItem)"
                  class="more_list"
                  v-if="index === current && cItem.menuName && !cItem.meta.hidden"
@@ -82,19 +82,6 @@
       jumpUserSetting(){
         this.$router.push({path: '/setting'})
       },
-      // 菜单跳转
-      jumpAddress(val){
-        bus.$emit('getNavStatus',val);
-        this.indexActive = false
-        this.isIndexActive = true
-        this.navDrawer = false
-        if(this.$route.path !== val.path){
-          this.$router.push({
-            path: val.path
-          })
-        }
-      },
-
       // 导航栏点击
       navClick(val,index){
         this.childrenList= []
@@ -115,8 +102,21 @@
             })
           }
         }
-
       },
+      // 菜单跳转
+      jumpAddress(val){
+        bus.$emit('getNavStatus',val);
+        this.indexActive = false
+        this.isIndexActive = true
+        this.navDrawer = false
+        if(this.$route.path !== val.path){
+          this.$router.push({
+            path: val.path
+          })
+        }
+      },
+
+
       // 点击遮罩关闭导航栏菜单
       closeNavMenu(){
         this.navDrawer= false

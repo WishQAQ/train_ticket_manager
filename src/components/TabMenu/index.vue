@@ -42,7 +42,8 @@
         //监听'getNavStatus'事件
         bus.$on('getNavStatus',res => {
           this.editableTabs.push(res)
-          this.editableTabsValue = ++this.tabIndex + '';
+          this.editableTabs = [...new Set(this.editableTabs)]
+          this.editableTabsValue = res.name
         })
       },
 
@@ -57,14 +58,6 @@
         })
       },
 
-      addTab(targetName) {
-        this.editableTabs.push({
-          title: 'New Tab',
-          name: newTabName,
-          content: 'New Tab content'
-        });
-        this.editableTabsValue = newTabName;
-      },
       removeTab(targetName) {
         let tabs = this.editableTabs;
         let activeName = this.editableTabsValue;
@@ -95,6 +88,12 @@
     },
     mounted(){
       this.getNavStatus();
+    },
+    watch:{
+      '$route'(to,form){
+        this.editableTabsValue = this.$route.name === 'home'? '0': this.$route.name
+        // console.log(this.$route.name);
+      }
     },
     beforeDestroy(){
       //取消监听'getNavStatus'事件

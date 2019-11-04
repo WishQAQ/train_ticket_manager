@@ -25,7 +25,8 @@ export function powerRouterLazy(name) {
       return {path: '/documentSystem', name: 'documentSystem', component: () => import('@/views/DocumentCenter/index'),children: [
           {path: '/setting', name: 'setting', component: () => import('@/views/DocumentCenter/userSetting'),meta:{hidden: false}},  // 个人设置
           {path: '/addressBook', name: 'addressBook', component: () => import('@/views/DocumentCenter/addressBook'),meta:{hidden: false}},  // 内部通讯录
-          {path: '/helpDocument', name: 'helpDocument', component: () => import('@/views/DocumentCenter/helpDocument'),meta:{hidden: false}},  // 帮助文档
+          {path: '/helpDocument', name: 'helpDocument', component: () => import('@/views/DocumentCenter/document'),meta:{hidden: false}},  // 帮助文档
+          {path: '/newsCenter', name: 'newsCenter', component: () => import('@/views/DocumentCenter/document'),meta:{hidden: false}},  // 新闻中心
         ]};
       break;
     case 'orderSystem':  // 订单系统

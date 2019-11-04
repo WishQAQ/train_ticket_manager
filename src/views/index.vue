@@ -30,7 +30,7 @@
         <div class="main_box">
           <div class="title">
             <p>新闻列表</p>
-            <div @click="jumpDetails('newsContent')">更多<span></span></div>
+            <div @click="jumpDetails('newsCenter')">更多<span></span></div>
           </div>
           <div class="main_content" v-loading="nLoading">
             <div class="main_list" v-for="(item,index) in newList" :key="index">

@@ -81,7 +81,7 @@
 
 
     <el-dialog
-        title="帮助文档"
+        :title="viewAddressType === 0 ? '帮助文档': '新闻中心'"
         modal-append-to-body
         append-to-body
         :visible.sync="detailDialog"
@@ -176,22 +176,116 @@
       </el-dialog>
     </el-dialog>
 
+    <el-dialog
+        :title="editDialogStatus?'添加新闻':'修改新闻'"
+        modal-append-to-body
+        append-to-body
+        :close-on-click-modal="false"
+        :close-on-press-escape="false"
+        :show-close="false"
+        :visible.sync="addNewsDialog"
+        custom-class="add_dialog">
+      <el-form>
+        <el-form-item label="标题">
+          <el-input v-model="detailForm.title"></el-input>
+        </el-form-item>
+        <el-form-item label="类型名称">
+          <el-select v-model="detailForm.typeName" placeholder="请选择">
+            <el-option label="知识信息" value="知识信息"></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="查看权限">
+          <div class="select_box" @click="addSelectBtn">
+            <span v-if="selectPersonnelList.length < 1" class="select_message">点击查看人员列表</span>
+            <el-tag
+                size="mini"
+                v-for="tag in selectPersonnelList"
+                :key="tag.target"
+                @close="handleClose(tag)"
+                closable>
+              {{tag.account}}
+            </el-tag>
+          </div>
+        </el-form-item>
+        <el-form-item label="内容">
+          <el-input type="textarea" :rows="8" v-model="detailForm.content"></el-input>
+        </el-form-item>
+        <el-radio-group style="margin-bottom: 15px" @change="openOrderIdShow(detailForm.is_show)" v-model="detailForm.is_show">
+          <el-radio label="1">显示</el-radio>
+          <el-radio label="0">不显示</el-radio>
+        </el-radio-group>
+        <el-form-item label="是否显示订单详情" v-if="showOrderIdSelect">
+          <el-select v-model="detailForm.orderMessage" :multiple="openMultiple" @change="selectOrderId(detailForm.orderMessage)" placeholder="请选择" clearable>
+            <el-option label="全部" value="0"></el-option>
+            <el-option
+                v-for="(item ,index) in orderInfo"
+                :key="index"
+                :disabled="item.disabled"
+                :label="item.order_sn"
+                :value="item.order_sn">
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-dialog
+            title="通知选择"
+            :show-close="false"
+            :close-on-press-escape="false"
+            :close-on-click-modal="false"
+            :visible.sync="selectDialog"
+            append-to-body>
+          <div class="select_main">
+            <div class="select_left" v-loading="groupLoading">
+              <el-tree :data="groupList" :props="groupProps" @node-click="handleNodeClick"></el-tree>
+            </div>
+            <div class="select_right" v-loading="personnelLoading">
+              <div class="select_right_header" v-if="showPersonnelText">
+                <el-input
+                    class="personnel_input"
+                    placeholder="输入关键字进行过滤人员"
+                    v-model="personnelText">
+                </el-input>
+                <el-button @click="checkedAll(true)">全选</el-button>
+                <el-button @click="checkedAll(false)">取消全选</el-button>
+              </div>
+
+              <el-tree
+                  :data="personnelList"
+                  :props="personnelProps"
+                  show-checkbox
+                  node-key="target"
+                  ref="personnelTree"
+                  :filter-node-method="personnelFilterNode"
+                  @check-change="handleCheckChange">
+              </el-tree>
+            </div>
+          </div>
+          <div slot="footer" class="dialog-footer">
+            <el-button @click="closeSelectDialog">取 消</el-button>
+            <el-button type="primary" @click="submitSelectDialog">确 定</el-button>
+          </div>
+        </el-dialog>
+      </el-form>
+
+
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="closeAddDialog">取 消</el-button>
+        <el-button type="primary" :loading="showSubmitAddBtn" @click="submitAddDialog">确 定</el-button>
+      </div>
+    </el-dialog>
+
   </div>
 </template>
 
 <script>
   export default {
-    watch: {
-      personnelText(val) {
-        this.$refs.personnelTree.filter(val);
-      }
-    },
     components:{
       'Pagination': () => import('@/components/Pagination')
     },
-    name: "helpDocument",
+    name: "document",
     data(){
       return {
+        viewAddressType: '',
+
         loading: true,
         helpTableData: [], // 帮助文档数据
 
@@ -221,6 +315,13 @@
         },
         selectPersonnelList: [], // 已选中人员列表
 
+        // 添加新闻
+        orderInfo: [], // 订单信息
+        openMultiple: true, // 是否开启订单号多选
+        showOrderIdSelect: false,
+
+        addNewsDialog: false, // 新闻弹窗
+
         paginationList: {},
         per_page: 10,
         page: '',
@@ -233,12 +334,13 @@
        * @date 2019/9/26
       */
       getData(){
+        this.viewAddressType = this.$route.name == 'helpDocument'? 0: 1
         this.loading = true
         let data = {
           page: this.page || null,
           per_page: this.per_page
         }
-        this.$axios.get('/api/notice/show/0',{params:data})
+        this.$axios.get('/api/notice/show/'+this.viewAddressType,{params:data})
             .then(res =>{
               this.loading = false
               this.helpTableData = res.data.data
@@ -256,7 +358,7 @@
         let data = {
           keyWords: this.searchInput
         }
-        this.$axios.post('/api/notice/search/'+'0',data)
+        this.$axios.post('/api/notice/search/'+this.viewAddressType,data)
             .then(res =>{
               this.loading = false
               this.helpTableData = res.data.data
@@ -270,7 +372,7 @@
       */
       editDialog(val){
         this.editDialogStatus = false
-        this.$axios.get('/api/notice/showOne/0'+'/'+val.id)
+        this.$axios.get('/api/notice/showOne/0/'+val.id)
             .then(res =>{
               if(res.data.code === 0){
                 let dataList = JSON.parse(JSON.stringify(res.data.result))
@@ -298,10 +400,18 @@
        * @date 2019/9/26
       */
       addDialogBtn(){
-        this.addDialog = true
-        this.editDialogStatus = true
         this.detailForm = {}
         this.selectPersonnelList = []
+
+        if(this.viewAddressType === 0){
+          this.addDialog = true
+          this.editDialogStatus = true
+        }else {
+          this.addNewsDialog = true
+          this.editDialogStatus = true
+          this.detailForm['is_show'] = '0'
+          this.getOrderMessage()
+        }
       },
 
       /**
@@ -311,8 +421,9 @@
       */
       closeAddDialog(){
         this.selectPersonnelList = []
-        this.detailForm = {}
         this.addDialog = false
+        this.showSubmitAddBtn = false
+        this.addNewsDialog = false
       },
 
       /**
@@ -321,6 +432,7 @@
        * @date 2019/9/26
       */
       submitAddDialog(){
+        console.log(this.detailForm);
         if(this.detailForm.title && this.detailForm.content){
           this.showSubmitAddBtn = true
           let personnelId = []
@@ -328,32 +440,47 @@
             personnelId.push(res.target)
           })
           this.detailForm['objects'] = String(personnelId)
-          this.detailForm['type'] = 0
-          if(this.editDialogStatus){
-            this.$axios.post('/api/notice/add',this.detailForm)
-                .then(res =>{
-                  if(res.data.code === 0){
-                    this.$message.success('保存成功')
-                    this.addDialog = false
-                    this.getData()
-                    this.showSubmitAddBtn = false
-                  }else {
-                    this.$message.warning(res.data.msg)
-                  }
-                })
-          }else {
-            this.$axios.post('/api/notice/edit',this.detailForm)
-                .then(res =>{
-                  if(res.data.code === 0){
-                    this.$message.success('修改成功')
-                    this.addDialog = false
-                    this.getData()
-                    this.showSubmitAddBtn = false
-                  }else {
-                    this.$message.warning(res.data.msg)
-                  }
-                })
+          this.detailForm['type'] = this.viewAddressType
+          if(this.viewAddressType === 1){ // 新闻新增or编辑
+            this.detailForm.orderMessage.forEach(item =>{
+              if(item === '0'){
+                this.detailForm.orderMessage = ['0']
+              }
+            })
+            this.detailForm['relation_order'] = String(this.detailForm.orderMessage)
+            this.detailForm['is_show'] = this.detailForm.is_show
           }
+            if(this.editDialogStatus){
+              this.$axios.post('/api/notice/add',this.detailForm)
+                  .then(res =>{
+                    if(res.data.code === 0){
+                      this.$message.success('保存成功')
+                      this.addDialog = false
+                      this.addNewsDialog = false
+                      this.getData()
+                      this.showSubmitAddBtn = false
+                    }else {
+                      this.$message.warning(res.data.msg)
+                      this.showSubmitAddBtn = false
+                      this.addNewsDialog = false
+                    }
+                  })
+            }else {
+              this.$axios.post('/api/notice/edit',this.detailForm)
+                  .then(res =>{
+                    if(res.data.code === 0){
+                      this.$message.success('修改成功')
+                      this.addDialog = false
+                      this.getData()
+                      this.showSubmitAddBtn = false
+                      this.addNewsDialog = false
+                    }else {
+                      this.$message.warning(res.data.msg)
+                      this.showSubmitAddBtn = false
+                      this.addNewsDialog = false
+                    }
+                  })
+            }
 
 
         }else {
@@ -496,14 +623,14 @@
        * @date 2019/9/26
       */
       deleteListBtn(val){
-        this.$confirm('是否删除此角色，当此角色被删除后，对应角色账号将无法正常使用后台系统！', '提示', {
+        this.$confirm('此操作将永久删除该数据, 是否继续？', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
           let data = {
             condition: val.id,
-            type: 0
+            type: this.viewAddressType
           }
           this.$axios.post('/api/notice/del',data)
               .then(res =>{
@@ -533,6 +660,51 @@
       },
 
 
+      /**
+       * @Description: 显示or隐藏订单id选择器
+       * @author Wish
+       * @date 2019/11/4
+      */
+      openOrderIdShow(val){
+        this.showOrderIdSelect = val === '1'? true: false
+      },
+
+      /**
+       * @Description: 选择全部单号
+       * @author Wish
+       * @date 2019/11/4
+      */
+      selectOrderId(val){
+        val.forEach(item =>{
+          this.orderInfo.forEach(cItem =>{
+            cItem['disabled'] = item === '0'
+          })
+        })
+      },
+
+      /**
+       * @Description: 获取全部有效订单单号
+       * @author Wish
+       * @date 2019/11/4
+      */
+      getOrderMessage(){
+        this.$axios.get('/api/order/obtainList/0')
+            .then(res =>{
+              if(res.data.code === 0){
+                this.orderInfo = res.data.result
+              }
+            })
+      },
+
+
+    },
+    watch: {
+      personnelText(val) {
+        this.$refs.personnelTree.filter(val);
+      },
+      '$route'(to,form){
+        this.getData()
+      }
     },
     created() {
       this.getData()

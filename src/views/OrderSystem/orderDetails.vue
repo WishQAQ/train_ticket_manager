@@ -254,8 +254,15 @@
     <div v-if="urlType !== 'add'">
       <!-- 广告 -->
       <div class="order_carousel" v-if="urlType === 'details'">
-        <div class="carousel_main">新闻轮播</div>
-        <el-button>查看</el-button>
+        <div class="carousel_main">
+          <el-carousel class="carousel_main" height="40px" direction="vertical" loop autoplay arrow="none" indicator-position="none">
+            <el-carousel-item v-for="(item ,index) in orderInfo.news" :key="index">
+              <div class="medium">{{ item.title }}</div>
+              <el-button size="mini" @click="openNewsCenter(item)">查看</el-button>
+            </el-carousel-item>
+            <div v-if="!orderInfo.news">暂无新闻</div>
+          </el-carousel>
+        </div>
       </div>
 
       <div class="order_passenger_search">
@@ -611,6 +618,21 @@
       </div>
     </el-dialog>
 
+    <!-- 新闻详情弹窗 -->
+    <el-dialog
+        :title="'新闻详情 --- ' + newsDetailInfo.title"
+        modal-append-to-body
+        append-to-body
+        :visible.sync="newsDetailDialog"
+        custom-class="news_detail_dialog">
+      <div class="detail_main">
+        <div class="title">{{newsDetailInfo.title || '暂无文档标题' }}</div>
+        <div class="content">{{newsDetailInfo.content || '暂无文档内容'}}</div>
+        <div class="person_box">
+          查看人： <span v-for="(item, index) in newsDetailInfo.person" :key="index">{{item.account}}</span>
+        </div>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -630,6 +652,9 @@
 
         urlType: '', // 页面类型
         inputDisabled: false, // 页面输入框禁用
+
+        newsDetailDialog: false, // 新闻详情
+        newsDetailInfo: {},
 
         /***
          * 新增订单
@@ -738,6 +763,25 @@
                     this.orderInfo.ticket_photos = this.orderInfo.ticket_photos.split(',')
                   }
                 })
+              }else {
+                this.$message.warning(res.data.msg)
+              }
+            })
+      },
+
+
+      /**
+       * @Description: 获取新闻详情
+       * @author Wish
+       * @date 2019/11/4
+      */
+      openNewsCenter(val){
+        this.$message.success('正在获取新闻内容，请稍后')
+        this.$axios.get('/api/notice/showOne/1/'+val.id)
+            .then(res =>{
+              if(res.data.code === 0){
+                this.newsDetailInfo = res.data.result[0]
+                this.newsDetailDialog = true
               }else {
                 this.$message.warning(res.data.msg)
               }
@@ -1321,6 +1365,45 @@
     }
   }
 
+  // 新闻详情弹窗
+  .news_detail_dialog{
+    .detail_main{
+      .title{
+        font-size:24px;
+        color:rgba(51,148,250,1);
+        text-align: center;
+        margin-bottom: 35px;
+      }
+      .info{
+        display: flex;
+        align-items: center;
+        margin-bottom: 15px;
+        .time{
+          margin-left: 15px;
+          font-size:16px;
+          color:rgba(38,153,251,1);
+        }
+      }
+      .content{
+        font-size:18px;
+        color:rgba(38,153,251,1);
+        max-height: 600px;
+        height: 100%;
+        overflow-y: auto;
+        margin-bottom: 30px;
+      }
+      .person_box{
+        >span{
+          &:not(:last-child){
+            &:after{
+              content: '，'
+            }
+          }
+        }
+      }
+    }
+  }
+
   .orderDetails{
     padding: 80px;
     .edit_order_btn{
@@ -1532,10 +1615,19 @@
       display: flex;
       align-items: center;
       margin-bottom: 90px;
+      padding-left: 150px;
       .carousel_main{
-        margin-right: 30px;
-        max-width: 450px;
-        width: 100%;
+        width: 500px;
+        /deep/.el-carousel__item{
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          .medium{
+            margin-right: 30px;
+            width: 450px;
+          }
+        }
+
       }
     }
 
