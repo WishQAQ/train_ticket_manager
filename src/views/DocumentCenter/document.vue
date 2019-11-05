@@ -340,18 +340,18 @@
           page: this.page || null,
           per_page: this.per_page
         }
-        this.$axios.get('/api/notice/show/'+this.viewAddressType,{params:data})
+        this.$axios.get('/api/notice/show/'+this.viewAddressType+'/'+this.per_page,{params:data})
             .then(res =>{
               this.loading = false
               this.helpTableData = res.data.data
               this.paginationList = res.data
             })
       },
-      
+
       /**
        * @Description: 文档搜索
        * @author Wish
-       * @date 2019/9/26 
+       * @date 2019/9/26
       */
       searchBtn(){
         this.loading = true
