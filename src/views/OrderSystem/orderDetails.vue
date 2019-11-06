@@ -297,7 +297,7 @@
         </div>
         <div class="search_btn">
           <div>
-            <el-button @click="hiddenTable">隐藏</el-button>
+            <el-button @click="hiddenTable">{{showTableType?'隐藏':'显示'}}</el-button>
             <el-button type="primary"
                        @click="openBatchEdit"
                        :loading="batchEditLoading"
@@ -354,7 +354,7 @@
                    v-if="urlType === 'edit'">
                 <el-checkbox @change="checkedOrderData(item,cItem)" v-model="checkedOrderBtn"></el-checkbox>
               </div>
-              <div>行程时间：<span>{{$getTime(cItem.riding_time * 1000)}}</span></div>
+              <div>行程时间：<span>{{$getTimeYear(cItem.riding_time * 1000)}}</span></div>
               <div>
                 乘车区间：
                 <span>{{cItem.departure_station}}</span>
@@ -363,7 +363,7 @@
               </div>
               <div>检票口：{{cItem.ticket_check}}</div>
             </div>
-            <TrainTimesTable v-on:checkTableData="checkTableList" :orderInfo="item" :tableData="cItem.passengers.data"></TrainTimesTable>
+            <TrainTimesTable v-on:checkTableData="checkTableList" :tableModify="urlType" :showTableRows="showTableType" :orderInfo="item" :tableData="cItem.passengers.data"></TrainTimesTable>
           </div>
         </div>
       </div>
@@ -656,6 +656,8 @@
         newsDetailDialog: false, // 新闻详情
         newsDetailInfo: {},
 
+        showTableType: true, // 显示隐藏单元格
+
         /***
          * 新增订单
          */
@@ -842,9 +844,11 @@
                item.route_config.forEach((cItem,cIndex) =>{
                  if(cIndex < item.route_config.length){
                    ticketNumber += cItem.numberSheet
-                   ticketPrice += cItem.totalPrice
+                   if(cItem.totalPrice !== 0){
+                     ticketPrice += cItem.totalPrice
+                   }
                    this.passengerInfo[index]['ticketNumber'] = ticketNumber
-                   this.passengerInfo[index]['ticketPrice'] = ticketPrice.toFixed(2)
+                   this.passengerInfo[index]['ticketPrice'] =  Math.floor(ticketPrice * 100) / 100
                  }
                })
                 ticketNumber = 0
@@ -876,7 +880,7 @@
        * @date 2019/10/17
       */
       hiddenTable(){
-
+        this.showTableType = this.showTableType !== true
       },
 
       /**

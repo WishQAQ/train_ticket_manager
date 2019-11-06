@@ -7,12 +7,12 @@
            v-for="(item,index) in newrouter"
            :key="index"
            v-if="item.menuName"
-            @click="navClick(item,index)">
+            @click.stop="navClick(item,index)">
         <span class="nav_icon"><i :class="['iconfont',item.icon]"></i></span>
         {{item.menuName}}
-
+        <transition name="el-fade-in">
           <div class="nav_menu_more" v-show="navDrawer">
-            <div @click="jumpAddress(cItem)"
+            <div @click.stop="jumpAddress(cItem)"
                  class="more_list"
                  v-if="index === current && cItem.menuName && !cItem.meta.hidden"
                  v-for="(cItem,cIndex) in childrenList"
@@ -20,6 +20,7 @@
               <span class="more_icon"><i :class="['iconfont',cItem.icon]"></i></span>{{cItem.menuName}}
             </div>
           </div>
+        </transition>
       </div>
     </div>
 
@@ -34,11 +35,12 @@
       </el-dropdown-menu>
     </el-dropdown>
 
-
+    <transition name="el-fade-in">
       <div class="nav_mask" v-if="navDrawer">
         <div class="nav_list_mask" :style="{height: navDrawerHeight}"></div>
         <div class="nav_mask_click" @click="closeNavMenu"></div>
       </div>
+    </transition>
 
 
 
