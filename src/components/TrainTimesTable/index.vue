@@ -54,8 +54,12 @@
         </template>
       </el-table-column>
       <el-table-column
-          prop="fwName"
           label="席别/席位号">
+        <template slot-scope="scope">
+          {{scope.row.fwName}}
+          {{' / '}}
+          {{scope.row.seat_number || ''}}
+        </template>
       </el-table-column>
       <el-table-column
           prop="ticket_price"
@@ -66,12 +70,26 @@
           label="误餐费">
       </el-table-column>
       <el-table-column
-          prop="refund_fee"
           label="退票款">
+        <template slot-scope="scope">
+          <el-input
+              v-model="scope.row.refund_fee"
+              v-if="tableModify === 'edit'"
+              @blur="loseFcous(scope.$index, scope.row)">
+          </el-input>
+          <span style="margin-left: 10px" v-else>{{socpe.row.refund_fee}}</span>
+        </template>
       </el-table-column>
       <el-table-column
-          prop="ticket_fare"
           label="出票费">
+        <template slot-scope="scope">
+          <el-input
+              v-model="scope.row.ticket_fare"
+              v-if="tableModify === 'edit'"
+              @blur="loseFcous(scope.$index, scope.row)">
+          </el-input>
+          <span style="margin-left: 10px" v-else>{{socpe.row.ticket_fare}}</span>
+        </template>
       </el-table-column>
       <el-table-column
           label="车票状态">
@@ -84,26 +102,56 @@
         </template>
       </el-table-column>
       <el-table-column
-          prop="ticket_drawer"
+          prop="db_auftragsnummer"
           label="取票号">
       </el-table-column>
       <el-table-column
-          prop="db_auftragsnummer"
+          v-if="showTableRows"
           label="出票时间">
-      </el-table-column>
-      <el-table-column
-          label="支付账号">
         <template slot-scope="scope">
-          {{$aliPayOrTelPhone(scope.row.payment_account)}}
+          <el-input
+              v-model="scope.row.ticketing_time"
+              v-if="tableModify === 'edit'"
+              @blur="loseFcous(scope.$index, scope.row)">
+          </el-input>
+          <span style="margin-left: 10px" v-else>{{$getTimeYear(scope.row.ticketing_time * 1000) || ''}}</span>
         </template>
       </el-table-column>
       <el-table-column
-          prop="payment_flow_number"
-          label="支付流水号">
+          v-if="showTableRows"
+          label="支付账号">
+        <template slot-scope="scope">
+          <el-input
+              v-model="scope.row.payment_account"
+              v-if="tableModify === 'edit'"
+              @blur="loseFcous(scope.$index, scope.row)">
+          </el-input>
+          <span style="margin-left: 10px" v-else>{{$aliPayOrTelPhone(socpe.row.payment_account)}}</span>
+        </template>
       </el-table-column>
       <el-table-column
-          prop="12306_account"
+          v-if="showTableRows"
+          label="支付流水号">
+        <template slot-scope="scope">
+          <el-input
+              v-model="scope.row.payment_flow_number"
+              v-if="tableModify === 'edit'"
+              @blur="loseFcous(scope.$index, scope.row)">
+          </el-input>
+          <span style="margin-left: 10px" v-else>{{$aliPayOrTelPhone(socpe.row.payment_flow_number)}}</span>
+        </template>
+      </el-table-column>
+      <el-table-column
+          v-if="showTableRows"
           label="12306账号">
+        <template slot-scope="scope">
+          <el-input
+              v-model="scope.row.showTableRows"
+              v-if="tableModify === 'edit'"
+              @blur="loseFcous(scope.$index, scope.row)">
+          </el-input>
+          <span style="margin-left: 10px" v-else>{{$aliPayOrTelPhone(socpe.row.showTableRows)}}</span>
+        </template>
       </el-table-column>
     </el-table>
   </div>
@@ -112,7 +160,7 @@
 <script>
   export default {
     name: "index",
-    props: ['tableData','orderInfo'],
+    props: ['tableData','orderInfo','showTableRows','tableModify'],
     methods: {
       /**
        * @Description: 多选按钮
@@ -131,6 +179,12 @@
         routeId = [...new Set(routeId)]
         this.$emit('checkTableData',userId,routeId,this.orderInfo.order_sn,this.orderInfo.parent_id)
       },
+      loseFcous(index, row) {
+        console.log(index, row);
+      },
+    },
+    mounted() {
+      console.log(this.tableModify);
     }
   }
 </script>
