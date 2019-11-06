@@ -10,11 +10,12 @@
         :before-upload="beforeUpload"
         :on-success="handleAvatarSuccess">
       <img v-if="imageUrl" :src="imageUrl" class="avatar">
-      <div v-else>
+      <div v-else slot="trigger">
         <i class="el-icon-upload"></i>
         <div class="el-upload__text">将{{messageText}}拖到此处，或<em>点击上传</em></div>
-<!--        <div class="el-upload__tip" slot="tip">大小不能超过20M</div>-->
       </div>
+      <el-button v-if="!imageUrl" slot="trigger" style="display: none" ref="selectFile" size="mini" type="primary">选取文件</el-button>
+
     </el-upload>
   </div>
 </template>
@@ -32,6 +33,10 @@
         type: String,
         default: () => 'order'
       },
+      defaultPhoto:{
+        type: String,
+        default: () => ''
+      }
     },
     data(){
       return {
@@ -81,6 +86,12 @@
       closedImage(){
         this.imageUrl = false
       },
+    },
+    mounted() {
+      if(this.defaultPhoto){
+        this.imageUrl = this.defaultPhoto.split(',')
+
+      }
     }
   }
 </script>
@@ -100,6 +111,8 @@
         justify-content: center;
         .el-upload-dragger{
           border: unset;
+          width: 0;
+          height: 0;
         }
         &:hover {
           border-color: #409EFF;

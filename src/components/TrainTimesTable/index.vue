@@ -75,9 +75,9 @@
           <el-input
               v-model="scope.row.refund_fee"
               v-if="tableModify === 'edit'"
-              @blur="loseFcous(scope.$index, scope.row)">
+              @blur="loseFcous(tableData, scope.row, 'refund_fee', scope.row.refund_fee)">
           </el-input>
-          <span style="margin-left: 10px" v-else>{{socpe.row.refund_fee}}</span>
+          <span style="margin-left: 10px" v-else>{{scope.row.refund_fee}}</span>
         </template>
       </el-table-column>
       <el-table-column
@@ -86,9 +86,9 @@
           <el-input
               v-model="scope.row.ticket_fare"
               v-if="tableModify === 'edit'"
-              @blur="loseFcous(scope.$index, scope.row)">
+              @blur="loseFcous(tableData, scope.row, 'ticket_fare', scope.row.ticket_fare)">
           </el-input>
-          <span style="margin-left: 10px" v-else>{{socpe.row.ticket_fare}}</span>
+          <span style="margin-left: 10px" v-else>{{scope.row.ticket_fare}}</span>
         </template>
       </el-table-column>
       <el-table-column
@@ -109,11 +109,14 @@
           v-if="showTableRows"
           label="出票时间">
         <template slot-scope="scope">
-          <el-input
-              v-model="scope.row.ticketing_time"
+          <el-date-picker
+              v-model="scope.row.ticketing_time * 1000"
               v-if="tableModify === 'edit'"
-              @blur="loseFcous(scope.$index, scope.row)">
-          </el-input>
+              type="date"
+              value-format="timestamp"
+              @blur="loseFcous(tableData, scope.row, 'ticketing_time', scope.row.ticketing_time)"
+              placeholder="选择日期">
+          </el-date-picker>
           <span style="margin-left: 10px" v-else>{{$getTimeYear(scope.row.ticketing_time * 1000) || ''}}</span>
         </template>
       </el-table-column>
@@ -124,9 +127,9 @@
           <el-input
               v-model="scope.row.payment_account"
               v-if="tableModify === 'edit'"
-              @blur="loseFcous(scope.$index, scope.row)">
+              @blur="loseFcous(tableData, scope.row, 'payment_account', scope.row.payment_account)">
           </el-input>
-          <span style="margin-left: 10px" v-else>{{$aliPayOrTelPhone(socpe.row.payment_account)}}</span>
+          <span style="margin-left: 10px" v-else>{{$aliPayOrTelPhone(scope.row.payment_account)}}</span>
         </template>
       </el-table-column>
       <el-table-column
@@ -136,9 +139,9 @@
           <el-input
               v-model="scope.row.payment_flow_number"
               v-if="tableModify === 'edit'"
-              @blur="loseFcous(scope.$index, scope.row)">
+              @blur="loseFcous(tableData, scope.row, 'payment_flow_number', scope.row.payment_flow_number)">
           </el-input>
-          <span style="margin-left: 10px" v-else>{{$aliPayOrTelPhone(socpe.row.payment_flow_number)}}</span>
+          <span style="margin-left: 10px" v-else>{{scope.row.payment_flow_number}}</span>
         </template>
       </el-table-column>
       <el-table-column
@@ -146,11 +149,11 @@
           label="12306账号">
         <template slot-scope="scope">
           <el-input
-              v-model="scope.row.showTableRows"
+              v-model="scope.row.db_auftragsnummer"
               v-if="tableModify === 'edit'"
-              @blur="loseFcous(scope.$index, scope.row)">
+              @blur="loseFcous(tableData, scope.row, 'db_auftragsnummer', scope.row.db_auftragsnummer)">
           </el-input>
-          <span style="margin-left: 10px" v-else>{{$aliPayOrTelPhone(socpe.row.showTableRows)}}</span>
+          <span style="margin-left: 10px" v-else>{{scope.row.db_auftragsnummer}}</span>
         </template>
       </el-table-column>
     </el-table>
@@ -179,13 +182,10 @@
         routeId = [...new Set(routeId)]
         this.$emit('checkTableData',userId,routeId,this.orderInfo.order_sn,this.orderInfo.parent_id)
       },
-      loseFcous(index, row) {
-        console.log(index, row);
+      loseFcous(orderData, data, rowName, row) {
+        this.$emit('tableRowsData', this.orderInfo, data, rowName, row )
       },
     },
-    mounted() {
-      console.log(this.tableModify);
-    }
   }
 </script>
 

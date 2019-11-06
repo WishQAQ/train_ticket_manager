@@ -110,7 +110,6 @@
           <el-input maxlength="50"
                     show-word-limit
                     v-model="detailForm.title">
-
           </el-input>
         </el-form-item>
         <el-form-item label="通知选择">
@@ -145,7 +144,7 @@
           append-to-body>
         <div class="select_main">
           <div class="select_left" v-loading="groupLoading">
-            <el-tree :data="groupList" :props="groupProps" @node-click="handleNodeClick"></el-tree>
+            <el-tree :data="groupList" :props="groupProps" ref="tree" @node-click="handleNodeClick"></el-tree>
           </div>
           <div class="select_right" v-loading="personnelLoading">
             <div class="select_right_header" v-if="showPersonnelText">
@@ -372,26 +371,16 @@
       */
       editDialog(val){
         this.editDialogStatus = false
-        this.$axios.get('/api/notice/showOne/0/'+val.id)
-            .then(res =>{
-              if(res.data.code === 0){
-                let dataList = JSON.parse(JSON.stringify(res.data.result))
-                this.addDialog = true
-                this.detailForm['title'] = dataList[0].title
-                this.detailForm['content'] = dataList[0].content
-                this.detailForm['condition'] = dataList[0].id
-                this.selectPersonnelList = dataList[0].person
-                // let viewObjects = dataList[0].view_objects.split(',');// 切割人员id
-                // viewObjects.forEach(e =>{  // 遍历人员id数组，并添加键值存入保存人员数组 person
-                //   this.selectPersonnelList.push({
-                //     target : parseInt(e)
-                //   })
-                // })
-              }else {
-                this.$message.warning(res.data.msg)
-              }
-
-            })
+        this.addDialog = true
+        this.detailForm = JSON.parse(JSON.stringify(val))
+        // console.log(val);
+        // this.$refs.tree.setCheckedNodes([{
+        //   id: 5,
+        //   label: '二级 2-1'
+        // }, {
+        //   id: 9,
+        //   label: '三级 1-1-1'
+        // }]);
       },
 
       /**
@@ -441,6 +430,7 @@
           })
           this.detailForm['objects'] = String(personnelId)
           this.detailForm['type'] = this.viewAddressType
+          console.log(this.detailForm['type']);
           if(this.viewAddressType === 1){ // 新闻新增or编辑
             this.detailForm.orderMessage.forEach(item =>{
               if(item === '0'){
@@ -450,38 +440,37 @@
             this.detailForm['relation_order'] = String(this.detailForm.orderMessage)
             this.detailForm['is_show'] = this.detailForm.is_show
           }
-            if(this.editDialogStatus){
-              this.$axios.post('/api/notice/add',this.detailForm)
-                  .then(res =>{
-                    if(res.data.code === 0){
-                      this.$message.success('保存成功')
-                      this.addDialog = false
-                      this.addNewsDialog = false
-                      this.getData()
-                      this.showSubmitAddBtn = false
-                    }else {
-                      this.$message.warning(res.data.msg)
-                      this.showSubmitAddBtn = false
-                      this.addNewsDialog = false
-                    }
-                  })
-            }else {
-              this.$axios.post('/api/notice/edit',this.detailForm)
-                  .then(res =>{
-                    if(res.data.code === 0){
-                      this.$message.success('修改成功')
-                      this.addDialog = false
-                      this.getData()
-                      this.showSubmitAddBtn = false
-                      this.addNewsDialog = false
-                    }else {
-                      this.$message.warning(res.data.msg)
-                      this.showSubmitAddBtn = false
-                      this.addNewsDialog = false
-                    }
-                  })
-            }
-
+          if(this.editDialogStatus){
+            this.$axios.post('/api/notice/add',this.detailForm)
+              .then(res =>{
+                if(res.data.code === 0){
+                  this.$message.success('保存成功')
+                  this.addDialog = false
+                  this.addNewsDialog = false
+                  this.getData()
+                  this.showSubmitAddBtn = false
+                }else {
+                  this.$message.warning(res.data.msg)
+                  this.showSubmitAddBtn = false
+                  this.addNewsDialog = false
+                }
+              })
+          }else {
+            this.$axios.post('/api/notice/edit',this.detailForm)
+              .then(res =>{
+                if(res.data.code === 0){
+                  this.$message.success('修改成功')
+                  this.addDialog = false
+                  this.getData()
+                  this.showSubmitAddBtn = false
+                  this.addNewsDialog = false
+                }else {
+                  this.$message.warning(res.data.msg)
+                  this.showSubmitAddBtn = false
+                  this.addNewsDialog = false
+                }
+              })
+          }
 
         }else {
           this.$message.warning('请填写完整信息')

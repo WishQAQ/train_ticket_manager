@@ -128,7 +128,7 @@
         </div>
         <div class="info_message_box">
           <p>车票照片</p>
-          <el-button v-if="urlType === 'edit'" type="primary" size="mini">车票/快递单上传</el-button>
+          <el-button v-if="urlType === 'edit'" @click="openUploadBox" type="primary" size="mini">车票/快递单上传</el-button>
           <el-button v-else type="primary" size="mini">下载所有图片</el-button>
         </div>
       </div>
@@ -363,7 +363,14 @@
               </div>
               <div>检票口：{{cItem.ticket_check}}</div>
             </div>
-            <TrainTimesTable v-on:checkTableData="checkTableList" :tableModify="urlType" :showTableRows="showTableType" :orderInfo="item" :tableData="cItem.passengers.data"></TrainTimesTable>
+            <TrainTimesTable
+                v-on:tableRowsData="editTableRows"
+                v-on:checkTableData="checkTableList"
+                :tableModify="urlType"
+                :showTableRows="showTableType"
+                :orderInfo="item"
+                :tableData="cItem.passengers.data">
+            </TrainTimesTable>
           </div>
         </div>
       </div>
@@ -682,6 +689,7 @@
         /***
          * 上传
          */
+        userCardImage: '', // 证件照片
         fileList: [], // 上传文件列表
 
         ticketPhotoList: [], // 车票图片列表
@@ -943,12 +951,21 @@
       },
 
       /**
+       * @Description: 打开车票图片上传
+       * @author Wish
+       * @data 2019/11/7
+      */
+      openUploadBox(){
+        this.$refs.uploadImage.$el.children[0].children[0].children[0].children[1].click()
+      },
+
+      /**
        * @Description: 上传证件照片
        * @author Wish
        * @date 2019/11/1
       */
       uploadIdPhoto(val){
-        console.log(val);
+        this.userCardImage = val
       },
 
       /**
@@ -957,7 +974,6 @@
        * @date 2019/11/1
       */
       uploadIdTicketPhoto(val){
-        console.log(val);
         if(this.ticketPhotoList.length < 5){
           this.ticketPhotoList.push(val)
         }else {
@@ -988,6 +1004,50 @@
         this.inputDisabled = false
         this.urlType = 'edit'
         this.getBillerData(this.orderInfo.cname)  // 获取发单人列表
+      },
+
+      /**
+       * @Description: 单元格修改
+       * @author Wish
+       * @data 2019/11/7
+      */
+      editTableRows(orderInfo, data, rowName, row ){
+        /**
+         * @Description: 遍历数组对比相同乘客路线，输出当前路线id
+         * @author Wish
+         * @data 2019/11/7
+        */
+        let routeId
+        orderInfo.route_config.forEach(item =>{
+          item.passengers.data.forEach(cItem =>{
+            if(cItem.id === data.id){
+              console.log(item);
+              routeId = item.id
+            }
+          })
+        })
+        let infoData = {}
+        infoData['passenger_id'] = data.id
+        infoData['field'] = rowName
+        infoData['value'] = row
+        let param ={
+          order_sn: orderInfo.order_sn,
+          token: orderInfo.parent_id,
+          route_id: routeId,
+          info: JSON.stringify(infoData),
+        }
+        console.log(param);
+        this.$axios.post('/api/order/editCellValue/0',param)
+          .then(res =>{
+            if(res.data.code === 0){
+              this.$message.success('修改成功')
+              this.getPassengerList()
+            }else {
+              this.$message.warning(res.data.msg)
+              this.getPassengerList()
+            }
+          })
+
       },
 
       /**
@@ -1179,9 +1239,39 @@
        * @date 2019/10/30
       */
       allEditSubmit(){
-        console.log(this.orderInfo);
+        let cname
+        let dname
+        this.customerList.forEach(item =>{
+          if(item.name === this.orderInfo.cname){
+            cname = item.identity
+            item.issuer.forEach(cItem =>{
+              if(cItem.name === this.orderInfo.dName){
+                dname = cItem.id
+              }
+            })
+          }
+        })
+        let data ={
+          order_sn: this.orderInfo.order_sn,
+          customer: cname,
+          issuer: dname,
+          remarks: this.orderInfo.remarks,
+          certificates: this.userCardImage,
+          ticket_photos: String(this.ticketPhotoList),
+        }
+        this.$axios.post('/api/order/edit',data)
+          .then(res =>{
+            if(res.data.code === 0){
+              this.$message.success('保存成功')
+              this.urlTypeSelect()
+              this.getCustomerData()
+            }else {
+              this.$message.warning(res.data.msg)
+              this.urlTypeSelect()
+              this.getCustomerData()
+            }
+          })
       },
-
 
 
       /**

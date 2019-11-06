@@ -57,6 +57,8 @@
         newrouter: [],  // 导航地址
         childrenList: [], // 子地址
 
+        tabMenuName: '', // tab当前选中值
+
         userName: sessionStorage.USERNAME,
 
         indexActive: true, // 主页选中
@@ -69,6 +71,7 @@
     },
     mounted(){
       this.newrouter = this.$store.state.newrouter
+      console.log(this.newrouter);
     },
     methods:{
       // 跳转首页
@@ -139,7 +142,11 @@
               }
             })
       }
-
+    },
+    created() {
+      bus.$on('tabName',function (val) {
+        this.tabMenuName = val
+      })
     }
   }
 </script>
@@ -206,12 +213,17 @@
           top: 96px;
           width: 100%;
           z-index: 2002;
+          max-height: 330px;
+          display: flex;
+          flex-direction: column;
+          flex-wrap: wrap;
           .more_list{
             display: flex;
             align-items: center;
             font-size:16px;
             color:rgba(38,153,251,.8);
             white-space:nowrap;
+            margin-right: 25px;
             &:hover{
               color:rgba(38,153,251,1);
             }
@@ -280,6 +292,7 @@
       .nav_list_mask{
         background:rgba(238,247,255,1);
         flex-shrink: 0;
+        max-height: 330px;
       }
       .nav_mask_click{
         height: 100%;
