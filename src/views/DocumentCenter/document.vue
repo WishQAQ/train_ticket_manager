@@ -430,13 +430,16 @@
           })
           this.detailForm['objects'] = String(personnelId)
           this.detailForm['type'] = this.viewAddressType
-          console.log(this.detailForm['type']);
+          console.log(this.detailForm.orderMessage);
           if(this.viewAddressType === 1){ // 新闻新增or编辑
-            this.detailForm.orderMessage.forEach(item =>{
-              if(item === '0'){
-                this.detailForm.orderMessage = ['0']
-              }
-            })
+            if(this.detailForm.orderMessage instanceof Array){
+              this.detailForm.orderMessage.forEach(item =>{
+                if(item === '0'){
+                  this.detailForm.orderMessage = ['0']
+                }
+              })
+            }
+
             this.detailForm['relation_order'] = String(this.detailForm.orderMessage)
             this.detailForm['is_show'] = this.detailForm.is_show
           }
@@ -452,7 +455,6 @@
                 }else {
                   this.$message.warning(res.data.msg)
                   this.showSubmitAddBtn = false
-                  this.addNewsDialog = false
                 }
               })
           }else {
@@ -467,7 +469,6 @@
                 }else {
                   this.$message.warning(res.data.msg)
                   this.showSubmitAddBtn = false
-                  this.addNewsDialog = false
                 }
               })
           }

@@ -6,10 +6,10 @@
     </div>
 
     <div class="fast_router">
-      <router-link :to="item.link" class="router_box" v-for="(item, index) in fastList" :key="index">
+      <div @click="jumpViews(item.name,item.link)" :to="item.link" class="router_box" v-for="(item, index) in fastList" :key="index">
         <img :src="item.url" alt="">
         <p>{{item.name}}</p>
-      </router-link>
+      </div>
     </div>
 
     <div class="message_box">
@@ -114,6 +114,21 @@
         setTimeout(() =>{
           this.refreshStatus = false
         },5000)
+      },
+
+      /**
+       * @Description: 快捷按钮跳转
+       * @author Wish
+       * @date 2019/11/7
+      */
+      jumpViews(name,address){
+        if(name !== '余票查询'){
+          this.$router.push({
+            path: address
+          })
+        }else {
+          window.open("https://kyfw.12306.cn/otn/resources/login.html",'_blank')
+        }
       },
 
       /**
@@ -225,6 +240,7 @@
         align-items: center;
         justify-content: center;
         flex-direction: column;
+        cursor: pointer;
         >img{
           width: 44px;
           height: 44px;

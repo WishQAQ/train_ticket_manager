@@ -22,6 +22,8 @@
           </div>
         </transition>
       </div>
+      <div class="nav_item" @click="jumpTicket"><span class="nav_icon"><i class="iconfont icon-huochezhan"></i></span>铁路官网</div>
+      <div class="nav_item" @click="jumpTicketBack"><span class="nav_icon"><i class="iconfont icon-kehu"></i></span>客户后台</div>
     </div>
 
     <el-dropdown class="nav_info" :tabindex="99" trigger="click">
@@ -141,7 +143,25 @@
                 this.$message.warning(res.data.msg)
               }
             })
-      }
+      },
+
+      /**
+       * @Description: 跳转12306登录页
+       * @author Wish
+       * @date 2019/11/7
+      */
+      jumpTicket(){
+        window.open("https://kyfw.12306.cn/otn/resources/login.html",'_blank')
+      },
+      /**
+       * @Description: 跳转原系统后台
+       * @author Wish
+       * @date 2019/11/7
+      */
+      jumpTicketBack(){
+        window.open("http://tohcp.com",'_blank')
+      },
+
     },
     created() {
       bus.$on('tabName',function (val) {
@@ -152,6 +172,27 @@
 </script>
 
 <style scoped lang="less">
+  @media (max-width: 1620px) {
+    .nav_logo{
+      display: none;
+    }
+  }
+  @media (max-width: 1410px) {
+    .nav{
+      .nav_menu{
+        .nav_item{
+          font-size: 16px !important;
+        }
+      }
+      .nav_info{
+        .nav_message{
+          .info_userName{
+            font-size: 16px !important;
+          }
+        }
+      }
+    }
+  }
   .nav{
     display: flex;
     align-items: center;
@@ -160,7 +201,7 @@
     padding: 0 30px;
     background:rgba(38,153,251,1);
     position: relative;
-    min-width: 1500px;
+    min-width: 1280px;
     .nav_logo{
       font-size:22px;
       color:rgba(255,255,255,1);
@@ -168,11 +209,9 @@
       height: 100%;
       line-height: 80px;
       flex-shrink: 0;
-      margin-right: 150px;
     }
 
     .nav_menu{
-      flex: 1;
       height: 100%;
       display: flex;
       align-items: center;
@@ -253,7 +292,6 @@
       cursor: pointer;
       height: 100%;
       flex-shrink: 0;
-      margin-left: 150px;
       .nav_message{
         width: 100%;
         height: 100%;

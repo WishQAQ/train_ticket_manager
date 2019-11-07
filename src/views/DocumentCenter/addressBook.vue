@@ -14,12 +14,12 @@
     </el-menu>
     <div class="right_main" v-loading="tableLoading">
       <div class="right_header">
-        <el-select v-model="searchSelect" placeholder="请选择">
-          <el-option label="全部部门" value="全部部门"></el-option>
-          <el-option label="团队" value="团队"></el-option>
-        </el-select>
-        <el-input class="search_input" v-model="searchInput" placeholder="姓名/电话/旅行社"></el-input>
-        <el-button type="primary">筛选</el-button>
+<!--        <el-select v-model="searchSelect" placeholder="请选择">-->
+<!--          <el-option label="全部部门" value="全部部门"></el-option>-->
+<!--          <el-option label="团队" value="团队"></el-option>-->
+<!--        </el-select>-->
+<!--        <el-input class="search_input" v-model="searchInput" placeholder="姓名/电话/旅行社"></el-input>-->
+<!--        <el-button type="primary">筛选</el-button>-->
         <el-button type="primary" :disabled="addMailBtn" @click="addMail">添加</el-button>
       </div>
       <el-table
@@ -45,6 +45,9 @@
         title="添加联系人"
         modal-append-to-body
         append-to-body
+        :close-on-click-modal="false"
+        :close-on-press-escape="false"
+        :show-close="false"
         :visible.sync="addDialog"
         custom-class="add_dialog">
       <el-form class="dialog_main" ref="form" label-width="50px">
@@ -193,7 +196,7 @@
       .right_header{
         display: flex;
         align-items: center;
-        margin-bottom: 35px;
+        margin-bottom: 20px;
         .search_input{
           margin: 0 10px;
         }

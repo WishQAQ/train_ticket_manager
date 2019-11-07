@@ -23,6 +23,6 @@ export default {
   .content{
     height: calc(100vh - 128px);
     overflow-y: auto;
-    min-width: 1500px;
+    min-width: 1280px;
   }
 </style>

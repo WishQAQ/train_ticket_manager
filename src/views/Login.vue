@@ -25,8 +25,8 @@
     data(){
       return {
         loginLogo: LogoImage, // 登录页logo
-        userName: 'rainbow', // 用户名
-        userPassword: '123456', // 密码
+        userName: '', // 用户名
+        userPassword: '', // 密码
 
         passwordChecked: false, // 是否记住密码
       }

@@ -12,6 +12,8 @@ module.exports = {
         }
       },
     },
+    host: "0.0.0.0",
+    disableHostCheck:true,
     overlay: {
       errors: true,
       warnings: true
