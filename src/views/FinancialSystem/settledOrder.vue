@@ -961,7 +961,6 @@
 
       },
       exportOrder(){
-        console.log(this.selectList);
       },
 
       //修改分页条数
@@ -992,7 +991,6 @@
       },
     },
     created() {
-      console.log(this.$route.meta.name);
       this.viewsType =  this.$route.meta.name === '待结算订单'? 0:
           this.$route.meta.name === '已结算订单'? 1:
               this.$route.meta.name === '未出账订单'? 2:

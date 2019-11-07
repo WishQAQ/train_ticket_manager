@@ -1,7 +1,9 @@
+// const config = require("./config");
 module.exports = {
   publicPath: process.env.NODE_ENV === 'production' ? './' : '/',
   productionSourceMap: false,
   devServer: {
+    disableHostCheck:true,
     proxy: {
       "/api": {
         target: "http://oa.huimin.dev.cq1080.com/",
@@ -11,9 +13,15 @@ module.exports = {
           '^/api': ''
         }
       },
+      // [config.ROOT]: {
+      //   target: config.PROXYROOT,
+      //   ws: true, // 是否启用websockets
+      //   changOrigin: true, // 开启跨域
+      //   pathRewrite: {
+      //     [`^${config.ROOT}`]: ''
+      //   }
+      // },
     },
-    host: "0.0.0.0",
-    disableHostCheck:true,
     overlay: {
       errors: true,
       warnings: true

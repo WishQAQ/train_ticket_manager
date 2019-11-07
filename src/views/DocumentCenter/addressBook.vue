@@ -149,7 +149,6 @@
                   this.handleOpen(this.groupId)
                   this.addMailForm = {}
                 }
-                console.log(res);
               })
         }
       },

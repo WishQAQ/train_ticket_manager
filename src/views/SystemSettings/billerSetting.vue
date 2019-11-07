@@ -261,7 +261,6 @@
             }
             this.$axios.post('/api/user/issuer/add',data)
                 .then(res => {
-                  console.log(res);
                   if (res.data.code === 0) {
                     this.$message.success('添加成功')
                     this.getDataList()

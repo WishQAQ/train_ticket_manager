@@ -187,7 +187,6 @@
           let data = {
             menuId: String(this.deleteId)
           }
-          console.log(data);
           this.$axios.post('/api/authority/menu/del',data)
               .then(res =>{
                 if(res.data.code === 0){
@@ -225,7 +224,6 @@
       submitBtn(){
         if(this.menuMessage.menu_name ==='' || this.menuMessage.type ==='' || this.menuMessage.menu_english_name ===''){
           this.$message.warning('请填写完整信息')
-          console.log(this.menuMessage);
           this.showInput = false;
         } else {
           this.showInput = true

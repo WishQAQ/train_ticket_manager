@@ -97,7 +97,6 @@
     watch:{
       '$route'(to,form){
         this.editableTabsValue = this.$route.name === 'home'? '0': this.$route.name
-        // console.log(this.$route.name);
       }
     },
     beforeDestroy(){

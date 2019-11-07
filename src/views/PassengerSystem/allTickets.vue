@@ -167,7 +167,6 @@
        * @date 2019/10/25
       */
       submitSearchBtn(){
-        console.log(this.searchForm.time[0]);
       },
 
       /**
@@ -181,7 +180,6 @@
           method: 'get',
           responseType: 'blob'
         }).then(res =>{
-          console.log(res);
           if (res.data.type === "application/json") {
             this.$message({
               type: "error",
@@ -191,7 +189,6 @@
             let blob = new Blob([res.data]);
             if (window.navigator.msSaveOrOpenBlob) {
               navigator.msSaveBlob(blob);
-              console.log(blob);
             } else {
               let link = document.createElement("a");
               let evt = document.createEvent("HTMLEvents");
@@ -202,7 +199,6 @@
               document.body.appendChild(link);
               link.click();
               window.URL.revokeObjectURL(link.href);
-              console.log(link);
             }
           }
         })

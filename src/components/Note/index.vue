@@ -202,7 +202,6 @@
         }
         this.$axios.post('/api/user/note/del',data)
             .then(res =>{
-              console.log(res);
               if(res.data.code === 0){
                 this.getData()
                 this.$message.success('删除成功')

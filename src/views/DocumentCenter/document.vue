@@ -373,7 +373,6 @@
         this.editDialogStatus = false
         this.addDialog = true
         this.detailForm = JSON.parse(JSON.stringify(val))
-        // console.log(val);
         // this.$refs.tree.setCheckedNodes([{
         //   id: 5,
         //   label: '二级 2-1'
@@ -421,7 +420,6 @@
        * @date 2019/9/26
       */
       submitAddDialog(){
-        console.log(this.detailForm);
         if(this.detailForm.title && this.detailForm.content){
           this.showSubmitAddBtn = true
           let personnelId = []
@@ -430,7 +428,6 @@
           })
           this.detailForm['objects'] = String(personnelId)
           this.detailForm['type'] = this.viewAddressType
-          console.log(this.detailForm.orderMessage);
           if(this.viewAddressType === 1){ // 新闻新增or编辑
             if(this.detailForm.orderMessage instanceof Array){
               this.detailForm.orderMessage.forEach(item =>{

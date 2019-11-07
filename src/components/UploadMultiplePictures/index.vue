@@ -35,7 +35,7 @@
     },
     methods: {
       handleRemove(file, fileList) {
-        console.log(file, fileList);
+
       },
       handlePictureCardPreview(file) {
         this.dialogImageUrl = 'http://oa.huimin.dev.cq1080.com/' + file.url;

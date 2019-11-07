@@ -58,7 +58,7 @@
        * @date 2019/10/10
        */
       handleAvatarSuccess(res, file) {
-        console.log(res, file);
+
       },
 
       /**

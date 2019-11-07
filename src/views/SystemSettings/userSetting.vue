@@ -289,7 +289,6 @@
        * @date 2019/9/28
       */
       userOperating(val){
-        console.log(val);
       },
 
       /**
@@ -298,7 +297,6 @@
        * @date 2019/9/28
       */
       deleteUser(val){
-        console.log(val);
       },
 
       /**
@@ -316,7 +314,6 @@
        * @date 2019/9/29
       */
       cascaderClick(){
-        console.log(this.groupCheckList);
       },
 
       /**
