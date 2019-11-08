@@ -287,6 +287,7 @@
       <!-- 详情 -->
       <el-dialog
           title="订单详情"
+          width="75%"
           :visible.sync="OrderDetailsDialog">
         <div class="order_details_main">
           <div class="order_table">
@@ -375,8 +376,8 @@
           <div class="order_table">
             <div class="order_title">收支汇款底单</div>
             <div class="order_table_images">
-              <PublicImage :url="detailsImages.remittance_voucher" :preview="true"></PublicImage>
-              <PublicImage :url="detailsImages.collection_voucher" :preview="true"></PublicImage>
+              <PublicImage :pageSize="'3'" :url="detailsImages.remittance_voucher" :preview="true"></PublicImage>
+              <PublicImage :pageSize="'3'" :url="detailsImages.collection_voucher" :preview="true"></PublicImage>
             </div>
           </div>
         </div>
@@ -499,14 +500,14 @@
          * 详情弹窗操作日志分页
          * */
         DetailsPaginationList: {},
-        DetailsPer_page: 3,
+        DetailsPer_page: 10,
         DetailsPage: '',
         /**
          * 详情弹窗备注列表分页
          * */
         OrderRemarkTable: [],
         RemarkPaginationList: {},
-        RemarkPer_page: 3,
+        RemarkPer_page: 10,
         RemarkPage: '',
 
         detailsImages: {},  // 凭证图片
@@ -698,6 +699,7 @@
               if(res.data.code === 0){
                 this.OrderRemarkTable = res.data.result.data
                 this.RemarkPaginationList = res.data.result
+                console.log(this.RemarkPaginationList);
               }
             })
       },
@@ -1065,8 +1067,9 @@
       }
 
       .order_details_main{
-        display: flex;
-        flex-direction: column;
+        max-height: 80vh;
+        overflow-y: auto;
+        padding-right: 20px;
         .order_table{
           display: flex;
           align-items: center;
