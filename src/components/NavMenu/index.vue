@@ -329,7 +329,7 @@
       flex-direction: column;
       z-index: 2001;
       .nav_list_mask{
-        background:rgba(238,247,255,1);
+        background:rgba(238,247,255,.8);
         flex-shrink: 0;
         max-height: 330px;
       }

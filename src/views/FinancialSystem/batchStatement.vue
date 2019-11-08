@@ -145,7 +145,6 @@
       */
       openOrderDialog(){
         this.uploadOrderFile = true
-        this.orderFile = ''
       },
       /**
        * @Description: 提交订单文件
@@ -163,6 +162,13 @@
                 if(res.data.code === 0){
                   this.uploadOrderFile = false
                   this.orderFileData = res.data.result
+                  this.$message.success('提交成功')
+                  this.$route.push({
+                    name: 'statementInfo',
+                    query: {
+                      condition: this.orderId
+                    }
+                  })
                 }else {
                   this.$message.warning(res.data.msg)
                 }
@@ -249,6 +255,10 @@
           display: flex;
           align-items: center;
           padding: 10px 15px;
+          /deep/.upload_main{
+            max-width: 150px;
+            max-height: 150px;
+          }
         }
       }
     }

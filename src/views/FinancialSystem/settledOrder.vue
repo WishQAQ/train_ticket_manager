@@ -917,6 +917,7 @@
               if(res.data.code === 0){
                 this.batchDialog = false
                 this.$message.success('保存成功')
+                this.getData()
               }else {
                 this.$message.warning(res.data.msg)
               }
@@ -946,10 +947,10 @@
           Receivables += parseFloat(res.receivables)
           ActualPayment += parseFloat(res.actual_receipts)
         })
-        this.dataTotal['TotalPrice'] = TotalPrice
-        this.dataTotal['MealFee'] = MealFee
-        this.dataTotal['Receivables'] = Receivables
-        this.dataTotal['ActualPayment'] = ActualPayment
+        this.dataTotal['TotalPrice'] = TotalPrice.toFixed(2)
+        this.dataTotal['MealFee'] = MealFee.toFixed(2)
+        this.dataTotal['Receivables'] = Receivables.toFixed(2)
+        this.dataTotal['ActualPayment'] = ActualPayment.toFixed(2)
       },
 
       /**

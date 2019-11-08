@@ -257,8 +257,7 @@
         <div class="carousel_main">
           <el-carousel class="carousel_main" height="40px" direction="vertical" loop autoplay arrow="none" indicator-position="none">
             <el-carousel-item v-for="(item ,index) in orderInfo.news" :key="index">
-              <div class="medium">{{ item.title }}</div>
-              <el-button size="mini" @click="openNewsCenter(item)">查看</el-button>
+              <div class="medium" @click="openNewsCenter(item)">{{ item.title }}</div>
             </el-carousel-item>
             <div v-if="!orderInfo.news">暂无新闻</div>
           </el-carousel>
@@ -1327,29 +1326,30 @@
                     this.addTrainTableArray.push(JSON.parse(JSON.stringify(this.addDataList.trips)))
 
                   }else {
-                    this.addDataList.trips.forEach(item =>{
-                      item.info.forEach(cItem =>{
-                        cItem['initial_station'] = cItem.route[0]  // 发站
-                        cItem['stop_station'] = cItem.route[1] // 到站
-                        cItem['riding_time'] = cItem.ride_date  // 发车时间
-                        cItem['trips_number'] = cItem.train_number  // 车次
-                        delete cItem.route
-                        delete cItem.ride_date
-                        delete cItem.train_number
-                        cItem.passenger.forEach(dItem =>{
-                          dItem['IDCard'] = dItem.card  // 身份证
-                          dItem['ticket_type'] = dItem.is_child    // 车票类型
-                          dItem['ticket_type'] = dItem.is_child === 0 ? '成人票' :'儿童票'   // 车票类型
-                          dItem['ticket_species'] = this.addDataList.ticketType
-                          dItem['remarks'] = ''  // 备注
-                          dItem['missed_meals_money'] = '5'  // 误餐费
-                          delete dItem.card
-                          delete dItem.is_child
+                    if(this.addDataList.trips.length > 0){
+                      this.addDataList.trips.forEach(item =>{
+                        item.info.forEach(cItem =>{
+                          cItem['initial_station'] = cItem.route[0]  // 发站
+                          cItem['stop_station'] = cItem.route[1] // 到站
+                          cItem['riding_time'] = cItem.ride_date  // 发车时间
+                          cItem['trips_number'] = cItem.train_number  // 车次
+                          delete cItem.route
+                          delete cItem.ride_date
+                          delete cItem.train_number
+                          cItem.passenger.forEach(dItem =>{
+                            dItem['IDCard'] = dItem.card  // 身份证
+                            dItem['ticket_type'] = dItem.is_child    // 车票类型
+                            dItem['ticket_type'] = dItem.is_child === 0 ? '成人票' :'儿童票'   // 车票类型
+                            dItem['ticket_species'] = this.addDataList.ticketType
+                            dItem['remarks'] = ''  // 备注
+                            dItem['missed_meals_money'] = '5'  // 误餐费
+                            delete dItem.card
+                            delete dItem.is_child
+                          })
                         })
                       })
-                    })
-                    this.addTrainTableArray = JSON.parse(JSON.stringify(this.addDataList.trips))
-
+                      this.addTrainTableArray = JSON.parse(JSON.stringify(this.addDataList.trips))
+                    }
                   }
 
                   console.log(this.addTrainTableArray);
@@ -1586,7 +1586,7 @@
     // 详情or编辑
     .order_info{
       width: 100%;
-      margin-bottom: 45px;
+      margin-bottom: 20px;
       .title{
         width: 150px;
         flex-shrink: 0;
@@ -1708,7 +1708,7 @@
     .order_carousel{
       display: flex;
       align-items: center;
-      margin-bottom: 90px;
+      margin-bottom: 20px;
       padding-left: 150px;
       .carousel_main{
         width: 500px;
@@ -1722,6 +1722,7 @@
             overflow: hidden;
             white-space: nowrap;
             text-overflow: ellipsis;
+            cursor: pointer;
           }
         }
 

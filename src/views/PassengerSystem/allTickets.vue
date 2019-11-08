@@ -51,7 +51,7 @@
             sortable
             label="乘车日期">
           <template slot-scope="scope">
-            {{$getTime(scope.row.riding_time)}}
+            {{$getTimeYear(scope.row.riding_time * 1000)}}
           </template>
         </el-table-column>
         <el-table-column
@@ -222,7 +222,7 @@
       '$route'(to, from) {
         this.loading = true;
         this.routerType = this.$route.meta.name;
-        this.getDataList();
+        this.getData();
       },
     },
     created() {

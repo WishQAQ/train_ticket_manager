@@ -149,11 +149,11 @@
           label="12306账号">
         <template slot-scope="scope">
           <el-input
-              v-model="scope.row.db_auftragsnummer"
+              v-model="scope.row.account"
               v-if="tableModify === 'edit'"
-              @blur="loseFcous(tableData, scope.row, 'db_auftragsnummer', scope.row.db_auftragsnummer)">
+              @blur="loseFcous(tableData, scope.row, 'db_auftragsnummer', scope.row.account)">
           </el-input>
-          <span style="margin-left: 10px" v-else>{{scope.row.db_auftragsnummer}}</span>
+          <span style="margin-left: 10px" v-else>{{scope.row.account}}</span>
         </template>
       </el-table-column>
     </el-table>
