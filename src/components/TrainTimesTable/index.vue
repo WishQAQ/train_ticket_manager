@@ -31,8 +31,10 @@
           align="center"
           label="乘客信息+票种">
         <template slot-scope="scope">
-          <div><span style="margin-right: 10px">{{scope.row.name}}</span><span>{{scope.row.IDCard}}</span></div>
-          <div>{{scope.row.ticket_species === 0 ? '成人票': '儿童票'}}</div>
+          <div style="font-weight: bold">
+            <div><span style="margin-right: 10px">{{scope.row.name}}</span><span>{{scope.row.IDCard}}</span></div>
+            <div>{{scope.row.ticket_species === 0 ? '成人票': '儿童票'}}</div>
+          </div>
         </template>
       </el-table-column>
       <el-table-column
@@ -56,9 +58,11 @@
       <el-table-column
           label="席别/席位号">
         <template slot-scope="scope">
-          {{scope.row.fwName}}
-          {{' / '}}
-          {{scope.row.seat_number || ''}}
+          <div style="font-weight: bold">
+            {{scope.row.fwName}}
+            {{scope.row.seat_number?' / ':''}}
+            {{scope.row.seat_number || ''}}
+          </div>
         </template>
       </el-table-column>
       <el-table-column

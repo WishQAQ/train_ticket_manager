@@ -19,12 +19,11 @@
             type="textarea"
             resize="none"
             :rows="6"
-            :disabled="addBtnDisabled"
             v-model="AddGroupOriginData">
         </el-input>
       </div>
       <el-button v-if="!addBtnType" class="add_btn" @click="saveGroupBtn()">保存</el-button>
-      <el-button v-if="addBtnType" class="add_btn" @click="addGroupBtn" :disabled="addBtnDisabled">识别</el-button>
+      <el-button v-if="addBtnType" class="add_btn" @click="addGroupBtn" v-loading="addBtnDisabled">识别</el-button>
     </div>
 
     <!-- Q群信息展开 -->
@@ -669,6 +668,8 @@
          */
         AddGroupOriginData: '',  // 模糊查询Q群信息
 
+        customerMessage: {}, // 识别客户商与发单人
+
         saveGroupMessage: '', // 初始信息保存
         addBtnType: false,  // 保存 or 识别按钮切换
         addBtnDisabled: false, // 识别按钮
@@ -1294,16 +1295,34 @@
                 if(res.data.code === 0){
                   this.$message.success('识别完成')
                   this.inputDisabled = false
-                  this.addBtnDisabled = true
+                  this.addBtnDisabled = false
                   this.addDataList = res.data.result
+                  this.customerMessage =  res.data.result.customer
                   this.orderInfo.order_sn = this.addDataList.orderNumber.new
                   this.orderInfo.old_order_sn = this.addDataList.orderNumber.old
+
+                  this.customerList.forEach(customer =>{
+                    if(customer.identity === this.customerMessage.customer){
+                      this.orderInfo.cname = customer.name
+                    }
+                    console.log(customer);
+                    customer.issuer.forEach(issuing =>{
+                      if(issuing.id ===  this.customerMessage.issuing_clerk){
+                        this.orderInfo.dName = issuing.name
+                      }
+                    })
+                  })
+
+
+                  console.log(this.customerList);
+
+                  console.log(this.customerMessage);
                   /**
                    * @Description: 重组新增数组
                    * @author Wish
                    * @date 2019/10/24
                    */
-                  if(this.addDataList.trips.type === 0){
+                  if(this.addDataList.trips.type){
                     this.addDataList.trips.info.forEach(cItem =>{
                       cItem['initial_station'] = cItem.route[0]  // 发站
                       cItem['stop_station'] = cItem.route[1] // 到站
@@ -1354,6 +1373,7 @@
 
                   console.log(this.addTrainTableArray);
                 }else {
+                  this.addBtnDisabled = false
                   this.$message.warning(res.data.msg)
                 }
               })
@@ -1485,6 +1505,7 @@
         height: 100%;
         overflow-y: auto;
         margin-bottom: 30px;
+        white-space: pre-wrap;
       }
       .person_box{
         >span{

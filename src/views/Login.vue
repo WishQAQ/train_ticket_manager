@@ -10,7 +10,7 @@
 
       <el-checkbox v-model="passwordChecked" class="login_checked">记住密码</el-checkbox>
 
-      <div class="login_submit" @click="submitLogin">登录</div>
+      <div class="login_submit" @click="submitLogin" v-loading="loading">登录</div>
 
     </div>
   </div>
@@ -24,6 +24,7 @@
     name: "Login",
     data(){
       return {
+        loading: false, // 登录按钮加载
         loginLogo: LogoImage, // 登录页logo
         userName: '', // 用户名
         userPassword: '', // 密码

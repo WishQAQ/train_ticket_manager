@@ -1,13 +1,28 @@
 <template>
   <div class="tickets" v-loading="loading">
     <div class="ticket_header">
-      <el-input v-model="searchForm.info" placeholder="请输入乘客信息/支付账号/流水账号/12306账号"></el-input>
+      <el-input v-model="searchForm.name" placeholder="请输入乘客姓名"></el-input>
+      <el-input v-model="searchForm.pay_account" placeholder="请输入支付账号"></el-input>
+      <el-input v-model="searchForm.running_account" placeholder="请输入流水账号"></el-input>
+      <el-input v-model="searchForm.running_account" placeholder="请输入12306账号"></el-input>
+      <el-input v-model="searchForm.order" placeholder="请输入订单号"></el-input>
       <el-select v-model="searchForm.order_status" placeholder="请选择订单状态">
         <el-option label="已处理订单" value="1"></el-option>
-        <el-option label="未处理订单" value="2"></el-option>
+        <el-option label="处理中订单" value="2"></el-option>
       </el-select>
       <el-input v-model="searchForm.departure" placeholder="发站"></el-input>
       <el-input v-model="searchForm.arrive" placeholder="到站"></el-input>
+
+<!--      12306_account 12306账户
+order 订单号
+ order_status 车票状态（2：处理中 1：已处理）
+  departure 发站
+  arrive 到站
+   ridingBegin 乘车日期&#45;&#45;开始时间
+   ridingEnd 乘车日期-&#45;&#45;结束时间
+   begin 出票日期-&#45;&#45;开始时间
+    end 出票日期&#45;&#45;&#45;&#45;结束时间-->
+
       <el-date-picker
           v-model="searchForm.time"
           type="daterange"
@@ -30,13 +45,22 @@
           </template>
         </el-table-column>
         <el-table-column
-            prop="order_sn"
             label="订单号">
+          <template slot-scope="scope">
+            <div @click="jumpOrderInfo(scope.row.order_sn)" class="ticket_order_id">{{scope.row.order_sn}}</div>
+          </template>
         </el-table-column>
         <el-table-column
             label="乘客信息">
           <template slot-scope="scope">
             {{scope.row.name + ' ' + scope.row.IDCard}}
+          </template>
+        </el-table-column>
+        <el-table-column
+            sortable
+            label="行程时间">
+          <template slot-scope="scope">
+            {{$getTimeYear(scope.row.riding_time * 1000)}}
           </template>
         </el-table-column>
         <el-table-column
@@ -48,11 +72,8 @@
             label="到站">
         </el-table-column>
         <el-table-column
-            sortable
-            label="乘车日期">
-          <template slot-scope="scope">
-            {{$getTimeYear(scope.row.riding_time * 1000)}}
-          </template>
+            prop="trips_number"
+            label="车次">
         </el-table-column>
         <el-table-column
             prop="fwName"
@@ -87,6 +108,11 @@
             label="出票款">
         </el-table-column>
         <el-table-column
+            sortable
+            prop="ticketing_time"
+            label="出票时间">
+        </el-table-column>
+        <el-table-column
             label="车票状态">
           <template slot-scope="scope">
             {{scope.row.ticket_status === 0?'未出票':
@@ -95,11 +121,6 @@
             scope.row.ticket_status === 3?'已改签':
             scope.row.ticket_status === 4?'已退票':'数据异常 '}}
           </template>
-        </el-table-column>
-        <el-table-column
-            sortable
-            prop="ticketing_time"
-            label="出票时间">
         </el-table-column>
       </el-table>
       <div class="table_bottom">
@@ -159,6 +180,21 @@
               this.paginationList = res.data.result
               this.loading = false
             })
+      },
+
+      /**
+       * @Description: 跳转订单详情页
+       * @author Wish
+       * @date 2019/11/9
+      */
+      jumpOrderInfo(val){
+        this.$router.push({
+          name: 'orderDetails',
+          query:{
+            order_sn: val,
+            type: 'details'
+          }
+        })
       },
 
       /**
@@ -239,7 +275,16 @@
     .ticket_header{
       display: flex;
       align-items: center;
+      flex-wrap: wrap;
       margin-bottom: 40px;
+      /deep/.el-input{
+        margin-right: 15px;
+      }
+    }
+    .ticket_main{
+      .ticket_order_id{
+        cursor: pointer;
+      }
     }
     .table_bottom{
       display: flex;

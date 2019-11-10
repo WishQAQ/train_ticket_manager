@@ -20,7 +20,7 @@
             <div @click="jumpDetails('helpDocument')">更多<span></span></div>
           </div>
           <div class="main_content" v-loading="dLoading">
-            <div class="main_list" v-for="(item,index) in documentList" :key="index">
+            <div class="main_list" v-for="(item,index) in documentList" :key="index" @click="openDetailsDialog(item,'document')">
               <p>{{item.created_at.split(' ')[0]}}</p>
               <p>公告通知：{{item.title}}</p>
             </div>
@@ -33,7 +33,7 @@
             <div @click="jumpDetails('newsCenter')">更多<span></span></div>
           </div>
           <div class="main_content" v-loading="nLoading">
-            <div class="main_list" v-for="(item,index) in newList" :key="index">
+            <div class="main_list" v-for="(item,index) in newList" :key="index" @click="openDetailsDialog(item,'news')">
               <p>{{item.created_at.split(' ')[0]}}</p>
               <p>新闻：{{item.title}}</p>
             </div>
@@ -46,6 +46,22 @@
         <notice v-if="true"></notice>
       </div>
     </div>
+
+    <el-dialog
+        :title="viewAddressType === 0 ? '帮助文档': '新闻中心'"
+        modal-append-to-body
+        append-to-body
+        :visible.sync="detailDialog"
+        custom-class="detail_dialog">
+      <div class="detail_main">
+        <div class="title">{{detailMessage.title || '暂无文档标题' }}</div>
+        <div class="info">
+          <div class="source">{{detailMessage.source || '暂无创建人信息'}}</div>
+          <div class="time">{{detailMessage.created_at || '暂无创建时间'}}</div>
+        </div>
+        <div class="content" v-html="detailMessage.content || '暂无文档内容'"></div>
+      </div>
+    </el-dialog>
 
   </div>
 </template>
@@ -90,6 +106,10 @@
 
         refreshStatus: false,  // 刷新按钮状态
         isClick: false, // 刷新按钮动画
+
+        detailDialog: false, // 新闻文档弹窗
+        viewAddressType: '', // 弹窗类型
+        detailMessage: {}, // 弹窗内容
 
       }
     },
@@ -169,6 +189,18 @@
                 this.newList = res.data.data
               }
             })
+      },
+
+      /**
+       * @Description: 打开详情弹窗
+       * @author Wish
+       * @date 2019/11/9
+      */
+      openDetailsDialog(val,type){
+        this.detailDialog = true
+        this.viewAddressType = type === 'document'? 0:
+            type === 'news'? 1: type
+        this.detailMessage = val
       },
 
       /**
@@ -304,6 +336,7 @@
               align-items: center;
               font-size:16px;
               color:rgba(38,153,251,1);
+              cursor: pointer;
               >p{
                 &:last-child{
                   margin-left: 15px;
@@ -360,4 +393,35 @@
       }
     }
   }
+
+  /*新闻or文档弹窗*/
+  .detail_dialog{
+    .detail_main{
+      .title{
+        font-size:24px;
+        color:rgba(51,148,250,1);
+        text-align: center;
+        margin-bottom: 35px;
+      }
+      .info{
+        display: flex;
+        align-items: center;
+        margin-bottom: 15px;
+        .time{
+          margin-left: 15px;
+          font-size:16px;
+          color:rgba(38,153,251,1);
+        }
+      }
+      .content{
+        font-size:18px;
+        color:rgba(38,153,251,1);
+        max-height: 600px;
+        height: 100%;
+        overflow-y: auto;
+        white-space: pre-wrap;
+      }
+    }
+  }
+
 </style>

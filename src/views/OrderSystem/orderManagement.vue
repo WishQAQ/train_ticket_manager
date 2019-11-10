@@ -50,7 +50,7 @@
             </div>
             <div class="list_main">
               <div class="list_box" v-for="(cItem, CIndex) in item.info" :key="CIndex">
-                <div style="width: 150px; flex-shrink: 0">{{$getTime(cItem.riding_time * 1000)}}</div>
+                <div style="width: 150px; flex-shrink: 0">{{$getTimeYear(cItem.riding_time * 1000)}}</div>
                 <div>{{cItem.departure_station}}</div>
                 <div>{{cItem.arrival_station}}</div>
                 <div>{{cItem.finishTask +'/'+cItem.incompleteTask}}</div>

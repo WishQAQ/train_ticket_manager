@@ -164,11 +164,12 @@
   .addressBook{
     display: flex;
     justify-content: center;
-    padding: 45px 0 ;
+    padding: 45px ;
     .left_main{
-      max-width: 300px;
-      width: 100%;
-      flex-shrink: 0;
+      /*max-width: 300px;*/
+      /*width: 100%;*/
+      /*flex-shrink: 0;*/
+      flex: 1;
       margin-right: 40px;
       border: solid 1px #e6e6e6;
       /deep/.el-submenu{
@@ -189,9 +190,9 @@
       }
     }
     .right_main{
-      flex: 1;
-      max-width: 700px;
-      width: 100%;
+      flex: 2;
+      /*max-width: 700px;*/
+      /*width: 100%;*/
       .right_header{
         display: flex;
         align-items: center;

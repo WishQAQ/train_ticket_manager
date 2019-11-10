@@ -602,6 +602,7 @@
       openDetails(val){
         this.detailDialog = true
         this.detailMessage = val
+        console.log(this.detailMessage.content);
       },
 
       /**
@@ -702,7 +703,7 @@
 <style scoped lang="less">
   .helpDocument{
     .help_main{
-      max-width: 1380px;
+      /*max-width: 1380px;*/
       width: 100%;
       padding: 50px 30px;
       margin: 0 auto;
@@ -743,6 +744,7 @@
         max-height: 600px;
         height: 100%;
         overflow-y: auto;
+        white-space: pre-wrap;
       }
     }
   }

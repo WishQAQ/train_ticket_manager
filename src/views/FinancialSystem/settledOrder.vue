@@ -73,11 +73,14 @@
             align="center"
             label="订单信息">
           <el-table-column
-              prop="order_sn"
               align="center"
               width="150"
               label="单号">
+            <template slot-scope="scope">
+              <div style="cursor: pointer" @click="jumpDetails(scope.row.order_sn)">{{scope.row.order_sn}}</div>
+            </template>
           </el-table-column>
+
           <el-table-column
               align="center"
               width="80"
@@ -548,6 +551,21 @@
               this.paginationList = res.data;
               this.getDataTotal()
             })
+      },
+
+      /**
+       * @Description: 跳转订单详情页
+       * @author Wish
+       * @date 2019/11/9
+      */
+      jumpDetails(val){
+        this.$router.push({
+          name: 'orderDetails',
+          query:{
+            order_sn: val,
+            type: 'details'
+          }
+        })
       },
 
       /**
