@@ -77,7 +77,7 @@
               width="150"
               label="单号">
             <template slot-scope="scope">
-              <div style="cursor: pointer" @click="jumpDetails(scope.row.order_sn)">{{scope.row.order_sn}}</div>
+              <div class="table_order" @click="jumpDetails(scope.row.order_sn)">{{scope.row.order_sn}}</div>
             </template>
           </el-table-column>
 
@@ -1041,6 +1041,12 @@
         &::after{
           content: ','
         }
+        &:hover{
+          color: #409EFF;
+        }
+      }
+      .table_order{
+        cursor: pointer;
         &:hover{
           color: #409EFF;
         }

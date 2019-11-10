@@ -140,8 +140,11 @@
             .then(res =>{
               if(res.data.code === 0){
                 this.loading = false
-               this.clientData = res.data.result.data
+                this.clientData = res.data.result.data
                 this.paginationList = res.data.result
+              }else {
+                this.$message.warning(res.data.msg)
+                this.loading = false
               }
             })
       },
@@ -166,17 +169,25 @@
         if(this.dialogType){  // 新建
           this.$axios.post('/api/user/customer/add',this.addDataForm)
               .then(res =>{
-                this.$message.success('保存成功')
-                this.getDataList()
-                this.addDialog = false
+                if(res.data.code === 0){
+                  this.$message.success('保存成功')
+                  this.getDataList()
+                  this.addDialog = false
+                }else {
+                  this.$message.warning(res.data.msg)
+                }
               })
         }else { // 修改
           this.addDataForm['type'] = 0
           this.$axios.post('/api/user/customer/operation',this.addDataForm)
               .then(res =>{
-                this.$message.success('保存成功')
-                this.getDataList()
-                this.addDialog = false
+                if(res.data.code === 0){
+                  this.$message.success('保存成功')
+                  this.getDataList()
+                  this.addDialog = false
+                }else {
+                  this.$message.warning(res.data.msg)
+                }
               })
         }
       },
@@ -218,8 +229,12 @@
         }).then(() => {
           this.$axios.post('/api/user/customer/operation',data)
               .then(res =>{
-                this.$message.success('状态修改成功')
-                this.getDataList()
+                if(res.data.code === 0){
+                  this.$message.success('状态修改成功')
+                  this.getDataList()
+                }else {
+                  this.$message.warning(res.data.msg)
+                }
               })
         }).catch(() =>{})
       },
@@ -241,8 +256,12 @@
         }).then(() => {
           this.$axios.post('/api/user/customer/operation',data)
               .then(res =>{
-                this.$message.success('删除成功')
-                this.getDataList()
+                if(res.data.code === 0){
+                  this.$message.success('删除成功')
+                  this.getDataList()
+                }else {
+                  this.$message.warning(res.data.msg)
+                }
               })
         }).catch(() =>{})
       },

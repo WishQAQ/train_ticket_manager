@@ -6,7 +6,7 @@ module.exports = {
     disableHostCheck:true,
     proxy: {
       "/api": {
-        target: "http://192.168.10.119:8081",
+        target: "http://oa.huimin.dev.cq1080.com",
         ws: true, // 是否启用websockets
         changOrigin: true, // 开启跨域
         pathRewrite: {
