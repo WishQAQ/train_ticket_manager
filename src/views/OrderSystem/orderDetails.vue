@@ -573,9 +573,9 @@
             <div class="main_box_title">票类</div>
             <div class="main_box_content">
               <el-select v-model="batchEditData.info" placeholder="请选择">
-                <el-option label="网票" value="item.value"></el-option>
-                <el-option label="纸票" value="item.value"></el-option>
-                <el-option label="电子票" value="item.value"></el-option>
+                <el-option label="电子票" value="0"></el-option>
+                <el-option label="网票" value="1"></el-option>
+                <el-option label="纸票" value="2"></el-option>
               </el-select>
             </div>
           </div>
