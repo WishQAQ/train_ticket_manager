@@ -1,10 +1,10 @@
 <template>
-  <div class="statement">
+  <div class="statement" v-loading="loading">
     <div class="table_header">
-      <el-input v-model="searchForm.orderId"></el-input>
-      <el-button>搜索</el-button>
+      <div><el-input clearable v-model="searchOrder" plcaeholder="请输入对账单号"></el-input></div>
+      <el-button @click="searchBtn">搜索</el-button>
     </div>
-    <div class="table_main" v-loading="loading">
+    <div class="table_main">
       <el-table
           :data="tableData"
           border
@@ -69,7 +69,7 @@
     data(){
       return {
         loading: true,
-        searchForm: {}, // 搜索
+        searchOrder: '', // 对账单号搜索
         tableData: [], // 表格数据
       }
     },
@@ -86,6 +86,19 @@
             .catch(() =>{
               this.$message.warning('数据获取失败，请稍后重试')
             })
+      },
+
+      /**
+       * @Description: 对账单号搜索
+       * @author Wish
+       * @date 2019/11/11
+      */
+      searchBtn(){
+        if(this.searchOrder){
+          this.tableData = this.tableData.filter(data => !this.searchOrder || data.bill_number.toLowerCase().includes(this.searchOrder.toLowerCase()))
+        }else {
+          this.getDataList()
+        }
       },
       handledTable(val){
         this.$router.push({
@@ -111,6 +124,9 @@
       display: flex;
       align-items: center;
       margin-bottom: 40px;
+      >div{
+        margin-right: 15px;
+      }
     }
   }
 </style>

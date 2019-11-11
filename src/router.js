@@ -8,7 +8,7 @@ export default new Router({
     {
       path: '/login',
       name: 'login',
-      component: () => import('@/views/Login')
+      component: () => import(/* webpackPrefetch: true */ '@/views/Login')
     },{
       path: '/404',
       name: '404',
@@ -19,7 +19,7 @@ export default new Router({
 export function powerRouterLazy(name) {
   switch (name) {
     case 'home':
-      return {path: '/', name: 'home', component: () => import('@/views/index')}
+      return {path: '/', name: 'home', component: () => import(/* webpackPrefetch: true */ '@/views/index')}
       break;
     case 'documentSystem':  // 文档中心
       return {path: '/documentSystem', name: 'documentSystem', component: () => import('@/views/DocumentCenter/index'),children: [
@@ -46,7 +46,7 @@ export function powerRouterLazy(name) {
           { path: '/chargeOffOrder', name: 'chargeOffOrder', component: () => import('@/views/FinancialSystem/settledOrder'),meta:{name: '出账中订单',hidden: false}},  // 出账中订单
           { path: '/notChargeOff', name: 'notChargeOff', component: () => import('@/views/FinancialSystem/settledOrder'),meta:{name: '未出账订单',hidden: false}},  // 未出账订单
           { path: '/statement', name: 'statement', component: () => import('@/views/FinancialSystem/statement'),meta:{hidden: false}},  // 对账单查询
-          { path: '/statementInfo', name: 'statementInfo', component: () => import('@/views/FinancialSystem/statementInfo'),meta:{hidden: true}},  // 对账单详情
+          { path: '/statementInfo', name: 'statementInfo', component: () => import('@/views/FinancialSystem/statementInfo'),meta:{hidden: true,keepAlive: true}},  // 对账单详情
           { path: '/batchStatement', name: 'batchStatement', component: () => import('@/views/FinancialSystem/batchStatement'),meta:{hidden: true}},  // 批量对账
         ]};
       break;

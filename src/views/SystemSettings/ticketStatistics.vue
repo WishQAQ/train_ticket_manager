@@ -125,7 +125,7 @@
         let data = {
           page: this.page || null,
         }
-        this.$axios.get('/api/system/ticketType/'+this.urlType,{params:data})
+        this.$axios.get('/api/system/ticketType/'+this.urlType+'/'+this.per_page,{params:data})
             .then(res =>{
               this.ticketData = res.data.result.data
               this.loading = false

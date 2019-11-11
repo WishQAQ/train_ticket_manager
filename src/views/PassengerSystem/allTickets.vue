@@ -1,36 +1,32 @@
 <template>
   <div class="tickets" v-loading="loading">
     <div class="ticket_header">
-      <el-input v-model="searchForm.name" placeholder="请输入乘客姓名"></el-input>
-      <el-input v-model="searchForm.pay_account" placeholder="请输入支付账号"></el-input>
-      <el-input v-model="searchForm.running_account" placeholder="请输入流水账号"></el-input>
-      <el-input v-model="searchForm.running_account" placeholder="请输入12306账号"></el-input>
-      <el-input v-model="searchForm.order" placeholder="请输入订单号"></el-input>
-      <el-select v-model="searchForm.order_status" placeholder="请选择订单状态">
+      <div><el-input clearable v-model="searchForm.name" placeholder="请输入乘客姓名"></el-input></div>
+      <div><el-input clearable v-model="searchForm.pay_account" placeholder="请输入支付账号"></el-input></div>
+      <div><el-input clearable v-model="searchForm.running_account" placeholder="请输入流水账号"></el-input></div>
+      <div><el-input clearable v-model="searchForm.train_account" placeholder="请输入12306账号"></el-input></div>
+      <div><el-input clearable v-model="searchForm.order" placeholder="请输入订单号"></el-input></div>
+      <div><el-select clearable v-model="searchForm.order_status" placeholder="请选择订单状态">
         <el-option label="已处理订单" value="1"></el-option>
         <el-option label="处理中订单" value="2"></el-option>
-      </el-select>
-      <el-input v-model="searchForm.departure" placeholder="发站"></el-input>
-      <el-input v-model="searchForm.arrive" placeholder="到站"></el-input>
-
-<!--      12306_account 12306账户
-order 订单号
- order_status 车票状态（2：处理中 1：已处理）
-  departure 发站
-  arrive 到站
-   ridingBegin 乘车日期&#45;&#45;开始时间
-   ridingEnd 乘车日期-&#45;&#45;结束时间
-   begin 出票日期-&#45;&#45;开始时间
-    end 出票日期&#45;&#45;&#45;&#45;结束时间-->
-
-      <el-date-picker
-          v-model="searchForm.time"
+      </el-select></div>
+      <div><el-input clearable v-model="searchForm.departure" placeholder="发站"></el-input></div>
+      <div><el-input clearable v-model="searchForm.arrive" placeholder="到站"></el-input></div>
+      <div><el-date-picker
+          v-model="searchForm.ridingTime"
           type="daterange"
           range-separator="至"
-          start-placeholder="开始日期"
-          end-placeholder="结束日期">
-      </el-date-picker>
-      <el-button @click="submitSearchBtn">搜索</el-button>
+          start-placeholder="乘车开始日期"
+          end-placeholder="乘车结束日期">
+      </el-date-picker></div>
+      <div><el-date-picker
+          v-model="searchForm.beginTime"
+          type="daterange"
+          range-separator="至"
+          start-placeholder="出票开始日期"
+          end-placeholder="出票结束日期">
+      </el-date-picker></div>
+      <div><el-button @click="submitSearchBtn">搜索</el-button></div>
     </div>
     <div class="ticket_main">
       <el-table
@@ -78,8 +74,14 @@ order 订单号
         <el-table-column
             prop="fwName"
             label="席别名称">
+          <template slot-scope="scope">
+            {{scope.row.fwName}}
+            <span v-if="scope.row.seat_number">/</span>
+            {{scope.row.seat_number}}
+          </template>
         </el-table-column>
         <el-table-column
+            v-if="rulType === '0'"
             label="票类">
           <template slot-scope="scope">
             {{scope.row.ticket_type === 0?'电子票':
@@ -88,29 +90,36 @@ order 订单号
           </template>
         </el-table-column>
         <el-table-column
+            v-if="rulType === '0'"
             sortable
             prop="ticket_price"
             label="票价">
         </el-table-column>
         <el-table-column
+            v-if="rulType === '0'"
             sortable
             prop="missed_meals_money"
             label="误餐费">
         </el-table-column>
         <el-table-column
+            v-if="rulType === '0'"
             sortable
             prop="refund_fee"
             label="退票款">
         </el-table-column>
         <el-table-column
+            v-if="rulType === '0'"
             sortable
             prop="ticket_fare"
             label="出票款">
         </el-table-column>
         <el-table-column
+            v-if="rulType === '0'"
             sortable
-            prop="ticketing_time"
             label="出票时间">
+          <template slot-scope="scope">
+            {{$getTimeYear(scope.row.ticketing_time * 1000) || ''}}
+          </template>
         </el-table-column>
         <el-table-column
             label="车票状态">
@@ -156,7 +165,16 @@ order 订单号
         ticketData: [],
 
         searchForm: {  // 搜索
-
+          name: '',
+          pay_account: '',
+          running_account: '',
+          train_account: '',
+          order: '',
+          order_status: '',
+          departure: '',
+          arrive: '',
+          ridingTime: [],
+          beginTime: [],
         },
 
         rulType: '',  // 页面类型
@@ -171,10 +189,11 @@ order 订单号
         this.loading = true
         this.rulType =  this.$route.meta.name === '全部车票'?'0':
             this.$route.meta.name === '未出票订单' ?'1':''
-        let data = {
+        let data ={
           page: this.page || null,
         }
-        this.$axios.get('/api/system/passengerTicket/' + this.rulType + '/'+this.per_page || null,{params:data})
+
+        this.$axios.get('/api/system/passengerTicket/' + this.rulType + '/'+this.per_page || null,{params: data})
             .then(res =>{
               this.ticketData = res.data.result.data
               this.paginationList = res.data.result
@@ -203,6 +222,26 @@ order 订单号
        * @date 2019/10/25
       */
       submitSearchBtn(){
+        let data ={
+          name: this.searchForm.name,
+          pay_account: this.searchForm.pay_account,
+          running_account: this.searchForm.running_account,
+          '12306_account': this.searchForm.train_account,
+          order: this.searchForm.order,
+          order_status: this.searchForm.order_status,
+          departure: this.searchForm.departure,
+          arrive: this.searchForm.arrive,
+          ridingBegin: this.$dateToMs(this.searchForm.ridingTime[0] / 1000) || '',
+          ridingEnd: this.$dateToMs(this.searchForm.ridingTime[1] / 1000) || '',
+          begin: this.$dateToMs(this.searchForm.beginTime[0] / 1000) || '',
+          end: this.$dateToMs(this.searchForm.beginTime[1] / 1000) || '',
+        }
+        this.$axios.post('/api/system/passengerTicket/' + this.rulType + '/'+this.per_page,data)
+            .then(res =>{
+              this.ticketData = res.data.result.data
+              this.paginationList = res.data.result
+              this.loading = false
+            })
       },
 
       /**
@@ -258,6 +297,7 @@ order 订单号
       '$route'(to, from) {
         this.loading = true;
         this.routerType = this.$route.meta.name;
+        this.searchForm = {}
         this.getData();
       },
     },
@@ -276,14 +316,18 @@ order 订单号
       display: flex;
       align-items: center;
       flex-wrap: wrap;
-      margin-bottom: 40px;
-      /deep/.el-input{
+      margin-bottom: 25px;
+      >div{
         margin-right: 15px;
+        margin-bottom: 15px;
       }
     }
     .ticket_main{
       .ticket_order_id{
         cursor: pointer;
+        &:hover{
+          color: #409EFF;
+        }
       }
     }
     .table_bottom{

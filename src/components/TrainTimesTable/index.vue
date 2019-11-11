@@ -168,6 +168,11 @@
   export default {
     name: "index",
     props: ['tableData','orderInfo','showTableRows','tableModify'],
+    data(){
+      return {
+        userIdList: []
+      }
+    },
     methods: {
       /**
        * @Description: 多选按钮

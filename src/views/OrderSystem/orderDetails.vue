@@ -555,7 +555,6 @@
             <div class="main_box_content">
               <div class="content_route" v-for="(cItem,cIndex) in item.route" :key="cIndex">
                 <div>
-                  <time :value="cItem.riding_time * 1000"></time>
                   <el-date-picker
                       v-model="cItem.riding_time * 1000"
                       type="date"
@@ -572,27 +571,46 @@
           </div>
           <div class="main_box">
             <div class="main_box_title">票类</div>
-            <div class="main_box_content"></div>
+            <div class="main_box_content">
+              <el-select v-model="batchEditData.info" placeholder="请选择">
+                <el-option label="网票" value="item.value"></el-option>
+                <el-option label="纸票" value="item.value"></el-option>
+                <el-option label="电子票" value="item.value"></el-option>
+              </el-select>
+            </div>
           </div>
           <div class="main_box">
             <div class="main_box_title">席别席位</div>
-            <div class="main_box_content"></div>
+            <div class="main_box_content">
+              <el-select v-model="batchEditData.info" placeholder="请选择">
+                <el-option label="二等座" value="item.value"></el-option>
+                <el-option label="商务座" value="item.value"></el-option>
+              </el-select>
+            </div>
           </div>
           <div class="main_box">
             <div class="main_box_title">票价</div>
-            <div class="main_box_content"></div>
+            <div class="main_box_content">
+              <el-input v-model="batchEditData.info" placeholder="请输入票价"></el-input>
+            </div>
           </div>
           <div class="main_box">
             <div class="main_box_title">儿童票价</div>
-            <div class="main_box_content"></div>
+            <div class="main_box_content">
+              <el-input v-model="batchEditData.info" placeholder="请输入儿童票价"></el-input>
+            </div>
           </div>
           <div class="main_box">
             <div class="main_box_title">误餐费</div>
-            <div class="main_box_content"></div>
+            <div class="main_box_content">
+              <el-input v-model="batchEditData.info" placeholder="请输入误餐费"></el-input>
+            </div>
           </div>
           <div class="main_box">
             <div class="main_box_title">出票费</div>
-            <div class="main_box_content"></div>
+            <div class="main_box_content">
+              <el-input v-model="batchEditData.info" placeholder="请输入出票费"></el-input>
+            </div>
           </div>
         </div>
 
@@ -616,10 +634,21 @@
           </div>
         </div>
 
+        <div class="ticket_box" v-if="item.ticket_status === '4'">
+
+          <div class="main_box">
+            <div class="main_box_title">退票款</div>
+            <div class="main_box_content">
+              <el-input v-model="editRefund" placeholder="请输入退票款"></el-input>
+            </div>
+          </div>
+        </div>
+
+        <el-button style="margin-top: 20px" type="primary" @click="saveEditBtn(item.ticket_status,item)">保存</el-button>
+
       </div>
-      <div slot="footer" class="dialog-footer">
-        <el-button @click="batchEditDialog = false">取 消</el-button>
-        <el-button type="primary" @click="submitBatchEditDialog()">确 定</el-button>
+      <div slot="footer" class="dialog-footer" style="justify-content: flex-end">
+        <el-button @click="closedEditDialog">关闭</el-button>
       </div>
     </el-dialog>
 
@@ -743,11 +772,14 @@
         batchEditList: [], // 批量修改列表
         batchEditData: {  // 基本信息
           info: {
-            information: []
+            information: [],
+            refund_fee: ''
           }
         },
         batchEditInfo: [],
         selectTicketStatus: '', // 选择车票状态
+
+        editRefund: '', // 批量编辑 退票款
 
         seatType: [], // 席别席位
       }
@@ -1151,8 +1183,8 @@
           'passengers': String(userId),
           'route_id': String(routeId)
         })
-        JSON.stringify(this.batchEditList)
-        console.log(this.batchEditList);
+        // JSON.stringify(this.batchEditList)
+        // console.log(this.batchEditList);
       },
       /**
        * @Description: 删除乘客列表
@@ -1186,6 +1218,15 @@
         }).catch(() => {});
       },
 
+      /**
+       * @Description: 关闭批量修改弹窗
+       * @author Wish
+       * @date 2019/11/11
+      */
+      closedEditDialog(){
+        this.batchEditDialog = false
+        this.getDataList()
+      },
 
       /**
        * @Description: 打开批量修改弹窗
@@ -1228,8 +1269,27 @@
        * @author Wish
        * @date 2019/11/1
       */
-      submitBatchEditDialog(){
-
+      saveEditBtn(status,data){
+        let editInfo = {}
+        editInfo['route_id'] = data.route_id
+        editInfo['passengers'] = data.passengers
+        editInfo['refund_fee'] = this.editRefund
+        let newEditArr = []
+        newEditArr.push(editInfo)
+        if(status === '4'){  // 退票
+          let data = {
+            order_sn: this.orderId,
+            token: this.orderToken,
+            ticket_status: status,
+            info: JSON.stringify(newEditArr)
+          }
+          this.$axios.post('/api/order/routeInfo/editBatch',data)
+              .then(res =>{
+                if(res.data.code === 0){
+                  this.$message.success('修改成功')
+                }
+              })
+        }
       },
 
 
@@ -1520,7 +1580,7 @@
   }
 
   .orderDetails{
-    padding: 80px;
+    padding: 20px 80px;
     .edit_order_btn{
       padding: 12px 50px;
       margin-bottom: 34px;

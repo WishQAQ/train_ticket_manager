@@ -43,7 +43,7 @@
         bus.$on('getNavStatus',res => {
           this.editableTabs.push(res)
           this.editableTabs = [...new Set(this.editableTabs)]
-          sessionStorage.setItem('navTab',JSON.stringify(this.editableTabs))
+          // sessionStorage.setItem('navTab',JSON.stringify(this.editableTabs))
           this.editableTabsValue = res.name
         })
       },
@@ -90,8 +90,10 @@
     },
     mounted(){
       this.getNavStatus();
-      if(sessionStorage.navTab){
-        this.editableTabs = JSON.parse(sessionStorage.navTab)
+      if(this.editableTabs.length < 1){
+        this.$router.push({
+          name: 'home'
+        })
       }
     },
     watch:{

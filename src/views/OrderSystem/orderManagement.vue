@@ -1,7 +1,7 @@
 <template>
   <div class="orderManagement" v-loading="loading">
     <div class="table_header">
-      <div v-if="viewsType === 0"><el-button @click="jumpDetailsBtn('add')">新增订单</el-button></div>
+      <div v-if="viewsType === 0"><el-button type="primary" @click="jumpDetailsBtn('add')">新增订单</el-button></div>
       <div v-if="viewsType === 2"><el-button>批量还原</el-button></div>
       <div><el-input v-model="orderSearch.order" placeholder="订单号查询"></el-input></div>
       <div><el-input v-model="orderSearch.order_status" placeholder="处理中订单查询"></el-input></div>
@@ -53,16 +53,16 @@
                 <div style="width: 150px; flex-shrink: 0">{{$getTimeYear(cItem.riding_time * 1000)}}</div>
                 <div>{{cItem.departure_station}}</div>
                 <div>{{cItem.arrival_station}}</div>
-                <div>{{cItem.finishTask +'/'+cItem.incompleteTask}}</div>
-                <div>{{cItem.Cname}}</div>
-                <div>{{cItem.fdName}}</div>
+                <div>{{item.incompleteTask +'/'+item.finishTask}}</div>
+                <div>{{item.Cname}}</div>
+                <div>{{item.fdName}}</div>
                 <div>{{cItem.order_status === 0 ? '处理中':'已处理'}}</div>
-                <div>{{cItem.finance_status === 0 ?'未结算' :'已结算'}}</div>
+                <div>{{item.finance_status}}</div>
                 <div>
-                  <p v-for="(dItem, dIndex) in cItem.desc" :key="dIndex" v-if="dItem.is_important === 1">
-                    <span class="important_remarks">{{dItem.remarks}}</span>
+                  <p v-if="cItem.desc.is_important === 1">
+                    <span class="important_remarks">{{cItem.desc.remarks}}</span>
                   </p>
-                  <p v-if="viewsType === 4">{{cItem.desc[0].remarks}}</p>
+                  <p v-if="viewsType === 4">{{cItem.desc.remarks}}</p>
                   <!--<span style="font-size: 10px; color: #bebebe">暂无重要备注</span>-->
                 </div>
               </div>

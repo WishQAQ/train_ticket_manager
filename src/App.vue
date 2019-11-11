@@ -2,7 +2,10 @@
   <div id="app">
     <nav-menu v-if="$store.state.showHeader"></nav-menu>
     <tab-menu v-if="$store.state.showHeader"></tab-menu>
-    <router-view class="content"></router-view>
+    <keep-alive>
+      <router-view v-if="$route.meta.keepAlive"></router-view>
+    </keep-alive>
+    <router-view v-if="!$route.meta.keepAlive"></router-view>
   </div>
 </template>
 

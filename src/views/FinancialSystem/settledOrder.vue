@@ -10,7 +10,7 @@
           <el-option value="1" label="已处理"></el-option>
         </el-select>
       </div>
-      <div>
+      <div v-if="viewsType === 1">
         <el-select v-model="searchForm.loss_status"  placeholder="亏盈状态" clearable>
           <el-option value="0" label="亏损"></el-option>
           <el-option value="1" label="保本"></el-option>
@@ -95,7 +95,7 @@
               min-width="120"
               label="客户">
             <template slot-scope="scope">
-              {{scope.row.customer_name+'+'+scope.row.issuer_name}}
+              {{scope.row.customer_name+' '+scope.row.issuer_name}}
             </template>
           </el-table-column>
         </el-table-column>
@@ -538,7 +538,10 @@
       //获取列表
       getData(){
         this.loading = true;
-        this.$axios.post('/api/finance/getInfo/'+this.viewsType+'/'+this.per_page,this.searchForm)
+        let data = {
+          page: this.page || ''
+        }
+        this.$axios.get('/api/finance/getInfo/'+this.viewsType+'/'+this.per_page,{params: data})
             .then(res =>{
               this.tableData = res.data.data;
               this.showTable = true
@@ -584,8 +587,23 @@
 
       //搜索
       search(){
-        this.page = '';
-        this.getData()
+        this.loading = true;
+        let data ={
+
+        }
+        this.$axios.post('/api/finance/getInfo/'+this.viewsType+'/'+this.per_page,data)
+            .then(res =>{
+              this.tableData = res.data.data;
+              this.showTable = true
+              this.tableData.forEach(item =>{
+                if(item.bill_numbers){
+                  return item.bill_numbers =item.bill_numbers.split(',')
+                }
+              })
+              this.loading = false;
+              this.paginationList = res.data;
+              this.getDataTotal()
+            })
       },
 
       //获取客户列表
@@ -1036,10 +1054,12 @@
     }
     .center{
       .statement_number{
-        display: inline-flex;
+        display: block;
         cursor: pointer;
-        &::after{
-          content: ','
+        &:not(:last-child){
+          &::after{
+            content: ','
+          }
         }
         &:hover{
           color: #409EFF;
@@ -1146,5 +1166,8 @@
         }
       }
     }
+  }
+  .group_message_dialog{
+    white-space: pre-wrap;
   }
 </style>
