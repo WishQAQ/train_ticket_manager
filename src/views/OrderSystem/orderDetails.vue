@@ -549,22 +549,25 @@
             </el-select>
           </div>
         </div>
-        <div class="ticket_box" v-if="item.ticket_status === '1'">
+
+        <!--出票 or 改签-->
+        <div class="ticket_box" v-if="item.ticket_status === '1' || item.ticket_status === '3'">
           <div class="main_box">
             <div class="main_box_title"></div>
             <div class="main_box_content">
               <div class="content_route" v-for="(cItem,cIndex) in item.route" :key="cIndex">
-                <div>
+                <div class="content_edit_time">
                   <el-date-picker
-                      v-model="cItem.riding_time * 1000"
+                      @input="change($event)"
+                      v-model="item.riding_time"
                       type="date"
-                      placeholder="选择日期">
+                      :placeholder="$getTimeYear(cItem.riding_time * 1000)">
                   </el-date-picker>
                 </div>
                 <div class="route_message">
-                  <span>{{cItem.departure_station}}</span>
-                  <p>{{cItem.trips_number}}</p>
-                  <span>{{cItem.arrival_station}}</span>
+                  <span><el-input clearable @input="change($event)" v-model="item.departure_station" :placeholder="cItem.departure_station"></el-input></span>
+                  <p><el-input clearable @input="change($event)" v-model="item.trips_number" :placeholder="cItem.trips_number"></el-input></p>
+                  <span><el-input clearable @input="change($event)" v-model="item.arrival_station" :placeholder="cItem.arrival_station"></el-input></span>
                 </div>
               </div>
             </div>
@@ -572,7 +575,7 @@
           <div class="main_box">
             <div class="main_box_title">票类</div>
             <div class="main_box_content">
-              <el-select v-model="batchEditData.info" placeholder="请选择">
+              <el-select clearable @input="change($event)" v-model="item.ticket_type" placeholder="请选择">
                 <el-option label="电子票" value="0"></el-option>
                 <el-option label="网票" value="1"></el-option>
                 <el-option label="纸票" value="2"></el-option>
@@ -580,56 +583,40 @@
             </div>
           </div>
           <div class="main_box">
-            <div class="main_box_title">席别席位</div>
+            <div class="main_box_title">席别</div>
             <div class="main_box_content">
-              <el-select v-model="batchEditData.info" placeholder="请选择">
-                <el-option label="二等座" value="item.value"></el-option>
-                <el-option label="商务座" value="item.value"></el-option>
+              <el-select clearable @input="change($event)" v-model="item.fwId" placeholder="请选择">
+                <el-option
+                    v-for="(o,i) in agentCategory"
+                    :key="i"
+                    :label="o.name"
+                    :value="o.id">
+                </el-option>
               </el-select>
             </div>
           </div>
           <div class="main_box">
             <div class="main_box_title">票价</div>
             <div class="main_box_content">
-              <el-input v-model="batchEditData.info" placeholder="请输入票价"></el-input>
+              <el-input clearable @input="change($event)" v-model="item.ticket_price" placeholder="请输入票价"></el-input>
             </div>
           </div>
           <div class="main_box">
             <div class="main_box_title">儿童票价</div>
             <div class="main_box_content">
-              <el-input v-model="batchEditData.info" placeholder="请输入儿童票价"></el-input>
+              <el-input clearable @input="change($event)" v-model="item.child_ticket_price" placeholder="请输入儿童票价"></el-input>
             </div>
           </div>
           <div class="main_box">
             <div class="main_box_title">误餐费</div>
             <div class="main_box_content">
-              <el-input v-model="batchEditData.info" placeholder="请输入误餐费"></el-input>
+              <el-input clearable @input="change($event)" v-model="item.missed_meals_money" placeholder="请输入误餐费"></el-input>
             </div>
           </div>
           <div class="main_box">
             <div class="main_box_title">出票费</div>
             <div class="main_box_content">
-              <el-input v-model="batchEditData.info" placeholder="请输入出票费"></el-input>
-            </div>
-          </div>
-        </div>
-
-        <div class="ticket_box" v-if="item.ticket_status === '3'">
-          <div class="main_box">
-            <div class="main_box_title">修改行程</div>
-            <div class="main_box_content">
-
-            </div>
-          </div>
-          <div class="main_box">
-            <div class="main_box_title">席别席位</div>
-            <div class="main_box_content">
-              <el-select v-model="seatType" placeholder="请选择席别席位">
-                <el-option label="一等座" value="1"></el-option>
-                <el-option label="二等座" value="2"></el-option>
-                <el-option label="三等座" value="3"></el-option>
-              </el-select>
-
+              <el-input clearable @input="change($event)" v-model="item.ticket_fare" placeholder="请输入出票费"></el-input>
             </div>
           </div>
         </div>
@@ -639,12 +626,12 @@
           <div class="main_box">
             <div class="main_box_title">退票款</div>
             <div class="main_box_content">
-              <el-input v-model="editRefund" placeholder="请输入退票款"></el-input>
+              <el-input clearable @input="change($event)" v-model="item.refund_fee" placeholder="请输入退票款"></el-input>
             </div>
           </div>
         </div>
 
-        <el-button style="margin-top: 20px" type="primary" @click="saveEditBtn(item.ticket_status,item)">保存</el-button>
+        <el-button style="margin-top: 20px" type="primary" @click="saveEditBtn(item.ticket_status,item,item.route)">保存</el-button>
 
       </div>
       <div slot="footer" class="dialog-footer" style="justify-content: flex-end">
@@ -665,6 +652,32 @@
         <div class="person_box">
           查看人： <span v-for="(item, index) in newsDetailInfo.person" :key="index">{{item.account}}</span>
         </div>
+      </div>
+    </el-dialog>
+
+    <!-- 批量修改路线变更提示框 -->
+    <el-dialog
+        title="提示"
+        modal-append-to-body
+        append-to-body
+        width="450px"
+        :visible.sync="editRouteDialog"
+        custom-class="edit_route_dialog">
+      <div class="detail_main">
+        <div>
+          由于系统检测到原路线
+          <div class="edit_route_info" style="display: inline-flex; font-weight: bold; font-size: 12px;margin-bottom: 15px">
+            {{$getTimeYear(editRouteInfo[0].riding_time * 1000)}}
+            {{editRouteInfo[0].departure_station}}
+            <span style="margin: 0 8px;color: #409EFF;position: relative;top: -3px">{{editRouteInfo[0].trips_number}}</span>
+            {{editRouteInfo[0].arrival_station}}
+          </div>
+        </div>
+        <div>存在其他车票状态，且新路线关键词被修改，是否保存相关信息将所选乘客移动到新路线？</div>
+      </div>
+      <div slot="footer" class="dialog-footer" style="justify-content: flex-end">
+        <el-button @click="closedEditRoute">取消</el-button>
+        <el-button type="primary" @click="submitEditRoute">移动</el-button>
       </div>
     </el-dialog>
   </div>
@@ -773,18 +786,31 @@
         batchEditData: {  // 基本信息
           info: {
             information: [],
-            refund_fee: ''
           }
         },
-        batchEditInfo: [],
+        batchEditInfo: [],  // 批量修改数据
         selectTicketStatus: '', // 选择车票状态
 
-        editRefund: '', // 批量编辑 退票款
+        routeStatus: '', // 修改行程状态
 
-        seatType: [], // 席别席位
+        editRouteData: [], // 批量修改输入框数据
+
+        editRouteDialog: false, // 批量修改路线变更提示弹窗
+        agentCategory: [], // 获取席别列表
+
+        editRouteInfo: [{
+          riding_time: '',
+          departure_station: '',
+          trips_number: '',
+          arrival_station: '',
+        }], // 原始路线信息
       }
     },
     methods:{
+      change(e){
+        this.$forceUpdate()
+      },
+
       /**
        * @Description: 获取订单详情
        * @author Wish
@@ -1184,7 +1210,7 @@
           'route_id': String(routeId)
         })
         // JSON.stringify(this.batchEditList)
-        // console.log(this.batchEditList);
+        console.log(this.batchEditList);
       },
       /**
        * @Description: 删除乘客列表
@@ -1225,7 +1251,7 @@
       */
       closedEditDialog(){
         this.batchEditDialog = false
-        this.getDataList()
+        this.getPassengerList()
       },
 
       /**
@@ -1250,16 +1276,109 @@
                 this.batchEditLoading = false
                 this.batchEditData = res.data.result
                 this.batchEditInfo = JSON.parse(JSON.stringify(this.batchEditData.info.information))
+                // let newForm = {}
+                // newForm['riding_time']= '' // 行车日期
+                // newForm['departure_station']= '' // 发站
+                // newForm['arrival_station']= '' // 到站
+                // newForm['trips_number']= '' // 车次
+                // newForm['ticket_type']= ''  // 票类
+                // newForm['fwId']= ''  // 席别席位
+                // newForm['ticket_price']= ''  // 票价
+                // newForm['child_ticket_price']= ''  // 儿童票价
+                // newForm['missed_meals_money']= ''  // 误餐费
+                // newForm['ticket_fare']= ''  // 出票费
+                // newForm['refund_fee']= '' // 退票费
+
                 this.batchEditInfo.forEach(item =>{
+                  // item['edit'] = newForm
+                  item['riding_time']= '' // 行车日期
+                  item['departure_station']= '' // 发站
+                  item['arrival_station']= '' // 到站
+                  item['trips_number']= '' // 车次
+                  item['ticket_type']= ''  // 票类
+                  item['fwId']= ''  // 席别席位
+                  item['ticket_price']= ''  // 票价
+                  item['child_ticket_price']= ''  // 儿童票价
+                  item['missed_meals_money']= ''  // 误餐费
+                  item['ticket_fare']= ''  // 出票费
+                  item['refund_fee']= '' // 退票费
                   item.ticket_status = item.ticket_status === 0 ? '未出票':
                       item.ticket_status === 1 ? '已出票':
                           item.ticket_status === 2 ? '已取消票':
                               item.ticket_status === 3 ? '已改签':
-                                  item.ticket_status === 4 ? '已退票': ''
+                                  item.ticket_status === 4 ? '已退票': item.ticket_status
                 })
+                console.log(this.batchEditInfo);
               }else {
                 this.batchEditLoading = false
                 this.$message.warning(res.data.msg)
+              }
+            })
+
+        this.$axios.get('/api/system/fareWell/showAll/1')
+            .then(res =>{
+              if(res.data.code === 0){
+                this.agentCategory = res.data.result
+              }else {
+                this.$message.warning(res.data.msg + ' 请重新打开批量修改弹窗以获取数据')
+              }
+            })
+      },
+
+      /**
+       * @Description: 关闭路线变更提示框
+       * @author Wish
+       * @date 2019/11/12
+      */
+      closedEditRoute(){
+        this.editRouteData.riding_time = ''
+        this.editRouteData.departure_station = ''
+        this.editRouteData.arrival_station = ''
+        this.editRouteData.trips_number = ''
+        this.editRouteDialog = false
+      },
+      /**
+       * @Description: 路线变更确认按钮
+       * @author Wish
+       * @date 2019/11/12
+      */
+      submitEditRoute(){
+        this.editRouteDialog = false
+        let newForm = {}  // 路线信息
+        newForm['type'] = 0
+        newForm['route_id'] = this.editRouteData.route_id
+        newForm['passengers'] = this.editRouteData.passengers
+        newForm['riding_time'] =  this.$dateToDate(this.editRouteData.riding_time)
+        newForm['departure'] = this.editRouteData.departure_station
+        newForm['arrive'] = this.editRouteData.arrival_station
+        newForm['trips_number'] = this.editRouteData.trips_number
+
+        let newEditForm = {}  // 修改输入框信息
+        newEditForm['ticket_type'] = this.editRouteData.ticket_type
+        newEditForm['fwId'] = this.editRouteData.fwId
+        newEditForm['ticket_price'] = this.editRouteData.ticket_price
+        newEditForm['child_ticket_price'] = this.editRouteData.child_ticket_price
+        newEditForm['missed_meals_money'] = this.editRouteData.missed_meals_money
+        newEditForm['ticket_fare'] = this.editRouteData.ticket_fare
+        newEditForm['refund_fee'] = this.editRouteData.refund_fee
+
+        let info = {}
+        info['condition'] = []
+        info['params'] = newEditForm
+        info.condition.push(newForm)
+        let data = {
+          order_sn: this.orderId,
+          token: this.orderToken,
+          ticket_status: this.routeStatus,
+          info: JSON.stringify(info)
+        }
+        console.log(data);
+        this.$axios.post('/api/order/routeInfo/editBatch',data)
+            .then(res =>{
+              if(res.data.code === 0){
+                this.$message.success('保存成功')
+              }else {
+                this.$message.warning(res.data.code)
               }
             })
       },
@@ -1269,14 +1388,59 @@
        * @author Wish
        * @date 2019/11/1
       */
-      saveEditBtn(status,data){
+      saveEditBtn(status,editData,route){
+        this.routeStatus = status
+        this.editRouteInfo = route  // 获取原路线信息
+        this.editRouteData = editData  // 获取当前输入框数据
         let editInfo = {}
-        editInfo['route_id'] = data.route_id
-        editInfo['passengers'] = data.passengers
-        editInfo['refund_fee'] = this.editRefund
-        let newEditArr = []
-        newEditArr.push(editInfo)
-        if(status === '4'){  // 退票
+        editInfo['route_id'] = this.editRouteData.route_id
+        editInfo['passengers'] = this.editRouteData.passengers
+        if(status === '1' || status === '3'){  // 出票or改签
+          if(this.editRouteData.riding_time || this.editRouteData.departure_station || this.editRouteData.arrival_station || this.editRouteData.trips_number){
+            this.editRouteDialog = true
+          }else{
+            let newForm = {}  // 路线信息
+            newForm['type'] = 1
+            newForm['route_id'] = this.editRouteData.route_id
+            newForm['passengers'] = this.editRouteData.passengers
+            newForm['riding_time'] =  this.editRouteData.route[0].riding_time
+            newForm['departure'] = this.editRouteData.route[0].departure_station
+            newForm['arrive'] = this.editRouteData.route[0].arrival_station
+            newForm['trips_number'] = this.editRouteData.route[0].trips_number
+
+            let newEditForm = {}  // 修改输入框信息
+            newEditForm['ticket_type'] = this.editRouteData.ticket_type
+            newEditForm['fwId'] = this.editRouteData.fwId
+            newEditForm['ticket_price'] = this.editRouteData.ticket_price
+            newEditForm['child_ticket_price'] = this.editRouteData.child_ticket_price
+            newEditForm['missed_meals_money'] = this.editRouteData.missed_meals_money
+            newEditForm['ticket_fare'] = this.editRouteData.ticket_fare
+            newEditForm['refund_fee'] = this.editRouteData.refund_fee
+
+            let info = {}
+            info['condition'] = []
+            info['params'] = newEditForm
+            info.condition.push(newForm)
+            let data = {
+              order_sn: this.orderId,
+              token: this.orderToken,
+              ticket_status: status,
+              info: JSON.stringify(info)
+            }
+            this.$axios.post('/api/order/routeInfo/editBatch',data)
+                .then(res =>{
+                  if(res.data.code === 0){
+                    this.$message.success('保存成功')
+                  }else {
+                    this.$message.warning(res.data.code)
+                  }
+                })
+
+          }
+
+        }else if(status === '2'){  // 取消票
+          let newEditArr = []
+          newEditArr.push(editInfo)
           let data = {
             order_sn: this.orderId,
             token: this.orderToken,
@@ -1286,12 +1450,32 @@
           this.$axios.post('/api/order/routeInfo/editBatch',data)
               .then(res =>{
                 if(res.data.code === 0){
-                  this.$message.success('修改成功')
+                  this.$message.success('保存成功')
+                }else {
+                  this.$message.warning(res.data.code)
                 }
               })
-        }
-      },
 
+        }else if(status === '4'){  // 退票
+          editInfo['refund_fee'] = this.editRouteData.refund_fee
+          let newEditArr = []
+          newEditArr.push(editInfo)
+          let data = {
+            order_sn: this.orderId,
+            token: this.orderToken,
+            ticket_status: status,
+            info: JSON.stringify(newEditArr)
+          }
+          this.$axios.post('/api/order/routeInfo/editBatch',data)
+            .then(res =>{
+              if(res.data.code === 0){
+                this.$message.success('保存成功')
+              }else {
+                this.$message.warning(res.data.code)
+              }
+            })
+      }
+      },
 
       /**
        * @Description: 提交全部编辑信息
@@ -2013,23 +2197,44 @@
             .content_route{
               display: flex;
               align-items: center;
+              .content_edit_time{
+                width: 140px;
+                /deep/.el-input{
+                  width: 100%;
+                }
+              }
               .route_message{
                 display: flex;
                 align-items: center;
                 margin-left: 10px;
+                >span{
+                  width: 120px;
+                }
                 >p{
                   width: 90px;
                   display: inline-flex;
                   justify-content: center;
-                  height: 25px;
                   margin: 0 18px;
                   position: relative;
+                  /deep/.el-input{
+                    .el-input__inner{
+                      height: 25px;
+                      line-height: 25px;
+                    }
+                    .el-input__suffix{
+                      line-height: 25px;
+                      height: 25px;
+                      display: flex;
+                      align-items: center;
+                      justify-content: center;
+                    }
+                  }
                   &::after{
                     content: '';
                     position: absolute;
                     width: 90%;
                     left: 0;
-                    bottom: 0;
+                    bottom: -10px;
                     height: 1px;
                     background:  rgba(38,153,251,1);
                   }
@@ -2037,7 +2242,7 @@
                     content: '';
                     position: absolute;
                     right: 0;
-                    bottom: -5px;
+                    bottom: -15px;
                     width: 0;
                     height: 0;
                     border-top: 6px solid transparent;
@@ -2051,5 +2256,43 @@
         }
       }
     }
+
+    /*批量编辑变更路线弹窗*/
+    /deep/.edit_route_dialog{
+      .detail_main{
+        .edit_route_info{
+          display: inline-flex;
+          font-weight: bold;
+          span{
+            width: 90px;
+            display: inline-flex;
+            justify-content: center;
+            margin: 0 18px;
+            position: relative;
+            &::after{
+              content: '';
+              position: absolute;
+              width: 90%;
+              left: 0;
+              bottom: -10px;
+              height: 1px;
+              background:  rgba(38,153,251,1);
+            }
+            &::before{
+              content: '';
+              position: absolute;
+              right: 0;
+              bottom: -15px;
+              width: 0;
+              height: 0;
+              border-top: 6px solid transparent;
+              border-bottom: 6px solid transparent;
+              border-left: 6px solid rgba(38,153,251,1);
+            }
+          }
+        }
+      }
+    }
+
   }
 </style>

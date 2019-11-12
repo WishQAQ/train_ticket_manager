@@ -59,10 +59,10 @@
                 <div>{{cItem.order_status === 0 ? '处理中':'已处理'}}</div>
                 <div>{{item.finance_status}}</div>
                 <div>
-                  <p v-if="cItem.desc.is_important === 1">
-                    <span class="important_remarks">{{cItem.desc.remarks}}</span>
+                  <p v-if="item.desc.is_important === 1">
+                    <span class="important_remarks">{{item.desc.remarks}}</span>
                   </p>
-                  <p v-if="viewsType === 4">{{cItem.desc.remarks}}</p>
+                  <p v-if="viewsType === 4">{{item.desc.remarks}}</p>
                   <!--<span style="font-size: 10px; color: #bebebe">暂无重要备注</span>-->
                 </div>
               </div>

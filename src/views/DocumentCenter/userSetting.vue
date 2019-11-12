@@ -119,6 +119,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    height: calc(100vh - 128px);
     .user_box{
       width:470px;
       .title{
