@@ -67,6 +67,7 @@ export function powerRouterLazy(name) {
           {path: '/ticketStatistics', name: 'ticketStatistics', component: () => import('@/views/SystemSettings/ticketStatistics'),meta:{name: '网票统计',hidden: false}},  // 网票统计
           {path: '/paperTicket', name: 'paperTicket', component: () => import('@/views/SystemSettings/ticketStatistics'),meta:{name: '纸票统计',hidden: false}},  // 纸票统计
           {path: '/eTicket', name: 'eTicket', component: () => import('@/views/SystemSettings/ticketStatistics'),meta:{name: '电子票统计',hidden: false}},  // 电子票统计
+          {path: '/dataAnalysis', name: 'dataAnalysis', component: () => import('@/views/SystemSettings/dataAnalysis'),meta:{name: '数据分析',hidden: false}},  // 数据分析
           {path: '/accountSetting', name: 'accountSetting', component: () => import('@/views/SystemSettings/accountSetting'),meta:{name: '账号管理',hidden: false}},  // 12306账号管理
           {path: '/account', name: 'account', component: () => import('@/views/SystemSettings/account'),meta:{hidden: false}},  // 12306账号
           {path: '/billerSetting', name: 'billerSetting', component: () => import('@/views/SystemSettings/billerSetting'),meta:{hidden: false}},  // 发单人配置

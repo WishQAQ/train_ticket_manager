@@ -517,7 +517,10 @@
     <el-dialog
         v-dialogDrag
         title="批量修改"
-        :width="batchEditData.info.information.length > 2?'80%':'50%'"
+        :width="batchEditData.info.information.length === 1?'40%':
+                batchEditData.info.information.length === 2?'65%':
+                batchEditData.info.information.length === 3?'75%':
+                batchEditData.info.information.length === 4?'80%':'50%'"
         :close-on-click-modal="false"
         :close-on-press-escape="false"
         :show-close="false"
@@ -565,7 +568,7 @@
                       :placeholder="$getTimeYear(cItem.riding_time * 1000)">
                   </el-date-picker>
                 </div>
-                <div class="route_message">
+                <div class="route_message edit_route_message">
                   <span><el-input clearable @input="change($event)" v-model="item.departure_station" :placeholder="cItem.departure_station"></el-input></span>
                   <p><el-input clearable @input="change($event)" v-model="item.trips_number" :placeholder="cItem.trips_number"></el-input></p>
                   <span><el-input clearable @input="change($event)" v-model="item.arrival_station" :placeholder="cItem.arrival_station"></el-input></span>
@@ -1730,8 +1733,8 @@
     justify-content: unset;
     .el-dialog {
       margin: unset !important;
-      top: 25%;
-      left: 25%;
+      top: 15%;
+      left: 15%;
     }
   }
 
@@ -2178,15 +2181,17 @@
       .el-dialog__body{
         display: flex;
         align-items: flex-start;
-        padding: 30px 50px;
+        padding: 30px 0 0;
         overflow: auto;
-        min-height: 650px;
+        max-height: 700px;
       }
       .dialog_main{
         flex: 1;
-        &:not(:last-child){
-          margin-right: 3%;
+        padding-right: 3%;
+        &:first-child{
+          padding-left: 3%;
         }
+
         .main_box{
           display: flex;
           align-items: center;
@@ -2221,9 +2226,12 @@
                 display: flex;
                 align-items: center;
                 margin-left: 10px;
-                >span{
-                  width: 120px;
+                &.edit_route_message{
+                  >span{
+                    width: 120px;
+                  }
                 }
+
                 >p{
                   width: 90px;
                   display: inline-flex;
