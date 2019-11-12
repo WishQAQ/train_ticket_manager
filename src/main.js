@@ -13,6 +13,7 @@ Router.prototype.push = function push(location) {
   return originalPush.call(this, location).catch(err => err)
 }
 
+import './directives'
 
 import axios from "axios";
 Vue.prototype.$axios = axios;

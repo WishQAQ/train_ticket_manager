@@ -515,6 +515,7 @@
 
     <!-- 批量修改 -->
     <el-dialog
+        v-dialogDrag
         title="批量修改"
         :width="batchEditData.info.information.length > 2?'80%':'50%'"
         :close-on-click-modal="false"
@@ -1723,6 +1724,17 @@
     }
   }
 
+  /deep/.el-dialog__wrapper {
+    display: block;
+    align-items: unset;
+    justify-content: unset;
+    .el-dialog {
+      margin: unset !important;
+      top: 25%;
+      left: 25%;
+    }
+  }
+
   // 新闻详情弹窗
   .news_detail_dialog{
     .detail_main{
@@ -2167,6 +2179,8 @@
         display: flex;
         align-items: flex-start;
         padding: 30px 50px;
+        overflow: auto;
+        min-height: 650px;
       }
       .dialog_main{
         flex: 1;
