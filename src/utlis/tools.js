@@ -59,7 +59,6 @@ Vue.prototype.$timestampFormat =(timestamp) => {
  * @author Wish
  * @date 2019/9/29
 */
-
 Vue.prototype.$checkAccount = (data) => {
   let account =  /^[0-9a-zA-Z]*$/;  //判断字符串是否为数字和字母组合
   return account.test(data);
@@ -71,7 +70,6 @@ Vue.prototype.$checkAccount = (data) => {
  * @author Wish
  * @date 2019/9/29
 */
-
 Vue.prototype.$checkText = (data) =>{
   let text =/^[\u4E00-\u9FA5]+$/;
   return text.test(data);

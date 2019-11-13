@@ -50,13 +50,13 @@
             </div>
             <div class="list_main">
               <div class="list_box" v-for="(cItem, CIndex) in item.info" :key="CIndex">
-                <div style="width: 150px; flex-shrink: 0">{{$getTimeYear(cItem.riding_time * 1000)}}</div>
+                <div style="width: 150px; flex-shrink: 0">{{$getTimeYear(cItem.riding_time * 1000) || ''}}</div>
                 <div>{{cItem.departure_station}}</div>
                 <div>{{cItem.arrival_station}}</div>
                 <div>{{item.incompleteTask +'/'+item.finishTask}}</div>
                 <div>{{item.Cname}}</div>
                 <div>{{item.fdName}}</div>
-                <div>{{cItem.order_status === 0 ? '处理中':'已处理'}}</div>
+                <div>{{item.order_status === 0 ? '处理中':'已处理'}}</div>
                 <div>{{item.finance_status}}</div>
                 <div>
                   <p v-if="item.desc.is_important === 1">
