@@ -137,14 +137,14 @@
     <div v-if="urlType === 'add'">
       <div class="add_table" v-for="(item, index) in addTrainTableArray" :key="index">
         <div class="addOrderTable">
-          <div class="add_table_header">
-            <el-button>隐藏</el-button>
-            <el-button>增加表</el-button>
-            <el-button>删除表</el-button>
-            <el-button>内容清空</el-button>
-            <el-button>批量删除</el-button>
-            <el-button>保存</el-button>
-          </div>
+<!--          <div class="add_table_header">-->
+<!--            <el-button>隐藏</el-button>-->
+<!--            <el-button>增加表</el-button>-->
+<!--            <el-button>删除表</el-button>-->
+<!--            <el-button>内容清空</el-button>-->
+<!--            <el-button>批量删除</el-button>-->
+<!--            <el-button>保存</el-button>-->
+<!--          </div>-->
 
           <div class="table"
                v-for="(cItem, cIndex) in item.info"
@@ -307,8 +307,9 @@
                        :disabled="deleteUserList.length < 1"
                        v-if="urlType === 'edit'">
               批量删除</el-button>
+            <el-button type="primary" v-if="urlType === 'edit'" @click="addStrokeBtn">添加行程</el-button>
           </div>
-          <el-button v-if="urlType === 'details'">导出菜单</el-button>
+          <el-button v-if="urlType === 'edit'">导出菜单</el-button>
         </div>
       </div>
 
@@ -684,6 +685,62 @@
         <el-button type="primary" @click="submitEditRoute">移动</el-button>
       </div>
     </el-dialog>
+
+    <!-- 新增行程 -->
+    <el-dialog
+        title="新增行程"
+        :close-on-click-modal="false"
+        :close-on-press-escape="false"
+        :show-close="false"
+        modal-append-to-body
+        append-to-body
+        width="650px"
+        :visible.sync="addStrokeDialog"
+        custom-class="add_stroke_dialog">
+      <div class="detail_main">
+        <el-radio-group size="mini" v-model="strokeTableType" @change="changeStrokeType">
+          <el-radio-button label="单程"></el-radio-button>
+          <el-radio-button label="往返"></el-radio-button>
+          <el-radio-button label="中转"></el-radio-button>
+          <el-radio-button label="中转往返"></el-radio-button>
+        </el-radio-group>
+
+        <div class="add_stroke_table">
+          <div class="table_header">
+            <div class="header_box" v-for="(item ,index) in addStrokeArr" :key="index">
+              <div>
+                <el-date-picker
+                  v-model="item.riding_time"
+                  style="width: 140px"
+                  type="date"
+                  placeholder="行程日期">
+                </el-date-picker>
+              </div>
+              <div class="header_ticket">
+                <el-input clearable v-model="item.initial_station" placeholder="输入发站"></el-input>
+                <el-input class="ticket_number" clearable v-model="item.trips_number" placeholder="输入车次"></el-input>
+                <el-input clearable v-model="item.stop_station" placeholder="输入到站"></el-input>
+              </div>
+            </div>
+          </div>
+
+          <div class="table_content">
+            <el-input
+                type="textarea"
+                :rows="4"
+                placeholder="请输入乘客信息"
+                v-model="addStrokePassengers">
+            </el-input>
+          </div>
+        </div>
+
+      </div>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="addStrokeDialog = false">取消</el-button>
+        <el-button type="primary" @click="submitAddStroke" v-loading="addStrokeLoading">保存</el-button>
+      </div>
+    </el-dialog>
+
   </div>
 </template>
 
@@ -707,7 +764,7 @@
         newsDetailDialog: false, // 新闻详情
         newsDetailInfo: {},
 
-        showTableType: true, // 显示隐藏单元格
+        showTableType: false, // 显示隐藏单元格
 
         /***
          * 新增订单
@@ -808,6 +865,17 @@
           trips_number: '',
           arrival_station: '',
         }], // 原始路线信息
+
+        addStrokeDialog: false, // 新增行程弹窗
+        strokeTableType: '单程', // 新增行程类型选择
+        addStrokeArr:[{
+          riding_time: '',  // 行程时间
+          initial_station: '',  // 发站
+          stop_station: '', // 到站
+          trips_number: '',  // 车次
+        }],
+        addStrokePassengers: '', // 乘客信息
+        addStrokeLoading: false, // 新增行程提交按钮加载
       }
     },
     methods:{
@@ -1063,6 +1131,14 @@
        * @date 2019/10/30
       */
       openEditBtn(){
+
+        this.$router.push({
+          name: 'orderDetails',
+          query:{
+            order_sn: this.$route.query.order_sn,
+            type: 'edit'
+          }
+        })
         this.inputDisabled = false
         this.urlType = 'edit'
         this.getBillerData(this.orderInfo.cname)  // 获取发单人列表
@@ -1481,6 +1557,137 @@
       }
       },
 
+
+      /**
+       * @Description: 新增行程
+       * @author Wish
+       * @date 2019/11/14
+      */
+      addStrokeBtn(){
+        this.addStrokeDialog = true
+        this.strokeTableType = '单程'
+        this.addStrokeArr = [{
+          riding_time: '',  // 行程时间
+          initial_station: '',  // 发站
+          stop_station: '', // 到站
+          trips_number: '',  // 车次
+        }]
+        this.addStrokePassengers = ''
+      },
+      /**
+       * @Description: 切换新增行程显示状态
+       * @author Wish
+       * @date 2019/11/14
+      */
+      changeStrokeType(val){
+        this.addStrokePassengers = ''
+        if(this.strokeTableType === '单程'){
+          this.addStrokeArr = [{
+            riding_time: '',  // 行程时间
+            initial_station: '',  // 发站
+            stop_station: '', // 到站
+            trips_number: '',  // 车次
+          }]
+        }else if(this.strokeTableType === '往返'){
+          this.addStrokeArr = [{
+            riding_time: '',  // 行程时间
+            initial_station: '',  // 发站
+            stop_station: '', // 到站
+            trips_number: '',  // 车次
+          },{
+            riding_time: '',  // 行程时间
+            initial_station: '',  // 发站
+            stop_station: '', // 到站
+            trips_number: '',  // 车次
+          }]
+        }else if(this.strokeTableType === '中转'){
+          this.addStrokeArr = [{
+            riding_time: '',  // 行程时间
+            initial_station: '',  // 发站
+            stop_station: '', // 到站
+            trips_number: '',  // 车次
+          },{
+            riding_time: '',  // 行程时间
+            initial_station: '',  // 发站
+            stop_station: '', // 到站
+            trips_number: '',  // 车次
+          },{
+            riding_time: '',  // 行程时间
+            initial_station: '',  // 发站
+            stop_station: '', // 到站
+            trips_number: '',  // 车次
+          }]
+        }else if(this.strokeTableType === '中转往返'){
+          this.addStrokeArr = [{
+            riding_time: '',  // 行程时间
+            initial_station: '',  // 发站
+            stop_station: '', // 到站
+            trips_number: '',  // 车次
+          },{
+            riding_time: '',  // 行程时间
+            initial_station: '',  // 发站
+            stop_station: '', // 到站
+            trips_number: '',  // 车次
+          },{
+            riding_time: '',  // 行程时间
+            initial_station: '',  // 发站
+            stop_station: '', // 到站
+            trips_number: '',  // 车次
+          },{
+            riding_time: '',  // 行程时间
+            initial_station: '',  // 发站
+            stop_station: '', // 到站
+            trips_number: '',  // 车次
+          }]
+        }
+
+      },
+
+      /**
+       * @Description: 提交新增行程
+       * @author Wish
+       * @date 2019/11/14
+      */
+      submitAddStroke(){
+        let newArr = []
+        let submitType = false
+        newArr = JSON.parse(JSON.stringify(this.addStrokeArr))
+        newArr.forEach(item =>{
+          if(!item.riding_time || !item.initial_station || !item.stop_station || !item.trips_number){
+            this.$message.warning('请填写完整数据！')
+            submitType = false
+          }else {
+            item.riding_time = this.$dateToDate(item.riding_time)
+            submitType = true
+          }
+        })
+
+        let data ={
+          order_sn: this.$route.query.order_sn,
+          type: this.strokeTableType === '单程' ? 0 :
+              this.strokeTableType === '往返' ? 1 :
+                  this.strokeTableType === '中转' ? 2 :
+                      this.strokeTableType === '中转往返' ? 3 : '',
+          passenger: this.addStrokePassengers,
+          info: JSON.stringify(newArr)
+        }
+        if(submitType){
+          this.addStrokeLoading = true
+          this.$axios.post('/api/order/addTrips',data)
+              .then(res =>{
+                if(res.data.code === 0){
+                  this.addStrokeDialog = false
+                  this.$message.success('保存成功')
+                  this.addStrokeLoading = false
+                  this.getPassengerList()
+                }else {
+                  this.$message.warning(res.data.msg)
+                }
+              })
+        }
+      },
+
+
       /**
        * @Description: 提交全部编辑信息
        * @author Wish
@@ -1773,6 +1980,69 @@
               content: '，'
             }
           }
+        }
+      }
+    }
+  }
+
+  // 新增行程弹窗
+  .add_stroke_dialog{
+    .add_stroke_table{
+      margin-top: 10px;
+      .table_header{
+        margin-bottom: 10px;
+        .header_box{
+          height: 64px;
+          display: flex;
+          align-items: center;
+          background: #eef7ff;
+          padding: 0 10px;
+          justify-content: space-between;
+          &:not(:last-child){
+            border-bottom: 2px solid #fff;
+          }
+          .header_ticket{
+            display: flex;
+            align-items: flex-start;
+            /deep/.el-input{
+              width: 120px;
+            }
+            .ticket_number{
+              width: 110px;
+              height: 30px;
+              margin: 0 5px;
+              position: relative;
+              &::after{
+                content: '';
+                position: absolute;
+                width: 90%;
+                left: 0;
+                bottom: -10px;
+                height: 1px;
+                background:  rgba(38,153,251,1);
+              }
+              &::before{
+                content: '';
+                position: absolute;
+                right: 0;
+                bottom: -15px;
+                width: 0;
+                height: 0;
+                border-top: 6px solid transparent;
+                border-bottom: 6px solid transparent;
+                border-left: 6px solid rgba(38,153,251,1);
+              }
+              /deep/.el-input__inner{
+                height: 100%;
+                line-height: 30px;
+              }
+            }
+          }
+        }
+      }
+      .table_content{
+        /deep/.el-textarea__inner{
+          max-height: 200px;
         }
       }
     }
