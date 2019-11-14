@@ -4,6 +4,7 @@
         @select="tableSelect"
         @select-all="tableSelect"
         :data="tableData"
+        ref="multipleTable"
         border
         style="width: 100%">
       <el-table-column
@@ -167,10 +168,12 @@
 <script>
   export default {
     name: "index",
-    props: ['tableData','orderInfo','showTableRows','tableModify','index'],
+    props: ['tableData','orderInfo','showTableRows','tableModify','index','cIndex'],
     data(){
       return {
-        userIdList: []
+        userIdList: [],
+
+        multipleSelection: [],
       }
     },
     methods: {
@@ -182,13 +185,23 @@
       tableSelect(v,r){
         let userId = []
         userId = v.map(res =>{
-          if(res){
-            return res.id + '-' + res.route + '-'+this.orderInfo.order_sn + '-' + this.orderInfo.parent_id;
-          }
+          return res.id;
         });
+        let userRoute = []
+        userRoute = v.map(res =>{
+          return res.route;
+        });
+        userRoute = Array.from([...new Set(userRoute)])
 
-        this.$emit('checkTableData',userId,this.index)
+        this.$emit('checkTableData', userId, userRoute, this.index, this.cIndex, this.orderInfo.order_sn, this.orderInfo.parent_id)
       },
+
+      toggleSelection(){
+        if(this.closedSelect){
+          this.$refs.multipleTable.clearSelection();
+        }
+      },
+
       loseFcous(orderData, data, rowName, row) {
         this.$emit('tableRowsData', this.orderInfo, data, rowName, row )
       },

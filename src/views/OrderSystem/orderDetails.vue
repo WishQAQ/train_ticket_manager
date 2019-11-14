@@ -299,12 +299,10 @@
             <el-button type="primary"
                        @click="openBatchEdit"
                        :loading="batchEditLoading"
-                       :disabled="deleteUserList.length < 1"
                        v-if="urlType === 'edit'">
               批量修改</el-button>
             <el-button type="primary"
                        @click="deleteOrderList"
-                       :disabled="deleteUserList.length < 1"
                        v-if="urlType === 'edit'">
               批量删除</el-button>
             <el-button type="primary" v-if="urlType === 'edit'" @click="addStrokeBtn">添加行程</el-button>
@@ -371,7 +369,8 @@
                 v-on:tableRowsData="editTableRows"
                 v-on:checkTableData="checkTableList"
                 :tableModify="urlType"
-                :index="cIndex"
+                :index="index"
+                :cIndex="cIndex"
                 :showTableRows="showTableType"
                 :orderInfo="item"
                 :tableData="cItem.passengers.data">
@@ -793,10 +792,12 @@
 </template>
 
 <script>
+  import TrainTimesTable from '@/components/TrainTimesTable/index'
   export default {
     name: "orderDetails",
     components:{
-      'TrainTimesTable': () => import('@/components/TrainTimesTable/index'),
+      TrainTimesTable,
+      // 'TrainTimesTable': () => import('@/components/TrainTimesTable/index'),
       'PublicImage':() => import('@/components/public/public_image'),
       'UploadLeaflet': () => import('@/components/UploadLeaflet/index'),
       'UploadMultiplePictures': () => import('@/components/UploadMultiplePictures/index')
@@ -883,10 +884,11 @@
         userListHeader: '', // 新增弹窗表头信息
         addUserInfo: '', // 新增乘客输入框
 
-        checkedTableList: [], // 表格多选列表
-        orderRouteId: [], // 删除乘客路线id
-        orderRouteToken: '', // 删除乘客路线token
-        orderUserId: [], // 删除乘客Id
+        checkedTableList: {}, // 表格乘客多选列表
+        checkedRouteList: {}, // 表格路线多选列表
+        orderRouteId: '', // 父数组下标
+        orderTableId: '', // 子数组下标
+        selectOrderId: 0, // 选择器自增下标
         deleteUserList: [],  // 多选删除乘客列表
         batchEditLoading: false, // 批量修改加载
 
@@ -1182,14 +1184,12 @@
           this.checkedOrderList = val
         }
       },
-
       /**
        * @Description: 编辑按钮
        * @author Wish
        * @date 2019/10/30
       */
       openEditBtn(){
-
         this.$router.push({
           name: 'orderDetails',
           query:{
@@ -1197,6 +1197,7 @@
             type: 'edit'
           }
         })
+        this.closedSelectList()
         this.inputDisabled = false
         this.urlType = 'edit'
         this.getBillerData(this.orderInfo.cname)  // 获取发单人列表
@@ -1378,29 +1379,32 @@
        * @author Wish
        * @date 2019/10/30
       */
-      checkTableList(userId,index){
-        console.log(userId,index);
-        // let newArr = []
-        // userId.forEach(res =>{
-        //   this.batchEditList.push(res)
-        // })
-        // console.log(this.batchEditList);
-        // if(userId.length > 0){
-        //   newArr['order_sn'] = String(orderId)
-        //   newArr['passengers'] = String(userId)
-        //   newArr['route_id'] = String(routeId)
-        //   this.deleteUserList.push(newArr)
-        // }
+      checkTableList(userId,userRoute, routeIndex, tableIndex,orderId, token){
+        this.checkedTableList[String(routeIndex)+String(tableIndex)] = userId
+        this.checkedRouteList[String(routeIndex)+String(tableIndex)] = userRoute[0]
 
-        // this.orderId = orderId
-        // this.orderToken = orderToken
+        if(this.checkedTableList[String(routeIndex)+String(tableIndex)].length < 1){
+          delete this.checkedTableList[String(routeIndex)+String(tableIndex)]
+        }
+        if(!this.checkedRouteList[String(routeIndex)+String(tableIndex)]){
+          delete this.checkedRouteList[String(routeIndex)+String(tableIndex)]
+        }
 
-        // this.batchEditList.push({
-        //   'passengers': String(userId),
-        //   'route_id': String(routeId)
-        // })
-        // JSON.stringify(this.batchEditList)
-        // console.log(this.batchEditList);
+        this.orderId = orderId
+        this.orderToken = token
+      },
+      /**
+       * @Description: 清空表格多选
+       * @author Wish
+       * @data 2019/11/15
+      */
+      closedSelectList(){
+        this.checkedTableList = {}
+        this.checkedRouteList = {}
+        this.orderId = ''
+        this.orderToken = ''
+        this.deleteUserList = []
+        this.batchEditList = []
       },
       /**
        * @Description: 删除乘客列表
@@ -1408,30 +1412,39 @@
        * @date 2019/10/30
       */
       deleteOrderList(){
-        this.$confirm('此操作将永久所选乘客, 是否继续?', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
-          // this.deleteUserList.push({
-          //   token: this.orderRouteToken,
-          //   route_id: String(this.orderRouteId),
-          //   passengers: String(this.orderUserId)
-          // })
-          let data = {
-            order_sn: this.orderId,
-            info: JSON.stringify(this.deleteUserList)
-          }
-          this.$axios.post('/api/order/operate/delPassengers',data)
+        for(let key in this.checkedTableList){
+          this.deleteUserList.push({
+            token: this.orderToken,
+            route_id: this.checkedRouteList[key],
+            passengers: String(this.checkedTableList[key])
+          })
+        }
+        if(this.deleteUserList.length > 0){
+          this.$confirm('此操作将永久所选乘客, 是否继续?', '提示', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning'
+          }).then(() => {
+            let data = {
+              order_sn: this.orderId,
+              info: JSON.stringify(this.deleteUserList)
+            }
+            this.$axios.post('/api/order/operate/delPassengers',data)
               .then(res =>{
                 if(res.data.code === 0){
                   this.$message.success('删除成功')
                   this.getPassengerList()
+                  this.closedSelectList()
                 }else {
                   this.$message.warning(res.data.msg)
                 }
               })
-        }).catch(() => {});
+          }).catch(() => {});
+        }else {
+          this.$message.warning('请选择需要删除的数据')
+        }
+
+
       },
 
       /**
@@ -1442,6 +1455,7 @@
       closedEditDialog(){
         this.batchEditDialog = false
         this.getPassengerList()
+        this.closedSelectList()
       },
 
       /**
@@ -1450,37 +1464,32 @@
        * @date 2019/11/1
       */
       openBatchEdit(){
-        this.batchEditLoading = true
-        this.$message.success('正在整理所选路线乘客信息，请勿刷新页面')
-        let newArr = {}
-        newArr['token'] = this.orderToken
-        newArr['information'] = this.batchEditList
-        let data ={
-          order_sn: this.orderId,
-          info: JSON.stringify(newArr)
+        for(let key in this.checkedTableList){
+          this.batchEditList.push({
+            token: this.orderToken,
+            route_id: this.checkedRouteList[key],
+            passengers: String(this.checkedTableList[key])
+          })
         }
-        this.$axios.post('/api/order/routeInfo/1',data)
+        if(this.batchEditList.length > 0){
+          this.batchEditLoading = true
+          this.$message.success('正在整理所选路线乘客信息，请勿刷新页面')
+          let newArr = {}
+          newArr['token'] = this.orderToken
+          newArr['information'] = this.batchEditList
+          let data ={
+            order_sn: this.orderId,
+            info: JSON.stringify(newArr)
+          }
+          this.$axios.post('/api/order/routeInfo/1',data)
             .then(res =>{
               if(res.data.code === 0){
                 this.batchEditDialog = true
                 this.batchEditLoading = false
                 this.batchEditData = res.data.result
                 this.batchEditInfo = JSON.parse(JSON.stringify(this.batchEditData.info.information))
-                // let newForm = {}
-                // newForm['riding_time']= '' // 行车日期
-                // newForm['departure_station']= '' // 发站
-                // newForm['arrival_station']= '' // 到站
-                // newForm['trips_number']= '' // 车次
-                // newForm['ticket_type']= ''  // 票类
-                // newForm['fwId']= ''  // 席别席位
-                // newForm['ticket_price']= ''  // 票价
-                // newForm['child_ticket_price']= ''  // 儿童票价
-                // newForm['missed_meals_money']= ''  // 误餐费
-                // newForm['ticket_fare']= ''  // 出票费
-                // newForm['refund_fee']= '' // 退票费
 
                 this.batchEditInfo.forEach(item =>{
-                  // item['edit'] = newForm
                   item['riding_time']= '' // 行车日期
                   item['departure_station']= '' // 发站
                   item['arrival_station']= '' // 到站
@@ -1493,19 +1502,18 @@
                   item['ticket_fare']= ''  // 出票费
                   item['refund_fee']= '' // 退票费
                   item.ticket_status = item.ticket_status === 0 ? '未出票':
-                      item.ticket_status === 1 ? '已出票':
-                          item.ticket_status === 2 ? '已取消票':
-                              item.ticket_status === 3 ? '已改签':
-                                  item.ticket_status === 4 ? '已退票': item.ticket_status
+                    item.ticket_status === 1 ? '已出票':
+                      item.ticket_status === 2 ? '已取消票':
+                        item.ticket_status === 3 ? '已改签':
+                          item.ticket_status === 4 ? '已退票': item.ticket_status
                 })
-                console.log(this.batchEditInfo);
               }else {
                 this.batchEditLoading = false
                 this.$message.warning(res.data.msg)
               }
             })
 
-        this.$axios.get('/api/system/fareWell/showAll/1')
+          this.$axios.get('/api/system/fareWell/showAll/1')
             .then(res =>{
               if(res.data.code === 0){
                 this.agentCategory = res.data.result
@@ -1513,6 +1521,9 @@
                 this.$message.warning(res.data.msg + ' 请重新打开批量修改弹窗以获取数据')
               }
             })
+        }else {
+          this.$message.warning('请选择需要修改的数据')
+        }
       },
 
       /**
@@ -2014,7 +2025,9 @@
       this.getCustomerData()  // 获取客户商列表
     },
     mounted() {
-
+      if(this.$route.query.type === 'edit'){
+        this.deleteUserList = []
+      }
     }
   }
 </script>
