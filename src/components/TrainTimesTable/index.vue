@@ -167,7 +167,7 @@
 <script>
   export default {
     name: "index",
-    props: ['tableData','orderInfo','showTableRows','tableModify'],
+    props: ['tableData','orderInfo','showTableRows','tableModify','index'],
     data(){
       return {
         userIdList: []
@@ -182,14 +182,12 @@
       tableSelect(v,r){
         let userId = []
         userId = v.map(res =>{
-          return res.id;
+          if(res){
+            return res.id + '-' + res.route + '-'+this.orderInfo.order_sn + '-' + this.orderInfo.parent_id;
+          }
         });
-        let routeId = []
-        routeId = v.map(res =>{
-          return res.route;
-        });
-        routeId = [...new Set(routeId)]
-        this.$emit('checkTableData',userId,routeId,this.orderInfo.order_sn,this.orderInfo.parent_id)
+
+        this.$emit('checkTableData',userId,this.index)
       },
       loseFcous(orderData, data, rowName, row) {
         this.$emit('tableRowsData', this.orderInfo, data, rowName, row )

@@ -354,18 +354,24 @@
                 <el-checkbox @change="checkedOrderData(item,cItem)" v-model="checkedOrderBtn"></el-checkbox>
               </div>
               <div>行程时间：<span>{{$getTimeYear(cItem.riding_time * 1000)}}</span></div>
-              <div>
-                乘车区间：
-                <span>{{cItem.departure_station}}</span>
-                <p>{{cItem.trips_number}}</p>
-                <span>{{cItem.arrival_station}}</span>
-              </div>
+                <div>
+                  乘车区间：
+                  <el-tooltip class="item" :disabled="urlType !== 'edit'" effect="dark" content="点击修改路线信息" placement="top">
+                    <div :class="['ticket_message',{'edit_message':urlType === 'edit'}]" @click="openEditTicketBrn(item,cItem)">
+                      <span>{{cItem.departure_station}}</span>
+                      <p>{{cItem.trips_number}}</p>
+                      <span>{{cItem.arrival_station}}</span>
+                    </div>
+                  </el-tooltip>
+
+                </div>
               <div>检票口：{{cItem.ticket_check}}</div>
             </div>
             <TrainTimesTable
                 v-on:tableRowsData="editTableRows"
                 v-on:checkTableData="checkTableList"
                 :tableModify="urlType"
+                :index="cIndex"
                 :showTableRows="showTableType"
                 :orderInfo="item"
                 :tableData="cItem.passengers.data">
@@ -741,6 +747,48 @@
       </div>
     </el-dialog>
 
+    <!-- 修改乘车区间弹窗 -->
+    <el-dialog
+        title="修改乘车区间"
+        :close-on-click-modal="false"
+        :close-on-press-escape="false"
+        :show-close="false"
+        modal-append-to-body
+        append-to-body
+        width="400px"
+        :visible.sync="editTicketMessage"
+        custom-class="edit_ticket_message_dialog">
+      <div class="detail_main">
+        <el-form label-width="50px">
+          <el-form-item label="发站" class="edit_ticket_message_form">
+            <el-input :disabled="editTicketInfo.is_ticket_issue" class="edit_ticket_message_input" clearable :placeholder="editTicketInfo.departure_station" v-model="new_departure_station"></el-input>
+            <el-select clearable style="width: 80px" v-model="departure_path" placeholder="方向">
+              <el-option label="东" value="东"></el-option>
+              <el-option label="南" value="南"></el-option>
+              <el-option label="西" value="西"></el-option>
+              <el-option label="北" value="北"></el-option>
+            </el-select>
+          </el-form-item>
+<!--          <el-form-item label="车次">-->
+<!--            <el-input v-model="form.name"></el-input>-->
+<!--          </el-form-item>-->
+          <el-form-item label="到站" class="edit_ticket_message_form">
+            <el-input :disabled="editTicketInfo.is_ticket_issue" class="edit_ticket_message_input" clearable :placeholder="editTicketInfo.arrival_station" v-model="new_arrival_station"></el-input>
+            <el-select clearable style="width: 80px" v-model="arrival_path" placeholder="方向">
+              <el-option label="东" value="东"></el-option>
+              <el-option label="南" value="南"></el-option>
+              <el-option label="西" value="西"></el-option>
+              <el-option label="北" value="北"></el-option>
+            </el-select>
+          </el-form-item>
+        </el-form>
+      </div>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="editTicketMessage = false">取消</el-button>
+        <el-button type="primary" v-loading="editTicketMessageLoading" @click="submitEditTicketMessage">保存</el-button>
+      </div>
+    </el-dialog>
+
   </div>
 </template>
 
@@ -876,6 +924,16 @@
         }],
         addStrokePassengers: '', // 乘客信息
         addStrokeLoading: false, // 新增行程提交按钮加载
+
+
+        editTicketMessage: false, // 修改乘车区间弹窗
+        editTicketOrderInfo: {},  // 乘车区间订单信息
+        editTicketInfo: {},  // 乘车区间路线信息
+        new_departure_station: '', // 新发站
+        new_arrival_station: '', // 新到站
+        departure_path: '', // 发站方向
+        arrival_path: '', // 到站方向
+        editTicketMessageLoading: false,  // 修改乘车区间提交按钮加载
       }
     },
     methods:{
@@ -1145,6 +1203,55 @@
       },
 
       /**
+       * @Description: 路线乘车区间修改
+       * @author Wish
+       * @date 2019/11/14
+      */
+      openEditTicketBrn(val,cVal){
+        this.editTicketMessage = this.urlType === 'edit'
+        this.editTicketOrderInfo = val  // 乘车区间订单信息
+        this.editTicketInfo = cVal  // 乘车区间路线信息
+        this.departure_path = ''
+        this.arrival_path = ''
+        this.new_departure_station = ''
+        this.new_arrival_station = ''
+      },
+
+      /**
+       * @Description: 提交乘车区间修改
+       * @author Wish
+       * @date 2019/11/14
+      */
+      submitEditTicketMessage(){
+        this.editTicketMessageLoading = true
+        let editTicketType = 1
+        if(this.editTicketInfo.departure_station !== this.new_departure_station && this.new_departure_station !== '' || this.editTicketInfo.arrival_station !== this.new_arrival_station  && this.new_arrival_station !== ''){
+          editTicketType = 0
+        }
+        let newForm = {}
+        newForm['departure_station'] = this.new_departure_station? this.new_departure_station + this.departure_path: this.editTicketInfo.departure_station + this.departure_path
+        newForm['arrival_station'] = this.new_arrival_station? this.new_arrival_station + this.arrival_path: this.editTicketInfo.arrival_station + this.arrival_path
+        let data = {
+          order_sn: this.editTicketOrderInfo.order_sn,
+          token: this.editTicketOrderInfo.parent_id,
+          route: this.editTicketInfo.id,
+          info: JSON.stringify(newForm)
+        }
+        this.$axios.post('/api/order/editRouteInfo/'+ editTicketType,data)
+            .then(res =>{
+              if(res.data.code === 0){
+                this.editTicketMessageLoading = false
+                this.$message.success('保存成功')
+                this.editTicketMessage = false
+                this.getPassengerList()
+              }else {
+                this.$message.warning(res.data.msg)
+                this.editTicketMessageLoading = false
+              }
+            })
+      },
+
+      /**
        * @Description: 单元格修改
        * @author Wish
        * @data 2019/11/7
@@ -1271,26 +1378,29 @@
        * @author Wish
        * @date 2019/10/30
       */
-      checkTableList(userId,routeId,orderId,orderToken){
-        console.log(userId,routeId,orderId,orderToken);
-        let newArr = {}
+      checkTableList(userId,index){
+        console.log(userId,index);
+        // let newArr = []
+        // userId.forEach(res =>{
+        //   this.batchEditList.push(res)
+        // })
+        // console.log(this.batchEditList);
+        // if(userId.length > 0){
+        //   newArr['order_sn'] = String(orderId)
+        //   newArr['passengers'] = String(userId)
+        //   newArr['route_id'] = String(routeId)
+        //   this.deleteUserList.push(newArr)
+        // }
 
-        if(userId.length > 0){
-          newArr['order_sn'] = String(orderId)
-          newArr['passengers'] = String(userId)
-          newArr['route_id'] = String(routeId)
-          this.deleteUserList.push(newArr)
-        }
+        // this.orderId = orderId
+        // this.orderToken = orderToken
 
-        this.orderId = orderId
-        this.orderToken = orderToken
-
-        this.batchEditList.push({
-          'passengers': String(userId),
-          'route_id': String(routeId)
-        })
+        // this.batchEditList.push({
+        //   'passengers': String(userId),
+        //   'route_id': String(routeId)
+        // })
         // JSON.stringify(this.batchEditList)
-        console.log(this.batchEditList);
+        // console.log(this.batchEditList);
       },
       /**
        * @Description: 删除乘客列表
@@ -2048,6 +2158,23 @@
     }
   }
 
+  /*修改乘车区间弹窗*/
+  .edit_ticket_message_dialog{
+    .edit_ticket_message_form{
+      /deep/.el-form-item__content{
+        display: flex;
+        align-items: center;
+        .edit_ticket_message_input{
+          .el-input__inner{
+            &::placeholder{
+              color: #000;
+            }
+          }
+        }
+      }
+    }
+  }
+
   .orderDetails{
     padding: 20px 80px;
     .edit_order_btn{
@@ -2129,8 +2256,6 @@
         }
       }
     }
-
-
 
 
     // 详情or编辑
@@ -2307,12 +2432,11 @@
           align-items: center;
           background:rgba(238,247,255,1);
           padding: 0 16px;
-          >div{
-            display: inline-flex;
+          .ticket_message{
+            padding: 0 10px;
+            display: flex;
             align-items: center;
-            &:not(:last-child){
-              margin-right: 10%;
-            }
+            height: 50px;
             >p{
               width: 90px;
               display: inline-flex;
@@ -2340,6 +2464,22 @@
                 border-bottom: 6px solid transparent;
                 border-left: 6px solid rgba(38,153,251,1);
               }
+            }
+            &.edit_message{
+              border-bottom: 1px solid transparent;
+              transition: all .3s;
+              cursor: pointer;
+
+              &:hover{
+                border-bottom: 1px solid rgba(38,153,251,1);
+              }
+            }
+          }
+          >div{
+            display: inline-flex;
+            align-items: center;
+            &:not(:last-child){
+              margin-right: 10%;
             }
           }
         }
