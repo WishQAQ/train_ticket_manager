@@ -12,7 +12,7 @@ module.exports = {
     // 启用 CSS modules for all css / pre-processor files.
     modules: false
   },
-  publicPath: process.env.NODE_ENV === 'production' ? './' : '/',
+  publicPath: './',
   productionSourceMap: false,
   devServer: {
     disableHostCheck:true,
