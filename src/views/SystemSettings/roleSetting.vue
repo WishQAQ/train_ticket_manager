@@ -404,14 +404,15 @@
        * @date 2019/10/12
       */
       roleSwitch(val){
+        console.log(val);
         if(!val.is_show){
           val.is_read_in = false
         }
         roleArray.push(val)
         roleArray = [...new Set(roleArray)]
-        console.log(roleArray);
+        // console.log(roleArray);
         this.userInfo['permission_field'] = roleArray
-        console.log(this.userInfo['permission_field']);
+        // console.log(this.userInfo['permission_field']);
       },
 
       getRoleData(){
