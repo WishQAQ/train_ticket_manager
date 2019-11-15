@@ -151,10 +151,10 @@
                :key="cIndex">
             <!-- 单程表头 -->
             <div class="table_header">
-              <div>路线{{item.type === 0? '一：单程':
-                item.type === 1? '二：往返':
-                item.type === 2? '三：中转':
-                item.type === 3? '四：中转往返': ''}}</div>
+              <div>行程类型：{{item.type === 0? '单程':
+                item.type === 1? '往返':
+                item.type === 2? '中转':
+                item.type === 3? '中转往返': ''}}</div>
               <div>行程时间：{{cItem.riding_time}}</div>
               <div class="table_header_train">
                 <p>{{cItem.initial_station}}</p>
@@ -318,10 +318,7 @@
              :key="index">
           <div class="train_message">
             <div class="train_route">
-              路线{{item.route_type === 0 ?'一' :
-              item.route_type === 1 ?'二' :
-              item.route_type === 2 ?'三' :
-              item.route_type === 3 ?'四' :''}}：
+              行程类型：
               {{item.route_type === 0 ?'单程' :
               item.route_type === 1 ?'往返' :
               item.route_type === 2 ?'中转' :
@@ -484,10 +481,7 @@
       <div class="dialog_main">
         <div class="order_table_header" v-for="(item,index) in userListHeader.info" :key="index">
           <div>
-            路线{{userListHeader.route_type === 0 ?'一' :
-            userListHeader.route_type === 1 ?'二' :
-            userListHeader.route_type === 2 ?'三' :
-            userListHeader.route_type === 3 ?'四' :''}}：
+            行程类型：
             {{userListHeader.route_type === 0 ?'单程' :
             userListHeader.route_type === 1 ?'往返' :
             userListHeader.route_type === 2 ?'中转' :
@@ -886,6 +880,7 @@
 
         checkedTableList: {}, // 表格乘客多选列表
         checkedRouteList: {}, // 表格路线多选列表
+        editOrderToken: {},
         orderRouteId: '', // 父数组下标
         orderTableId: '', // 子数组下标
         selectOrderId: 0, // 选择器自增下标
@@ -1381,17 +1376,20 @@
       */
       checkTableList(userId,userRoute, routeIndex, tableIndex,orderId, token){
         this.checkedTableList[String(routeIndex)+String(tableIndex)] = userId
-        this.checkedRouteList[String(routeIndex)+String(tableIndex)] = userRoute[0]
+        this.checkedRouteList[String(routeIndex)+String(tableIndex)] = userRoute
+        this.editOrderToken[String(routeIndex)+String(tableIndex)] = token
 
         if(this.checkedTableList[String(routeIndex)+String(tableIndex)].length < 1){
           delete this.checkedTableList[String(routeIndex)+String(tableIndex)]
         }
-        if(!this.checkedRouteList[String(routeIndex)+String(tableIndex)]){
+        if(this.checkedRouteList[String(routeIndex)+String(tableIndex)].length < 1){
           delete this.checkedRouteList[String(routeIndex)+String(tableIndex)]
+        }
+        if(this.editOrderToken[String(routeIndex)+String(tableIndex)].length < 1){
+          delete this.editOrderToken[String(routeIndex)+String(tableIndex)]
         }
 
         this.orderId = orderId
-        this.orderToken = token
       },
       /**
        * @Description: 清空表格多选
@@ -1401,6 +1399,7 @@
       closedSelectList(){
         this.checkedTableList = {}
         this.checkedRouteList = {}
+        this.editOrderToken = {}
         this.orderId = ''
         this.orderToken = ''
         this.deleteUserList = []
@@ -1412,10 +1411,11 @@
        * @date 2019/10/30
       */
       deleteOrderList(){
+        this.deleteUserList = []
         for(let key in this.checkedTableList){
           this.deleteUserList.push({
-            token: this.orderToken,
-            route_id: this.checkedRouteList[key],
+            token: String(this.editOrderToken[key]),
+            route_id: String(this.checkedRouteList[key]),
             passengers: String(this.checkedTableList[key])
           })
         }
@@ -1429,6 +1429,7 @@
               order_sn: this.orderId,
               info: JSON.stringify(this.deleteUserList)
             }
+            // console.log(data);
             this.$axios.post('/api/order/operate/delPassengers',data)
               .then(res =>{
                 if(res.data.code === 0){
@@ -1464,68 +1465,76 @@
        * @date 2019/11/1
       */
       openBatchEdit(){
+        this.batchEditList = []
+        let newTokenArr = []
         for(let key in this.checkedTableList){
           this.batchEditList.push({
-            token: this.orderToken,
-            route_id: this.checkedRouteList[key],
+            route_id: String(this.checkedRouteList[key]),
             passengers: String(this.checkedTableList[key])
           })
+          newTokenArr.push(this.editOrderToken[key])
         }
+        newTokenArr = Array.from([...new Set(newTokenArr)])
         if(this.batchEditList.length > 0){
-          this.batchEditLoading = true
-          this.$message.success('正在整理所选路线乘客信息，请勿刷新页面')
-          let newArr = {}
-          newArr['token'] = this.orderToken
-          newArr['information'] = this.batchEditList
-          let data ={
-            order_sn: this.orderId,
-            info: JSON.stringify(newArr)
-          }
-          this.$axios.post('/api/order/routeInfo/1',data)
-            .then(res =>{
-              if(res.data.code === 0){
-                this.batchEditDialog = true
-                this.batchEditLoading = false
-                this.batchEditData = res.data.result
-                this.batchEditInfo = JSON.parse(JSON.stringify(this.batchEditData.info.information))
+          if(newTokenArr.length <= 1){
+            this.batchEditLoading = true
+            this.$message.success('正在整理所选路线乘客信息，请勿刷新页面')
+            let newArr = {}
+            newArr['token'] = newTokenArr[0]
+            newArr['information'] = this.batchEditList
 
-                this.batchEditInfo.forEach(item =>{
-                  item['riding_time']= '' // 行车日期
-                  item['departure_station']= '' // 发站
-                  item['arrival_station']= '' // 到站
-                  item['trips_number']= '' // 车次
-                  item['ticket_type']= ''  // 票类
-                  item['fwId']= ''  // 席别席位
-                  item['ticket_price']= ''  // 票价
-                  item['child_ticket_price']= ''  // 儿童票价
-                  item['missed_meals_money']= ''  // 误餐费
-                  item['ticket_fare']= ''  // 出票费
-                  item['refund_fee']= '' // 退票费
-                  item.ticket_status = item.ticket_status === 0 ? '未出票':
-                    item.ticket_status === 1 ? '已出票':
-                      item.ticket_status === 2 ? '已取消票':
-                        item.ticket_status === 3 ? '已改签':
-                          item.ticket_status === 4 ? '已退票': item.ticket_status
+            let data ={
+              order_sn: this.orderId,
+              info: JSON.stringify(newArr)
+            }
+            this.$axios.post('/api/order/routeInfo/1',data)
+                .then(res =>{
+                  if(res.data.code === 0){
+                    this.batchEditDialog = true
+                    this.batchEditLoading = false
+                    this.batchEditData = res.data.result
+                    this.batchEditInfo = JSON.parse(JSON.stringify(this.batchEditData.info.information))
+
+                    this.batchEditInfo.forEach(item =>{
+                      item['riding_time']= '' // 行车日期
+                      item['departure_station']= '' // 发站
+                      item['arrival_station']= '' // 到站
+                      item['trips_number']= '' // 车次
+                      item['ticket_type']= ''  // 票类
+                      item['fwId']= ''  // 席别席位
+                      item['ticket_price']= ''  // 票价
+                      item['child_ticket_price']= ''  // 儿童票价
+                      item['missed_meals_money']= ''  // 误餐费
+                      item['ticket_fare']= ''  // 出票费
+                      item['refund_fee']= '' // 退票费
+                      item.ticket_status = item.ticket_status === 0 ? '未出票':
+                          item.ticket_status === 1 ? '已出票':
+                              item.ticket_status === 2 ? '已取消票':
+                                  item.ticket_status === 3 ? '已改签':
+                                      item.ticket_status === 4 ? '已退票': item.ticket_status
+                    })
+                  }else {
+                    this.batchEditLoading = false
+                    this.$message.warning(res.data.msg)
+                  }
                 })
-              }else {
-                this.batchEditLoading = false
-                this.$message.warning(res.data.msg)
-              }
-            })
 
-          this.$axios.get('/api/system/fareWell/showAll/1')
-            .then(res =>{
-              if(res.data.code === 0){
-                this.agentCategory = res.data.result
-              }else {
-                this.$message.warning(res.data.msg + ' 请重新打开批量修改弹窗以获取数据')
-              }
-            })
+            this.$axios.get('/api/system/fareWell/showAll/1')
+                .then(res =>{
+                  if(res.data.code === 0){
+                    this.agentCategory = res.data.result
+                  }else {
+                    this.$message.warning(res.data.msg + ' 请重新打开批量修改弹窗以获取数据')
+                  }
+                })
+          }else {
+            this.$message.warning('只可选择一个行程类型下的乘客')
+          }
         }else {
           this.$message.warning('请选择需要修改的数据')
         }
-      },
 
+      },
       /**
        * @Description: 关闭路线变更提示框
        * @author Wish
@@ -1567,9 +1576,13 @@
         info['condition'] = []
         info['params'] = newEditForm
         info.condition.push(newForm)
+        let newToken = ''
+        for(let key in this.checkedTableList){
+          newToken = String(this.editOrderToken[key])
+        }
         let data = {
           order_sn: this.orderId,
-          token: this.orderToken,
+          token: newToken,
           ticket_status: this.routeStatus,
           info: JSON.stringify(info)
         }
@@ -1622,9 +1635,15 @@
             info['condition'] = []
             info['params'] = newEditForm
             info.condition.push(newForm)
+
+            let newToken = ''
+            for(let key in this.checkedTableList){
+              newToken = String(this.editOrderToken[key])
+            }
+
             let data = {
               order_sn: this.orderId,
-              token: this.orderToken,
+              token: newToken,
               ticket_status: status,
               info: JSON.stringify(info)
             }
@@ -1642,9 +1661,14 @@
         }else if(status === '2'){  // 取消票
           let newEditArr = []
           newEditArr.push(editInfo)
+          let newToken = ''
+          for(let key in this.checkedTableList){
+            console.log(key);
+            newToken = String(this.editOrderToken[key])
+          }
           let data = {
             order_sn: this.orderId,
-            token: this.orderToken,
+            token: newToken,
             ticket_status: status,
             info: JSON.stringify(newEditArr)
           }
@@ -1661,9 +1685,13 @@
           editInfo['refund_fee'] = this.editRouteData.refund_fee
           let newEditArr = []
           newEditArr.push(editInfo)
+          let newToken = ''
+          for(let key in this.checkedTableList){
+            newToken = String(this.editOrderToken[key])
+          }
           let data = {
             order_sn: this.orderId,
-            token: this.orderToken,
+            token: newToken,
             ticket_status: status,
             info: JSON.stringify(newEditArr)
           }

@@ -89,12 +89,26 @@
         </div>
       </div>
 
-      <Pagination
-          ref="pagination"
-          :pageData="paginationList"
-          @jumpSize="jumpSize"
-          @jumpPage="jumpPage">
-      </Pagination>
+
+      <div class="table_bottom">
+        <Pagination
+            ref="pagination"
+            :pageData="paginationList"
+            @jumpSize="jumpSize"
+            @jumpPage="jumpPage">
+        </Pagination>
+
+        <el-dropdown trigger="click">
+          <el-button>导出</el-button>
+          <el-dropdown-menu slot="dropdown">
+            <el-dropdown-item><div @click="downAllExcel">全部导出</div></el-dropdown-item>
+            <el-dropdown-item><div @click="downSelectExcel">导出所选项</div></el-dropdown-item>
+          </el-dropdown-menu>
+        </el-dropdown>
+
+      </div>
+
+
 
     </div>
 
@@ -181,6 +195,9 @@
       }
     },
     methods:{
+      downAllExcel(){},
+      downSelectExcel(){},
+
       getDataList(){
         this.loading = true
         this.viewsType =  this.$route.meta.name === '订单管理'? 0:
