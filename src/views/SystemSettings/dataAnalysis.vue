@@ -52,9 +52,7 @@
       </el-select></div>
       <div v-if="showConductor"><el-select
           v-model="searchForm.statisticType"
-          clearable
           placeholder="请选择统计类型">
-        <el-option label="所有类型" value="all"></el-option>
         <el-option label="出票张数" value="totalOutTicket"></el-option>
         <el-option label="票价各计" value="totalTicketPrice"></el-option>
         <el-option label="误餐费合计" value="totalMissMeals"></el-option>
@@ -77,9 +75,7 @@
       <!-- 根据订单提交时间 -->
       <div v-if="showTimeType === 1"><el-select
           v-model="searchForm.statisticType"
-          clearable
           placeholder="请选择统计类型">
-        <el-option label="所有类型" value="all"></el-option>
         <el-option label="出票合计" value="totalTicketIssue"></el-option>
         <el-option label="误餐费合计" value="totalMissMeals"></el-option>
         <el-option label="利润合计" value="totalProfit"></el-option>
@@ -100,9 +96,7 @@
       </el-select></div>
       <div v-if="showBiller"><el-select
           v-model="searchForm.statisticType"
-          clearable
           placeholder="请选择统计类型">
-        <el-option label="所有类型" value="all"></el-option>
         <el-option label="出票张数" value="totalTicketIssue"></el-option>
         <el-option label="误餐费合计" value="totalMissMeals"></el-option>
         <el-option label="退票合计" value="totalRefundTicket"></el-option>
@@ -125,9 +119,7 @@
       </el-select></div>
       <div v-if="showTicket"><el-select
           v-model="searchForm.statisticType"
-          clearable
           placeholder="请选择统计类型">
-        <el-option label="所有类型" value="all"></el-option>
         <el-option v-if="showTicketType" label="创建张数" value="totalTicket"></el-option>
         <el-option v-else label="出票张数" value="totalOutTicket"></el-option>
         <el-option label="票价合计" value="totalTicketPrice"></el-option>
@@ -169,12 +161,24 @@
         <el-option label="登录次数" value="totalLoginCount"></el-option>
         <el-option label="登录时长" value="totalLoginTime"></el-option>
       </el-select></div>
+      <div style="width: 100px"><el-select
+          v-model="searchForm.chartsType"
+          placeholder="请选择图表类型">
+        <el-option label="饼图" value="饼图"></el-option>
+        <el-option label="折线图" value="折线图"></el-option>
+        <el-option label="树状图" value="树状图"></el-option>
+      </el-select></div>
 
       <div><el-button @click="submitSearch" v-loading="loading">统计</el-button></div>
     </div>
 
     <div class="data_content">
-      <div class="data_charts"></div>
+      <div class="data_charts">
+
+        <ve-line v-if="searchForm.chartsType === '折线图' && chartData.length > 0" :data-empty="dataEmpty" :data="chartData"></ve-line>
+        <Ve-pie v-if="searchForm.chartsType === '饼图' && chartData.length > 0" :data-empty="dataEmpty" :data="chartData"></Ve-pie>
+
+      </div>
       <div class="data_table">
         <el-table
             :data="tableData"
@@ -235,6 +239,10 @@
 <script>
   export default {
     name: "dataAnalysis",
+    components:{
+      VeLine: VeLine,
+      VePie: VePie
+    },
     data(){
       return {
         loading: false,
@@ -257,6 +265,8 @@
           ticketType: '', // 票种
 
           selectUser: '', // 用户列表
+
+          chartsType: '饼图', // 图表类型
 
         },
         options: [{  // 一级模块搜索条件
@@ -347,8 +357,10 @@
 
         showLogin: false, // 显示用户登录选择器
 
-
         tableData: [], // 图表数据
+
+        chartData: [], // 图表数据组装
+        dataEmpty: false,
       }
     },
     watch:{
@@ -527,10 +539,17 @@
           info: JSON.stringify(searchForm)
         }
         if(this.module.length > 0){
-         this.getChartsData(mainCondition,data)
+          if(this.searchForm.statisticType){
+            this.getChartsData(mainCondition,data)
+          }else {
+            this.$message.warning('请选择类型')
+          }
         }else {
           this.$message.warning('请选择搜索条件')
         }
+
+
+
       },
 
       /**
@@ -546,6 +565,21 @@
                 this.loading = false
                 this.$message.success('获取成功')
                 this.tableData = res.data.result
+
+                let nameList = []
+                this.tableData.forEach(item =>{
+                  nameList.push(item.name)
+                })
+                let dataList = []
+                this.tableData.forEach(item =>{
+                  if(item === ''){
+                    dataList.push(item)
+                  }
+                })
+                this.chartData.push({
+                  columns: nameList,
+                  rows: dataList
+                })
               }else {
                 this.$message.warning(res.data.msg)
                 this.loading = false
@@ -561,10 +595,11 @@
   .dataAnalysis{
     display: flex;
     flex-direction: column;
-    padding: 80px 8%;
+    padding: 20px 5%;
     .search_header{
       display: flex;
       align-items: center;
+      margin-bottom: 20px;
       >div{
         &:not(:last-child){
           margin-right: 10px;
@@ -574,9 +609,13 @@
     .data_content{
       display: flex;
       justify-content: space-between;
+      .data_charts{
+        width: 50%;
 
+      }
       .data_table{
-        min-width: 440px;
+        min-width: 700px;
+        width: 50%;
       }
     }
   }

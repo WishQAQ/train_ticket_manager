@@ -28,4 +28,7 @@ export default {
     overflow-y: auto;
     min-width: 1280px;
   }
+  /deep/.oA_manager{
+    display: none;
+  }
 </style>

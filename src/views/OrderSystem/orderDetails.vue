@@ -7,7 +7,7 @@
         <i v-else class="el-icon-remove-outline"></i>
         订单Q群原始信息
       </div>
-      <el-button class="header_btn" v-if="urlType === 'details' && this.orderInfo.source_file">**文档标题**</el-button>
+      <el-button class="header_btn" v-if="urlType === 'details' && this.orderInfo.source_file">原始文件下载</el-button>
     </div>
 
 
@@ -243,6 +243,7 @@
           v-if="addTrainTableArray.length > 0"
           class="submitAllDataBtn"
           type="primary"
+          v-loading="allAddSubmitLoading"
           @click="allAddSubmit">
         全部保存
       </el-button>
@@ -296,6 +297,7 @@
         <div class="search_btn">
           <div>
             <el-button @click="hiddenTable">{{showTableType?'隐藏':'显示'}}</el-button>
+            <el-button type="primary" v-if="urlType === 'details'" @click="selectJumpPay">批量购票</el-button>
             <el-button type="primary"
                        @click="openBatchEdit"
                        :loading="batchEditLoading"
@@ -898,6 +900,8 @@
         addTrainTableArray: [], // 新增获取乘客表格信息
         addTrainType: '', // 新增乘客车票类型
 
+        allAddSubmitLoading: false,  // 新增订单加载
+
         selectPassengerList: [], // 乘客信息多选列表
 
         orderRemarks: [], // 订单备注列表
@@ -1144,17 +1148,53 @@
       },
 
       /**
+       * @Description: 批量购票
+       * @author Wish
+       * @date 2019/11/19
+      */
+      selectJumpPay(){
+        let ticketNumber = 0
+
+        this.batchEditList = []
+        // let newTokenArr = []
+        for(let key in this.checkedTableList){
+          ticketNumber += this.checkedTableList[key].length
+          this.batchEditList.push({
+            token: String(this.editOrderToken[key]),
+            route_id: String(this.checkedRouteList[key]),
+            passengers: String(this.checkedTableList[key])
+          })
+          // newTokenArr.push(this.editOrderToken[key])
+        }
+        if(ticketNumber > 5){
+          this.$message.warning('批量购票最多仅支持5人')
+        }else {
+          this.userOrderInfo = {
+            order_sn: this.orderId,
+            info: JSON.stringify(this.batchEditList)
+          }
+          this.getUserAccountList()
+        }
+
+      },
+
+      /**
        * @Description: 跳转12306购票页面
        * @author Wish
        * @date 2019/11/18
       */
       jumpPayTicket(userInfo,orderInfo){
-        this.userOrderInfo = {
-          "order_sn": orderInfo.order_sn, //订单号
+        let info = []
+        info.push({
           "token": orderInfo.parent_id, //行程标识
           "route_id": userInfo.route, //路线标识
-          "passenger_id": userInfo.id, //乘客ID
+          "passengers": userInfo.id, //乘客ID
+        })
+        this.userOrderInfo = {
+          "order_sn": orderInfo.order_sn, //订单号
+          info: JSON.stringify(info)
         }
+        console.log(this.userOrderInfo);
         this.$message.success('正在整理您的12306账号列表，请勿刷新页面')
         this.getUserAccountList()
       },
@@ -1174,7 +1214,6 @@
                 this.userTicketData = res.data.result.data
                 this.userPaginationList = res.data.result
                 this.selectTicketMessage = true
-                this.$message.success('请选择购票账号')
               }else {
                 this.$message.warning(res.data.msg)
                 this.selectTicketMessage = false
@@ -1201,17 +1240,20 @@
        * @date 2019/11/18
       */
       handleCurrentChange(val) {
-        console.log(val);
-        this.$message.success('正在整理数据准备跳转12306购票，请勿刷新页面')
         this.$axios.post('/api/plug/getData',this.userOrderInfo)
             .then(res =>{
               if(res.data.code === 0){
-                res.data.result['account'] = val.account
-                res.data.result['password'] = val.password
-                res.data.result['toSiteCode'] = 'CUW'  // 发车时间
-                res.data.result['formSiteCode'] = 'CXW'  // 车次
+                res.data.result.forEach((item,index) =>{
+                  item['toSiteCode'] = 'CUW'  // 发车时间
+                  item['formSiteCode'] = 'CXW'  // 车次
+                })
+                let userAccount = {}
+                userAccount['account'] = val.account
+                userAccount['password'] = val.password
+                userAccount['info'] = res.data.result
+                console.log(res.data.result);
                 let _that = this
-                chrome.runtime.sendMessage('lllkokaleehidhcdcgccocpkhgiihjob', {data:{action:"buy",order:res.data.result}},
+                chrome.runtime.sendMessage('lllkokaleehidhcdcgccocpkhgiihjob', {data:{action:"buy",order:userAccount}},
                     function(response) {
                     });
                 window.open("https://kyfw.12306.cn/otn/resources/login.html",'_blank')
@@ -2157,6 +2199,7 @@
        * @date 2019/10/22
       */
       allAddSubmit(){
+        this.allAddSubmitLoading = true
         let orderList = JSON.parse(JSON.stringify(this.addTrainTableArray))
         orderList.forEach(item =>{
           item.info.forEach(cItem =>{
@@ -2187,8 +2230,10 @@
             .then(res =>{
               if(res.data.code === 0){
                 this.$message.success('保存成功')
+                this.allAddSubmitLoading = false
               }else {
                 this.$message.warning(res.data.msg)
+                this.allAddSubmitLoading = false
               }
             })
       },
