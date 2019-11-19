@@ -161,6 +161,14 @@
           <span style="margin-left: 10px" v-else>{{scope.row.account}}</span>
         </template>
       </el-table-column>
+      <el-table-column
+          width="50"
+          v-if="tableModify === 'details'"
+          label="操作">
+        <template slot-scope="scope">
+          <el-button size="mini" type="text" @click="jumpPayTicket(scope.row,scope.$index)" :disabled="scope.row.ticket_status !== 0">购票</el-button>
+        </template>
+      </el-table-column>
     </el-table>
   </div>
 </template>
@@ -196,14 +204,33 @@
         this.$emit('checkTableData', userId, userRoute, this.index, this.cIndex, this.orderInfo.order_sn, this.orderInfo.parent_id)
       },
 
+      /**
+       * @Description: 清除选择框
+       * @author Wish
+       * @date 2019/11/18
+      */
       toggleSelection(){
         if(this.closedSelect){
           this.$refs.multipleTable.clearSelection();
         }
       },
 
+      /**
+       * @Description: 单元格修改
+       * @author Wish
+       * @date 2019/11/18
+      */
       loseFcous(orderData, data, rowName, row) {
         this.$emit('tableRowsData', this.orderInfo, data, rowName, row )
+      },
+
+      /**
+       * @Description: 跳转12306购票网站
+       * @author Wish
+       * @date 2019/11/18
+      */
+      jumpPayTicket(val){
+        this.$emit('jumpPayTicket',val,this.orderInfo)
       },
     },
   }

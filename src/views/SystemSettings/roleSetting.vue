@@ -3,7 +3,7 @@
     <div class="left_main">
       <div class="left_header">
         <el-button type="primary" @click="addRoleUser">新增角色</el-button>
-        <el-input v-model="searchUserName" placeholder="用户名名称搜索"></el-input>
+        <el-input v-model="searchUserName" clearable placeholder="用户名名称搜索"></el-input>
         <el-button type="primary" @click="searchUser">搜索</el-button>
       </div>
       <div class="user_table">
@@ -217,19 +217,18 @@
        * @date 2019/9/25
       */
       searchUser(){
-        this.loading = true
-        if(this.searchUserName){
           let data = {
             role_name: this.searchUserName
           }
-          this.$axios.post('/api/authority/role/search/'+'1',data)
+          this.$axios.post('/api/authority/role/show/'+'1',data)
               .then(res =>{
                 if(res.status === 200){
-                  this.loading = false
-                  this.userData = res.data.data
+                  this.userData = res.data.result.data
+                  this.paginationList = res.data.result
+                }else {
+                  this.$message.warning(res.data.msg)
                 }
               })
-        }
       },
 
       /**

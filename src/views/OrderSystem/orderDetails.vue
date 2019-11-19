@@ -7,7 +7,7 @@
         <i v-else class="el-icon-remove-outline"></i>
         订单Q群原始信息
       </div>
-      <el-button class="header_btn" v-if="urlType === 'details'">**文档标题**</el-button>
+      <el-button class="header_btn" v-if="urlType === 'details' && this.orderInfo.source_file">**文档标题**</el-button>
     </div>
 
 
@@ -128,7 +128,7 @@
         <div class="info_message_box">
           <p>车票照片</p>
           <el-button v-if="urlType === 'edit'" @click="openUploadBox" type="primary" size="mini">车票/快递单上传</el-button>
-          <el-button v-else type="primary" size="mini">下载所有图片</el-button>
+          <el-button v-else type="primary" size="mini" @click="downAllPhoto"><a>下载所有图片</a></el-button>
         </div>
       </div>
     </div>
@@ -307,7 +307,7 @@
               批量删除</el-button>
             <el-button type="primary" v-if="urlType === 'edit'" @click="addStrokeBtn">添加行程</el-button>
           </div>
-          <el-button v-if="urlType === 'edit'">导出菜单</el-button>
+<!--          <el-button v-if="urlType === 'edit'">导出菜单</el-button>-->
         </div>
       </div>
 
@@ -365,6 +365,7 @@
             <TrainTimesTable
                 v-on:tableRowsData="editTableRows"
                 v-on:checkTableData="checkTableList"
+                v-on:jumpPayTicket="jumpPayTicket"
                 :tableModify="urlType"
                 :index="index"
                 :cIndex="cIndex"
@@ -517,10 +518,7 @@
     <el-dialog
         v-dialogDrag
         title="批量修改"
-        :width="batchEditData.info.information.length === 1?'40%':
-                batchEditData.info.information.length === 2?'65%':
-                batchEditData.info.information.length === 3?'75%':
-                batchEditData.info.information.length === 4?'80%':'50%'"
+        width="30%"
         :close-on-click-modal="false"
         :close-on-press-escape="false"
         :show-close="false"
@@ -557,7 +555,6 @@
         <!--出票 or 改签-->
         <div class="ticket_box" v-if="item.ticket_status === '1' || item.ticket_status === '3'">
           <div class="main_box">
-            <div class="main_box_title"></div>
             <div class="main_box_content">
               <div class="content_route" v-for="(cItem,cIndex) in item.route" :key="cIndex">
                 <div class="content_edit_time">
@@ -681,7 +678,7 @@
       </div>
       <div slot="footer" class="dialog-footer" style="justify-content: flex-end">
         <el-button @click="closedEditRoute">取消</el-button>
-        <el-button type="primary" @click="submitEditRoute">移动</el-button>
+        <el-button type="primary" @click="submitEditRoute(editRouteInfo[0])">移动</el-button>
       </div>
     </el-dialog>
 
@@ -782,11 +779,54 @@
       </div>
     </el-dialog>
 
+    <!-- 选择12306账号弹窗 -->
+    <el-dialog
+        title="12306账号"
+        :close-on-click-modal="false"
+        modal-append-to-body
+        append-to-body
+        width="500px"
+        :visible.sync="selectTicketMessage"
+        custom-class="select_ticket_dialog">
+      <div class="detail_main">
+        <el-table
+            ref="singleTable"
+            :data="userTicketData"
+            highlight-current-row
+            @current-change="handleCurrentChange"
+            border>
+          <el-table-column
+              label="序号"
+              align="center"
+              width="50px">
+            <template slot-scope="scope">
+              {{scope.$index+1}}
+            </template>
+          </el-table-column>
+          <el-table-column
+              label="12306账号"
+              prop="account">
+          </el-table-column>
+          <el-table-column
+              label="账号备注"
+              prop="remarks">
+          </el-table-column>
+        </el-table>
+        <Pagination
+            ref="pagination"
+            :pageData="userPaginationList"
+            @jumpSize="userJumpSize"
+            @jumpPage="userJumpPage">
+        </Pagination>
+      </div>
+    </el-dialog>
+
   </div>
 </template>
 
 <script>
   import TrainTimesTable from '@/components/TrainTimesTable/index'
+
   export default {
     name: "orderDetails",
     components:{
@@ -794,7 +834,8 @@
       // 'TrainTimesTable': () => import('@/components/TrainTimesTable/index'),
       'PublicImage':() => import('@/components/public/public_image'),
       'UploadLeaflet': () => import('@/components/UploadLeaflet/index'),
-      'UploadMultiplePictures': () => import('@/components/UploadMultiplePictures/index')
+      'UploadMultiplePictures': () => import('@/components/UploadMultiplePictures/index'),
+      'Pagination': () => import('@/components/Pagination')
     },
     data(){
       return {
@@ -931,11 +972,37 @@
         departure_path: '', // 发站方向
         arrival_path: '', // 到站方向
         editTicketMessageLoading: false,  // 修改乘车区间提交按钮加载
+
+
+        userPaginationList: {},  // 12306账号 分页
+        userPer_page: 10,  // 13206账号 数据量
+        userPage: '',  // 12306账号 页码
+        userTicketData: [],  // 12306账号数据
+        userOrderInfo: {},  // 当前买票时间路线人员信息
+        selectTicketMessage: false, // 12306账号选择弹窗
       }
     },
     methods:{
       change(e){
         this.$forceUpdate()
+      },
+
+      /**
+       * @Description: 下载所有图片
+       * @author Wish
+       * @date 2019/11/18
+      */
+      downAllPhoto(){
+        this.$axios.get('/api/order/downloadImage/'+this.orderSn,{responseType: 'blob'})
+            .then(res =>{
+              let link = document.createElement('a');
+              link.style.display = 'none';
+
+              link.href = URL.createObjectURL(res.data); //创建一个指向该参数对象的URL
+              link.download = this.orderSn+ '车票照片包.zip';
+              link.click(); // 触发下载
+              URL.revokeObjectURL(link.href);
+            })
       },
 
       /**
@@ -1074,6 +1141,86 @@
       */
       hiddenTable(){
         this.showTableType = this.showTableType !== true
+      },
+
+      /**
+       * @Description: 跳转12306购票页面
+       * @author Wish
+       * @date 2019/11/18
+      */
+      jumpPayTicket(userInfo,orderInfo){
+        this.userOrderInfo = {
+          "order_sn": orderInfo.order_sn, //订单号
+          "token": orderInfo.parent_id, //行程标识
+          "route_id": userInfo.route, //路线标识
+          "passenger_id": userInfo.id, //乘客ID
+        }
+        this.$message.success('正在整理您的12306账号列表，请勿刷新页面')
+        this.getUserAccountList()
+      },
+
+      /**
+       * @Description: 获取12306账号
+       * @author Wish
+       * @date 2019/11/18
+      */
+      getUserAccountList(){
+        let data ={
+          page: this.userPage || null,
+        }
+        this.$axios.get('/api/system/12306_account/showMe/'+this.userPer_page,{params:data})
+            .then(res =>{
+              if(res.data.code === 0){
+                this.userTicketData = res.data.result.data
+                this.userPaginationList = res.data.result
+                this.selectTicketMessage = true
+                this.$message.success('请选择购票账号')
+              }else {
+                this.$message.warning(res.data.msg)
+                this.selectTicketMessage = false
+              }
+            })
+      },
+
+      /**
+       * @Description: 12306账号选择分页器
+       * @author Wish
+       * @date 2019/11/18
+      */
+      userJumpSize(val){
+        this.userPer_page = val
+        this.getUserAccountList()
+      },
+      userJumpPage(val){
+        this.userPage = val
+        this.getUserAccountList()
+      },
+      /**
+       * @Description: 12306账号单选
+       * @author Wish
+       * @date 2019/11/18
+      */
+      handleCurrentChange(val) {
+        console.log(val);
+        this.$message.success('正在整理数据准备跳转12306购票，请勿刷新页面')
+        this.$axios.post('/api/plug/getData',this.userOrderInfo)
+            .then(res =>{
+              if(res.data.code === 0){
+                res.data.result['account'] = val.account
+                res.data.result['password'] = val.password
+                res.data.result['toSiteCode'] = 'CUW'  // 发车时间
+                res.data.result['formSiteCode'] = 'CXW'  // 车次
+                let _that = this
+                chrome.runtime.sendMessage('lllkokaleehidhcdcgccocpkhgiihjob', {data:{action:"buy",order:res.data.result}},
+                    function(response) {
+                    });
+                window.open("https://kyfw.12306.cn/otn/resources/login.html",'_blank')
+                _that.selectTicketMessage = false
+              }else {
+                this.$message.warning(res.data.msg)
+              }
+            })
+
       },
 
       /**
@@ -1552,16 +1699,16 @@
        * @author Wish
        * @date 2019/11/12
       */
-      submitEditRoute(){
+      submitEditRoute(val){
         this.editRouteDialog = false
         let newForm = {}  // 路线信息
         newForm['type'] = 0
         newForm['route_id'] = this.editRouteData.route_id
         newForm['passengers'] = this.editRouteData.passengers
-        newForm['riding_time'] =  this.$dateToDate(this.editRouteData.riding_time)
-        newForm['departure'] = this.editRouteData.departure_station
-        newForm['arrive'] = this.editRouteData.arrival_station
-        newForm['trips_number'] = this.editRouteData.trips_number
+        newForm['riding_time'] =  this.$dateToDate(this.editRouteData.riding_time)  || val.riding_time
+        newForm['departure'] = this.editRouteData.departure_station  || val.departure_station
+        newForm['arrive'] = this.editRouteData.arrival_station  || val.arrival_station
+        newForm['trips_number'] = this.editRouteData.trips_number  || val.trips_number
 
         let newEditForm = {}  // 修改输入框信息
         newEditForm['ticket_type'] = this.editRouteData.ticket_type
@@ -1586,7 +1733,7 @@
           ticket_status: this.routeStatus,
           info: JSON.stringify(info)
         }
-        console.log(data);
+        // console.log(data);
         this.$axios.post('/api/order/routeInfo/editBatch',data)
             .then(res =>{
               if(res.data.code === 0){
@@ -1926,7 +2073,7 @@
                    * @author Wish
                    * @date 2019/10/24
                    */
-                  if(this.addDataList.trips.type){
+
                     this.addDataList.trips.info.forEach(cItem =>{
                       cItem['initial_station'] = cItem.route[0]  // 发站
                       cItem['stop_station'] = cItem.route[1] // 到站
@@ -1948,7 +2095,7 @@
                     })
                     this.addTrainTableArray.push(JSON.parse(JSON.stringify(this.addDataList.trips)))
 
-                  }else {
+
                     if(this.addDataList.trips.length > 0){
                       this.addDataList.trips.forEach(item =>{
                         item.info.forEach(cItem =>{
@@ -1973,7 +2120,7 @@
                       })
                       this.addTrainTableArray = JSON.parse(JSON.stringify(this.addDataList.trips))
                     }
-                  }
+
 
                   console.log(this.addTrainTableArray);
                 }else {
@@ -2089,10 +2236,11 @@
     display: block;
     align-items: unset;
     justify-content: unset;
+    position: fixed !important;
     .el-dialog {
       margin: unset !important;
-      top: 15%;
-      left: 15%;
+      top: 20%;
+      left: 30%;
     }
   }
 
@@ -2214,6 +2362,11 @@
         }
       }
     }
+  }
+
+  /*选择12306账号弹窗*/
+  .select_ticket_dialog{
+
   }
 
   .orderDetails{
@@ -2637,7 +2790,8 @@
         max-height: 700px;
       }
       .dialog_main{
-        flex: 1;
+        width: 100%;
+        flex-shrink: 0;
         padding-right: 3%;
         &:first-child{
           padding-left: 3%;
