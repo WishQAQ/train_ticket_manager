@@ -163,6 +163,7 @@
 </template>
 
 <script>
+  import Bus from '../../utlis/bus'
   export default {
     name: "orderManagement",
     components:{
@@ -240,6 +241,9 @@
        * @date 2019/10/18
       */
       jumpDetailsBtn(type,val){
+
+        Bus.$emit('newTab', type, val)
+
         if(type === 'details'){
           this.$router.push({
             path: '/orderDetails',
@@ -272,6 +276,7 @@
        * @date 2019/10/23
       */
       doubleClickDetails(val){
+        Bus.$emit('newTab', 'details', val)
         this.$router.push({
           path: '/orderDetails',
           query: {

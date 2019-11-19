@@ -7,7 +7,7 @@
     <el-tabs v-model="editableTabsValue" type="card" closable @tab-remove="removeTab" @tab-click="jumpTabPage">
       <el-tab-pane
           v-for="(item, index) in editableTabs"
-          :key="item.name"
+          :key="index"
           :name="item.name"
       >
         <span class="tab_link" slot="label"><i :class="['iconfont',item.icon]"></i> {{item.menuName}}</span>
@@ -60,6 +60,32 @@
         bus.$emit('tabName',val.name)
       },
 
+      /**
+       * @Description: 新增tab标签
+       * @author Wish
+       * @data 2019/11/20
+      */
+      addTab(type,data) {
+        let newTabName = ++this.tabIndex + '';
+        if(type === 'add'){
+          this.editableTabs.push({
+            path: '/orderDetails?type=add',
+            name: 'orderDetails',
+            menuName: '新增订单',
+            icon: 'icon-dingdan1'
+          });
+        }else if(type === 'details'){
+          this.editableTabs.push({
+            path: '/orderDetails?type=details&order_sn='+data.order_sn,
+            name: 'orderDetails',
+            menuName: '订单详情',
+            icon: 'icon-dingdan1'
+          });
+        }
+
+        this.editableTabsValue = newTabName;
+      },
+
       removeTab(targetName) {
         let tabs = this.editableTabs;
         let activeName = this.editableTabsValue;
@@ -95,6 +121,10 @@
           name: 'home'
         })
       }
+      let _that = this
+      bus.$on('newTab', (type,data) => {
+        _that.addTab(type,data)
+      })
     },
     watch:{
       '$route'(to,form){

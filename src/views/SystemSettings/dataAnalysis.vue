@@ -26,9 +26,7 @@
         </el-select></div>
       <div v-if="showClient"><el-select
           v-model="searchForm.statisticType"
-          clearable
           placeholder="请选择统计类型">
-        <el-option label="所有类型" value="all"></el-option>
         <el-option label="车票张数" value="totalTicket"></el-option>
         <el-option label="误餐费合计" value="totalMissMeals"></el-option>
         <el-option label="退票合计" value="totalRefundTicket"></el-option>
@@ -166,7 +164,7 @@
           placeholder="请选择图表类型">
         <el-option label="饼图" value="饼图"></el-option>
         <el-option label="折线图" value="折线图"></el-option>
-        <el-option label="树状图" value="树状图"></el-option>
+        <el-option label="柱状图" value="柱状图"></el-option>
       </el-select></div>
 
       <div><el-button @click="submitSearch" v-loading="loading">统计</el-button></div>
@@ -174,12 +172,12 @@
 
     <div class="data_content">
       <div class="data_charts">
-
-        <ve-line v-if="searchForm.chartsType === '折线图' && chartData.length > 0" :data-empty="dataEmpty" :data="chartData"></ve-line>
-        <Ve-pie v-if="searchForm.chartsType === '饼图' && chartData.length > 0" :data-empty="dataEmpty" :data="chartData"></Ve-pie>
-
+        <ve-line :width="'1000px'" :height="'600px'" v-if="searchForm.chartsType === '折线图' && chartData.rows.length > 0" :data-empty="dataEmpty" :data="chartData"></ve-line>
+        <Ve-pie :settings="chartSettings" :height="'600px'" v-if="searchForm.chartsType === '饼图' && chartData.rows.length > 0" :data-empty="dataEmpty" :data="chartData"></Ve-pie>
+        <Ve-histogram :width="'1000px'" :height="'600px'" v-if="searchForm.chartsType === '柱状图' && chartData.rows.length > 0" :data-empty="dataEmpty" :data="chartData"></Ve-histogram>
       </div>
-      <div class="data_table">
+      <transition name="el-fade-in-linear">
+        <div class="data_table" v-if="chartData.rows.length > 0">
         <el-table
             :data="tableData"
             border
@@ -192,15 +190,25 @@
               {{scope.$index+1}}
             </template>
           </el-table-column>
-          <el-table-column
-              align="center"
-              prop="name"
-              label="用户名">
+          <el-table-column label="用户名">
+            <template slot-scope="scope">
+              {{scope.row.name || scope.row.nickname}}
+            </template>
           </el-table-column>
           <el-table-column
               align="center"
               prop="totalTicket"
               label="车票张数">
+          </el-table-column>
+          <el-table-column
+              align="center"
+              prop="totalTicketIssue"
+              label="出票张数">
+          </el-table-column>
+          <el-table-column
+              align="center"
+              prop="totalOutTicket"
+              label="出票张数">
           </el-table-column>
           <el-table-column
               align="center"
@@ -231,6 +239,7 @@
 
         </el-table>
       </div>
+      </transition>
     </div>
 
   </div>
@@ -241,9 +250,15 @@
     name: "dataAnalysis",
     components:{
       VeLine: VeLine,
-      VePie: VePie
+      VePie: VePie,
+      VeHistogram: VeHistogram
     },
     data(){
+      this.chartSettings = {
+        radius: 200,
+        offsetY: 350
+      }
+
       return {
         loading: false,
 
@@ -359,7 +374,10 @@
 
         tableData: [], // 图表数据
 
-        chartData: [], // 图表数据组装
+        chartData: { // 图表数据组装
+          columns: [],
+          rows: []
+        },
         dataEmpty: false,
       }
     },
@@ -558,6 +576,7 @@
        * @date 2019/11/13
       */
       getChartsData(type,data){
+        console.log(this.searchForm.statisticType);
         this.loading = true
         this.$axios.post('/api/census/getData/'+type,data)
             .then(res =>{
@@ -565,21 +584,11 @@
                 this.loading = false
                 this.$message.success('获取成功')
                 this.tableData = res.data.result
+                this.chartData = {}
 
-                let nameList = []
-                this.tableData.forEach(item =>{
-                  nameList.push(item.name)
-                })
-                let dataList = []
-                this.tableData.forEach(item =>{
-                  if(item === ''){
-                    dataList.push(item)
-                  }
-                })
-                this.chartData.push({
-                  columns: nameList,
-                  rows: dataList
-                })
+                this.chartData.columns = ['name',this.searchForm.statisticType]
+                this.chartData.rows = this.tableData
+                console.log(this.chartData);
               }else {
                 this.$message.warning(res.data.msg)
                 this.loading = false
@@ -609,13 +618,14 @@
     .data_content{
       display: flex;
       justify-content: space-between;
+      margin-top: 20px;
       .data_charts{
-        width: 50%;
-
+        width: 1000px;
+        height: 600px;
       }
       .data_table{
         min-width: 700px;
-        width: 50%;
+        width: 30%;
       }
     }
   }

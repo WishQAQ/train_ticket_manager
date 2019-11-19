@@ -10,7 +10,7 @@
 
       <el-checkbox v-model="passwordChecked" class="login_checked">记住密码</el-checkbox>
 
-      <div class="login_submit" @click="submitLogin" v-loading="loading">登录</div>
+      <div class="login_submit" @click="submitLogin">登录</div>
 
     </div>
   </div>
@@ -48,7 +48,6 @@
     },
     methods:{
       submitLogin(){
-        this.loading = true
         let _this = this;
         // 判断输入状态
         if(_this.userName && _this.userPassword){
@@ -66,7 +65,6 @@
           loginByUserInfo(data)
         } else {
           _this.$message.warning('请填写完整您的登录信息')
-          this.loading = false
         }
 
 
