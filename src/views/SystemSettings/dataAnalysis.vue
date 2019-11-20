@@ -14,9 +14,8 @@
       <!-- 根据客户筛选 -->
       <div v-if="showClient"><el-select
             v-model="searchForm.client"
-            clearable
             placeholder="请选择客户">
-          <el-option label="所有客户" value="0"></el-option>
+<!--          <el-option label="所有客户" value="0"></el-option>-->
           <el-option
               v-for="item in clientList"
               :key="item.identity"
@@ -38,9 +37,8 @@
       <!-- 根据售票员筛选 -->
       <div v-if="showConductor"><el-select
           v-model="searchForm.conductor"
-          clearable
           placeholder="请选择售票员">
-        <el-option label="所有售票员" value="all"></el-option>
+<!--        <el-option label="所有售票员" value="all"></el-option>-->
         <el-option
             v-for="item in conductorList"
             :key="item.target"
@@ -59,13 +57,11 @@
 
       <!-- 根据订单提交时间 or 乘车时间 or 出票时间筛选 -->
       <div v-if="showDate"><el-date-picker
-          clearable
           v-model="searchForm.date"
           type="date"
           placeholder="选择日期">
       </el-date-picker></div>
       <div v-if="showMonth"><el-date-picker
-          clearable
           v-model="searchForm.month"
           type="month"
           placeholder="选择月份">
@@ -82,9 +78,8 @@
       <!-- 根据发单人筛选 -->
       <div v-if="showBiller"><el-select
           v-model="searchForm.biller"
-          clearable
           placeholder="请选择发单人">
-        <el-option label="所有发单人" value="0"></el-option>
+<!--        <el-option label="所有发单人" value="0"></el-option>-->
         <el-option
             v-for="item in billerList"
             :key="item.identity"
@@ -105,9 +100,8 @@
       <!-- 根据创建人or出票员 -->
       <div v-if="showTicket"><el-select
           v-model="searchForm.ticket"
-          clearable
           :placeholder="showTicketType? '请选择创建人': '请选择出票员'">
-        <el-option :label="showTicketType? '所有创建人': '所有出票员'" value="all"></el-option>
+<!--        <el-option :label="showTicketType? '所有创建人': '所有出票员'" value="all"></el-option>-->
         <el-option
             v-for="item in conductorList"
             :key="item.target"
@@ -133,7 +127,6 @@
       <!-- 根据票种 -->
       <div v-if="showTicketTypeInput"><el-select
           v-model="searchForm.ticketType"
-          clearable
           placeholder="请选择票种">
         <el-option label="成人票" value="0"></el-option>
         <el-option label="儿童票" value="1"></el-option>
@@ -142,9 +135,8 @@
       <!-- 根据用户登录 -->
       <div v-if="showLogin"><el-select
           v-model="searchForm.selectUser"
-          clearable
           placeholder="请选择用户">
-        <el-option label="全部用户" value="all"></el-option>
+<!--        <el-option label="全部用户" value="all"></el-option>-->
         <el-option
             v-for="item in conductorList"
             :key="item.target"
@@ -154,7 +146,6 @@
       </el-select></div>
       <div v-if="showLogin"><el-select
           v-model="searchForm.statisticType"
-          clearable
           placeholder="请选择票种">
         <el-option label="登录次数" value="totalLoginCount"></el-option>
         <el-option label="登录时长" value="totalLoginTime"></el-option>
@@ -172,14 +163,14 @@
 
     <div class="data_content">
       <div class="data_charts">
-        <ve-line :width="'1000px'" :height="'600px'" v-if="searchForm.chartsType === '折线图' && chartData.rows.length > 0" :data-empty="dataEmpty" :data="chartData"></ve-line>
+        <ve-line :height="'600px'" v-if="searchForm.chartsType === '折线图' && chartData.rows.length > 0" :data-empty="dataEmpty" :data="chartData"></ve-line>
         <Ve-pie :settings="chartSettings" :height="'600px'" v-if="searchForm.chartsType === '饼图' && chartData.rows.length > 0" :data-empty="dataEmpty" :data="chartData"></Ve-pie>
-        <Ve-histogram :width="'1000px'" :height="'600px'" v-if="searchForm.chartsType === '柱状图' && chartData.rows.length > 0" :data-empty="dataEmpty" :data="chartData"></Ve-histogram>
+        <Ve-histogram :height="'600px'" v-if="searchForm.chartsType === '柱状图' && chartData.rows.length > 0" :data-empty="dataEmpty" :data="chartData"></Ve-histogram>
       </div>
       <transition name="el-fade-in-linear">
         <div class="data_table" v-if="chartData.rows.length > 0">
         <el-table
-            :data="tableData"
+            :data="tableData.rows"
             border
             style="width: 100%">
           <el-table-column
@@ -192,50 +183,14 @@
           </el-table-column>
           <el-table-column label="用户名">
             <template slot-scope="scope">
-              {{scope.row.name || scope.row.nickname}}
+              {{scope.row.object}}
             </template>
           </el-table-column>
-          <el-table-column
-              align="center"
-              prop="totalTicket"
-              label="车票张数">
+          <el-table-column label="数值">
+            <template slot-scope="scope">
+              {{scope.row.value}}
+            </template>
           </el-table-column>
-          <el-table-column
-              align="center"
-              prop="totalTicketIssue"
-              label="出票张数">
-          </el-table-column>
-          <el-table-column
-              align="center"
-              prop="totalOutTicket"
-              label="出票张数">
-          </el-table-column>
-          <el-table-column
-              align="center"
-              prop="totalMissMeals"
-              label="误餐费合计">
-          </el-table-column>
-          <el-table-column
-              align="center"
-              prop="totalRefundTicket"
-              label="退票合计">
-          </el-table-column>
-          <el-table-column
-              align="center"
-              prop="totalDiscount"
-              label="优惠合计">
-          </el-table-column>
-          <el-table-column
-              align="center"
-              prop="totalProfit"
-              label="利润合计">
-          </el-table-column>
-          <el-table-column
-              align="center"
-              prop="totalReceivables"
-              label="应收款合计">
-          </el-table-column>
-
 
         </el-table>
       </div>
@@ -374,7 +329,8 @@
 
         tableData: [], // 图表数据
 
-        chartData: { // 图表数据组装
+        // 图表数据组装
+        chartData: {
           columns: [],
           rows: []
         },
@@ -581,19 +537,26 @@
         this.$axios.post('/api/census/getData/'+type,data)
             .then(res =>{
               if(res.data.code === 0){
+                console.log(res);
                 this.loading = false
                 this.$message.success('获取成功')
                 this.tableData = res.data.result
-                this.chartData = {}
 
-                this.chartData.columns = ['name',this.searchForm.statisticType]
-                this.chartData.rows = this.tableData
+                setTimeout(() => {
+                  this.chartData = this.tableData
+                  this.dataEmpty = !this.chartData.rows.length
+                }, 1000)
+
+
+
                 console.log(this.chartData);
               }else {
                 this.$message.warning(res.data.msg)
                 this.loading = false
               }
-            })
+            }).catch(() =>{
+          this.loading = false
+        })
       },
 
     },
@@ -620,11 +583,10 @@
       justify-content: space-between;
       margin-top: 20px;
       .data_charts{
-        width: 1000px;
+        width: 70%;
         height: 600px;
       }
       .data_table{
-        min-width: 700px;
         width: 30%;
       }
     }

@@ -45,14 +45,15 @@
             label="操作"
             width="80">
           <template slot-scope="scope">
-            <el-dropdown trigger="click">
-              <el-button size="mini">操作</el-button>
-              <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item><el-button type="text" @click="editSeatBtn(scope.row)">编辑</el-button></el-dropdown-item>
-                <el-dropdown-item><el-button type="text" @click="editStatusBtn(scope.row)">{{scope.row.status === 0? '停用' : '启用'}}</el-button></el-dropdown-item>
-                <el-dropdown-item><el-button type="text" @click="deleteSeatBtn(scope.row)">删除</el-button></el-dropdown-item>
-              </el-dropdown-menu>
-            </el-dropdown>
+            <el-button type="text" size="mini" @click="editSeatBtn(scope.row)">编辑</el-button>
+<!--            <el-dropdown trigger="click">-->
+<!--              <el-button size="mini">操作</el-button>-->
+<!--              <el-dropdown-menu slot="dropdown">-->
+<!--                <el-dropdown-item><el-button type="text" @click="editSeatBtn(scope.row)">编辑</el-button></el-dropdown-item>-->
+<!--                <el-dropdown-item><el-button type="text" @click="editStatusBtn(scope.row)">{{scope.row.status === 0? '停用' : '启用'}}</el-button></el-dropdown-item>-->
+<!--                <el-dropdown-item><el-button type="text" @click="deleteSeatBtn(scope.row)">删除</el-button></el-dropdown-item>-->
+<!--              </el-dropdown-menu>-->
+<!--            </el-dropdown>-->
           </template>
         </el-table-column>
       </el-table>

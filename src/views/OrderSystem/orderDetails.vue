@@ -48,7 +48,7 @@
           <div>{{orderInfo.order_sn}}</div>
           <div>
             <span>客户商</span>
-            <el-select  @change="getBillerData(orderInfo.cname)" v-model="orderInfo.cname" :disabled="inputDisabled" placeholder="请选择">
+            <el-select filterable @change="getBillerData(orderInfo.cname)" v-model="orderInfo.cname" :disabled="inputDisabled" placeholder="请选择">
               <el-option
                   v-for="item in customerList"
                   :key="item.id"
@@ -59,7 +59,7 @@
           </div>
           <div>
             <span>发单人</span>
-            <el-select v-model="orderInfo.dName" :disabled="inputDisabled" placeholder="请选择">
+            <el-select filterable v-model="orderInfo.dName" :disabled="inputDisabled" placeholder="请选择">
               <el-option
                   v-for="item in billerList"
                   :key="item.id"
@@ -561,6 +561,7 @@
               <div class="content_route" v-for="(cItem,cIndex) in item.route" :key="cIndex">
                 <div class="content_edit_time">
                   <el-date-picker
+                      :disabled="item.is_lock"
                       @input="change($event)"
                       v-model="item.riding_time"
                       type="date"
@@ -568,9 +569,9 @@
                   </el-date-picker>
                 </div>
                 <div class="route_message edit_route_message">
-                  <span><el-input clearable @input="change($event)" v-model="item.departure_station" :placeholder="cItem.departure_station"></el-input></span>
-                  <p><el-input clearable @input="change($event)" v-model="item.trips_number" :placeholder="cItem.trips_number"></el-input></p>
-                  <span><el-input clearable @input="change($event)" v-model="item.arrival_station" :placeholder="cItem.arrival_station"></el-input></span>
+                  <span><el-input :disabled="item.is_lock" clearable @input="change($event)" v-model="item.departure_station" :placeholder="cItem.departure_station"></el-input></span>
+                  <p><el-input :disabled="item.is_lock" clearable @input="change($event)" v-model="item.trips_number" :placeholder="cItem.trips_number"></el-input></p>
+                  <span><el-input :disabled="item.is_lock" clearable @input="change($event)" v-model="item.arrival_station" :placeholder="cItem.arrival_station"></el-input></span>
                 </div>
               </div>
             </div>
@@ -2116,27 +2117,6 @@
                    * @date 2019/10/24
                    */
 
-                    this.addDataList.trips.info.forEach(cItem =>{
-                      cItem['initial_station'] = cItem.route[0]  // 发站
-                      cItem['stop_station'] = cItem.route[1] // 到站
-                      cItem['riding_time'] = cItem.ride_date  // 发车时间
-                      cItem['trips_number'] = cItem.train_number  // 车次
-                      delete cItem.route
-                      delete cItem.ride_date
-                      delete cItem.train_number
-                      cItem.passenger.forEach(dItem =>{
-                        dItem['IDCard'] = dItem.card  // 身份证
-                        dItem['ticket_type'] = dItem.is_child    // 车票类型
-                        dItem['ticket_type'] = dItem.is_child === 0 ? '成人票' :'儿童票'   // 车票类型
-                        dItem['ticket_species'] = this.addDataList.ticketType
-                        dItem['remarks'] = ''  // 备注
-                        dItem['missed_meals_money'] = '5'  // 误餐费
-                        delete dItem.card
-                        delete dItem.is_child
-                      })
-                    })
-                    this.addTrainTableArray.push(JSON.parse(JSON.stringify(this.addDataList.trips)))
-
 
                     if(this.addDataList.trips.length > 0){
                       this.addDataList.trips.forEach(item =>{
@@ -2162,6 +2142,26 @@
                       })
                       this.addTrainTableArray = JSON.parse(JSON.stringify(this.addDataList.trips))
                     }
+                  this.addDataList.trips.info.forEach(cItem =>{
+                    cItem['initial_station'] = cItem.route[0]  // 发站
+                    cItem['stop_station'] = cItem.route[1] // 到站
+                    cItem['riding_time'] = cItem.ride_date  // 发车时间
+                    cItem['trips_number'] = cItem.train_number  // 车次
+                    delete cItem.route
+                    delete cItem.ride_date
+                    delete cItem.train_number
+                    cItem.passenger.forEach(dItem =>{
+                      dItem['IDCard'] = dItem.card  // 身份证
+                      dItem['ticket_type'] = dItem.is_child    // 车票类型
+                      dItem['ticket_type'] = dItem.is_child === 0 ? '成人票' :'儿童票'   // 车票类型
+                      dItem['ticket_species'] = this.addDataList.ticketType
+                      dItem['remarks'] = ''  // 备注
+                      dItem['missed_meals_money'] = '5'  // 误餐费
+                      delete dItem.card
+                      delete dItem.is_child
+                    })
+                  })
+                  this.addTrainTableArray.push(JSON.parse(JSON.stringify(this.addDataList.trips)))
 
 
                   console.log(this.addTrainTableArray);
@@ -2200,7 +2200,8 @@
       */
       allAddSubmit(){
         this.allAddSubmitLoading = true
-        let orderList = JSON.parse(JSON.stringify(this.addTrainTableArray))
+        let orderList = []
+        orderList = JSON.parse(JSON.stringify(this.addTrainTableArray))
         orderList.forEach(item =>{
           item.info.forEach(cItem =>{
             cItem.riding_time = this.$dateToDate(cItem.riding_time)  // 发车时间
@@ -2231,6 +2232,9 @@
               if(res.data.code === 0){
                 this.$message.success('保存成功')
                 this.allAddSubmitLoading = false
+                setTimeout(() =>{
+                  this.$router.back(-1)
+                },500)
               }else {
                 this.$message.warning(res.data.msg)
                 this.allAddSubmitLoading = false
