@@ -246,14 +246,15 @@
         </div>
       </div>
 
-      <el-button
-          v-if="addTrainTableArray.length > 0"
-          class="submitAllDataBtn"
-          type="primary"
-          v-loading="allAddSubmitLoading"
-          @click="allAddSubmit">
-        全部保存
-      </el-button>
+      <div class="submitAllDataBtn">
+        <el-button
+            v-if="addTrainTableArray.length > 0"
+            type="primary"
+            v-loading="allAddSubmitLoading"
+            @click="allAddSubmit">
+          全部保存
+        </el-button>
+      </div>
 
     </div>
 
@@ -2443,7 +2444,8 @@
   }
 
   .orderDetails{
-    padding: 20px 80px;
+    padding: 20px 80px 60px;
+    position: relative;
     .edit_order_btn{
       padding: 12px 50px;
       margin-bottom: 34px;
@@ -2791,9 +2793,22 @@
     }
     /*提交按钮*/
     .submitAllDataBtn{
-      margin: 30px auto 0;
       display: flex;
-      padding: 12px 60px;
+      align-items: center;
+      justify-content: center;
+      height: 80px;
+      width: 100%;
+      min-width: 1450px;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      background: #fff;
+      box-shadow: 0 2px 12px 0 rgba(0,0,0,.1);
+      z-index: 1;
+      /deep/.el-button{
+        padding: 12px 60px;
+      }
+
     }
 
     /*新增乘客弹窗*/
