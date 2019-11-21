@@ -1065,8 +1065,6 @@
         this.$nextTick(() => {
           this.showTable = true
         })
-
-
       },
     },
     created() {
