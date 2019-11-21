@@ -1,6 +1,7 @@
 <template>
   <div class="orderDetails" v-loading="loading">
     <el-button class="edit_order_btn" type="primary" v-if="urlType === 'details'" @click="openEditBtn">编辑订单</el-button>
+
     <div class="order_header" v-if="urlType !== 'add'">
       <div class="header_title" @click="openHeaderDetailsBtn">
         <i v-if="!headerDetails" class="el-icon-circle-plus-outline"></i>
@@ -9,7 +10,19 @@
       </div>
       <el-button class="header_btn" v-if="urlType === 'details' && this.orderInfo.source_file">原始文件下载</el-button>
     </div>
-
+    <!-- Q群信息展开 -->
+    <el-collapse-transition>
+      <div class="header_header_details" v-show="headerDetails">
+        <el-input
+            placeholder="暂无需求信息"
+            type="textarea"
+            resize="none"
+            :rows="6"
+            v-model="orderInfo.group_origin_data"
+            disabled>
+        </el-input>
+      </div>
+    </el-collapse-transition>
 
     <div class="order_header_add" v-if="urlType === 'add'">
       <div class="add_title">订单Q群原始信息</div>
@@ -26,19 +39,11 @@
       <el-button v-if="addBtnType" class="add_btn" @click="addGroupBtn" v-loading="addBtnDisabled">识别</el-button>
     </div>
 
-    <!-- Q群信息展开 -->
-    <el-collapse-transition>
-      <div class="header_header_details" v-show="headerDetails">
-        <el-input
-            placeholder="暂无需求信息"
-            type="textarea"
-            resize="none"
-            :rows="6"
-            v-model="orderInfo.group_origin_data"
-            disabled>
-        </el-input>
-      </div>
-    </el-collapse-transition>
+    <div class="order_header_identification" v-if="urlType === 'add'">
+
+    </div>
+
+
 
     <!-- 用户初始信息 -->
     <div class="order_info">
@@ -368,6 +373,7 @@
                 v-on:tableRowsData="editTableRows"
                 v-on:checkTableData="checkTableList"
                 v-on:jumpPayTicket="jumpPayTicket"
+                v-on:jumpEditTicket="jumpEditTicket"
                 :tableModify="urlType"
                 :index="index"
                 :cIndex="cIndex"
@@ -520,7 +526,7 @@
     <el-dialog
         v-dialogDrag
         title="批量修改"
-        width="30%"
+        width="35%"
         :close-on-click-modal="false"
         :close-on-press-escape="false"
         :show-close="false"
@@ -557,9 +563,9 @@
         <!--出票 or 改签-->
         <div class="ticket_box" v-if="item.ticket_status === '1' || item.ticket_status === '3'">
           <div class="main_box">
-            <div class="main_box_content">
+            <div class="main_box_content" style="padding-left: 5px">
               <div class="content_route" v-for="(cItem,cIndex) in item.route" :key="cIndex">
-                <div class="content_edit_time">
+                <div class="content_edit_time" style="width: 135px;flex-shrink: 0;">
                   <el-date-picker
                       :disabled="item.is_lock"
                       @input="change($event)"
@@ -568,10 +574,26 @@
                       :placeholder="$getTimeYear(cItem.riding_time * 1000)">
                   </el-date-picker>
                 </div>
-                <div class="route_message edit_route_message">
-                  <span><el-input :disabled="item.is_lock" clearable @input="change($event)" v-model="item.departure_station" :placeholder="cItem.departure_station"></el-input></span>
-                  <p><el-input :disabled="item.is_lock" clearable @input="change($event)" v-model="item.trips_number" :placeholder="cItem.trips_number"></el-input></p>
-                  <span><el-input :disabled="item.is_lock" clearable @input="change($event)" v-model="item.arrival_station" :placeholder="cItem.arrival_station"></el-input></span>
+                <div class="route_message edit_route_message" style="margin-left: 5px">
+                  <div style="width: 105px"><el-input clearable :disabled="item.is_lock" @input="change($event)" v-model="item.departure_station" :placeholder="cItem.departure_station"></el-input></div>
+                  <div style="width: 60px">
+                    <el-select clearable @input="change($event)" v-model="item.directionOne" placeholder="">
+                      <el-option label="东" value="东"></el-option>
+                      <el-option label="南" value="南"></el-option>
+                      <el-option label="西" value="西"></el-option>
+                      <el-option label="北" value="北"></el-option>
+                    </el-select>
+                  </div>
+                  <p style="margin: 0 5px"><el-input clearable :disabled="item.is_lock" @input="change($event)" v-model="item.trips_number" :placeholder="cItem.trips_number"></el-input></p>
+                  <div style="width: 105px"><el-input clearable :disabled="item.is_lock" @input="change($event)" v-model="item.arrival_station" :placeholder="cItem.arrival_station"></el-input></div>
+                  <div style="width: 60px">
+                    <el-select clearable @input="change($event)" v-model="item.directionTwo" placeholder="">
+                      <el-option label="东" value="东"></el-option>
+                      <el-option label="南" value="南"></el-option>
+                      <el-option label="西" value="西"></el-option>
+                      <el-option label="北" value="北"></el-option>
+                    </el-select>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1201,6 +1223,23 @@
       },
 
       /**
+       * @Description: 跳转12306 退票or改签
+       * @author Wish
+       * @date 2019/11/21
+      */
+      jumpEditTicket(userInfo,orderInfo,type){
+        console.log(userInfo, orderInfo,type);
+        let info = {
+          account: userInfo.account,
+          password: userInfo.password
+        }
+        chrome.runtime.sendMessage('lllkokaleehidhcdcgccocpkhgiihjob', {data:{action:type,order:info}},
+            function(response) {});
+        window.open("https://kyfw.12306.cn/otn/resources/login.html",'_blank')
+
+      },
+
+      /**
        * @Description: 获取12306账号
        * @author Wish
        * @date 2019/11/18
@@ -1743,14 +1782,27 @@
        * @date 2019/11/12
       */
       submitEditRoute(val){
+        console.log(val);
         this.editRouteDialog = false
         let newForm = {}  // 路线信息
         newForm['type'] = 0
         newForm['route_id'] = this.editRouteData.route_id
         newForm['passengers'] = this.editRouteData.passengers
         newForm['riding_time'] =  this.$dateToDate(this.editRouteData.riding_time)  || val.riding_time
-        newForm['departure'] = this.editRouteData.departure_station  || val.departure_station
-        newForm['arrive'] = this.editRouteData.arrival_station  || val.arrival_station
+
+        if(this.editRouteData.departure_station){
+          newForm['departure'] = this.editRouteData.directionOne? this.editRouteData.departure_station +this.editRouteData.directionOne:this.editRouteData.departure_station
+        }else {
+          newForm['departure'] = this.editRouteData.directionOne? val.departure_station +this.editRouteData.directionOne:val.departure_station
+        }
+        if(this.editRouteData.arrival_station){
+          newForm['arrive'] = this.editRouteData.directionTwo? this.editRouteData.arrival_station +this.editRouteData.directionTwo:this.editRouteData.arrival_station
+        }else {
+          newForm['arrive'] = this.editRouteData.directionTwo? val.arrival_station +this.editRouteData.directionTwo:val.arrival_station
+        }
+
+        // newForm['departure'] = this.editRouteData.directionOne? val.departure_station +this.editRouteData.directionOne || this.editRouteData.departure_station +this.editRouteData.directionOne: this.editRouteData.departure_station ||  val.departure_station
+        // newForm['arrive'] = this.editRouteData.directionTwo? val.arrival_station +this.editRouteData.directionTwo || this.editRouteData.arrival_station +this.editRouteData.directionTwo: val.arrival_station || this.editRouteData.arrival_station
         newForm['trips_number'] = this.editRouteData.trips_number  || val.trips_number
 
         let newEditForm = {}  // 修改输入框信息
@@ -1770,13 +1822,14 @@
         for(let key in this.checkedTableList){
           newToken = String(this.editOrderToken[key])
         }
+        console.log(info);
         let data = {
           order_sn: this.orderId,
           token: newToken,
           ticket_status: this.routeStatus,
           info: JSON.stringify(info)
         }
-        // console.log(data);
+        console.log(data);
         this.$axios.post('/api/order/routeInfo/editBatch',data)
             .then(res =>{
               if(res.data.code === 0){
@@ -1793,6 +1846,7 @@
        * @date 2019/11/1
       */
       saveEditBtn(status,editData,route){
+        console.log(editData);
         this.routeStatus = status
         this.editRouteInfo = route  // 获取原路线信息
         this.editRouteData = editData  // 获取当前输入框数据
@@ -1808,8 +1862,8 @@
             newForm['route_id'] = this.editRouteData.route_id
             newForm['passengers'] = this.editRouteData.passengers
             newForm['riding_time'] =  this.editRouteData.route[0].riding_time
-            newForm['departure'] = this.editRouteData.route[0].departure_station
-            newForm['arrive'] = this.editRouteData.route[0].arrival_station
+            newForm['departure'] = this.editRouteData.directionOne?this.editRouteData.route[0].departure_station + this.editRouteData.directionOne:this.editRouteData.route[0].departure_station
+            newForm['arrive'] = this.editRouteData.directionTwo?this.editRouteData.route[0].arrival_station + this.editRouteData.directionTwo:this.editRouteData.route[0].arrival_station
             newForm['trips_number'] = this.editRouteData.route[0].trips_number
 
             let newEditForm = {}  // 修改输入框信息
@@ -1825,6 +1879,7 @@
             info['condition'] = []
             info['params'] = newEditForm
             info.condition.push(newForm)
+            console.log(info);
 
             let newToken = ''
             for(let key in this.checkedTableList){
@@ -1941,11 +1996,6 @@
           }]
         }else if(this.strokeTableType === '中转'){
           this.addStrokeArr = [{
-            riding_time: '',  // 行程时间
-            initial_station: '',  // 发站
-            stop_station: '', // 到站
-            trips_number: '',  // 车次
-          },{
             riding_time: '',  // 行程时间
             initial_station: '',  // 发站
             stop_station: '', // 到站
@@ -2141,29 +2191,28 @@
                         })
                       })
                       this.addTrainTableArray = JSON.parse(JSON.stringify(this.addDataList.trips))
+                    }else {
+                      this.addDataList.trips.info.forEach(cItem =>{
+                        cItem['initial_station'] = cItem.route[0]  // 发站
+                        cItem['stop_station'] = cItem.route[1] // 到站
+                        cItem['riding_time'] = cItem.ride_date  // 发车时间
+                        cItem['trips_number'] = cItem.train_number  // 车次
+                        delete cItem.route
+                        delete cItem.ride_date
+                        delete cItem.train_number
+                        cItem.passenger.forEach(dItem =>{
+                          dItem['IDCard'] = dItem.card  // 身份证
+                          dItem['ticket_type'] = dItem.is_child    // 车票类型
+                          dItem['ticket_type'] = dItem.is_child === 0 ? '成人票' :'儿童票'   // 车票类型
+                          dItem['ticket_species'] = this.addDataList.ticketType
+                          dItem['remarks'] = ''  // 备注
+                          dItem['missed_meals_money'] = '5'  // 误餐费
+                          delete dItem.card
+                          delete dItem.is_child
+                        })
+                      })
+                      this.addTrainTableArray.push(JSON.parse(JSON.stringify(this.addDataList.trips)))
                     }
-                  this.addDataList.trips.info.forEach(cItem =>{
-                    cItem['initial_station'] = cItem.route[0]  // 发站
-                    cItem['stop_station'] = cItem.route[1] // 到站
-                    cItem['riding_time'] = cItem.ride_date  // 发车时间
-                    cItem['trips_number'] = cItem.train_number  // 车次
-                    delete cItem.route
-                    delete cItem.ride_date
-                    delete cItem.train_number
-                    cItem.passenger.forEach(dItem =>{
-                      dItem['IDCard'] = dItem.card  // 身份证
-                      dItem['ticket_type'] = dItem.is_child    // 车票类型
-                      dItem['ticket_type'] = dItem.is_child === 0 ? '成人票' :'儿童票'   // 车票类型
-                      dItem['ticket_species'] = this.addDataList.ticketType
-                      dItem['remarks'] = ''  // 备注
-                      dItem['missed_meals_money'] = '5'  // 误餐费
-                      delete dItem.card
-                      delete dItem.is_child
-                    })
-                  })
-                  this.addTrainTableArray.push(JSON.parse(JSON.stringify(this.addDataList.trips)))
-
-
                   console.log(this.addTrainTableArray);
                 }else {
                   this.addBtnDisabled = false
@@ -2831,6 +2880,7 @@
 
     /*批量编辑*/
     /deep/.batch_edit_dialog{
+      min-width: 625px;
       .el-dialog__body{
         display: flex;
         align-items: flex-start;

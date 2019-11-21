@@ -43,7 +43,7 @@
         </el-table-column>
         <el-table-column
             label="操作"
-            width="80">
+            width="50">
           <template slot-scope="scope">
             <el-button type="text" size="mini" @click="editSeatBtn(scope.row)">编辑</el-button>
 <!--            <el-dropdown trigger="click">-->

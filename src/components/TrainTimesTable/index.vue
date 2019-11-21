@@ -122,7 +122,7 @@
               @blur="loseFcous(tableData, scope.row, 'ticketing_time', scope.row.ticketing_time)"
               placeholder="选择日期">
           </el-date-picker>
-          <span style="margin-left: 10px" v-else>{{$getTimeYear(scope.row.ticketing_time * 1000) || ''}}</span>
+          <span v-else>{{$getTimeYear(scope.row.ticketing_time * 1000) || ''}}</span>
         </template>
       </el-table-column>
       <el-table-column
@@ -134,7 +134,7 @@
               v-if="tableModify === 'edit'"
               @blur="loseFcous(tableData, scope.row, 'payment_account', scope.row.payment_account)">
           </el-input>
-          <span style="margin-left: 10px" v-else>{{$aliPayOrTelPhone(scope.row.payment_account)}}</span>
+          <span v-else>{{$aliPayOrTelPhone(scope.row.payment_account)}}</span>
         </template>
       </el-table-column>
       <el-table-column
@@ -146,7 +146,7 @@
               v-if="tableModify === 'edit'"
               @blur="loseFcous(tableData, scope.row, 'payment_flow_number', scope.row.payment_flow_number)">
           </el-input>
-          <span style="margin-left: 10px" v-else>{{scope.row.payment_flow_number}}</span>
+          <span v-else>{{scope.row.payment_flow_number}}</span>
         </template>
       </el-table-column>
       <el-table-column
@@ -158,15 +158,35 @@
               v-if="tableModify === 'edit'"
               @blur="loseFcous(tableData, scope.row, 'db_auftragsnummer', scope.row.account)">
           </el-input>
-          <span style="margin-left: 10px" v-else>{{scope.row.account}}</span>
+          <span v-else>{{scope.row.account}}</span>
         </template>
       </el-table-column>
       <el-table-column
-          width="50"
+          v-if="showTableRows"
+          label="12306密码">
+        <template slot-scope="scope">
+          <el-input
+              v-model="scope.row.password"
+              v-if="tableModify === 'edit'"
+              @blur="loseFcous(tableData, scope.row, 'db_auftragsnummer', scope.row.password)">
+          </el-input>
+          <span v-else>{{scope.row.password}}</span>
+        </template>
+      </el-table-column>
+      <el-table-column
+          width="80"
           v-if="tableModify === 'details'"
           label="操作">
         <template slot-scope="scope">
-          <el-button size="mini" type="text" @click="jumpPayTicket(scope.row,scope.$index)" :disabled="scope.row.ticket_status !== 0">购票</el-button>
+          <el-dropdown trigger="click">
+            <el-button size="mini" :disabled="scope.row.ticket_status === 2 || scope.row.ticket_status === 4">操作</el-button>
+            <el-dropdown-menu slot="dropdown">
+              <el-dropdown-item><el-button size="mini" type="text" @click="jumpPayTicket(scope.row,scope.$index)" v-if="scope.row.ticket_status === 0">购票</el-button></el-dropdown-item>
+              <el-dropdown-item><el-button size="mini" type="text" @click="jumpEditTicket(scope.row,'refund')" v-if="scope.row.ticket_status === 1 || scope.row.ticket_status === 3">退票</el-button></el-dropdown-item>
+              <el-dropdown-item><el-button size="mini" type="text" @click="jumpEditTicket(scope.row,'change')" v-if="scope.row.ticket_status === 1">改签</el-button></el-dropdown-item>
+            </el-dropdown-menu>
+          </el-dropdown>
+
         </template>
       </el-table-column>
     </el-table>
@@ -231,6 +251,15 @@
       */
       jumpPayTicket(val){
         this.$emit('jumpPayTicket',val,this.orderInfo)
+      },
+
+      /**
+       * @Description: 跳转12306退票or改签
+       * @author Wish
+       * @date 2019/11/21
+      */
+      jumpEditTicket(val,type){
+        this.$emit('jumpEditTicket',val,this.orderInfo,type)
       },
     },
   }

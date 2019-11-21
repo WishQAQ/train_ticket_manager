@@ -40,7 +40,7 @@
           <div style="width: 80px;flex-shrink: 0;">操作</div>
         </div>
         <div class="content_main">
-          <div class="main_list" v-for="(item, index) in tableData" :key="index" @dblclick="doubleClickDetails(item)">
+          <div :class="['main_list',{'is_top': item.is_top === 1}]" v-for="(item, index) in tableData" :key="index" @dblclick="doubleClickDetails(item)">
             <div class="list_num">
               <div style="width: 60px">{{index+1}}</div>
               <div style="width: 60px">
@@ -208,10 +208,9 @@
                         this.$route.meta.name === '新备注订单列表'? 4: ''
 
         let data = {
-          page: this.page || null,
-          per_page: this.per_page
+          page: this.page || null
         }
-        this.$axios.get('/api/order/list/'+this.viewsType,{params:data})
+        this.$axios.get('/api/order/list/'+this.viewsType + '/'+ this.per_page,{params:data})
             .then(res =>{
               this.loading = false;
               this.tableData = res.data.data
@@ -554,6 +553,19 @@
             border-top: unset;
             width: 100%;
             transition: all .3s;
+            &.is_top{
+              position: relative;
+              &::before{
+                content: '';
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 0;
+                height: 0;
+                border-top: 30px solid #ebeef5;
+                border-right: 30px solid transparent;
+              }
+            }
             &:hover{
               background: #f9f9f9;
             }

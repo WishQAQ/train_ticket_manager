@@ -18,8 +18,13 @@
         </el-select>
       </div>
       <div>
-        <el-select v-model="searchForm.customer" placeholder="客户选择" clearable>
+        <el-select v-model="searchForm.customer" placeholder="客户选择" clearable  @change="selectCustomer(searchForm.customer)">
           <el-option v-for="item in client" :key="item.id" :label="item.name" :value="item.identity"></el-option>
+        </el-select>
+      </div>
+      <div>
+        <el-select v-model="searchForm.issuer" placeholder="发单人选择" clearable>
+          <el-option v-for="item in issuerList" :key="item.id" :label="item.name" :value="item.id"></el-option>
         </el-select>
       </div>
       <div class="block">
@@ -37,9 +42,6 @@
             type="date"
             placeholder="结束时间">
         </el-date-picker>
-      </div>
-      <div>
-        <el-input clearable placeholder="发单人" v-model="searchForm.issuer"></el-input>
       </div>
       <div>
         <el-button type="primary" @click="search">搜索</el-button>
@@ -66,7 +68,8 @@
 
         <el-table-column
             type="selection"
-            width="55">
+            align="center"
+            width="45">
         </el-table-column>
 
         <el-table-column
@@ -205,13 +208,10 @@
 
         <el-table-column
             align="center"
+            width="80"
             label="对账单号">
           <template slot-scope="scope">
-            <span
-                class="statement_number"
-                @click="jumpOrderDetails(item)"
-                v-for="(item,index) in scope.row.bill_numbers"
-                :key="index">{{item}}</span>
+            <el-button size="mini" :disabled="scope.row.bill_numbers.length < 1" @click="viewBillNumberBtn(scope.row.bill_numbers)">查看</el-button>
           </template>
         </el-table-column>
 
@@ -225,6 +225,7 @@
         <el-table-column
             prop="order_status"
             align="center"
+            width="80px"
             label="订单状态">
           <template slot-scope="scope">
             {{scope.row.order_status === 0?'未处理':'已处理'}}
@@ -261,6 +262,16 @@
           :visible.sync="groupDialog">
         <div class="group_message_dialog">
           {{groupMessage}}
+        </div>
+      </el-dialog>
+
+      <!-- 对账单号列表 -->
+      <el-dialog
+          title="对账单号列表"
+          width="30%"
+          :visible.sync="viewBillNumberDialog">
+        <div class="view_bill_number_dialog">
+          <p v-for="(item,index) in billNumberList" :key="index" @click="jumpOrderDetails(item)">{{item}}</p>
         </div>
       </el-dialog>
 
@@ -492,11 +503,16 @@
         showEditInput: false, // 单元格修改
         editTotalData: '', // 修改数据
 
+        viewBillNumberDialog: false, // 对账单号弹窗
+        billNumberList: [],  // 对账单号列表
+
         remarkDialog: false, // 备注弹窗
         remarkMessage: '12312', // 备注信息
         orderId: '', // 订单号ID
 
-        client: [],  // 发单人列表
+        client: [],  // 客户商列表
+        issuerList: [], // 发单人列表
+
         OrderDetailsDialog: false,  // 详情弹窗
         OrderDetailsTable: [], // 详情弹窗表格
         /**
@@ -537,9 +553,10 @@
     methods:{
       //获取列表
       getData(){
+        this.paginationList ={}
         this.loading = true;
         let data = {
-          page: this.page || ''
+          page: this.page || null
         }
         this.$axios.get('/api/finance/getInfo/'+this.viewsType+'/'+this.per_page,{params: data})
             .then(res =>{
@@ -588,10 +605,9 @@
       //搜索
       search(){
         this.loading = true;
-        let data ={
-
-        }
-        this.$axios.post('/api/finance/getInfo/'+this.viewsType+'/'+this.per_page,data)
+        this.searchForm.begin = this.$dateToMs(this.searchForm.begin) / 1000
+        this.searchForm.end = this.$dateToMs(this.searchForm.end) / 1000
+        this.$axios.post('/api/finance/getInfo/'+this.viewsType+'/'+this.per_page,this.searchForm)
             .then(res =>{
               this.tableData = res.data.data;
               this.showTable = true
@@ -612,6 +628,20 @@
             .then(res =>{
               this.client = res.data.result;
             })
+      },
+
+      /**
+       * @Description: 选中客户商
+       * @author Wish
+       * @date 2019/11/21
+      */
+      selectCustomer(val){
+        this.searchForm.issuer = ''
+        this.client.forEach(res =>{
+          if(res.identity === val){
+            this.issuerList = res.issuer
+          }
+        })
       },
 
       /**
@@ -661,6 +691,17 @@
       */
       closedEditTotal(){
 
+      },
+
+      /**
+       * @Description: 打开对账单号弹窗
+       * @author Wish
+       * @date 2019/11/21
+      */
+      viewBillNumberBtn(val){
+        this.billNumberList = []
+        this.billNumberList = val
+        this.viewBillNumberDialog = true
       },
 
       /**
@@ -735,7 +776,6 @@
               if(res.data.code === 0){
                 this.OrderRemarkTable = res.data.result.data
                 this.RemarkPaginationList = res.data.result
-                console.log(this.RemarkPaginationList);
               }
             })
       },
@@ -1169,5 +1209,24 @@
   }
   .group_message_dialog{
     white-space: pre-wrap;
+  }
+  .view_bill_number_dialog{
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    min-height: 100px;
+    >p{
+      width: 50%;
+      padding: 0 5px;
+      text-align: center;
+      cursor: pointer;
+      transition: all .3s;
+      &:hover{
+        color: #409EFF;
+      }
+      &:nth-child(1n){
+        margin-bottom: 12px;
+      }
+    }
   }
 </style>
