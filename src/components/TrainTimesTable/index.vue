@@ -156,7 +156,7 @@
           <el-input
               v-model="scope.row.account"
               v-if="tableModify === 'edit'"
-              @blur="loseFcous(tableData, scope.row, 'db_auftragsnummer', scope.row.account)">
+              @blur="loseFcous(tableData, scope.row, 'account', scope.row.account)">
           </el-input>
           <span v-else>{{scope.row.account}}</span>
         </template>
@@ -168,7 +168,7 @@
           <el-input
               v-model="scope.row.password"
               v-if="tableModify === 'edit'"
-              @blur="loseFcous(tableData, scope.row, 'db_auftragsnummer', scope.row.password)">
+              @blur="loseFcous(tableData, scope.row, 'password', scope.row.password)">
           </el-input>
           <span v-else>{{scope.row.password}}</span>
         </template>

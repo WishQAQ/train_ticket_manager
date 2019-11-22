@@ -376,6 +376,7 @@
                 v-on:tableRowsData="editTableRows"
                 v-on:checkTableData="checkTableList"
                 v-on:jumpPayTicket="jumpPayTicket"
+                v-on:jumpEditTicket="jumpEditTicket"
                 :tableModify="urlType"
                 :index="index"
                 :cIndex="cIndex"
@@ -470,13 +471,15 @@
         </div>
       </div>
 
-      <el-button
-          class="submitAllDataBtn"
-          v-if="urlType === 'edit'"
-          type="primary"
-          @click="allEditSubmit">
-        全部保存
-      </el-button>
+      <div class="submitAllDataBtn">
+        <el-button
+            v-if="urlType === 'edit'"
+            type="primary"
+            @click="allEditSubmit">
+          全部保存
+        </el-button>
+      </div>
+
 
     </div>
 
@@ -1214,6 +1217,24 @@
         console.log(this.userOrderInfo);
         this.$message.success('正在整理您的12306账号列表，请勿刷新页面')
         this.getUserAccountList()
+      },
+
+      /**
+       * @Description: 跳转12306 退票or改签
+       * @author Wish
+       * @date 2019/11/21
+       */
+      jumpEditTicket(userInfo,orderInfo,type){
+        console.log(userInfo, orderInfo,type);
+        // let info = {
+        //   account: userInfo.account,
+        //   password: userInfo.password
+        // }
+        userInfo['type'] = type
+        chrome.runtime.sendMessage('lllkokaleehidhcdcgccocpkhgiihjob', {data:{action:type,order:userInfo}},
+            function(response) {});
+        window.open("https://kyfw.12306.cn/otn/resources/login.html",'_blank')
+
       },
 
       /**
