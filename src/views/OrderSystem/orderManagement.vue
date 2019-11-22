@@ -626,6 +626,11 @@
           }
         }
       }
+      .table_bottom{
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+      }
     }
   }
 </style>

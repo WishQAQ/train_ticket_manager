@@ -332,6 +332,8 @@
         background:rgba(238,247,255,.9);
         flex-shrink: 0;
         max-height: 330px;
+        transition: all .3s;
+
       }
       .nav_mask_click{
         height: 100%;

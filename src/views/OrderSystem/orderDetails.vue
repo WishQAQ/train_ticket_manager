@@ -44,7 +44,8 @@
       <div class="info_header">
         <p class="title">订单号</p>
         <div class="info_header_table">
-          <div>{{orderInfo.order_sn}}</div>
+<!--          <div>{{orderInfo.order_sn}}</div>-->
+          <el-input clearable @input="change($event)" v-model="orderInfo.order_sn" :disabled="inputDisabled"></el-input>
           <div>
             <span>客户商</span>
             <el-select filterable @change="getBillerData(orderInfo.cname)" v-model="orderInfo.cname" :disabled="inputDisabled" placeholder="请选择">
@@ -246,9 +247,8 @@
         </div>
       </div>
 
-      <div class="submitAllDataBtn">
+      <div class="submitAllDataBtn" v-if="urlType !== 'details' && addTrainTableArray.length > 0">
         <el-button
-            v-if="addTrainTableArray.length > 0"
             type="primary"
             v-loading="allAddSubmitLoading"
             @click="allAddSubmit">
@@ -471,7 +471,7 @@
         </div>
       </div>
 
-      <div class="submitAllDataBtn">
+      <div class="submitAllDataBtn" v-if="urlType !== 'details'">
         <el-button
             v-if="urlType === 'edit'"
             type="primary"
@@ -835,11 +835,59 @@
       </div>
     </el-dialog>
 
+<!--    &lt;!&ndash; 选择行程弹窗 &ndash;&gt;-->
+<!--    <el-dialog-->
+<!--        title="确定发站信息"-->
+<!--        :close-on-click-modal="false"-->
+<!--        :close-on-press-escape="false"-->
+<!--        :show-close="false"-->
+<!--        modal-append-to-body-->
+<!--        append-to-body-->
+<!--        width="500px"-->
+<!--        :visible.sync="starTicketSite"-->
+<!--        custom-class="select_ticket_site">-->
+<!--      <div class="detail_main">-->
+<!--        <el-select @input="change($event)" v-model="starSite" placeholder="请选择">-->
+<!--          <el-option-->
+<!--              v-for="(item,index) in GetTicketData"-->
+<!--              :key="index"-->
+<!--              :label="item.name"-->
+<!--              :value="item.code">-->
+<!--          </el-option>-->
+<!--        </el-select>-->
+<!--      </div>-->
+<!--    </el-dialog>-->
+
+<!--    &lt;!&ndash; 选择行程弹窗 &ndash;&gt;-->
+<!--    <el-dialog-->
+<!--        title="确定到站信息"-->
+<!--        :close-on-click-modal="false"-->
+<!--        :close-on-press-escape="false"-->
+<!--        :show-close="false"-->
+<!--        modal-append-to-body-->
+<!--        append-to-body-->
+<!--        width="500px"-->
+<!--        :visible.sync="endTicketSite"-->
+<!--        custom-class="select_ticket_site">-->
+<!--      <div class="detail_main">-->
+<!--        <el-select @input="change($event)" v-model="endSite" placeholder="请选择">-->
+<!--          <el-option-->
+<!--              v-for="(item,index) in GetTicketData"-->
+<!--              :key="index"-->
+<!--              :label="item.name"-->
+<!--              :value="item.code">-->
+<!--          </el-option>-->
+<!--        </el-select>-->
+<!--      </div>-->
+<!--    </el-dialog>-->
+
   </div>
 </template>
 
 <script>
   import TrainTimesTable from '@/components/TrainTimesTable/index'
+
+  import GetTicketData from '../../api/FeHelper-20191122183718'
 
   export default {
     name: "orderDetails",
@@ -853,6 +901,8 @@
     },
     data(){
       return {
+        GetTicketData: GetTicketData,
+
         loading: true,
         orderSn: '', // 订单号
 
@@ -998,6 +1048,11 @@
         userTicketData: [],  // 12306账号数据
         userOrderInfo: {},  // 当前买票时间路线人员信息
         selectTicketMessage: false, // 12306账号选择弹窗
+        //
+        // starTicketSite: false, // 选择发站弹窗
+        // endTicketSite: false, // 选择到站弹窗
+        // starSite: '', // 发站
+        // endSite: '', // 到站
       }
     },
     watch: {
@@ -1204,6 +1259,9 @@
        * @date 2019/11/18
       */
       jumpPayTicket(userInfo,orderInfo){
+        console.log(userInfo,orderInfo);
+
+
         let info = []
         info.push({
           "token": orderInfo.parent_id, //行程标识
@@ -1281,15 +1339,24 @@
         this.$axios.post('/api/plug/getData',this.userOrderInfo)
             .then(res =>{
               if(res.data.code === 0){
+                console.log(res.data.result);
                 res.data.result.forEach((item,index) =>{
-                  item['toSiteCode'] = 'CUW'  // 发车时间
-                  item['formSiteCode'] = 'CXW'  // 车次
+                  item['toSiteCode'] = ''
+                  item['formSiteCode'] = ''
+                  GetTicketData.forEach(citem =>{
+                        if(citem.name === item.departure_station){
+                          item['toSiteCode'] = citem.code
+                        }
+                        if(citem.name === item.arrival_station){
+                          item['formSiteCode'] = citem.code
+                        }
+                      })
                 })
+
                 let userAccount = {}
                 userAccount['account'] = val.account
                 userAccount['password'] = val.password
                 userAccount['info'] = res.data.result
-                console.log(res.data.result);
                 let _that = this
                 chrome.runtime.sendMessage('lllkokaleehidhcdcgccocpkhgiihjob', {data:{action:"buy",order:userAccount}},
                     function(response) {
@@ -1352,11 +1419,24 @@
        * @author Wish
        * @date 2019/10/30
       */
-      getBillerData(data){
+      getBillerData(data,id){
         if(data){
           this.customerList.forEach(res => {
             if(res.identity === data){
               this.billerList = res.issuer
+              this.orderInfo['dName'] = ''
+              // if(this.orderInfo.order_sn === ''){
+              let newOrderIdTime
+              let date = new Date();
+              this.year = date.getFullYear();
+              this.month = date.getMonth() + 1;
+              this.date = date.getDate();
+              this.hour = date.getHours() < 10 ? "0" + date.getHours() : date.getHours();
+              this.minute = date.getMinutes() < 10 ? "0" + date.getMinutes() : date.getMinutes();
+              this.second = date.getSeconds() < 10 ? "0" + date.getSeconds() : date.getSeconds();
+              newOrderIdTime = String(this.year).slice(2)  + String(this.month)  + String(this.date)  + String(this.hour) + String(this.minute)  + String(this.second);
+              this.orderInfo.order_sn = String(res.order_prefix) + newOrderIdTime
+              // }
             }
           })
         }
@@ -2123,28 +2203,30 @@
           let data ={
             group_origin_data: this.AddGroupOriginData
           }
-          this.$axios.post('/api/order/recognize/show',data)
+          this.$axios.post('/api/order/recognize/new',data)
               .then(res =>{
                 if(res.data.code === 0){
                   this.$message.success('识别完成')
                   this.inputDisabled = false
                   this.addBtnDisabled = false
                   this.addDataList = res.data.result
-                  this.customerMessage =  res.data.result.customer
-                  this.orderInfo.order_sn = this.addDataList.orderNumber.new
-                  this.orderInfo.old_order_sn = this.addDataList.orderNumber.old
+                  // this.customerMessage =  res.data.result.customer
+                  // this.orderInfo.order_sn = this.addDataList.orderNumber.new
+                  this.orderInfo.order_sn = ''
+                  // this.orderInfo.old_order_sn = this.addDataList.orderNumber.old
+                  this.orderInfo.old_order_sn = ''
 
-                  this.customerList.forEach(customer =>{
-                    if(customer.identity === this.customerMessage.customer){
-                      this.orderInfo.cname = customer.name
-                    }
-                    console.log(customer);
-                    customer.issuer.forEach(issuing =>{
-                      if(issuing.id ===  this.customerMessage.issuing_clerk){
-                        this.orderInfo.dName = issuing.name
-                      }
-                    })
-                  })
+                  // this.customerList.forEach(customer =>{
+                  //   if(customer.identity === this.customerMessage.customer){
+                  //     this.orderInfo.cname = customer.name
+                  //   }
+                  //   console.log(customer);
+                  //   customer.issuer.forEach(issuing =>{
+                  //     if(issuing.id ===  this.customerMessage.issuing_clerk){
+                  //       this.orderInfo.dName = issuing.name
+                  //     }
+                  //   })
+                  // })
 
 
                   console.log(this.customerList);
@@ -2156,10 +2238,12 @@
                    * @date 2019/10/24
                    */
 
-
-                    if(this.addDataList.trips.length > 0){
+                  console.log(this.addDataList.trips.length > 0);
+                  if(this.addDataList.trips.length > 0){
                       this.addDataList.trips.forEach(item =>{
+                        console.log(item);
                         item.info.forEach(cItem =>{
+                          console.log(cItem);
                           cItem['initial_station'] = cItem.route[0]  // 发站
                           cItem['stop_station'] = cItem.route[1] // 到站
                           cItem['riding_time'] = cItem.ride_date  // 发车时间
@@ -2168,6 +2252,7 @@
                           delete cItem.ride_date
                           delete cItem.train_number
                           cItem.passenger.forEach(dItem =>{
+                            console.log(dItem);
                             dItem['IDCard'] = dItem.card  // 身份证
                             dItem['ticket_type'] = dItem.is_child    // 车票类型
                             dItem['ticket_type'] = dItem.is_child === 0 ? '成人票' :'儿童票'   // 车票类型
@@ -2180,34 +2265,36 @@
                         })
                       })
                       this.addTrainTableArray = JSON.parse(JSON.stringify(this.addDataList.trips))
+                    }else {
+                      this.addDataList.trips.info.forEach(cItem =>{
+                        cItem['initial_station'] = cItem.route[0]  // 发站
+                        cItem['stop_station'] = cItem.route[1] // 到站
+                        cItem['riding_time'] = cItem.ride_date  // 发车时间
+                        cItem['trips_number'] = cItem.train_number  // 车次
+                        delete cItem.route
+                        delete cItem.ride_date
+                        delete cItem.train_number
+                        cItem.passenger.forEach(dItem =>{
+                          dItem['IDCard'] = dItem.card  // 身份证
+                          dItem['ticket_type'] = dItem.is_child    // 车票类型
+                          dItem['ticket_type'] = dItem.is_child === 0 ? '成人票' :'儿童票'   // 车票类型
+                          dItem['ticket_species'] = this.addDataList.ticketType
+                          dItem['remarks'] = ''  // 备注
+                          dItem['missed_meals_money'] = '5'  // 误餐费
+                          delete dItem.card
+                          delete dItem.is_child
+                        })
+                      })
+                      this.addTrainTableArray.push(JSON.parse(JSON.stringify(this.addDataList.trips)))
                     }
-                  this.addDataList.trips.info.forEach(cItem =>{
-                    cItem['initial_station'] = cItem.route[0]  // 发站
-                    cItem['stop_station'] = cItem.route[1] // 到站
-                    cItem['riding_time'] = cItem.ride_date  // 发车时间
-                    cItem['trips_number'] = cItem.train_number  // 车次
-                    delete cItem.route
-                    delete cItem.ride_date
-                    delete cItem.train_number
-                    cItem.passenger.forEach(dItem =>{
-                      dItem['IDCard'] = dItem.card  // 身份证
-                      dItem['ticket_type'] = dItem.is_child    // 车票类型
-                      dItem['ticket_type'] = dItem.is_child === 0 ? '成人票' :'儿童票'   // 车票类型
-                      dItem['ticket_species'] = this.addDataList.ticketType
-                      dItem['remarks'] = ''  // 备注
-                      dItem['missed_meals_money'] = '5'  // 误餐费
-                      delete dItem.card
-                      delete dItem.is_child
-                    })
-                  })
-                  this.addTrainTableArray.push(JSON.parse(JSON.stringify(this.addDataList.trips)))
-
-
-                  console.log(this.addTrainTableArray);
                 }else {
                   this.addBtnDisabled = false
                   this.$message.warning(res.data.msg)
                 }
+              })
+              .catch(() =>{
+                this.$message.error('识别失败，请检查格式后重新识别')
+                this.addBtnDisabled = false
               })
         }else {
           this.$message.warning('请输入订单原始信息')
