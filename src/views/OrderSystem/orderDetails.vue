@@ -881,6 +881,25 @@
 <!--      </div>-->
 <!--    </el-dialog>-->
 
+    <!-- 填写chrome扩展ID -->
+    <el-dialog
+        title="填写chrome扩展ID"
+        :close-on-click-modal="false"
+        :close-on-press-escape="false"
+        :show-close="false"
+        modal-append-to-body
+        append-to-body
+        width="500px"
+        :visible.sync="extensionsDialog"
+        custom-class="extensions_id_dialog">
+      <div class="detail_main">
+        <el-input placeholder="请填写已安装成功的chrome扩展ID" v-model="extensionsId"></el-input>
+      </div>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="saveExtensionsId">保存</el-button>
+      </div>
+    </el-dialog>
+
   </div>
 </template>
 
@@ -901,7 +920,10 @@
     },
     data(){
       return {
-        GetTicketData: GetTicketData,
+        GetTicketData: GetTicketData,  // 12306行程代码
+
+        extensionsId: sessionStorage.getItem('extensions_id') || '', // 扩展代码
+        extensionsDialog: false,
 
         loading: true,
         orderSn: '', // 订单号
@@ -1259,22 +1281,24 @@
        * @date 2019/11/18
       */
       jumpPayTicket(userInfo,orderInfo){
-        console.log(userInfo,orderInfo);
-
-
-        let info = []
-        info.push({
-          "token": orderInfo.parent_id, //行程标识
-          "route_id": userInfo.route, //路线标识
-          "passengers": userInfo.id, //乘客ID
-        })
-        this.userOrderInfo = {
-          "order_sn": orderInfo.order_sn, //订单号
-          info: JSON.stringify(info)
+        if(this.extensionsId){
+          let info = []
+          info.push({
+            "token": orderInfo.parent_id, //行程标识
+            "route_id": userInfo.route, //路线标识
+            "passengers": userInfo.id, //乘客ID
+          })
+          this.userOrderInfo = {
+            "order_sn": orderInfo.order_sn, //订单号
+            info: JSON.stringify(info)
+          }
+          console.log(this.userOrderInfo);
+          this.$message.success('正在整理您的12306账号列表，请勿刷新页面')
+          this.getUserAccountList()
+        }else {
+          this.extensionsDialog = true
         }
-        console.log(this.userOrderInfo);
-        this.$message.success('正在整理您的12306账号列表，请勿刷新页面')
-        this.getUserAccountList()
+
       },
 
       /**
@@ -1288,11 +1312,14 @@
         //   account: userInfo.account,
         //   password: userInfo.password
         // }
-        userInfo['type'] = type
-        chrome.runtime.sendMessage('lllkokaleehidhcdcgccocpkhgiihjob', {data:{action:type,order:userInfo}},
-            function(response) {});
-        window.open("https://kyfw.12306.cn/otn/resources/login.html",'_blank')
-
+        if(this.extensionsId){
+          userInfo['type'] = type
+          chrome.runtime.sendMessage(this.extensionsId, {data:{action:type,order:userInfo}},
+              function(response) {});
+          window.open("https://kyfw.12306.cn/otn/resources/login.html",'_blank')
+        }else {
+          this.extensionsDialog = true
+        }
       },
 
       /**
@@ -1352,13 +1379,12 @@
                         }
                       })
                 })
-
                 let userAccount = {}
                 userAccount['account'] = val.account
                 userAccount['password'] = val.password
                 userAccount['info'] = res.data.result
                 let _that = this
-                chrome.runtime.sendMessage('lllkokaleehidhcdcgccocpkhgiihjob', {data:{action:"buy",order:userAccount}},
+                chrome.runtime.sendMessage(this.extensionsId, {data:{action:"buy",order:userAccount}},
                     function(response) {
                     });
                 window.open("https://kyfw.12306.cn/otn/resources/login.html",'_blank')
@@ -1368,6 +1394,19 @@
               }
             })
 
+      },
+
+
+      /**
+       * @Description: 储存chrome扩展Id
+       * @author Wish
+       * @date 2019/11/23
+      */
+      saveExtensionsId(){
+        if(this.extensionsId){
+          sessionStorage.setItem('extensions_id',this.extensionsId)
+        }
+        this.extensionsDialog = false
       },
 
       /**
@@ -2414,7 +2453,7 @@
     }
   }
 
-  /deep/.el-dialog__wrapper {
+  .el-dialog__wrapper {
     display: block;
     align-items: unset;
     justify-content: unset;
