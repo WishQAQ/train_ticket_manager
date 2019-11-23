@@ -123,7 +123,7 @@
       }
       let _that = this
       bus.$on('newTab', (type,data) => {
-        // _that.addTab(type,data)
+        _that.addTab(type,data)
       })
     },
     watch:{

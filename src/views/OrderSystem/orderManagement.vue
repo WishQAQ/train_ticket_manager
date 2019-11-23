@@ -506,7 +506,7 @@
 
 <style scoped lang="less">
   .orderManagement{
-    padding: 80px;
+    padding: 20px 80px;
     .table_header{
       display: flex;
       align-items: center;
