@@ -31,7 +31,14 @@
     <div class="ticket_main">
       <el-table
           :data="ticketData"
+          @select="tableSelect"
+          @select-all="tableSelect"
           border>
+        <el-table-column
+            align="center"
+            type="selection"
+            width="40">
+        </el-table-column>
         <el-table-column
             label="序号"
             align="center"
@@ -142,7 +149,7 @@
         <el-dropdown trigger="click">
           <el-button>导出</el-button>
           <el-dropdown-menu slot="dropdown">
-            <el-dropdown-item>导出当前页面</el-dropdown-item>
+            <el-dropdown-item><div @click="exportAllTable(1)">导出所选项</div></el-dropdown-item>
             <el-dropdown-item><div @click="exportAllTable(0)">导出全部</div></el-dropdown-item>
           </el-dropdown-menu>
         </el-dropdown>
@@ -178,6 +185,8 @@
         },
 
         rulType: '',  // 页面类型
+
+        selectUserId: [], // 多选
 
         paginationList: {},
         per_page: 10,
@@ -222,6 +231,7 @@
        * @date 2019/10/25
       */
       submitSearchBtn(){
+        console.log(this.searchForm.ridingTime);
         let data ={
           name: this.searchForm.name,
           pay_account: this.searchForm.pay_account,
@@ -231,10 +241,12 @@
           order_status: this.searchForm.order_status,
           departure: this.searchForm.departure,
           arrive: this.searchForm.arrive,
-          ridingBegin: this.$dateToMs(this.searchForm.ridingTime[0] / 1000) || '',
-          ridingEnd: this.$dateToMs(this.searchForm.ridingTime[1] / 1000) || '',
-          begin: this.$dateToMs(this.searchForm.beginTime[0] / 1000) || '',
-          end: this.$dateToMs(this.searchForm.beginTime[1] / 1000) || '',
+        }
+        if(this.searchForm.ridingTime){
+          data['ridingBegin'] = this.$dateToMs(this.searchForm.ridingTime[0] / 1000) || ''
+          data['ridingEnd'] = this.$dateToMs(this.searchForm.ridingTime[1] / 1000) || ''
+          data['begin'] = this.$dateToMs(this.searchForm.beginTime[0] / 1000) || ''
+          data['end'] = this.$dateToMs(this.searchForm.beginTime[1] / 1000) || ''
         }
         this.$axios.post('/api/system/passengerTicket/' + this.rulType + '/'+this.per_page,data)
             .then(res =>{
@@ -245,38 +257,73 @@
       },
 
       /**
+       * @Description: 表格勾选
+       * @author Wish
+       * @date 2019/11/25
+      */
+      tableSelect(v,r) {
+        console.log(v);
+        this.selectUserId = v.map(res =>{
+          let list = {}
+          list['order_sn'] = res.order_sn
+          list['passenger_id'] = res.export_id
+          return list
+        })
+        console.log(this.selectUserId);
+      },
+
+      /**
        * @Description: 导出
        * @author Wish
        * @date 2019/10/18
       */
       exportAllTable(data){
-        this.$axios({
-          url: '/api/system/exportTicket/'+data,
-          method: 'get',
-          responseType: 'blob'
-        }).then(res =>{
-          if (res.data.type === "application/json") {
-            this.$message({
-              type: "error",
-              message: "下载失败，文件不存在或权限不足"
-            });
-          } else {
-            let blob = new Blob([res.data]);
-            if (window.navigator.msSaveOrOpenBlob) {
-              navigator.msSaveBlob(blob);
-            } else {
-              let link = document.createElement("a");
-              let evt = document.createEvent("HTMLEvents");
-              evt.initEvent("click", false, false);
-              link.href = URL.createObjectURL(blob);
-              link.download = '';
-              link.style.display = "none";
-              document.body.appendChild(link);
-              link.click();
-              window.URL.revokeObjectURL(link.href);
+        this.$message.success('正在整理导出数据，导出中，请勿刷新页面')
+        if(data === 0){
+          this.$axios.get('/api/excel/passengerSystem/'+this.rulType+'/all',{responseType: 'blob'})
+              .then(res =>{
+                window.location.href = window.URL.createObjectURL(res.data);
+              })
+        }else {
+          if(this.selectUserId.length > 0){
+            let data = {
+              info: JSON.stringify(this.selectUserId)
             }
+            this.$axios.post('/api/excel/passengerSystem/'+this.urlType,data,{responseType: 'blob'})
+                .then(res =>{
+                  window.location.href = window.URL.createObjectURL(res.data);
+                })
+          }else {
+            this.$message.warning('请至少选择一条数据')
           }
-        })
+        }
+        // this.$axios({
+        //   url: '/api/system/exportTicket/'+data,
+        //   method: 'get',
+        //   responseType: 'blob'
+        // }).then(res =>{
+        //   if (res.data.type === "application/json") {
+        //     this.$message({
+        //       type: "error",
+        //       message: "下载失败，文件不存在或权限不足"
+        //     });
+        //   } else {
+        //     let blob = new Blob([res.data]);
+        //     if (window.navigator.msSaveOrOpenBlob) {
+        //       navigator.msSaveBlob(blob);
+        //     } else {
+        //       let link = document.createElement("a");
+        //       let evt = document.createEvent("HTMLEvents");
+        //       evt.initEvent("click", false, false);
+        //       link.href = URL.createObjectURL(blob);
+        //       link.download = '';
+        //       link.style.display = "none";
+        //       document.body.appendChild(link);
+        //       link.click();
+        //       window.URL.revokeObjectURL(link.href);
+        //     }
+        //   }
+        // })
       },
 
       /**

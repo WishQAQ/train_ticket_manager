@@ -196,7 +196,13 @@
       }
     },
     methods:{
-      downAllExcel(){},
+      downAllExcel(){
+        this.$message.success('正在整理导出文件，开始导出，请勿刷新页面')
+        this.$axios.get('/api/excel/info/'+this.viewsType+'/all',{responseType: 'blob'})
+            .then(res =>{
+              window.location.href = window.URL.createObjectURL(res.data);
+            })
+      },
       downSelectExcel(){},
 
       getDataList(){

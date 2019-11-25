@@ -107,6 +107,7 @@
             .then(res =>{
               this.loading = false
               this.tableData = res.data.result.data
+              this.paginationList = res.data.result
             })
       },
 

@@ -579,12 +579,28 @@
                       :placeholder="$getTimeYear(cItem.riding_time * 1000)">
                   </el-date-picker>
                 </div>
-                <div class="route_message edit_route_message">
-                  <span><el-input :disabled="item.is_lock" clearable @input="change($event)" v-model="item.departure_station" :placeholder="cItem.departure_station"></el-input></span>
-                  <p><el-input :disabled="item.is_lock" clearable @input="change($event)" v-model="item.trips_number" :placeholder="cItem.trips_number"></el-input></p>
-                  <span><el-input :disabled="item.is_lock" clearable @input="change($event)" v-model="item.arrival_station" :placeholder="cItem.arrival_station"></el-input></span>
-                </div>
+                <div class="route_message edit_route_message" style="margin-left: 5px">
+                  <div style="width: 105px"><el-input clearable :disabled="item.is_lock" @input="change($event)" v-model="item.departure_station" :placeholder="cItem.departure_station"></el-input></div>
+                  <div style="width: 60px">
+                    <el-select clearable @input="change($event)" v-model="item.directionOne" placeholder="">
+                      <el-option label="东" value="东"></el-option>
+                      <el-option label="南" value="南"></el-option>
+                      <el-option label="西" value="西"></el-option>
+                      <el-option label="北" value="北"></el-option>
+                    </el-select>
+                  </div>
+                  <p style="margin: 0 5px"><el-input clearable :disabled="item.is_lock" @input="change($event)" v-model="item.trips_number" :placeholder="cItem.trips_number"></el-input></p>
+                  <div style="width: 105px"><el-input clearable :disabled="item.is_lock" @input="change($event)" v-model="item.arrival_station" :placeholder="cItem.arrival_station"></el-input></div>
+                  <div style="width: 60px">
+                    <el-select clearable @input="change($event)" v-model="item.directionTwo" placeholder="">
+                      <el-option label="东" value="东"></el-option>
+                      <el-option label="南" value="南"></el-option>
+                      <el-option label="西" value="西"></el-option>
+                      <el-option label="北" value="北"></el-option>
+                    </el-select>
+                  </div>
               </div>
+            </div>
             </div>
           </div>
           <div class="main_box">
@@ -1905,9 +1921,17 @@
         newForm['route_id'] = this.editRouteData.route_id
         newForm['passengers'] = this.editRouteData.passengers
         newForm['riding_time'] =  this.$dateToDate(this.editRouteData.riding_time)  || val.riding_time
-        newForm['departure'] = this.editRouteData.departure_station  || val.departure_station
-        newForm['arrive'] = this.editRouteData.arrival_station  || val.arrival_station
-        newForm['trips_number'] = this.editRouteData.trips_number  || val.trips_number
+
+        if(this.editRouteData.departure_station){
+          newForm['departure'] = this.editRouteData.directionOne? this.editRouteData.departure_station +this.editRouteData.directionOne:this.editRouteData.departure_station
+        }else {
+          newForm['departure'] = this.editRouteData.directionOne? val.departure_station +this.editRouteData.directionOne:val.departure_station
+        }
+        if(this.editRouteData.arrival_station){
+          newForm['arrive'] = this.editRouteData.directionTwo? this.editRouteData.arrival_station +this.editRouteData.directionTwo:this.editRouteData.arrival_station
+        }else {
+          newForm['arrive'] = this.editRouteData.directionTwo? val.arrival_station +this.editRouteData.directionTwo:val.arrival_station
+        }
 
         let newEditForm = {}  // 修改输入框信息
         newEditForm['ticket_type'] = this.editRouteData.ticket_type
@@ -1952,6 +1976,7 @@
         this.routeStatus = status
         this.editRouteInfo = route  // 获取原路线信息
         this.editRouteData = editData  // 获取当前输入框数据
+        console.log(this.editRouteData.directionOne);
         let editInfo = {}
         editInfo['route_id'] = this.editRouteData.route_id
         editInfo['passengers'] = this.editRouteData.passengers
@@ -1964,8 +1989,8 @@
             newForm['route_id'] = this.editRouteData.route_id
             newForm['passengers'] = this.editRouteData.passengers
             newForm['riding_time'] =  this.editRouteData.route[0].riding_time
-            newForm['departure'] = this.editRouteData.route[0].departure_station
-            newForm['arrive'] = this.editRouteData.route[0].arrival_station
+            newForm['departure'] = this.editRouteData.directionOne?this.editRouteData.route[0].departure_station + this.editRouteData.directionOne:this.editRouteData.route[0].departure_station
+            newForm['arrive'] = this.editRouteData.directionTwo?this.editRouteData.route[0].arrival_station + this.editRouteData.directionTwo:this.editRouteData.route[0].arrival_station
             newForm['trips_number'] = this.editRouteData.route[0].trips_number
 
             let newEditForm = {}  // 修改输入框信息

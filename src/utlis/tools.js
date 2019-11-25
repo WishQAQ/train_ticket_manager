@@ -130,7 +130,7 @@ Vue.prototype.$dateToMs = (data) =>{
   if(data){
     return new Date(data).getTime();
   }else {
-    return data
+    return data = ''
   }
 }
 
