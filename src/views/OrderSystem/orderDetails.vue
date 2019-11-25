@@ -93,7 +93,7 @@
                 :disabled="inputDisabled">
             </el-input>
           </div>
-          <div class="info_upload_image" v-if="orderInfo.certificates">
+          <div class="info_upload_image" v-if="orderInfo.certificates && urlType === 'edit'">
             <UploadLeaflet
                 v-if="urlType === 'edit'"
                 v-on:uploadAddress="uploadIdPhoto"
@@ -396,7 +396,7 @@
       <div class="order_details_bottom">
         <!-- 订单备注表格 -->
         <div class="order_bottom_table">
-          <div class="table_header"></div>
+          <div class="table_header">备注信息</div>
           <div class="table_main">
             <el-table
                 width="100%"
@@ -426,11 +426,18 @@
               </el-table-column>
             </el-table>
           </div>
+          <Pagination
+              ref="pagination"
+              :pageData="paginationRemarksList"
+              @jumpSize="jumpRemarksSize"
+              @jumpPage="jumpRemarksPage">
+          </Pagination>
+
         </div>
 
         <!-- 订单操作日志表格 -->
         <div class="order_bottom_table">
-          <div class="table_header"></div>
+          <div class="table_header">操作日志</div>
           <div class="table_main">
             <el-table
                 width="100%"
@@ -468,6 +475,13 @@
               </el-table-column>
             </el-table>
           </div>
+          <Pagination
+              ref="pagination"
+              :pageData="paginationLogList"
+              @jumpSize="jumpLogSize"
+              @jumpPage="jumpLogPage">
+          </Pagination>
+
         </div>
       </div>
 
@@ -572,7 +586,6 @@
               <div class="content_route" v-for="(cItem,cIndex) in item.route" :key="cIndex">
                 <div class="content_edit_time">
                   <el-date-picker
-                      :disabled="item.is_lock"
                       @input="change($event)"
                       v-model="item.riding_time"
                       type="date"
@@ -580,7 +593,7 @@
                   </el-date-picker>
                 </div>
                 <div class="route_message edit_route_message" style="margin-left: 5px">
-                  <div style="width: 105px"><el-input clearable :disabled="item.is_lock" @input="change($event)" v-model="item.departure_station" :placeholder="cItem.departure_station"></el-input></div>
+                  <div style="width: 105px"><el-input clearable @input="change($event)" v-model="item.departure_station" :placeholder="cItem.departure_station"></el-input></div>
                   <div style="width: 60px">
                     <el-select clearable @input="change($event)" v-model="item.directionOne" placeholder="">
                       <el-option label="东" value="东"></el-option>
@@ -589,8 +602,8 @@
                       <el-option label="北" value="北"></el-option>
                     </el-select>
                   </div>
-                  <p style="margin: 0 5px"><el-input clearable :disabled="item.is_lock" @input="change($event)" v-model="item.trips_number" :placeholder="cItem.trips_number"></el-input></p>
-                  <div style="width: 105px"><el-input clearable :disabled="item.is_lock" @input="change($event)" v-model="item.arrival_station" :placeholder="cItem.arrival_station"></el-input></div>
+                  <p style="margin: 0 5px"><el-input clearable @input="change($event)" v-model="item.trips_number" :placeholder="cItem.trips_number"></el-input></p>
+                  <div style="width: 105px"><el-input clearable @input="change($event)" v-model="item.arrival_station" :placeholder="cItem.arrival_station"></el-input></div>
                   <div style="width: 60px">
                     <el-select clearable @input="change($event)" v-model="item.directionTwo" placeholder="">
                       <el-option label="东" value="东"></el-option>
@@ -1091,6 +1104,14 @@
         // endTicketSite: false, // 选择到站弹窗
         // starSite: '', // 发站
         // endSite: '', // 到站
+
+        paginationRemarksList: {},
+        remarksPer_page: 10,
+        remarksPage: '',
+
+        paginationLogList: {},
+        logPer_page: 10,
+        logPage: ''
       }
     },
     watch: {
@@ -1431,14 +1452,31 @@
        * @date 2019/10/17
       */
       getOrderRemarks(){
-        this.$axios.get('/api/order/trackingRemarks/'+this.orderSn)
+        let data ={
+          page: this.remarksPage || null
+        }
+        this.$axios.post('/api/order/trackingRemarks/'+this.orderSn+'/'+this.remarksPer_page,data)
             .then(res =>{
               if(res.data.code === 0){
                 this.orderRemarks = res.data.result.data
+                this.paginationRemarksList = res.data.result
               }else {
                 this.$message.warning(res.data.msg)
               }
             })
+      },
+      /**
+       * @Description: 分页器
+       * @author Wish
+       * @data 2019/10/17
+       */
+      jumpRemarksSize(val){
+        this.remarksPer_page = val
+        this.getOrderRemarks()
+      },
+      jumpRemarksPage(val){
+        this.remarksPage = val
+        this.getOrderRemarks()
       },
 
       /**
@@ -1447,15 +1485,33 @@
        * @date 2019/10/17
       */
       getOrderLog(){
-        this.$axios.get('/api/order/actionLog/'+this.orderSn)
+        let data = {
+          page: this.logPage || null
+        }
+        this.$axios.post('/api/order/actionLog/'+this.orderSn+'/'+this.logPer_page,data)
             .then(res =>{
               if(res.data.code === 0){
                 this.orderLog = res.data.result.data
+                this.paginationLogList = res.data.result
               }else {
                 this.$message.warning(res.data.msg)
               }
             })
       },
+      /**
+       * @Description: 分页器
+       * @author Wish
+       * @data 2019/10/17
+       */
+      jumpLogSize(val){
+        this.logPer_page = val
+        this.getOrderLog()
+      },
+      jumpLogPage(val){
+        this.logPage = val
+        this.getOrderLog()
+      },
+
       /**
        * @Description: 获取客户商列表
        * @author Wish
@@ -1566,6 +1622,7 @@
        * @date 2019/11/14
       */
       openEditTicketBrn(val,cVal){
+        console.log(val, cVal);
         this.editTicketMessage = this.urlType === 'edit'
         this.editTicketOrderInfo = val  // 乘车区间订单信息
         this.editTicketInfo = cVal  // 乘车区间路线信息
@@ -1589,6 +1646,7 @@
         let newForm = {}
         newForm['departure_station'] = this.new_departure_station? this.new_departure_station + this.departure_path: this.editTicketInfo.departure_station + this.departure_path
         newForm['arrival_station'] = this.new_arrival_station? this.new_arrival_station + this.arrival_path: this.editTicketInfo.arrival_station + this.arrival_path
+        newForm['riding_time'] = this.editTicketInfo.riding_time
         let data = {
           order_sn: this.editTicketOrderInfo.order_sn,
           token: this.editTicketOrderInfo.parent_id,
@@ -2616,7 +2674,7 @@
   }
 
   .orderDetails{
-    padding: 20px 80px 60px;
+    padding: 20px 80px 120px;
     position: relative;
     .edit_order_btn{
       padding: 12px 50px;
@@ -2947,6 +3005,9 @@
       display: flex;
       .order_bottom_table{
         width: 50%;
+        .table_header{
+          margin-bottom: 10px;
+        }
 
         &:last-child{
           margin-left: 40px;

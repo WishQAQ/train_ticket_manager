@@ -2,7 +2,7 @@
   <div class="notice">
     <div class="title">
       <p>帮助文档</p>
-      <div>新增</div>
+      <div @click="openNote">新增</div>
     </div>
     <div class="notice_main" v-loading="loading">
       <el-card
@@ -13,13 +13,47 @@
         <div class="notice_box">
           <div class="header">
             <p><span>{{item.title}}</span></p>
-            <span class="close el-icon-close"></span>
+            <span class="close el-icon-close" @click="closedNotice(item)"></span>
           </div>
           <div class="content">{{item.content}}</div>
         </div>
-        <div class="edit_btn">编辑</div>
+        <div class="edit_btn" @click="openEditBtn(item)">编辑</div>
       </el-card>
     </div>
+    <el-dialog
+        :title="editNote?'新增重要通知':'编辑重要通知'"
+        modal-append-to-body
+        append-to-body
+        custom-class="add_note_dialog"
+        :visible.sync="addDialog"
+        :close-on-click-modal="false"
+        :close-on-press-escape="false"
+        :show-close="false">
+      <el-form class="addNoteForm" ref="form" label-width="80px">
+        <el-form-item label="标题">
+          <el-input
+              maxlength="50"
+              show-word-limit
+              v-model="noteForm.title"
+              placeholder="填写重要通知标题">
+          </el-input>
+        </el-form-item>
+        <el-form-item label="内容">
+          <el-input
+              maxlength="200"
+              show-word-limit
+              type="textarea"
+              :rows="10"
+              v-model="noteForm.content"
+              placeholder="填写重要通知内容">
+          </el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="closeAddDialog">取 消</el-button>
+        <el-button type="primary" :loading="showSubmitAddBtn" @click="submitAddDialog">确 定</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -30,6 +64,11 @@
       return {
         noticeList: [],
         loading: false,
+
+        editNote: true, // 重要通知类型
+        addDialog: false,  // 新增弹窗
+        showSubmitAddBtn: false,
+        noteForm: {}
       }
     },
     methods:{
@@ -42,6 +81,103 @@
                 this.noticeList = res.data.result.data
               }
             })
+      },
+      /**
+       * @Description: 删除重要通知
+       * @author Wish
+       * @date 2019/11/25
+      */
+      closedNotice(val){
+        this.loading = true
+        let data = {
+          type: 1,
+          notice_id: val.id,
+        }
+        this.$axios.post('/api/user/note/modifyNotice',data)
+            .then(res =>{
+              if(res.data.code === 0){
+                this.loading = false
+                this.getData()
+              }else {
+                this.$message.warning(res.data.msg)
+                this.loading = false
+              }
+            })
+      },
+      /**
+       * @Description: 打开新增弹窗
+       * @author Wish
+       * @date 2019/11/25
+      */
+      openNote(){
+        this.editNote = true
+        this.addDialog = true
+        this.noteForm ={}
+      },
+
+      /**
+       * @Description: 打开编辑弹窗
+       * @author Wish
+       * @date 2019/9/27
+       */
+      openEditBtn(data){
+        console.log(data);
+        this.noteId = data.id
+        this.editNote = false
+        this.addDialog = true
+        this.noteForm = JSON.parse(JSON.stringify(data))
+      },
+
+      /**
+       * @Description: 提交便签
+       * @author Wish
+       * @date 2019/9/27
+       */
+      submitAddDialog(){
+        this.showSubmitAddBtn= true
+        if(this.editNote){  // 新增便签
+          if(this.noteForm.title && this.noteForm.content){
+            this.$axios.post('/api/user/note/publishNotice',this.noteForm)
+                .then(res =>{
+                  this.addDialog = false;
+                  this.showSubmitAddBtn= false;
+                  this.getData();
+                  this.$message.success('添加成功')
+                })
+                .catch(() =>{
+                  this.showSubmitAddBtn= false;
+                })
+          }else {
+            this.$message.warning('请填写完整信息')
+            this.$message.error('保存失败，请稍后重试')
+          }
+        }else { // 修改便签
+          if(this.noteForm.title && this.noteForm.content){
+            this.noteForm['type'] = 0
+            this.noteForm['notice_id'] = this.noteId
+            this.$axios.post('/api/user/note/modifyNotice',this.noteForm)
+                .then(res =>{
+                  this.addDialog = false;
+                  this.showSubmitAddBtn= false;
+                  this.getData();
+                  this.$message.success('修改成功')
+                })
+                .catch(() =>{
+                  this.showSubmitAddBtn= false;
+                  this.$message.error('保存失败，请稍后重试')
+                })
+          }else {
+            this.$message.warning('请填写完整信息')
+          }
+        }
+      },
+      /**
+       * @Description: 关闭弹窗
+       * @author Wish
+       * @date 2019/9/27
+       */
+      closeAddDialog(){
+        this.addDialog = false
       },
     },
     created() {
