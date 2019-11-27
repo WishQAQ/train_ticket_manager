@@ -8,6 +8,12 @@ import store from './store'
 
 import Router from 'vue-router'
 
+// vue-tab组件
+import RouterTab from 'vue-router-tab'
+import 'vue-router-tab/dist/lib/vue-router-tab.css'
+
+Vue.use(RouterTab)
+
 const originalPush = Router.prototype.push
 Router.prototype.push = function push(location) {
   return originalPush.call(this, location).catch(err => err)

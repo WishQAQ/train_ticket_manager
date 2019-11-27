@@ -79,7 +79,7 @@
       // 跳转首页
       getHomeBtn(){
         if(this.$route.path !== '/'){
-          this.$router.push('/')
+          this.$routerTab.open('/')
         }
         this.indexActive = true
         this.isIndexActive = false
@@ -91,24 +91,33 @@
       },
       // 导航栏点击
       navClick(val,index){
-        this.childrenList= []
-        this.current = index;  // 获取下标
-        if(val.children){ // 菜单详单高度
-          val.children.map(res =>{
-            if(res.menuName){
-              this.childrenList.push(res)
-            }
-          })
-          this.navDrawer = true;  // 打开菜单详单
-          this.navDrawerHeight = this.childrenList.length * 46 + 16 + 'px'
-        } else {
-          this.navDrawer = false;
-          if(val.path){
-            this.$router.push({
-              path: val.path
+        if(val.menuName === '首页'){
+          this.$routerTab.open('/')
+          this.current = index;  // 获取下标
+          this.indexActive = true
+          this.isIndexActive = true
+        }else {
+          this.childrenList= []
+          this.current = index;  // 获取下标
+          if(val.children){ // 菜单详单高度
+            val.children.map(res =>{
+              if(res.menuName){
+                this.childrenList.push(res)
+              }
             })
+            this.navDrawer = true;  // 打开菜单详单
+            this.navDrawerHeight = this.childrenList.length * 46 + 16 + 'px'
+          } else {
+            this.navDrawer = false;
+            if(val.path){
+              this.$routerTab.open(val.path)
+              // this.$router.push({
+              //   path: val.path
+              // })
+            }
           }
         }
+
       },
       // 菜单跳转
       jumpAddress(val){

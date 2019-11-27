@@ -28,10 +28,20 @@
       <div class="add_title">{{addHeaderShow?'智能识别信息':'订单Q群原始信息'}}</div>
       <div class="add_input">
         <el-input
-            placeholder="订单号:1215502465; 行程:9.19上海-北戴河G1214; 9.24北京-上海G11; 乘客/出票:杨国妹 310110196211056302; 杨玉珍 310110196905100443; 指定车票类型:网票"
+            placeholder="陈晶 21:30:03
+123456789
+11/11深圳——无锡G2158
+刘燕芬 440104195505163426
+廖伟佳 440104195104073411
+03月11日遂宁——南充G2902、03-13南充——遂宁G2905
+戚薇310110196211056302
+杨国妹310110196211056302儿童票
+01\12厦门北—桂林G2158、11/11桂林——上海G2158、11.11日上海——桂林G2158、11.11日桂林——厦门北G2158
+杨星310110196211056302
+谭琦31011019621105630儿童票"
             type="textarea"
             resize="none"
-            :rows="6"
+            :rows="8"
             v-model="AddGroupOriginData">
         </el-input>
       </div>
@@ -45,7 +55,7 @@
         <p class="title">订单号</p>
         <div class="info_header_table">
 <!--          <div>{{orderInfo.order_sn}}</div>-->
-          <el-input clearable @input="change($event)" v-model="orderInfo.order_sn" :disabled="inputDisabled"></el-input>
+          <el-input clearable @input="change($event)" v-model="orderInfo.order_sn" :disabled="true"></el-input>
           <div>
             <span>客户商</span>
             <el-select filterable @change="getBillerData(orderInfo.cname)" v-model="orderInfo.cname" :disabled="inputDisabled" placeholder="请选择">
@@ -1116,8 +1126,8 @@
     },
     watch: {
       '$route'(to, from) {
-        this.urlTypeSelect()
-        this.getCustomerData()  // 获取客户商列表
+        // this.urlTypeSelect()
+        // this.getCustomerData()  // 获取客户商列表
       },
     },
     methods:{
@@ -1537,16 +1547,16 @@
               this.billerList = res.issuer
               this.orderInfo['dName'] = ''
               // if(this.orderInfo.order_sn === ''){
-              let newOrderIdTime
-              let date = new Date();
-              this.year = date.getFullYear();
-              this.month = date.getMonth() + 1;
-              this.date = date.getDate();
-              this.hour = date.getHours() < 10 ? "0" + date.getHours() : date.getHours();
-              this.minute = date.getMinutes() < 10 ? "0" + date.getMinutes() : date.getMinutes();
-              this.second = date.getSeconds() < 10 ? "0" + date.getSeconds() : date.getSeconds();
-              newOrderIdTime = String(this.year).slice(2)  + String(this.month)  + String(this.date)  + String(this.hour) + String(this.minute)  + String(this.second);
-              this.orderInfo.order_sn = String(res.order_prefix) + newOrderIdTime
+              // let newOrderIdTime
+              // let date = new Date();
+              // this.year = date.getFullYear();
+              // this.month = date.getMonth() + 1;
+              // this.date = date.getDate();
+              // this.hour = date.getHours() < 10 ? "0" + date.getHours() : date.getHours();
+              // this.minute = date.getMinutes() < 10 ? "0" + date.getMinutes() : date.getMinutes();
+              // this.second = date.getSeconds() < 10 ? "0" + date.getSeconds() : date.getSeconds();
+              // newOrderIdTime = String(this.year).slice(2)  + String(this.month)  + String(this.date)  + String(this.hour) + String(this.minute)  + String(this.second);
+              // this.orderInfo.order_sn = String(res.order_prefix) + newOrderIdTime
               // }
             }
           })
@@ -1603,8 +1613,10 @@
        * @date 2019/10/30
       */
       openEditBtn(){
-        this.$router.push({
-          name: 'orderDetails',
+        this.$routerTab.open({
+          path: '/editOrder',
+          title: '订单编辑',
+          refresh: true,
           query:{
             order_sn: this.$route.query.order_sn,
             type: 'edit'
@@ -2333,10 +2345,10 @@
                   this.addBtnDisabled = false
                   this.addDataList = res.data.result
                   // this.customerMessage =  res.data.result.customer
-                  // this.orderInfo.order_sn = this.addDataList.orderNumber.new
-                  this.orderInfo.order_sn = ''
-                  // this.orderInfo.old_order_sn = this.addDataList.orderNumber.old
-                  this.orderInfo.old_order_sn = ''
+                  this.orderInfo.order_sn = this.addDataList.orderNumber.new || this.addDataList.customer.custom_order_sn
+                  // this.orderInfo.order_sn = ''
+                  this.orderInfo.old_order_sn = this.addDataList.orderNumber.old || ''
+                  // this.orderInfo.old_order_sn = ''
 
                   // this.customerList.forEach(customer =>{
                   //   if(customer.identity === this.customerMessage.customer){

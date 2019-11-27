@@ -246,32 +246,40 @@
        * @date 2019/10/18
       */
       jumpDetailsBtn(type,val){
-
-        Bus.$emit('newTab', type, val)
-
         if(type === 'details'){
-          this.$router.push({
-            path: '/orderDetails',
+          this.$routerTab.open({
+            path: '/orderDetails', // 通过路由路径关闭页签，可 location 对象方式传入。如果未配置 id 和 path 则关闭当前页签
+            title: '订单详情',
+            match: false, // path 方式关闭时，是否匹配 path 完整路径，默认 true
+            force: false, // 是否强制关闭，默认 true
+            refresh: true, // 是否全新打开跳转地址 默认 false
             query:{
               order_sn: val.order_sn,
               type: 'details'
             }
           })
         }else if(type === 'edit'){
-          this.$router.push({
-            path: '/orderDetails',
+          this.$routerTab.open({
+            path: '/editOrder', // 通过路由路径关闭页签，可 location 对象方式传入。如果未配置 id 和 path 则关闭当前页签
+            title: '订单编辑',
+            refresh: true, // 是否全新打开跳转地址 默认 false
             query:{
               order_sn: val.order_sn,
               type: 'edit'
             }
           })
         }else if(type === 'add'){
-          this.$router.push({
-            path: '/orderDetails',
+          this.$routerTab.open({
+            path: '/addOrder', // 通过路由路径关闭页签，可 location 对象方式传入。如果未配置 id 和 path 则关闭当前页签
+            title: '新增订单',
+            match: false, // path 方式关闭时，是否匹配 path 完整路径，默认 true
+            force: false, // 是否强制关闭，默认 true
+            refresh: true, // 是否全新打开跳转地址 默认 false
             query:{
               type: 'add'
             }
           })
+
         }
       },
 
@@ -281,10 +289,13 @@
        * @date 2019/10/23
       */
       doubleClickDetails(val){
-        Bus.$emit('newTab', 'details', val)
-        this.$router.push({
-          path: '/orderDetails',
-          query: {
+        this.$routerTab.open({
+          path: '/orderDetails', // 通过路由路径关闭页签，可 location 对象方式传入。如果未配置 id 和 path 则关闭当前页签
+          title: '订单详情',
+          match: false, // path 方式关闭时，是否匹配 path 完整路径，默认 true
+          force: false, // 是否强制关闭，默认 true
+          refresh: true, // 是否全新打开跳转地址 默认 false
+          query:{
             order_sn: val.order_sn,
             type: 'details'
           }
@@ -454,11 +465,11 @@
        */
       jumpSize(val){
         this.per_page = val
-        this.getData()
+        this.getDataList()
       },
       jumpPage(val){
         this.page = val
-        this.getData()
+        this.getDataList()
       },
 
       /**
@@ -496,16 +507,16 @@
       this.getDataList()
     },
 
-    watch: {
-      '$route'(to, from) {
-        this.viewsType =  this.$route.meta.name === '订单管理'? 0:
-            this.$route.meta.name === '不明订单'? 1:
-                this.$route.meta.name === '回收订单'? 2:
-                    this.$route.meta.name === '历史订单查询'? 3:
-                        this.$route.meta.name === '新备注订单列表'? 4: ''
-        this.getDataList();
-      },
-    },
+    // watch: {
+    //   '$route'(to, from) {
+    //     this.viewsType =  this.$route.meta.name === '订单管理'? 0:
+    //         this.$route.meta.name === '不明订单'? 1:
+    //             this.$route.meta.name === '回收订单'? 2:
+    //                 this.$route.meta.name === '历史订单查询'? 3:
+    //                     this.$route.meta.name === '新备注订单列表'? 4: ''
+    //     this.getDataList();
+    //   },
+    // },
 
   }
 </script>

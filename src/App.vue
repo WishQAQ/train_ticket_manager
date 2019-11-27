@@ -1,11 +1,11 @@
 <template>
   <div id="app">
     <nav-menu v-if="$store.state.showHeader"></nav-menu>
-    <tab-menu v-if="$store.state.showHeader"></tab-menu>
-    <keep-alive>
-      <router-view v-if="$route.meta.keepAlive"></router-view>
-    </keep-alive>
-    <router-view v-if="!$route.meta.keepAlive"></router-view>
+<!--    <tab-menu v-if="$store.state.showHeader"></tab-menu>-->
+<!--    <keep-alive>-->
+<!--      <router-view v-if="$route.meta.keepAlive"></router-view>-->
+<!--    </keep-alive>-->
+    <router-view></router-view>
   </div>
 </template>
 

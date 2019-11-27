@@ -1053,20 +1053,20 @@
         this.getData()
       },
     },
-    watch: {
-      '$route'(to, from) {
-        this.viewsType =  this.$route.meta.name === '待结算订单'? 0:
-            this.$route.meta.name === '已结算订单'? 1:
-                this.$route.meta.name === '未出账订单'? 2:
-                    this.$route.meta.name === '出账中订单'? 3: this.$route.meta.name
-        this.getData();
-        this.getClient();
-        this.showTable = false
-        this.$nextTick(() => {
-          this.showTable = true
-        })
-      },
-    },
+    // getDataList: {
+    //   '$route'(to, from) {
+    //     this.viewsType =  this.$route.meta.name === '待结算订单'? 0:
+    //         this.$route.meta.name === '已结算订单'? 1:
+    //             this.$route.meta.name === '未出账订单'? 2:
+    //                 this.$route.meta.name === '出账中订单'? 3: this.$route.meta.name
+    //     this.getData();
+    //     this.getClient();
+    //     this.showTable = false
+    //     this.$nextTick(() => {
+    //       this.showTable = true
+    //     })
+    //   },
+    // },
     created() {
       this.viewsType =  this.$route.meta.name === '待结算订单'? 0:
           this.$route.meta.name === '已结算订单'? 1:
