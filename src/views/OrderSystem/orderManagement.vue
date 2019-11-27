@@ -2,23 +2,58 @@
   <div class="orderManagement" v-loading="loading">
     <div class="table_header">
       <div v-if="viewsType === 0"><el-button type="primary" @click="jumpDetailsBtn('add')">新增订单</el-button></div>
-      <div v-if="viewsType === 2"><el-button>批量还原</el-button></div>
-      <div><el-input v-model="orderSearch.order" placeholder="订单号查询"></el-input></div>
-      <div><el-input v-model="orderSearch.order_status" placeholder="处理中订单查询"></el-input></div>
-      <div><el-input v-model="orderSearch.customer" placeholder="客户选择查询"></el-input></div>
-      <div><el-input v-model="orderSearch.departure" placeholder="发站查询"></el-input></div>
-      <div><el-input v-model="orderSearch.arrival" placeholder="到站查询"></el-input></div>
-      <div><el-input v-model="orderSearch.issuer" placeholder="发单人查询"></el-input></div>
-      <div><el-input v-model="orderSearch.submitter" placeholder="提交人查询"></el-input></div>
-      <div><el-input v-model="orderSearch.ticket_teller" placeholder="出票员查询"></el-input></div>
+<!--      <div v-if="viewsType === 2"><el-button>批量还原</el-button></div>-->
+      <div><el-input clearable v-model="orderSearch.order" placeholder="订单号查询"></el-input></div>
+      <div>
+        <el-select v-model="orderSearch.order_status" placeholder="订单状态查询" clearable  @change="selectCustomer(orderSearch.customer)">
+          <el-option label="已处理" value="1"></el-option>
+          <el-option label="处理中" value="2"></el-option>
+        </el-select>
+      </div>
+      <div>
+        <el-select v-model="orderSearch.customer" placeholder="客户选择" clearable  @change="selectCustomer(orderSearch.customer)">
+          <el-option v-for="item in client" :key="item.id" :label="item.name" :value="item.identity"></el-option>
+        </el-select>
+      </div>
+      <div>
+        <el-select v-model="orderSearch.issuer" placeholder="发单人选择" clearable>
+          <el-option v-for="item in issuerList" :key="item.id" :label="item.name" :value="item.id"></el-option>
+        </el-select>
+      </div>
+      <div><el-input clearable v-model="orderSearch.departure" placeholder="发站查询"></el-input></div>
+      <div><el-input clearable v-model="orderSearch.arrival" placeholder="到站查询"></el-input></div>
+      <div>
+        <el-select v-model="orderSearch.submitter" placeholder="提交人查询" clearable>
+          <el-option v-for="item in companyAccount" :key="item.id" :label="item.nickname" :value="item.target"></el-option>
+        </el-select>
+      </div>
+      <div>
+        <el-select v-model="orderSearch.ticket_teller" placeholder="出票员查询" clearable>
+          <el-option v-for="item in companyAccount" :key="item.id" :label="item.nickname" :value="item.target"></el-option>
+        </el-select>
+      </div>
        <div><el-date-picker
-          v-model="orderSearch.time"
+          v-model="orderSearch.ridingTime"
           type="daterange"
           range-separator="至"
-          start-placeholder="开始日期"
-          end-placeholder="结束日期">
+          start-placeholder="乘车开始日期"
+          end-placeholder="乘车结束日期">
        </el-date-picker></div>
-      <div><el-button>搜索</el-button></div>
+      <div><el-date-picker
+          v-model="orderSearch.submitTime"
+          type="daterange"
+          range-separator="至"
+          start-placeholder="提交开始日期"
+          end-placeholder="提交结束日期">
+      </el-date-picker></div>
+      <div><el-date-picker
+          v-model="orderSearch.remarkTime"
+          type="daterange"
+          range-separator="至"
+          start-placeholder="备注开始日期"
+          end-placeholder="备注结束日期">
+      </el-date-picker></div>
+      <div><el-button @click="getDataList('search')">搜索</el-button></div>
     </div>
     <div class="table_main">
       <div class="table_content">
@@ -175,7 +210,23 @@
         tableData: [],
         viewsType: 0, // 网页类型
 
-        orderSearch: {}, // 订单搜索
+        orderSearch: {
+          order: '',
+          order_status: '',
+          customer: '',
+          issuer: '',
+          departure: '',
+          arrival: '',
+          submitter: '',
+          ticket_teller: '',
+          ridingTime: '',
+          submitTime: '',
+          remarkTime: '',
+        }, // 订单搜索
+        client: [], // 客户商列表
+        issuerList: [], // 发单人列表
+
+        companyAccount: [], // 公司内部账号列表
 
         orderId: '', // 订单Id
 
@@ -205,23 +256,86 @@
       },
       downSelectExcel(){},
 
-      getDataList(){
+      /**
+       * @Description: 获取客户商
+       * @author Wish
+       * @date 2019/11/27
+      */
+      getClient(){
+        this.$axios.get('/api/user/customer/showAll')
+            .then(res =>{
+              this.client = res.data.result;
+            })
+      },
+
+      /**
+       * @Description: 选中客户商 获取发单人
+       * @author Wish
+       * @date 2019/11/21
+       */
+      selectCustomer(val){
+        this.orderSearch.issuer = ''
+        this.client.forEach(res =>{
+          if(res.identity === val){
+            this.issuerList = res.issuer
+          }
+        })
+      },
+
+      /**
+       * @Description: 获取公司内部账号
+       * @author Wish
+       * @date 2019/11/27
+      */
+      getCompanyAccount(){
+        this.$axios.get('/api/user/showCompanyAccount/1')
+            .then(res =>{
+              if(res.data.code === 0){
+                this.companyAccount = res.data.result
+              }else {
+                this.$message.warning(res.data.msg)
+              }
+            })
+      },
+
+      /**
+       * @Description: 获取数据
+       * @author Wish
+       * @date 2019/11/27
+      */
+      getDataList(type){
         this.loading = true
         this.viewsType =  this.$route.meta.name === '订单管理'? 0:
             this.$route.meta.name === '不明订单'? 1:
                 this.$route.meta.name === '回收订单'? 2:
                     this.$route.meta.name === '历史订单查询'? 3:
                         this.$route.meta.name === '新备注订单列表'? 4: ''
+        let data
+        if(type === 'search'){
+          data = JSON.parse(JSON.stringify(this.orderSearch))
+          console.log(data.ridingTime);
+          data.ridingTime?data['ridingBegin'] = this.$dateToDate(data.ridingTime[0]) || '':''
+          data.ridingTime?data['ridingEnd'] = this.$dateToDate(data.ridingTime[1]) || '': ''
+          data.submitTime?data['submitBegin'] = this.$dateToDate(data.submitTime[0]) || '': ''
+          data.submitTime?data['submitEnd'] = this.$dateToDate(data.submitTime[1]) || '': ''
+          data.remarkTime?data['remarkBegin'] = this.$dateToDate(data.remarkTime[0]) || '': ''
+          data.remarkTime?data['remarkEnd'] = this.$dateToDate(data.remarkTime[1]) || '': ''
+          data['page'] = this.page || null
 
-        let data = {
-          page: this.page || null
+        }else {
+          data = {
+            page: this.page || null
+          }
         }
-        this.$axios.get('/api/order/list/'+this.viewsType + '/'+ this.per_page,{params:data})
+
+        this.$axios.post('/api/order/list/'+this.viewsType + '/'+ this.per_page,data)
             .then(res =>{
               this.loading = false;
               this.tableData = res.data.data
               this.paginationList = res.data
               this.selectList = []
+              this.getClient()
+              this.getCompanyAccount()
             })
             .catch(() =>{
               this.$message.warning('数据请求失败，请稍后重试')

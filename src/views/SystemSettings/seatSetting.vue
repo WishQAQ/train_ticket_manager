@@ -291,13 +291,13 @@
       },
 
     },
-    watch: {
-      '$route'(to, from) {
-        this.loading = true;
-        this.urlType = this.$route.meta.name === '席别管理';
-        this.getDataList();
-      },
-    },
+    // watch: {
+    //   '$route'(to, from) {
+    //     this.loading = true;
+    //     this.urlType = this.$route.meta.name === '席别管理';
+    //     this.getDataList();
+    //   },
+    // },
     mounted(){
 
     },

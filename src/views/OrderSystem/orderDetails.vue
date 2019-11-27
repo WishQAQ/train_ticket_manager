@@ -1622,9 +1622,9 @@
             type: 'edit'
           }
         })
-        this.closedSelectList()
-        this.inputDisabled = false
-        this.urlType = 'edit'
+        // this.closedSelectList()
+        // this.inputDisabled = false
+        // this.urlType = 'edit'
         this.getBillerData(this.orderInfo.cname)  // 获取发单人列表
       },
 

@@ -340,14 +340,14 @@
         this.getData()
       },
     },
-    watch: {
-      '$route'(to, from) {
-        this.loading = true;
-        this.routerType = this.$route.meta.name;
-        this.searchForm = {}
-        this.getData();
-      },
-    },
+    // watch: {
+    //   '$route'(to, from) {
+    //     this.loading = true;
+    //     this.routerType = this.$route.meta.name;
+    //     this.searchForm = {}
+    //     this.getData();
+    //   },
+    // },
     created() {
       this.getData()
     }
@@ -358,7 +358,7 @@
   .tickets{
     display: flex;
     flex-direction: column;
-    padding: 80px 2%;
+    padding: 30px 2%;
     .ticket_header{
       display: flex;
       align-items: center;

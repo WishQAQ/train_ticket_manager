@@ -20,7 +20,7 @@ Vue.prototype.$telPhone = (phone) =>{
 /**
  * @Description: 时间格式转换
  * @author Wish
- * @date 2019/9/28 
+ * @date 2019/9/28
 */
 Vue.prototype.$timestampFormat =(timestamp) => {
   function zeroize( num ) {

@@ -9,10 +9,18 @@
         <el-option label="已改签" value="3"></el-option>
         <el-option label="已退票" value="4"></el-option>
       </el-select></div>
-      <div><el-input clearable placeholder="客户选择" v-model="searchForm.customer_identity"></el-input></div>
-      <div><el-input clearable placeholder="出票员" v-model="searchForm.drawer"></el-input></div>
+      <div>
+        <el-select v-model="searchForm.customer" placeholder="客户选择" clearable>
+          <el-option v-for="item in client" :key="item.id" :label="item.name" :value="item.identity"></el-option>
+        </el-select>
+      </div>
       <div><el-input clearable placeholder="发站" v-model="searchForm.departure"></el-input></div>
       <div><el-input clearable placeholder="到站" v-model="searchForm.arrive"></el-input></div>
+      <div>
+        <el-select v-model="searchForm.drawer" placeholder="出票员查询" clearable>
+          <el-option v-for="item in companyAccount" :key="item.id" :label="item.nickname" :value="item.target"></el-option>
+        </el-select>
+      </div>
       <el-date-picker
           v-model="searchForm.time"
           type="daterange"
@@ -20,7 +28,7 @@
           start-placeholder="开始日期"
           end-placeholder="结束日期">
       </el-date-picker>
-      <div><el-button>搜索</el-button></div>
+      <div><el-button @click="getDataList('search')">搜索</el-button></div>
     </div>
     <div class="ticket_main">
       <el-table
@@ -148,7 +156,12 @@
         loading: true,
         ticketData: [], // 车票数据
 
-        searchForm: {},
+        searchForm: {
+          time: ''
+        },
+
+        client: [], // 客户商列表
+        companyAccount: [], // 内部账号列表
 
         selectUserId: [],
 
@@ -158,19 +171,59 @@
       }
     },
     methods:{
-      getDataList(){
+      getDataList(type){
         this.loading = true
         this.urlType = this.routerType === '网票统计'?'1':
             this.routerType === '纸票统计'? '2':
                 this.routerType === '电子票统计'? '0':''
-        let data = {
-          page: this.page || null,
+        let data
+        if(type === 'search'){
+          data = JSON.parse(JSON.stringify(this.searchForm))
+          data['page'] = this.page || null
+          data.time?data['begin'] = this.$dateToDate(data.time[0]):''
+          data.time?data['end'] = this.$dateToDate(data.time[1]):''
+          delete data.time
+        }else {
+          data = {
+            page: this.page || null,
+          }
         }
+
         this.$axios.post('/api/system/ticketType/'+this.urlType+'/'+this.per_page,data)
             .then(res =>{
               this.ticketData = res.data.result.data
               this.loading = false
               this.paginationList = res.data.result
+              this.getClient()
+              this.getCompanyAccount()
+            })
+      },
+
+      /**
+       * @Description: 获取客户商
+       * @author Wish
+       * @date 2019/11/27
+       */
+      getClient(){
+        this.$axios.get('/api/user/customer/showAll')
+            .then(res =>{
+              this.client = res.data.result;
+            })
+      },
+
+      /**
+       * @Description: 获取公司内部账号
+       * @author Wish
+       * @date 2019/11/27
+       */
+      getCompanyAccount(){
+        this.$axios.get('/api/user/showCompanyAccount/1')
+            .then(res =>{
+              if(res.data.code === 0){
+                this.companyAccount = res.data.result
+              }else {
+                this.$message.warning(res.data.msg)
+              }
             })
       },
 
@@ -248,13 +301,13 @@
         this.getDataList()
       },
     },
-    watch: {
-      '$route'(to, from) {
-        this.loading = true;
-        this.routerType = this.$route.meta.name;
-        this.getDataList();
-      },
-    },
+    // watch: {
+    //   '$route'(to, from) {
+    //     this.loading = true;
+    //     this.routerType = this.$route.meta.name;
+    //     this.getDataList();
+    //   },
+    // },
     created() {
       this.getDataList()
     }

@@ -686,14 +686,14 @@
 
 
     },
-    watch: {
-      personnelText(val) {
-        this.$refs.personnelTree.filter(val);
-      },
-      '$route'(to,form){
-        this.getData()
-      }
-    },
+    // watch: {
+    //   personnelText(val) {
+    //     this.$refs.personnelTree.filter(val);
+    //   },
+    //   '$route'(to,form){
+    //     this.getData()
+    //   }
+    // },
     created() {
       this.getData()
     }
