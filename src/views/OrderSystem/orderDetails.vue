@@ -364,10 +364,10 @@
               :key="cIndex"
               class="passenger_table_route">
             <div class="train_route_message">
-              <div style="margin-right: 15px"
-                   v-if="urlType === 'edit'">
-                <el-checkbox @change="checkedOrderData(item,cItem)" v-model="checkedOrderBtn"></el-checkbox>
-              </div>
+<!--              <div style="margin-right: 15px"-->
+<!--                   v-if="urlType === 'edit'">-->
+<!--                <el-checkbox @change="checkedOrderData(item,cItem)" v-model="checkedOrderBtn"></el-checkbox>-->
+<!--              </div>-->
               <div>行程时间：<span>{{$getTimeYear(cItem.riding_time * 1000)}}</span></div>
                 <div>
                   乘车区间：
@@ -612,7 +612,7 @@
                       :placeholder="$getTimeYear(cItem.riding_time * 1000)">
                   </el-date-picker>
                 </div>
-                <div class="route_message edit_route_message" style="margin-left: 5px">
+                <div class="route_message edit_route_message" style="margin-top: 5px;margin-left: 0;width: 100%;justify-content: space-between">
                   <div style="width: 105px"><el-input clearable @input="change($event)" v-model="item.departure_station" :placeholder="cItem.departure_station"></el-input></div>
                   <div style="width: 60px">
                     <el-select clearable @input="change($event)" v-model="item.directionOne" placeholder="">
@@ -813,6 +813,13 @@
         custom-class="edit_ticket_message_dialog">
       <div class="detail_main">
         <el-form label-width="50px">
+          <el-form-item label="行程时间" class="edit_ticket_message_form">
+            <el-date-picker
+                v-model="new_riding_time"
+                type="date"
+                :placeholder="$getTimeYear(editTicketInfo.riding_time * 1000)">
+            </el-date-picker>
+          </el-form-item>
           <el-form-item label="发站" class="edit_ticket_message_form">
             <el-input :disabled="editTicketInfo.is_ticket_issue" class="edit_ticket_message_input" clearable :placeholder="editTicketInfo.departure_station" v-model="new_departure_station"></el-input>
             <el-select clearable style="width: 80px" v-model="departure_path" placeholder="方向">
@@ -822,9 +829,9 @@
               <el-option label="北" value="北"></el-option>
             </el-select>
           </el-form-item>
-<!--          <el-form-item label="车次">-->
-<!--            <el-input v-model="form.name"></el-input>-->
-<!--          </el-form-item>-->
+          <el-form-item label="车次">
+            <el-input :placeholder="editTicketInfo.trips_number" clearable v-model="new_trips_number"></el-input>
+          </el-form-item>
           <el-form-item label="到站" class="edit_ticket_message_form">
             <el-input :disabled="editTicketInfo.is_ticket_issue" class="edit_ticket_message_input" clearable :placeholder="editTicketInfo.arrival_station" v-model="new_arrival_station"></el-input>
             <el-select clearable style="width: 80px" v-model="arrival_path" placeholder="方向">
@@ -1111,6 +1118,9 @@
         new_arrival_station: '', // 新到站
         departure_path: '', // 发站方向
         arrival_path: '', // 到站方向
+        new_trips_number: '', //新车次
+        new_riding_time: '', // 新时间
+
         editTicketMessageLoading: false,  // 修改乘车区间提交按钮加载
 
 
@@ -1137,7 +1147,7 @@
     },
     watch: {
       '$route'(to, from) {
-        // this.urlTypeSelect()
+        this.urlTypeSelect()
         // this.getCustomerData()  // 获取客户商列表
       },
     },
@@ -1372,7 +1382,7 @@
         // }
         if(this.extensionsId){
           userInfo['type'] = type
-          chrome.runtime.sendMessage(this.extensionsId, {data:{action:type,order:userInfo}},
+          window.chrome.runtime.sendMessage(this.extensionsId, {data:{action:type,order:userInfo}},
               function(response) {});
           window.open("https://kyfw.12306.cn/otn/resources/login.html",'_blank')
         }else {
@@ -1669,7 +1679,8 @@
         let newForm = {}
         newForm['departure_station'] = this.new_departure_station? this.new_departure_station + this.departure_path: this.editTicketInfo.departure_station + this.departure_path
         newForm['arrival_station'] = this.new_arrival_station? this.new_arrival_station + this.arrival_path: this.editTicketInfo.arrival_station + this.arrival_path
-        newForm['riding_time'] = this.editTicketInfo.riding_time
+        newForm['trips_number'] = this.new_trips_number? this.new_trips_number: this.editTicketInfo.trips_number
+        newForm['riding_time'] = this.new_riding_time? this.$dateToMs(this.new_riding_time) / 1000 : this.editTicketInfo.riding_time
         let data = {
           order_sn: this.editTicketOrderInfo.order_sn,
           token: this.editTicketOrderInfo.parent_id,
@@ -2002,6 +2013,7 @@
         newForm['route_id'] = this.editRouteData.route_id
         newForm['passengers'] = this.editRouteData.passengers
         newForm['riding_time'] =  this.$dateToDate(this.editRouteData.riding_time)  || val.riding_time
+        newForm['trips_number'] = this.editRouteData.trips_number || ''
 
         if(this.editRouteData.departure_station){
           newForm['departure'] = this.editRouteData.directionOne? this.editRouteData.departure_station +this.editRouteData.directionOne:this.editRouteData.departure_station
@@ -2072,7 +2084,7 @@
             newForm['riding_time'] =  this.editRouteData.route[0].riding_time
             newForm['departure'] = this.editRouteData.directionOne?this.editRouteData.route[0].departure_station + this.editRouteData.directionOne:this.editRouteData.route[0].departure_station
             newForm['arrive'] = this.editRouteData.directionTwo?this.editRouteData.route[0].arrival_station + this.editRouteData.directionTwo:this.editRouteData.route[0].arrival_station
-            newForm['trips_number'] = this.editRouteData.route[0].trips_number
+            newForm['trips_number'] = this.editRouteData.route[0].trips_number || ''
 
             let newEditForm = {}  // 修改输入框信息
             newEditForm['ticket_type'] = this.editRouteData.ticket_type
@@ -2321,6 +2333,14 @@
               this.$message.success('保存成功')
               this.urlTypeSelect()
               this.getCustomerData()
+              this.$routerTab.close()
+              this.$router.push({
+                name: 'orderDetails',
+                query:{
+                  order_sn: this.orderInfo.order_sn,
+                  type: 'details'
+                }
+              })
             }else {
               this.$message.warning(res.data.msg)
               this.urlTypeSelect()
@@ -2504,6 +2524,7 @@
                 this.$message.success('保存成功')
                 this.allAddSubmitLoading = false
                 setTimeout(() =>{
+                  this.$routerTab.close()
                   this.$router.push({
                     name: 'orderDetails',
                     query:{
@@ -2511,7 +2532,6 @@
                       type: 'details'
                     }
                   })
-
                 },500)
               }else {
                 this.$message.warning(res.data.msg)
@@ -3197,12 +3217,13 @@
           .main_box_content{
             width: 100%;
             height: 100%;
-            padding-left: 15px;
+            padding: 15px;
             .content_route{
               display: flex;
               align-items: center;
+              flex-wrap: wrap;
               .content_edit_time{
-                width: 140px;
+                width: 100%;
                 /deep/.el-input{
                   width: 100%;
                 }

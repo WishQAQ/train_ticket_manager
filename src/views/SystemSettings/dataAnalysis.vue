@@ -82,7 +82,7 @@
 <!--        <el-option label="所有发单人" value="0"></el-option>-->
         <el-option
             v-for="item in billerList"
-            :key="item.identity"
+            :key="item.id"
             :label="item.name"
             :value="item.identity">
         </el-option>
@@ -375,7 +375,7 @@
             this.showTimeType = item === '车票' ? 0 :
                 item === '订单提交时间' ? 1 : 3
           }
-
+          console.log(val);
           this.showClient = item === '客户'
           this.showConductor = item === '售票员'
           this.showDate = item === '每日'
@@ -386,6 +386,7 @@
           this.showSite = item === '发站' || item === '到站'
           this.showTicketTypeInput = item === '票种'
           this.showLogin = item === '用户'
+          console.log(this.showConductor);
         })
 
         /**
@@ -395,7 +396,7 @@
         */
         if(this.showClient){
           this.getClientList()
-        }else if(this.showConductor || this.showTicketType !== '' || this.showLogin){
+        }else if(this.showConductor || this.showTicketType === false && this.showLogin){
           this.getConductorList()
         }else if(this.showBiller){
           this.getBillerList()
@@ -444,6 +445,7 @@
             .then(res =>{
               if(res.data.code === 0){
                 this.billerList = res.data.result
+                console.log(this.billerList);
               }else {
                 this.$message.warning(res.data.msg + ' ，数据获取失败，请刷新重试')
               }
@@ -542,14 +544,9 @@
                 this.$message.success('获取成功')
                 this.tableData = res.data.result
 
-                setTimeout(() => {
-                  this.chartData = this.tableData
-                  this.dataEmpty = !this.chartData.rows.length
-                }, 1000)
+                this.chartData = this.tableData
+                this.dataEmpty = !this.chartData.rows.length
 
-
-
-                console.log(this.chartData);
               }else {
                 this.$message.warning(res.data.msg)
                 this.loading = false

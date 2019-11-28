@@ -217,9 +217,14 @@
 
         <el-table-column
             v-if="viewsType === 1"
-            prop="amount2"
+            prop="actual_payment"
             align="center"
             label="实付款">
+          <template slot-scope="scope">
+            <div class="table_row_edit" @blur="openEditInput($event,scope.row,'actual_payment')" contentEditable>
+              {{scope.row.actual_payment}}
+            </div>
+          </template>
         </el-table-column>
 
         <el-table-column
@@ -650,6 +655,10 @@
        * @date 2019/10/30
       */
       openEditInput(editData,data,dataName){
+        // if(oldData){
+        //   console.log(editData.target.innerText);
+        // }
+        console.log(editData, data, dataName);
         let editText = editData.target.innerText
         let orderId = data.order_sn
         let orderName = data.cost_item[0].dataName
@@ -1043,25 +1052,25 @@
         this.getData()
       },
     },
-    // getDataList: {
-    //   '$route'(to, from) {
-    //     this.viewsType =  this.$route.meta.name === '待结算订单'? 0:
-    //         this.$route.meta.name === '已结算订单'? 1:
-    //             this.$route.meta.name === '未出账订单'? 2:
-    //                 this.$route.meta.name === '出账中订单'? 3: this.$route.meta.name
-    //     this.getData();
-    //     this.getClient();
-    //     this.showTable = false
-    //     this.$nextTick(() => {
-    //       this.showTable = true
-    //     })
-    //   },
-    // },
+    getDataList: {
+      '$route'(to, from) {
+        this.viewsType =  this.$route.meta.name === '待结算订单'? 0:
+            this.$route.meta.name === '已结算订单'? 1:
+                this.$route.meta.name === '未出账订单'? 3:
+                    this.$route.meta.name === '出账中订单'? 2: this.$route.meta.name
+        this.getData();
+        // this.getClient();
+        this.showTable = false
+        this.$nextTick(() => {
+          this.showTable = true
+        })
+      },
+    },
     created() {
       this.viewsType =  this.$route.meta.name === '待结算订单'? 0:
           this.$route.meta.name === '已结算订单'? 1:
-              this.$route.meta.name === '未出账订单'? 2:
-                  this.$route.meta.name === '出账中订单'? 3: this.$route.meta.name
+              this.$route.meta.name === '未出账订单'? 3:
+                  this.$route.meta.name === '出账中订单'? 2: this.$route.meta.name
       this.getData();
       this.getClient();
     }
