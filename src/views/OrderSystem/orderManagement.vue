@@ -343,6 +343,7 @@
             })
             .catch(() =>{
               this.$message.warning('数据请求失败，请稍后重试')
+              this.loading = false;
             })
       },
 

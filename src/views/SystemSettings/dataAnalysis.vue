@@ -386,7 +386,7 @@
           this.showSite = item === '发站' || item === '到站'
           this.showTicketTypeInput = item === '票种'
           this.showLogin = item === '用户'
-          console.log(this.showConductor);
+          console.log(this.showTicketType);
         })
 
         /**
@@ -396,9 +396,11 @@
         */
         if(this.showClient){
           this.getClientList()
-        }else if(this.showConductor || this.showTicketType === false && this.showLogin){
+        }
+        if(this.showConductor || this.showTicketType === false || this.showLogin){
           this.getConductorList()
-        }else if(this.showBiller){
+        }
+        if(this.showBiller){
           this.getBillerList()
         }
       },
@@ -441,7 +443,7 @@
        * @date 2019/11/13
       */
       getBillerList(){
-        this.$axios.get('/api/user/customer/showAll')
+        this.$axios.get('/api/user/issuer/showAll/1')
             .then(res =>{
               if(res.data.code === 0){
                 this.billerList = res.data.result
