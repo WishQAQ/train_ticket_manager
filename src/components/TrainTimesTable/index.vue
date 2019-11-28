@@ -20,21 +20,24 @@
           {{scope.$index+1}}
         </template>
       </el-table-column>
+<!--      <el-table-column-->
+<!--          width="50"-->
+<!--          label="合并">-->
+<!--        <template slot-scope="scope">-->
+<!--          {{scope.row.is_merge === 0 ? '是' : '否'}}-->
+<!--        </template>-->
+<!--      </el-table-column>-->
       <el-table-column
-          width="50"
-          label="合并">
-        <template slot-scope="scope">
-          {{scope.row.is_merge === 0 ? '是' : '否'}}
-        </template>
-      </el-table-column>
-      <el-table-column
-          width="240px"
+          min-width="280"
           align="center"
           label="乘客信息+票种">
         <template slot-scope="scope">
-          <div style="font-weight: bold">
-            <div><span style="margin-right: 10px">{{scope.row.name}}</span><span>{{scope.row.IDCard}}</span></div>
-            <div>{{scope.row.ticket_species === 0 ? '成人票': '儿童票'}}</div>
+          <div>
+            <div>
+              <span>{{scope.row.name}}</span>
+              <span style="margin: 0 10px">{{scope.row.IDCard}}</span>
+              <span v-if="scope.row.ticket_species !== 0">{{scope.row.ticket_species === 0 ? '成人票': '儿童票'}}</span>
+            </div>
           </div>
         </template>
       </el-table-column>
@@ -57,9 +60,10 @@
         </template>
       </el-table-column>
       <el-table-column
+          width="100"
           label="席别/席位号">
         <template slot-scope="scope">
-          <div style="font-weight: bold">
+          <div>
             {{scope.row.fwName}}
             {{scope.row.seat_number?' / ':''}}
             {{scope.row.seat_number || ''}}
@@ -67,14 +71,17 @@
         </template>
       </el-table-column>
       <el-table-column
+          width="80"
           prop="ticket_price"
           label="票价">
       </el-table-column>
       <el-table-column
+          width="80"
           prop="missed_meals_money"
           label="误餐费">
       </el-table-column>
       <el-table-column
+          width="80"
           label="退票款">
         <template slot-scope="scope">
           <el-input
@@ -86,6 +93,7 @@
         </template>
       </el-table-column>
       <el-table-column
+          width="80"
           label="出票费">
         <template slot-scope="scope">
           <el-input
@@ -97,16 +105,18 @@
         </template>
       </el-table-column>
       <el-table-column
+          width="80"
           label="车票状态">
         <template slot-scope="scope">
-          {{scope.row.ticket_status === 0?'未出票':
-          scope.row.ticket_status === 1?'已出票':
-          scope.row.ticket_status === 2?'已取消票':
-          scope.row.ticket_status === 3?'已改签':
-          scope.row.ticket_status === 4?'已退票':''}}
+          <span v-if="scope.row.ticket_status === 0" style="color: red">未出票</span>
+          <span v-if="scope.row.ticket_status === 1" style="color: green">已出票</span>
+          <span v-if="scope.row.ticket_status === 2" style="color: gray">已取消票</span>
+          <span v-if="scope.row.ticket_status === 3" style="color: blue">已改签</span>
+          <span v-if="scope.row.ticket_status === 4" style="color: #000">已退票</span>
         </template>
       </el-table-column>
       <el-table-column
+          width="100"
           prop="db_auftragsnummer"
           label="取票号">
       </el-table-column>
@@ -175,6 +185,7 @@
       </el-table-column>
       <el-table-column
           width="80"
+          fixed="right"
           v-if="tableModify === 'details'"
           label="操作">
         <template slot-scope="scope">

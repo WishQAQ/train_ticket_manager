@@ -113,18 +113,17 @@
     height: 100%;
     background: rgba(241, 248, 254, 1);
     .title{
-      font-size:35px;
+      font-size:26px;
       font-weight:normal;
-      line-height:49px;
       color:rgba(38,153,251,1);
-      margin-bottom: 47px;
+      margin-bottom: 20px;
     }
     .main{
-      width:584px;
-      height:582px;
-      background:rgba(255,255,255,1);
-      border-radius:29px;
-      padding: 95px 105px 0;
+      width: 570px;
+      height: 535px;
+      background: #ffffff;
+      border-radius: 29px;
+      padding: 70px 85px;
       .main_title{
         width: 100px;
         height: 100px;
@@ -167,7 +166,7 @@
         justify-content: center;
         height:52px;
         background:rgba(38,153,251,1);
-        font-size:22px;
+        font-size:18px;
         color:rgba(255,255,255,1);
         margin-top: 51px;
         cursor: pointer;

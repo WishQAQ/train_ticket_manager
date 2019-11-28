@@ -110,7 +110,12 @@
         loading: true,
         dataList: [],
 
-        searchForm: {},// 搜索
+        searchForm: { // 搜索
+          name: '',
+          target: '',
+          contact: '',
+          qq: '',
+        },
 
         userInfoDialog: false,
         dialogType: true, // 新增状态
@@ -145,18 +150,14 @@
        * @date 2019/10/16
       */
       searchBtn(){
-        let key
-        for (key in this.searchForm){
-          if(this.searchForm[key] === '' || this.searchForm === {}){
-            this.getDataList()
-          }else {
-            this.$axios.post('/api/user/issuer/search',this.searchForm,{async: false})
-                .then(res =>{
-                  this.dataList = res.data.result.data
-                })
-          }
-        }
-
+        this.$axios.post('/api/user/issuer/search',this.searchForm)
+            .then(res =>{
+              if(res.data.code === 0){
+                this.dataList = res.data.result.data
+              }else {
+                this.$message.warning(res.data.msg)
+              }
+            })
       },
 
       closeInfo(){

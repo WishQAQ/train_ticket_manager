@@ -206,7 +206,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    height: 80px;
+    height: 60px;
     padding: 0 30px;
     background:rgba(38,153,251,1);
     position: relative;
@@ -217,7 +217,7 @@
       color:rgba(255,255,255,1);
       cursor: pointer;
       height: 100%;
-      line-height: 80px;
+      line-height: 60px;
       flex-shrink: 0;
     }
 
@@ -231,7 +231,7 @@
         padding: 0 14px;
         display: inline-flex;
         align-items: center;
-        font-size:20px;
+        font-size:18px;
         color:rgba(255,255,255,1);
         position: relative;
         height: 100%;
@@ -259,7 +259,7 @@
         .nav_menu_more{
           position: absolute;
           left: 18px;
-          top: 96px;
+          top: 76px;
           width: 100%;
           z-index: 2002;
           max-height: 330px;
@@ -330,10 +330,10 @@
 
     .nav_mask{
       width: 100%;
-      height: calc(100vh - 80px);
+      height: calc(100vh - 60px);
       position: absolute;
       left: 0;
-      top: 80px;
+      top: 60px;
       display: flex;
       flex-direction: column;
       z-index: 2001;

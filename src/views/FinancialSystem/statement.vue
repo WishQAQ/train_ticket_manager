@@ -53,7 +53,8 @@
             prop="address"
             label="对账状态">
           <template slot-scope="scope">
-            {{scope.row.status === 0? '未结算':'已结清'}}
+            <span v-if="scope.row.status === 0" style="color: red">清账中</span>
+            <span v-if="scope.row.status === 1" style="color: green">已清账</span>
           </template>
         </el-table-column>
 

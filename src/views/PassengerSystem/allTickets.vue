@@ -55,6 +55,7 @@
           </template>
         </el-table-column>
         <el-table-column
+            min-width="230"
             label="乘客信息">
           <template slot-scope="scope">
             {{scope.row.name + ' ' + scope.row.IDCard}}
@@ -62,7 +63,7 @@
         </el-table-column>
         <el-table-column
             sortable
-            width="150"
+            width="110"
             label="行程时间">
           <template slot-scope="scope">
             {{$getTimeYear(scope.row.riding_time * 1000)}}
@@ -79,13 +80,13 @@
             label="到站">
         </el-table-column>
         <el-table-column
-            width="120"
+            width="80"
             prop="trips_number"
             label="车次">
         </el-table-column>
         <el-table-column
             prop="fwName"
-            width="90"
+            width="80"
             label="席别名称">
           <template slot-scope="scope">
             {{scope.row.fwName}}
@@ -94,7 +95,7 @@
           </template>
         </el-table-column>
         <el-table-column
-            width="90"
+            width="80"
             v-if="rulType === '0'"
             label="票类">
           <template slot-scope="scope">
@@ -132,7 +133,7 @@
             label="出票款">
         </el-table-column>
         <el-table-column
-            width="150"
+            width="120"
             v-if="rulType === '0'"
             sortable
             label="出票时间">
@@ -144,11 +145,11 @@
             width="80"
             label="车票状态">
           <template slot-scope="scope">
-            {{scope.row.ticket_status === 0?'未出票':
-            scope.row.ticket_status === 1?'已出票':
-            scope.row.ticket_status === 2?'已取消票':
-            scope.row.ticket_status === 3?'已改签':
-            scope.row.ticket_status === 4?'已退票':'数据异常 '}}
+            <span v-if="scope.row.ticket_status === 0" style="font-weight:unset;color: red">未出票</span>
+            <span v-if="scope.row.ticket_status === 1" style="font-weight:unset;color: green">已出票</span>
+            <span v-if="scope.row.ticket_status === 2" style="font-weight:unset;color: gray">已取消票</span>
+            <span v-if="scope.row.ticket_status === 3" style="font-weight:unset;color: blue">已改签</span>
+            <span v-if="scope.row.ticket_status === 4" style="font-weight:unset;color: black">已退票</span>
           </template>
         </el-table-column>
         <el-table-column
@@ -387,6 +388,11 @@
       }
     }
     .ticket_main{
+      font-weight: bold;
+      /deep/.el-table{
+        font-size: 14px;
+        color: #000;
+      }
       .ticket_order_id{
         cursor: pointer;
         &:hover{

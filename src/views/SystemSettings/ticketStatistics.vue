@@ -10,7 +10,7 @@
         <el-option label="已退票" value="4"></el-option>
       </el-select></div>
       <div>
-        <el-select v-model="searchForm.customer" placeholder="客户选择" clearable>
+        <el-select v-model="searchForm.customer_identity" placeholder="客户选择" clearable>
           <el-option v-for="item in client" :key="item.id" :label="item.name" :value="item.identity"></el-option>
         </el-select>
       </div>
@@ -157,7 +157,13 @@
         ticketData: [], // 车票数据
 
         searchForm: {
-          time: ''
+          time: '',
+          info: '',
+          order_status: '',
+          customer_identity: '',
+          departure: '',
+          arrive: '',
+          drawer: ''
         },
 
         client: [], // 客户商列表
@@ -180,6 +186,8 @@
         if(type === 'search'){
           data = JSON.parse(JSON.stringify(this.searchForm))
           data['page'] = this.page || null
+          data['begin']= ''
+          data['end']= ''
           data.time?data['begin'] = this.$dateToDate(data.time[0]):''
           data.time?data['end'] = this.$dateToDate(data.time[1]):''
           delete data.time
@@ -322,7 +330,6 @@
     .ticket_header{
       display: flex;
       align-items: center;
-      flex-wrap: wrap;
       margin-bottom: 10px;
       >div{
         margin-right: 10px;

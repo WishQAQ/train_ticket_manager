@@ -441,13 +441,12 @@
       */
       submitBtn(){
         if(this.userInfo.role_name){
-          let roleListData = this.userInfo.permission_field || []
+          let roleListData = JSON.parse(JSON.stringify(this.userInfo.permission_field))
+
           roleListData.map(res =>{
             res['field_id'] = res.id;
             res.is_read_in =  res.is_read_in ? 0 : 1
             res.is_show =  res.is_show ? 0 : 1
-            delete res.id
-            return delete res.name
           })
           this.userInfo['permission_field'] = JSON.stringify(roleListData)
           if(this.showAddForm){
@@ -462,9 +461,12 @@
                     this.initialization()
                     this.$message.success('创建成功')
                     this.submitLoading = false
+                    this.treeLoading = false
                   } else {
                     this.$message.warning(res.data.msg)
                     this.submitLoading = false
+                    this.treeLoading = false
+                    this.userInfo.permission_field = this.userInfo.permission_field?JSON.parse(this.userInfo.permission_field):this.userInfo.permission_field
                   }
 
                 })
@@ -481,16 +483,21 @@
                     this.initialization()
                     this.$message.success('保存成功')
                     this.submitLoading = false
+                    this.treeLoading = false
                   } else {
                     this.$message.warning(res.data.msg)
                     this.submitLoading = false
+                    this.treeLoading = false
+                    this.userInfo.permission_field = this.userInfo.permission_field?JSON.parse(this.userInfo.permission_field):this.userInfo.permission_field
                   }
-
                 })
           }
 
         }else {
+          this.submitLoading = false
+          this.treeLoading = false
           this.$message.warning('请填写角色名称')
+          this.userInfo.permission_field = this.userInfo.permission_field?JSON.parse(this.userInfo.permission_field):this.userInfo.permission_field
         }
       },
 

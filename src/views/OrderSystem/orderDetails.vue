@@ -1,13 +1,12 @@
 <template>
   <div class="orderDetails" v-loading="loading">
-    <el-button class="edit_order_btn" type="primary" v-if="urlType === 'details'" @click="openEditBtn">编辑订单</el-button>
     <div class="order_header" v-if="urlType !== 'add' || addHeaderShow">
       <div class="header_title" @click="openHeaderDetailsBtn">
         <i v-if="!headerDetails" class="el-icon-circle-plus-outline"></i>
         <i v-else class="el-icon-remove-outline"></i>
         订单Q群原始信息
       </div>
-      <el-button class="header_btn" v-if="urlType === 'details' && this.orderInfo.source_file">原始文件下载</el-button>
+      <a class="header_btn" :href="this.orderInfo.source_file" download="原始文件" v-if="urlType === 'details' && this.orderInfo.source_file">原始文件下载</a>
     </div>
 
     <!-- Q群信息展开 -->
@@ -271,7 +270,7 @@
     <!-- 详情or编辑 表格 -->
     <div v-if="urlType !== 'add'">
       <!-- 广告 -->
-      <div class="order_carousel" v-if="urlType === 'details'">
+      <div class="order_carousel" v-if="urlType === 'details' && orderInfo.news === []">
         <div class="carousel_main">
           <el-carousel class="carousel_main" height="40px" direction="vertical" loop autoplay arrow="none" indicator-position="none">
             <el-carousel-item v-for="(item ,index) in orderInfo.news" :key="index">
@@ -315,6 +314,7 @@
         <div class="search_btn">
           <div>
             <el-button @click="hiddenTable">{{showTableType?'隐藏':'显示'}}</el-button>
+            <el-button type="primary" v-if="urlType === 'details'" @click="openEditBtn">编辑订单</el-button>
             <el-button type="primary" v-if="urlType === 'details'" @click="selectJumpPay">批量购票</el-button>
             <el-button type="primary"
                        @click="openBatchEdit"
@@ -399,7 +399,7 @@
       </div>
 
       <div class="order_add_remarks" v-if="urlType === 'edit'">
-        <el-input placeholde="请填写需要新添加的备注信息" v-model="addRemarksMessage"></el-input>
+        <div style="flex: 1"><el-input placeholder="请填写需要新添加的备注信息" v-model="addRemarksMessage"></el-input></div>
         <el-button @click="submitNewRemarsk" type="primary">提交备注</el-button>
       </div>
 
@@ -421,17 +421,21 @@
                 </template>
               </el-table-column>
               <el-table-column
+                  width="140"
+                  show-overflow-tooltip
                   label="备注人"
                   prop="nickname">
               </el-table-column>
               <el-table-column
+                  show-overflow-tooltip
                   label="备注"
                   prop="remarks">
               </el-table-column>
               <el-table-column
+                  width="145"
                   label="时间">
                 <template slot-scope="scope">
-                  {{$getTime(scope.row.updated_at * 1000)}}
+                  <div style="font-size: 12px">{{$getTime(scope.row.updated_at * 1000)}}</div>
                 </template>
               </el-table-column>
             </el-table>
@@ -462,25 +466,31 @@
                 </template>
               </el-table-column>
               <el-table-column
+                  width="140"
+                  show-overflow-tooltip
                   label="备注人"
                   prop="nickname">
               </el-table-column>
               <el-table-column
+                  width="55"
                   label="动作"
                   prop="action">
               </el-table-column>
               <el-table-column
+                  width="75"
                   label="字段"
                   prop="field">
               </el-table-column>
               <el-table-column
+                  show-overflow-tooltip
                   label="写入值"
                   prop="read_in">
               </el-table-column>
               <el-table-column
+                  width="145"
                   label="时间">
                 <template slot-scope="scope">
-                  {{$getTime(scope.row.updated_at * 1000)}}
+                  <div style="font-size: 12px">{{$getTime(scope.row.updated_at * 1000)}}</div>
                 </template>
               </el-table-column>
             </el-table>
@@ -2259,7 +2269,7 @@
               this.strokeTableType === '往返' ? 1 :
                   this.strokeTableType === '中转' ? 2 :
                       this.strokeTableType === '中转往返' ? 3 : '',
-          passenger: this.addStrokePassengers,
+          passengers: this.addStrokePassengers,
           info: JSON.stringify(newArr)
         }
         if(submitType){
@@ -2713,7 +2723,11 @@
         }
       }
       .header_btn{
-        margin-left: 55px;
+        margin-left: 20px;
+        color: #606266;
+        border: 1px solid #DCDFE6;
+        padding: 12px 20px;
+        border-radius: 4px;
       }
     }
 
@@ -2828,6 +2842,20 @@
             align-items: center;
             justify-content: center;
             flex-direction: column;
+            /deep/.UploadLeaflet{
+              .upload_main{
+                width: 100%;
+                height: 100%;
+                .el-upload{
+                  width: 100%;
+                  height: 100%;
+                  .el-upload-dragger{
+                    width: 100%;
+                    height: 100%;
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -2837,6 +2865,20 @@
         justify-content: center;
         margin-left: 150px;
         height: 120px;
+        /deep/.UploadLeaflet{
+          .upload_main{
+            width: 100%;
+            height: 100%;
+            .el-upload{
+              width: 100%;
+              height: 100%;
+              .el-upload-dragger{
+                width: 100%;
+                height: 100%;
+              }
+            }
+          }
+        }
       }
       .info_upload{
         margin-left: 150px;
@@ -2917,13 +2959,13 @@
     }
 
     .order_passenger_search{
-      margin-bottom: 40px;
+      margin-bottom: 20px;
       .search_box{
         display: flex;
         align-items: center;
         margin-bottom: 20px;
         /deep/.el-input{
-          margin-right: 15px;
+          margin-right: 5px;
         }
       }
       .search_btn{
@@ -2936,7 +2978,8 @@
 
     .order_passenger{
       .passenger_table{
-        margin-bottom: 40px;
+        margin-bottom: 20px;
+        border: 1px solid #bbc4cc;
         .train_route_message{
           height:65px;
           width: 100%;
@@ -2944,6 +2987,9 @@
           align-items: center;
           background:rgba(238,247,255,1);
           padding: 0 16px;
+          font-size: 14px;
+          font-weight: bold;
+          color: #000;
           .ticket_message{
             padding: 0 10px;
             display: flex;

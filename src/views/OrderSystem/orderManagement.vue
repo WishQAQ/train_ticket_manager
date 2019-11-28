@@ -5,7 +5,7 @@
 <!--      <div v-if="viewsType === 2"><el-button>批量还原</el-button></div>-->
       <div><el-input clearable v-model="orderSearch.order" placeholder="订单号查询"></el-input></div>
       <div>
-        <el-select v-model="orderSearch.order_status" placeholder="订单状态查询" clearable  @change="selectCustomer(orderSearch.customer)">
+        <el-select v-model="orderSearch.order_status" placeholder="车票状态查询" clearable  @change="selectCustomer(orderSearch.customer)">
           <el-option label="已处理" value="1"></el-option>
           <el-option label="处理中" value="2"></el-option>
         </el-select>
@@ -15,6 +15,20 @@
           <el-option v-for="item in client" :key="item.id" :label="item.name" :value="item.identity"></el-option>
         </el-select>
       </div>
+      <div><el-date-picker
+          v-model="orderSearch.submitTime"
+          type="daterange"
+          range-separator="至"
+          start-placeholder="订单提交开始时间"
+          end-placeholder="订单提交结束时间">
+      </el-date-picker></div>
+      <div><el-date-picker
+          v-model="orderSearch.ridingTime"
+          type="daterange"
+          range-separator="至"
+          start-placeholder="行程开始时间"
+          end-placeholder="行程结束时间">
+      </el-date-picker></div>
       <div>
         <el-select v-model="orderSearch.issuer" placeholder="发单人选择" clearable>
           <el-option v-for="item in issuerList" :key="item.id" :label="item.name" :value="item.id"></el-option>
@@ -32,20 +46,7 @@
           <el-option v-for="item in companyAccount" :key="item.id" :label="item.nickname" :value="item.target"></el-option>
         </el-select>
       </div>
-       <div><el-date-picker
-          v-model="orderSearch.ridingTime"
-          type="daterange"
-          range-separator="至"
-          start-placeholder="乘车开始日期"
-          end-placeholder="乘车结束日期">
-       </el-date-picker></div>
-      <div><el-date-picker
-          v-model="orderSearch.submitTime"
-          type="daterange"
-          range-separator="至"
-          start-placeholder="提交开始日期"
-          end-placeholder="提交结束日期">
-      </el-date-picker></div>
+
       <div><el-date-picker
           v-model="orderSearch.remarkTime"
           type="daterange"
@@ -62,15 +63,15 @@
           <div style="width: 60px;flex-shrink: 0;">
             <el-checkbox v-model="checkAll" @change="handleCheckAllChange"></el-checkbox>
           </div>
-          <div style="width: 220px;flex-shrink: 0;">订单号</div>
-          <div style="width: 150px; flex-shrink: 0">行程时间</div>
+          <div style="width: 180px;flex-shrink: 0;">订单号</div>
+          <div style="width: 120px; flex-shrink: 0">行程时间</div>
           <div>发站</div>
           <div>到站</div>
-          <div>任务进度</div>
+          <div style="width: 80px;flex-shrink: 0;">任务进度</div>
           <div>客户</div>
           <div>发单人</div>
-          <div>订单状态</div>
-          <div>财务状态</div>
+          <div style="width: 80px;flex-shrink: 0;">车票状态</div>
+          <div style="width: 80px;flex-shrink: 0;">财务状态</div>
           <div>备注信息</div>
           <div style="width: 80px;flex-shrink: 0;">操作</div>
         </div>
@@ -81,18 +82,21 @@
               <div style="width: 60px">
                 <el-checkbox @change="handleCheckChange(item)"></el-checkbox>
               </div>
-              <div style="width: 220px">{{item.order_sn}}</div>
+              <div style="width: 180px">{{item.order_sn}}</div>
             </div>
             <div class="list_main">
               <div class="list_box" v-for="(cItem, CIndex) in item.info" :key="CIndex">
-                <div style="width: 150px; flex-shrink: 0">{{$getTimeYear(cItem.riding_time * 1000) || ''}}</div>
+                <div style="width: 120px; flex-shrink: 0">{{$getTimeYear(cItem.riding_time * 1000) || ''}}</div>
                 <div>{{cItem.departure_station}}</div>
                 <div>{{cItem.arrival_station}}</div>
-                <div>{{item.incompleteTask +'/'+item.finishTask}}</div>
+                <div style="width: 80px; flex-shrink: 0">{{item.incompleteTask +'/'+item.finishTask}}</div>
                 <div>{{item.Cname}}</div>
                 <div>{{item.fdName}}</div>
-                <div>{{item.order_status === 0 ? '处理中':'已处理'}}</div>
-                <div>{{item.finance_status}}</div>
+                <div style="width: 80px;flex-shrink: 0;font-weight: unset">
+                  <span v-if="item.order_status === 0" style="color: red">处理中</span>
+                  <span v-if="item.order_status === 1" style="color: green">已处理</span>
+                </div>
+                <div style="width: 80px;flex-shrink: 0;">{{item.finance_status}}</div>
                 <div>
                   <p v-if="item.desc.is_important === 1">
                     <span class="important_remarks">{{item.desc.remarks}}</span>
@@ -645,7 +649,7 @@
       display: flex;
       align-items: center;
       flex-wrap: wrap;
-      margin-bottom: 40px;
+      margin-bottom: 20px;
       >div{
         margin-right: 15px;
         margin-bottom: 10px;
@@ -713,6 +717,11 @@
                 justify-content: center;
                 height: 100%;
                 min-height: 50px;
+                &:last-child{
+                  color: #000;
+                  font-weight: bold;
+                }
+
               }
             }
             .list_main{
@@ -744,6 +753,8 @@
                   height: 50px;
                   border-left: 1px solid #ebeef5;
                   padding: 0 5px;
+                  color: #000;
+                  font-weight: bold;
                   &:last-child{
                     border-right: 1px solid #ebeef5;
                   }

@@ -43,8 +43,8 @@
             placeholder="结束时间">
         </el-date-picker>
       </div>
-      <div>
-        <el-button type="primary" @click="search">搜索</el-button>
+      <div style="display: flex">
+        <el-button type="primary" @click="getData('search')">搜索</el-button>
         <el-button v-if="viewsType !== 1" :disabled="selectList.length < 1" type="primary" @click="jumpBatchStatement()">批量对账</el-button>
       </div>
     </div>
@@ -94,10 +94,11 @@
           <el-table-column
               prop="customer_name"
               align="center"
-              min-width="120"
+              min-width="170"
               label="客户">
             <template slot-scope="scope">
-              {{scope.row.customer_name+' '+scope.row.issuer_name}}
+              <span v-if="scope.row.customer_name">{{scope.row.customer_name}}</span>
+              <span style="margin-left: 5px" v-if="scope.row.issuer_name">{{scope.row.issuer_name}}</span>
             </template>
           </el-table-column>
         </el-table-column>
@@ -210,7 +211,7 @@
             width="80"
             label="对账单号">
           <template slot-scope="scope">
-            <el-button size="mini" :disabled="scope.row.bill_numbers.length < 1" @click="viewBillNumberBtn(scope.row.bill_numbers)">查看</el-button>
+            <el-button size="mini" :disabled="!scope.row.bill_numbers || scope.row.bill_numbers.length < 1" @click="viewBillNumberBtn(scope.row.bill_numbers)">查看</el-button>
           </template>
         </el-table-column>
 
@@ -227,7 +228,8 @@
             width="80px"
             label="订单状态">
           <template slot-scope="scope">
-            {{scope.row.order_status === 0?'未处理':'已处理'}}
+            <span v-if="scope.row.order_status === 0" style="font-weight:unset;color: red">未处理</span>
+            <span v-if="scope.row.order_status === 1" style="font-weight:unset;color: green">已处理</span>
           </template>
         </el-table-column>
 
@@ -436,21 +438,22 @@
         </div>
       </el-dialog>
 
-      <el-dropdown trigger="click">
-        <el-button class="export">导出</el-button>
-        <el-dropdown-menu slot="dropdown">
-          <el-dropdown-item><div @click="exportOrder">导出当前页面</div></el-dropdown-item>
-          <el-dropdown-item><div @click="exportAllTable(0)">导出全部</div></el-dropdown-item>
-        </el-dropdown-menu>
-      </el-dropdown>
+
       <div class="pages">
         <Pagination
+            v-if="paginationList"
             ref="pagination"
             :pageData="paginationList"
             @jumpSize="jumpSize"
             @jumpPage="jumpPage">
         </Pagination>
-        <el-button  class="refresh" size="mini" @click="getData" >刷新</el-button>
+        <el-dropdown style="margin-left: auto" trigger="click">
+          <el-button class="export">导出</el-button>
+          <el-dropdown-menu slot="dropdown">
+            <el-dropdown-item><div @click="exportOrder">导出当前页面</div></el-dropdown-item>
+            <el-dropdown-item><div @click="exportAllTable(0)">导出全部</div></el-dropdown-item>
+          </el-dropdown-menu>
+        </el-dropdown>
       </div>
     </div>
     <div class="bottom">
@@ -551,28 +554,31 @@
     },
     methods:{
       //获取列表
-      getData(){
-        this.paginationList ={}
+      getData(type){
         this.loading = true
         this.showTable = false
-        let data = {
-          page: this.page || null
+        let data
+        if(type === 'search'){
+          data = JSON.parse(JSON.stringify(this.searchForm))
+          data.begin?data.begin = this.$dateToDate(data.begin): ''
+          data.end?data.end = this.$dateToDate(data.end): ''
+          data['page'] = this.page || null
+        }else {
+          data = {
+            page: this.page || null
+          }
         }
+
         this.$axios.post('/api/finance/getInfo/'+this.viewsType+'/'+this.per_page, data)
             .then(res =>{
               this.tableData = res.data.data;
-              console.log(this.tableData);
+              this.paginationList = res.data;
               this.showTable = true
-              setTimeout(() =>{
-                this.tableData.map(item =>{
-                  if(String(item.bill_numbers) !== 'null'){
-                    return item.bill_numbers =item.bill_numbers.split(',')
-                  }
-                })
-              },500)
-               this.loading = false;
-               this.paginationList = res.data;
-               this.getDataTotal()
+              this.loading = false;
+              this.getDataTotal()
+              this.tableData.map(item =>{
+                item.bill_numbers?item.bill_numbers =item.bill_numbers.split(','): ''
+              })
             })
       },
 
@@ -603,26 +609,6 @@
           dataForm['customer'] = res.customer
           return dataForm
         });
-      },
-
-      //搜索
-      search(){
-        this.loading = true;
-        this.searchForm.begin = this.$dateToMs(this.searchForm.begin) / 1000
-        this.searchForm.end = this.$dateToMs(this.searchForm.end) / 1000
-        this.$axios.post('/api/finance/getInfo/'+this.viewsType+'/'+this.per_page,this.searchForm)
-            .then(res =>{
-              this.tableData = res.data.data;
-              this.showTable = true
-              this.tableData.forEach(item =>{
-                if(item.bill_numbers){
-                  return item.bill_numbers =item.bill_numbers.split(',')
-                }
-              })
-              this.loading = false;
-              this.paginationList = res.data;
-              this.getDataTotal()
-            })
       },
 
       //获取客户列表
@@ -1086,7 +1072,7 @@
   .content{
     display: flex;
     flex-direction: column;
-    padding: 80px 2%;
+    padding: 20px 2%;
     .top{
       display: flex;
       align-items: center;
@@ -1095,6 +1081,10 @@
       }
     }
     .center{
+      /deep/.el-table{
+        font-weight: bold;
+        color: black;
+      }
       .statement_number{
         display: block;
         cursor: pointer;

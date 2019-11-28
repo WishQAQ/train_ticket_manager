@@ -10,7 +10,7 @@
         :before-upload="beforeUpload"
         :on-success="handleAvatarSuccess">
       <img v-if="imageUrl && !showTxtDiv" :src="imageUrl" class="avatar">
-      <div v-if="imageUrl && showTxtDiv" class="avatar">{{imageUrl}}</div>
+      <div style="display: flex;align-items: center;justify-content: center" v-if="imageUrl && showTxtDiv" class="avatar">{{imageUrl}}</div>
       <div slot="trigger" v-if="!imageUrl">
         <i class="el-icon-upload"></i>
         <div class="el-upload__text">将{{messageText}}拖到此处，或<em>点击上传</em></div>

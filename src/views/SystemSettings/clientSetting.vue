@@ -123,7 +123,12 @@
         loading: true,
 
         addDialog: false, // 添加弹窗
-        addDataForm: {},
+        addDataForm: {
+          name: '',
+          prefix: '',
+          contact: '',
+          address: ''
+        },
         dialogType: true,  // 弹窗状态
 
         searchForm: {},  // 搜索
@@ -171,7 +176,12 @@
       addClient(){
         this.addDialog = true
         this.dialogType = true
-        this.addDataForm = {}
+        this.addDataForm = {
+          name: '',
+          prefix: '',
+          contact: '',
+          address: ''
+        }
       },
 
       /**
@@ -181,28 +191,38 @@
       */
       submitAdd(){
         if(this.dialogType){  // 新建
-          this.$axios.post('/api/user/customer/add',this.addDataForm)
-              .then(res =>{
-                if(res.data.code === 0){
-                  this.$message.success('保存成功')
-                  this.getDataList()
-                  this.addDialog = false
-                }else {
-                  this.$message.warning(res.data.msg)
-                }
-              })
+          if(this.addDataForm.name && this.addDataForm.prefix){
+            this.$axios.post('/api/user/customer/add',this.addDataForm)
+                .then(res =>{
+                  if(res.data.code === 0){
+                    this.$message.success('保存成功')
+                    this.getDataList()
+                    this.addDialog = false
+                  }else {
+                    this.$message.warning(res.data.msg)
+                  }
+                })
+          }else {
+            this.$message.warning('请填写完整信息')
+          }
+
         }else { // 修改
           this.addDataForm['type'] = 0
-          this.$axios.post('/api/user/customer/operation',this.addDataForm)
-              .then(res =>{
-                if(res.data.code === 0){
-                  this.$message.success('保存成功')
-                  this.getDataList()
-                  this.addDialog = false
-                }else {
-                  this.$message.warning(res.data.msg)
-                }
-              })
+          if(this.addDataForm.name && this.addDataForm.prefix){
+            this.$axios.post('/api/user/customer/operation',this.addDataForm)
+                .then(res =>{
+                  if(res.data.code === 0){
+                    this.$message.success('保存成功')
+                    this.getDataList()
+                    this.addDialog = false
+                  }else {
+                    this.$message.warning(res.data.msg)
+                  }
+                })
+          }else {
+            this.$message.warning('请填写完整信息')
+          }
+
         }
       },
 
@@ -304,7 +324,7 @@
   .clientSetting{
     display: flex;
     flex-direction: column;
-    padding: 80px 15%;
+    padding: 20px 5%;
     .client_header{
       display: flex;
       align-items: center;

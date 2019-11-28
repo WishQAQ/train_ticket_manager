@@ -476,7 +476,7 @@
   .statementInfo{
     display: flex;
     flex-direction: column;
-    padding: 80px 10%;
+    padding: 20px 5%;
     .info_header{
       display: flex;
       align-items: center;
