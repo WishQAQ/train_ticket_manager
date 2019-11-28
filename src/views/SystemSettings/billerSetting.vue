@@ -1,9 +1,9 @@
 <template>
   <div class="billerSetting" v-loading="loading">
     <div class="table_header">
-      <el-input v-model="searchForm.name" placeholder="发单人名称搜索"></el-input>
-      <el-input v-model="searchForm.qq" placeholder="QQ号搜索"></el-input>
-      <el-input v-model="searchForm.contact" placeholder="联系方式搜索"></el-input>
+      <el-input clearable v-model="searchForm.name" placeholder="发单人名称搜索"></el-input>
+      <el-input clearable v-model="searchForm.qq" placeholder="QQ号搜索"></el-input>
+      <el-input clearable v-model="searchForm.contact" placeholder="联系方式搜索"></el-input>
       <el-select clearable v-model="searchForm.target" placeholder="请选择客户商">
         <el-option
             v-for="item in dataList"
@@ -110,12 +110,7 @@
         loading: true,
         dataList: [],
 
-        searchForm: { // 搜索
-          name: '',
-          qq: '',
-          contact: '',
-          target: ''
-        },
+        searchForm: {},// 搜索
 
         userInfoDialog: false,
         dialogType: true, // 新增状态
@@ -150,10 +145,18 @@
        * @date 2019/10/16
       */
       searchBtn(){
-        this.$axios.post('/api/user/issuer/search',this.searchForm)
-            .then(res =>{
-              this.dataList = res.data.result.data
-            })
+        let key
+        for (key in this.searchForm){
+          if(this.searchForm[key] === '' || this.searchForm === {}){
+            this.getDataList()
+          }else {
+            this.$axios.post('/api/user/issuer/search',this.searchForm,{async: false})
+                .then(res =>{
+                  this.dataList = res.data.result.data
+                })
+          }
+        }
+
       },
 
       closeInfo(){

@@ -2,12 +2,12 @@
   <div class="statementInfo">
     <el-form class="info_header" label-width="100px">
       <el-form-item label="对账单号">
-        <el-input v-model="searchForm.orderId"></el-input>
+        <div>{{$route.query.condition}}</div>
       </el-form-item>
-      <el-form-item label="账期">
-        <el-input v-model="searchForm.orderTime"></el-input>
-      </el-form-item>
-      <el-button>搜索</el-button>
+<!--      <el-form-item label="账期对账时间">-->
+<!--        <el-input v-model="searchTime"></el-input>-->
+<!--      </el-form-item>-->
+<!--      <div style="margin-left: 15px"><el-button @click="submitSearch">搜索</el-button></div>-->
     </el-form>
 
 
@@ -25,15 +25,15 @@
           </template>
         </el-table-column>
         <el-table-column
-            label="账期到账时间">
+            label="账期对账时间">
           <template slot-scope="scope">
-            {{$getTime(scope.row.begin * 1000)}}
+            {{$getTimeYear(scope.row.begin * 1000)}}
           </template>
         </el-table-column>
         <el-table-column
             label="账期结束时间">
           <template slot-scope="scope">
-            {{$getTime(scope.row.end * 1000)}}
+            {{$getTimeYear(scope.row.end * 1000)}}
           </template>
         </el-table-column>
       </el-table>
@@ -203,7 +203,7 @@
     },
     data(){
       return {
-        searchForm: {}, // 搜索
+        searchTime: '', // 账期搜索
         tableData: [], // 账期数据
         receiptData: [], // 实收款数据
         addReceiptDialog: false,  // 添加实收款
@@ -241,6 +241,21 @@
               }
             })
       },
+
+      /**
+       * @Description: 搜索
+       * @author Wish
+       * @date 2019/11/28
+      */
+      submitSearch(){
+        if(this.searchTime){
+          this.tableData = this.tableData.filter(data => !this.searchTime || data.begin.toLowerCase().includes(this.searchTime.toLowerCase()))
+        }else {
+          this.getDataList()
+        }
+
+      },
+
       /**
        * @Description: 获取实收款数据
        * @author Wish
@@ -259,7 +274,7 @@
       /**
        * @Description: 获取订单凭证图片
        * @author Wish
-       * @date 2019/10/29 
+       * @date 2019/10/29
       */
       getOrderImage(){
         let data = {
@@ -268,8 +283,8 @@
         this.$axios.post('/api/finance/getData/1',data)
             .then(res =>{
               if(res.data.code === 0){
-                this.receiptImage = res.data.result.collection_voucher.split(',')
-                this.paymentImage = res.data.result.remittance_voucher.split(',')
+                res.data.result.collection_voucher?this.receiptImage = res.data.result.collection_voucher.split(','): null
+                res.data.result.remittance_voucher?this.paymentImage = res.data.result.remittance_voucher.split(','): null
               }else {
                 this.$message.warning(res.data.msg)
               }

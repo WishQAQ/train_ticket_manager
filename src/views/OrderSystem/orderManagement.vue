@@ -520,6 +520,9 @@
                 if(res.data.code === 0){
                   this.$message.success('合并成功')
                   this.mergerOrderDialog = false
+                  setTimeout(()=>{
+                    this.getDataList()
+                  },1000)
                 }else {
                   this.$message.warning(res.data.msg)
                 }

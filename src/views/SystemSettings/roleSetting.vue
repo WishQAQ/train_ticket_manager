@@ -104,12 +104,13 @@
           </el-tree>
         </el-form-item>
 
-        <el-form-item label="权限字段" v-loading="roleListLoading">
+        <el-form-item label="权限字段">
           <div class="role_box">
             <div class="role_list" v-for="item in roleList" :key="item.id">
               <div class="role_name">{{item.name}}</div>
               <div class="role_setting">
                 <el-switch
+                    @input="change($event)"
                     @change="roleSwitch(item)"
                     v-model="item.is_show"
                     active-color="#13ce66"
@@ -117,6 +118,7 @@
                 </el-switch>
 
                 <el-switch
+                    @input="change($event)"
                     @change="roleSwitch(item)"
                     v-if="item.is_show"
                     v-model="item.is_read_in"
@@ -129,7 +131,7 @@
         </el-form-item>
 
         <el-form-item>
-          <el-button @click="submitBtn">保存</el-button>
+          <el-button @click="submitBtn" v-loading="submitLoading">保存</el-button>
         </el-form-item>
 
       </el-form>
@@ -149,15 +151,17 @@
       return {
         loading: true,
         roleLoading: true,
-        treeLoading: false, // 详细信息加载
+        treeLoading: true, // 详细信息加载
         searchUserName: '',  // 用户名搜索
+
+        submitLoading: false, // 保存按钮加载
+
         userData: [],  // 角色列表
 
         roleList: [{
             is_read_in: false,
             is_show: false
           }], // 权限字段列表
-        roleListLoading: true,
         roleShow: false, // 是否显示
         roleRead: false, // 可否写入
 
@@ -189,6 +193,9 @@
       }
     },
     methods:{
+      change(e){
+        this.$forceUpdate()
+      },
       /**
        * @Description: 获取角色列表
        * @author Wish
@@ -207,6 +214,7 @@
                 this.loading = false
                 this.userData = res.data.result.data
                 this.paginationList = res.data.result
+                this.getRoleData()
               }
             })
       },
@@ -409,17 +417,20 @@
         }
         roleArray.push(val)
         roleArray = [...new Set(roleArray)]
-        // console.log(roleArray);
         this.userInfo['permission_field'] = roleArray
-        // console.log(this.userInfo['permission_field']);
       },
 
       getRoleData(){
+        this.treeLoading = true
         this.$axios.post('/api/authority/role/getRoleField')
             .then(res =>{
-              this.roleListLoading = false
-              this.roleList = JSON.parse(JSON.stringify(res.data.result))
-              this.userInfo['permission_field'] = []
+              if(res.data.code === 0){
+                this.treeLoading = false
+                this.roleList = JSON.parse(JSON.stringify(res.data.result))
+                this.userInfo['permission_field'] = []
+              }else {
+                this.$message.warning(res.data.msg)
+              }
             })
       },
 
@@ -440,6 +451,8 @@
           })
           this.userInfo['permission_field'] = JSON.stringify(roleListData)
           if(this.showAddForm){
+            this.submitLoading = true
+            this.treeLoading = true
             this.userInfo['permissionList'] = String(this.checkedRoleList)
             this.$axios.post('/api/authority/role/add',this.userInfo)
                 .then(res =>{
@@ -448,12 +461,16 @@
                     this.getDataList()
                     this.initialization()
                     this.$message.success('创建成功')
+                    this.submitLoading = false
                   } else {
                     this.$message.warning(res.data.msg)
+                    this.submitLoading = false
                   }
 
                 })
           } else {
+            this.submitLoading = true
+            this.treeLoading = true
             this.userInfo['condition'] = this.userInfo['role_id']
             this.userInfo['permissionList'] = String(this.checkedRoleList)
             this.userInfo['type'] = 1
@@ -463,8 +480,10 @@
                     this.getDataList()
                     this.initialization()
                     this.$message.success('保存成功')
+                    this.submitLoading = false
                   } else {
                     this.$message.warning(res.data.msg)
+                    this.submitLoading = false
                   }
 
                 })
@@ -491,7 +510,6 @@
     },
     created() {
       this.getDataList()
-      this.getRoleData()
     },
     mounted() {
       this.getData()

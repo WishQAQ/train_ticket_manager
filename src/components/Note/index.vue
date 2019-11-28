@@ -4,7 +4,7 @@
       <p>便签墙</p>
       <div @click="openNote">新增</div>
     </div>
-    <div class="note_main" v-loading="loading">
+    <div class="note_main_box" v-loading="loading" v-if="showNote">
 
       <drag-resize
           v-for="(item,index) in noteData"
@@ -106,6 +106,8 @@
 
         editNote: false, // 便签弹窗类型
 
+        showNote: false,
+
         width: 135,
         height: 160,
         xAxis: 0,
@@ -124,19 +126,21 @@
     methods: {
       getData(){
         this.loading = true
+        this.showNote = false
         this.$axios.get('/api/user/note/obtain/0')
             .then(res =>{
               if(res.data.code === 0){
                 this.loading = false
+                this.showNote = true
                 this.noteData = res.data.result
                 this.noteData.map((item,index) =>{
-                  if(index < 8){
+                  if(index < 5){
                     item['xAxis'] = index* 140
-                  } else if(index >= 8 && index < 16){
+                  } else if(index >= 5 && index < 10){
                     let count = index - 8
                     item['yAxis'] = 165
                     item['xAxis'] = count* 140
-                  } else if(index >= 16 && index < 24){
+                  } else if(index >= 10 && index < 15){
                     let count = index - 16
                     item['yAxis'] = 330
                     item['xAxis'] = count* 140
@@ -230,6 +234,7 @@
                 })
           }else {
             this.$message.warning('请填写完整信息')
+            this.showSubmitAddBtn= false;
           }
         }else { // 修改便签
           if(this.noteForm.title && this.noteForm.content){
@@ -295,9 +300,10 @@
         }
       }
     }
-    .note_main{
+    .note_main_box{
       position: relative;
       min-height: 500px;
+      max-width: 1110px;
       overflow: hidden;
       .note_card{
         border-radius: 8px;

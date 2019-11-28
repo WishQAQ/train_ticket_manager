@@ -2,9 +2,15 @@
   <div class="clientSetting" v-loading="loading">
     <div class="client_header">
       <div><el-button type="primary" @click="addClient">新增客户</el-button></div>
-      <div><el-input v-model="searchName" placeholder="客户名名称"></el-input></div>
-      <div><el-input v-model="searchTelPhone" placeholder="手机号搜索"></el-input></div>
-      <div><el-button type="primary">搜索</el-button></div>
+      <div><el-input clearable v-model="searchForm.name" placeholder="客户商名称"></el-input></div>
+      <div><el-date-picker
+          clearable
+          v-model="searchForm.time"
+          type="date"
+          placeholder="创建时间">
+      </el-date-picker></div>
+      <div><el-input clearable v-model="searchForm.contact" placeholder="联系方式"></el-input></div>
+      <div><el-button type="primary" @click="getDataList('search')">搜索</el-button></div>
     </div>
     <div class="client">
       <el-table
@@ -120,8 +126,7 @@
         addDataForm: {},
         dialogType: true,  // 弹窗状态
 
-        searchName: '', // 客户名搜索
-        searchTelPhone: '', // 手机号搜索
+        searchForm: {},  // 搜索
 
         clientData: [],  // 客户管理列表
 
@@ -131,12 +136,21 @@
       }
     },
     methods:{
-      getDataList(){
+      getDataList(type){
         this.loading = true
-        let data = {
-          page: this.page || null,
+        let data
+
+        if(type === 'search'){
+          data = JSON.parse(JSON.stringify(this.searchForm))
+          data['page'] = this.page || null
+          data.time?data.time = this.$dateToDate(data.time):''
+        }else {
+          data = {
+            page: this.page || null,
+          }
         }
-        this.$axios.get('/api/user/customer/show/'+this.per_page || null,{params:data})
+
+        this.$axios.post('/api/user/customer/show/'+this.per_page || null,data)
             .then(res =>{
               if(res.data.code === 0){
                 this.loading = false

@@ -48,13 +48,12 @@
         <el-button v-if="viewsType !== 1" :disabled="selectList.length < 1" type="primary" @click="jumpBatchStatement()">批量对账</el-button>
       </div>
     </div>
-    <div class="center">
+    <div class="center" v-if="showTable">
       <el-table
           ref="multipleTable"
           @select="tableSelect"
           @select-all="tableSelect"
-          :data="tableData"
-          v-if="showTable"
+          :data="tableData || []"
           border
           style="width: 100%; margin-top: 20px">
         <el-table-column
@@ -270,7 +269,7 @@
           title="对账单号列表"
           width="30%"
           :visible.sync="viewBillNumberDialog">
-        <div class="view_bill_number_dialog">
+        <div class="view_bill_number_dialog" v-if="billNumberList.length > 0">
           <p v-for="(item,index) in billNumberList" :key="index" @click="jumpOrderDetails(item)">{{item}}</p>
         </div>
       </el-dialog>
@@ -507,7 +506,7 @@
         billNumberList: [],  // 对账单号列表
 
         remarkDialog: false, // 备注弹窗
-        remarkMessage: '12312', // 备注信息
+        remarkMessage: '', // 备注信息
         orderId: '', // 订单号ID
 
         client: [],  // 客户商列表
@@ -554,22 +553,26 @@
       //获取列表
       getData(){
         this.paginationList ={}
-        this.loading = true;
+        this.loading = true
+        this.showTable = false
         let data = {
           page: this.page || null
         }
-        this.$axios.get('/api/finance/getInfo/'+this.viewsType+'/'+this.per_page,{params: data})
+        this.$axios.post('/api/finance/getInfo/'+this.viewsType+'/'+this.per_page, data)
             .then(res =>{
               this.tableData = res.data.data;
+              console.log(this.tableData);
               this.showTable = true
-              this.tableData.forEach(item =>{
-                if(item.bill_numbers){
-                  return item.bill_numbers =item.bill_numbers.split(',')
-                }
-              })
-              this.loading = false;
-              this.paginationList = res.data;
-              this.getDataTotal()
+              setTimeout(() =>{
+                this.tableData.map(item =>{
+                  if(String(item.bill_numbers) !== 'null'){
+                    return item.bill_numbers =item.bill_numbers.split(',')
+                  }
+                })
+              },500)
+               this.loading = false;
+               this.paginationList = res.data;
+               this.getDataTotal()
             })
       },
 
@@ -710,6 +713,7 @@
        * @date 2019/10/30
       */
       jumpOrderDetails(val){
+        this.viewBillNumberDialog = false
         this.$router.push({
           path: 'statementInfo',
           query: {

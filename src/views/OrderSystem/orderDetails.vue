@@ -103,7 +103,7 @@
                 :disabled="inputDisabled">
             </el-input>
           </div>
-          <div class="info_upload_image" v-if="orderInfo.certificates && urlType === 'edit'">
+          <div class="info_upload_image" v-if="orderInfo.certificates || urlType === 'edit'">
             <UploadLeaflet
                 v-if="urlType === 'edit'"
                 v-on:uploadAddress="uploadIdPhoto"
@@ -118,7 +118,7 @@
         <UploadLeaflet :messageText="'证件照片'"></UploadLeaflet>
         <UploadLeaflet :messageText="'源文件'"></UploadLeaflet>
       </div>
-      <div class="info_upload" v-if="urlType !== 'add' && ticketPhotoList.length > 0">
+      <div class="info_upload" v-if="urlType === 'edit' || ticketPhotoList.length > 0">
         <div class="upload_image_main">
           <div class="ticket_photo_box">
             <el-image v-for="(item,index) in ticketPhotoList" :key="index" :src="'http://oa.huimin.dev.cq1080.com/'+item"></el-image>
@@ -987,6 +987,7 @@
         addBtnDisabled: false, // 识别按钮
 
         orderInfo: {
+          certificates: '',
           cname: '',
           dName: ''
         }, // 订单详情列表

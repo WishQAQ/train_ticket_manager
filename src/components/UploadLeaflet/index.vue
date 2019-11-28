@@ -9,8 +9,9 @@
         :show-file-list="false"
         :before-upload="beforeUpload"
         :on-success="handleAvatarSuccess">
-      <img v-if="imageUrl" :src="imageUrl" class="avatar">
-      <div v-else slot="trigger">
+      <img v-if="imageUrl && !showTxtDiv" :src="imageUrl" class="avatar">
+      <div v-if="imageUrl && showTxtDiv" class="avatar">{{imageUrl}}</div>
+      <div slot="trigger" v-if="!imageUrl">
         <i class="el-icon-upload"></i>
         <div class="el-upload__text">将{{messageText}}拖到此处，或<em>点击上传</em></div>
       </div>
@@ -41,6 +42,9 @@
     data(){
       return {
         uploadLoading: false,
+
+        showTxtDiv: false, // 非图片文件显示
+
         fileList: [],  // 上传文件列表
         showUploadBox: true, // 是否显示上传框
 
@@ -74,8 +78,17 @@
         this.$axios.post('/api/upload/graph/single',uploadData)
             .then(res =>{
               if(res.data.code === 0){
-                this.imageUrl = 'http://oa.huimin.dev.cq1080.com/'+res.data.result
-                this.$emit('uploadAddress', res.data.result)
+                let endName = String(res.data.result.split('.').pop())
+                console.log(endName);
+                if(endName === 'png' || endName === 'PNG' || endName === 'jpg' || endName === 'JPG' || endName === 'jpeg'|| endName === 'JPEG'){
+                  this.imageUrl = 'http://oa.huimin.dev.cq1080.com/'+res.data.result
+                  this.$emit('uploadAddress', res.data.result)
+                  this.showTxtDiv = false
+                }else {
+                  this.showTxtDiv = true
+                  this.imageUrl = res.data.result.split('/').pop()
+                  this.$emit('uploadAddress', res.data.result)
+                }
               }else {
                 this.imageUrl = ''
                 this.$message.warning(res.data.msg)
@@ -84,14 +97,11 @@
         return false
       },
       closedImage(){
-        this.imageUrl = false
+        this.imageUrl = ''
       },
     },
     mounted() {
-      if(this.defaultPhoto){
-        this.imageUrl = this.defaultPhoto.split(',')
-
-      }
+      this.defaultPhoto?this.imageUrl = this.defaultPhoto.split(','):''
     }
   }
 </script>

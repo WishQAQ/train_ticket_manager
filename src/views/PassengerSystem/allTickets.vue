@@ -48,6 +48,7 @@
           </template>
         </el-table-column>
         <el-table-column
+            width="150"
             label="订单号">
           <template slot-scope="scope">
             <div @click="jumpOrderInfo(scope.row.order_sn)" class="ticket_order_id">{{scope.row.order_sn}}</div>
@@ -61,25 +62,30 @@
         </el-table-column>
         <el-table-column
             sortable
+            width="150"
             label="行程时间">
           <template slot-scope="scope">
             {{$getTimeYear(scope.row.riding_time * 1000)}}
           </template>
         </el-table-column>
         <el-table-column
+            width="120"
             prop="departure_station"
             label="发站">
         </el-table-column>
         <el-table-column
+            width="120"
             prop="arrival_station"
             label="到站">
         </el-table-column>
         <el-table-column
+            width="120"
             prop="trips_number"
             label="车次">
         </el-table-column>
         <el-table-column
             prop="fwName"
+            width="90"
             label="席别名称">
           <template slot-scope="scope">
             {{scope.row.fwName}}
@@ -88,6 +94,7 @@
           </template>
         </el-table-column>
         <el-table-column
+            width="90"
             v-if="rulType === '0'"
             label="票类">
           <template slot-scope="scope">
@@ -97,30 +104,35 @@
           </template>
         </el-table-column>
         <el-table-column
+            width="90"
             v-if="rulType === '0'"
             sortable
             prop="ticket_price"
             label="票价">
         </el-table-column>
         <el-table-column
+            width="90"
             v-if="rulType === '0'"
             sortable
             prop="missed_meals_money"
             label="误餐费">
         </el-table-column>
         <el-table-column
+            width="90"
             v-if="rulType === '0'"
             sortable
             prop="refund_fee"
             label="退票款">
         </el-table-column>
         <el-table-column
+            width="90"
             v-if="rulType === '0'"
             sortable
             prop="ticket_fare"
             label="出票款">
         </el-table-column>
         <el-table-column
+            width="150"
             v-if="rulType === '0'"
             sortable
             label="出票时间">
@@ -129,6 +141,7 @@
           </template>
         </el-table-column>
         <el-table-column
+            width="80"
             label="车票状态">
           <template slot-scope="scope">
             {{scope.row.ticket_status === 0?'未出票':
@@ -137,6 +150,11 @@
             scope.row.ticket_status === 3?'已改签':
             scope.row.ticket_status === 4?'已退票':'数据异常 '}}
           </template>
+        </el-table-column>
+        <el-table-column
+            v-if="rulType === '1'"
+            prop="remarks"
+            label="备注">
         </el-table-column>
       </el-table>
       <div class="table_bottom">
@@ -231,7 +249,6 @@
        * @date 2019/10/25
       */
       submitSearchBtn(){
-        console.log(this.searchForm.ridingTime);
         let data ={
           name: this.searchForm.name,
           pay_account: this.searchForm.pay_account,
@@ -243,10 +260,10 @@
           arrive: this.searchForm.arrive,
         }
         if(this.searchForm.ridingTime){
-          data['ridingBegin'] = this.$dateToMs(this.searchForm.ridingTime[0] / 1000) || ''
-          data['ridingEnd'] = this.$dateToMs(this.searchForm.ridingTime[1] / 1000) || ''
-          data['begin'] = this.$dateToMs(this.searchForm.beginTime[0] / 1000) || ''
-          data['end'] = this.$dateToMs(this.searchForm.beginTime[1] / 1000) || ''
+          this.searchForm.ridingTime?data['ridingBegin'] = this.$dateToMs(this.searchForm.ridingTime[0] / 1000): ''
+          this.searchForm.ridingTime?data['ridingEnd'] = this.$dateToMs(this.searchForm.ridingTime[1] / 1000): ''
+          this.searchForm.beginTime?data['begin'] = this.$dateToMs(this.searchForm.beginTime[0] / 1000): ''
+          this.searchForm.beginTime?data['end'] = this.$dateToMs(this.searchForm.beginTime[1] / 1000): ''
         }
         this.$axios.post('/api/system/passengerTicket/' + this.rulType + '/'+this.per_page,data)
             .then(res =>{

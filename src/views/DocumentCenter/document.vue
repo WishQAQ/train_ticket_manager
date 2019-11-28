@@ -37,7 +37,7 @@
               show-overflow-tooltip
               label="发送给">
             <template slot-scope="scope">
-              {{scope.row.objects || '全部人员'}}
+              {{scope.row.objectsName || '全部人员'}}
             </template>
           </el-table-column>
           <el-table-column
@@ -114,14 +114,14 @@
         </el-form-item>
         <el-form-item label="通知选择">
           <div class="select_box" @click="addSelectBtn">
-            <span v-if="selectPersonnelList.length < 1" class="select_message">点击查看人员列表</span>
+            <span style="padding: 5px 15px;cursor: pointer;border: 1px solid #dedede;font-size: 12px" v-if="selectPersonnelList.length < 1" class="select_message">点击查看人员列表</span>
             <el-tag
                 size="mini"
                 v-for="tag in selectPersonnelList"
                 :key="tag.target"
                 @close="handleClose(tag)"
                 closable>
-              {{tag.account}}
+              {{tag.account || tag.user_name}}
             </el-tag>
           </div>
         </el-form-item>
@@ -143,7 +143,7 @@
           :visible.sync="selectDialog"
           append-to-body>
         <div class="select_main">
-          <div class="select_left" v-loading="groupLoading">
+          <div class="select_left">
             <el-tree :data="groupList" :props="groupProps" ref="tree" @node-click="handleNodeClick"></el-tree>
           </div>
           <div class="select_right" v-loading="personnelLoading">
@@ -161,6 +161,7 @@
                 :data="personnelList"
                 :props="personnelProps"
                 show-checkbox
+                :default-expanded-keys="[2, 3]"
                 node-key="target"
                 ref="personnelTree"
                 :filter-node-method="personnelFilterNode"
@@ -195,7 +196,7 @@
         </el-form-item>
         <el-form-item label="查看权限">
           <div class="select_box" @click="addSelectBtn">
-            <span v-if="selectPersonnelList.length < 1" class="select_message">点击查看人员列表</span>
+            <span style="padding: 5px 15px;cursor: pointer;border: 1px solid #dedede;font-size: 12px" v-if="selectPersonnelList.length < 1" class="select_message">点击查看人员列表</span>
             <el-tag
                 size="mini"
                 v-for="tag in selectPersonnelList"
@@ -233,7 +234,7 @@
             :visible.sync="selectDialog"
             append-to-body>
           <div class="select_main">
-            <div class="select_left" v-loading="groupLoading">
+            <div class="select_left">
               <el-tree :data="groupList" :props="groupProps" @node-click="handleNodeClick"></el-tree>
             </div>
             <div class="select_right" v-loading="personnelLoading">
@@ -298,7 +299,6 @@
         showSubmitAddBtn: false, // 确认添加内容按钮
 
         selectDialog: false, // 组选择弹窗
-        groupLoading: true,  // 组加载效果
         groupList: [], // 组数据列表
         groupProps: {  // 组选择节点默认值
           children: 'subGroup',
@@ -333,7 +333,7 @@
        * @date 2019/9/26
       */
       getData(){
-        this.viewAddressType = this.$route.name == 'helpDocument'? 0: 1
+        this.viewAddressType = this.$route.name === 'helpDocument'? 0: 1
         this.loading = true
         let data = {
           page: this.page || null,
@@ -343,7 +343,17 @@
             .then(res =>{
               this.loading = false
               this.helpTableData = res.data.data
+              this.helpTableData.forEach(item =>{
+                if(item.objects){
+                  let newArr = []
+                  item.objects.forEach(cItem =>{
+                    newArr.push(cItem.nickname)
+                  })
+                  item['objectsName'] = String([...new Set(newArr)])
+                }
+              })
               this.paginationList = res.data
+              this.getUserList()
             })
       },
 
@@ -370,16 +380,12 @@
        * @date 2019/9/26
       */
       editDialog(val){
+        console.log(val);
         this.editDialogStatus = false
         this.addDialog = true
         this.detailForm = JSON.parse(JSON.stringify(val))
-        // this.$refs.tree.setCheckedNodes([{
-        //   id: 5,
-        //   label: '二级 2-1'
-        // }, {
-        //   id: 9,
-        //   label: '三级 1-1-1'
-        // }]);
+        this.detailForm['condition'] = this.detailForm.id
+        this.detailForm.objects? this.selectPersonnelList = this.detailForm.objects: ''
       },
 
       /**
@@ -455,6 +461,7 @@
                 }
               })
           }else {
+            console.log(this.detailForm.id);
             this.$axios.post('/api/notice/edit',this.detailForm)
               .then(res =>{
                 if(res.data.code === 0){
@@ -476,20 +483,26 @@
       },
 
       /**
+       * @Description: 获取人员列表
+       * @author Wish
+       * @date 2019/11/28
+      */
+      getUserList(){
+        this.$axios.get('/api/user/group/obtain')
+            .then(res =>{
+              if(res.data.code === 0){
+                this.groupList = res.data.result
+              }
+            })
+      },
+
+      /**
        * @Description: 打开人员选择弹窗
        * @author Wish
        * @date 2019/9/26
       */
       addSelectBtn(){
-        this.groupLoading = true
         this.selectDialog = true
-        this.$axios.get('/api/user/group/obtain')
-            .then(res =>{
-              if(res.data.code === 0){
-                this.groupLoading = false
-                this.groupList = res.data.result
-              }
-            })
       },
 
       /**
@@ -654,7 +667,7 @@
        * @date 2019/11/4
       */
       openOrderIdShow(val){
-        this.showOrderIdSelect = val === '1'? true: false
+        this.showOrderIdSelect = val === '1'
       },
 
       /**
@@ -683,17 +696,20 @@
               }
             })
       },
+      //   personnelText(val) {
+      //     this.$refs.personnelTree.filter(val);
+      //   },
 
 
     },
-    // watch: {
-    //   personnelText(val) {
-    //     this.$refs.personnelTree.filter(val);
-    //   },
-    //   '$route'(to,form){
-    //     this.getData()
-    //   }
-    // },
+    watch: {
+      // personnelText(val) {
+      //   this.$refs.personnelTree.filter(val);
+      // },
+      '$route'(to,form){
+        this.getData()
+      }
+    },
     created() {
       this.getData()
     }
@@ -749,8 +765,7 @@
     }
   }
   .add_dialog{
-    .detail_main{
-      .select_box{
+      /deep/.select_box{
         border-radius: 4px;
         border: 1px solid #DCDFE6;
         height: 40px;
@@ -760,6 +775,9 @@
         .select_message{
           font-size:12px;
           opacity:0.5;
+          border: 1px solid #dedede;
+          padding: 5px 15px;
+          cursor: pointer;
         }
         /deep/.el-tag{
           &:not(:last-child){
@@ -767,7 +785,7 @@
           }
         }
       }
-    }
+
   }
   .select_main{
     display: flex;
