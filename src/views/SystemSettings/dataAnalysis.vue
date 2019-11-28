@@ -204,9 +204,9 @@
   export default {
     name: "dataAnalysis",
     components:{
-      VeLine: VeLine,
-      VePie: VePie,
-      VeHistogram: VeHistogram
+      'VeLine': () => import('v-charts/lib/line.common'),
+      'VePie': () => import('v-charts/lib/pie.common'),
+      'VeHistogram': () => import('v-charts/lib/histogram.common')
     },
     data(){
       this.chartSettings = {

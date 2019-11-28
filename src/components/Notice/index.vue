@@ -149,7 +149,7 @@
                 })
           }else {
             this.$message.warning('请填写完整信息')
-            this.$message.error('保存失败，请稍后重试')
+            this.showSubmitAddBtn= false;
           }
         }else { // 修改便签
           if(this.noteForm.title && this.noteForm.content){

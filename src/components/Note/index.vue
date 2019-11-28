@@ -137,11 +137,13 @@
                   if(index < 5){
                     item['xAxis'] = index* 140
                   } else if(index >= 5 && index < 10){
-                    let count = index - 8
+                    console.log(index);
+                    let count = index - 5
                     item['yAxis'] = 165
                     item['xAxis'] = count* 140
                   } else if(index >= 10 && index < 15){
-                    let count = index - 16
+                    console.log(index);
+                    let count = index - 10
                     item['yAxis'] = 330
                     item['xAxis'] = count* 140
                   }

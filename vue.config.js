@@ -1,71 +1,45 @@
-// const cdn = {
-//   // 开发环境
-//   dev: {
-//     css: [
-//       'https://cdn.bootcss.com/element-ui/2.12.0/theme-chalk/index.css',
-//       'https://cdn.jsdelivr.net/npm/v-charts/lib/style.min.css',
-//     ],
-//     js: [
-//       'https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js',
-//       'https://cdn.jsdelivr.net/npm/v-charts/lib/line.min.js',
-//       'https://cdn.jsdelivr.net/npm/v-charts/lib/histogram.min.js',
-//       'https://cdn.jsdelivr.net/npm/v-charts/lib/pie.min.js',
-//
-//       'https://cdn.bootcss.com/element-ui/2.12.0/index.js',
-//
-//       'https://cdn.bootcss.com/axios/0.19.0/axios.min.js',
-//       'https://cdn.bootcss.com/vue/2.6.10/vue.min.js',
-//       'https://cdn.bootcss.com/vue-router/3.1.3/vue-router.min.js',
-//       'https://cdn.bootcss.com/vuex/3.1.1/vuex.min.js'
-//     ]
-//   },
-//   // 生产环境
-//   build: {
-//     css: [
-//       'https://cdn.jsdelivr.net/npm/v-charts/lib/style.min.css',
-//
-//       'https://cdn.bootcss.com/element-ui/2.12.0/theme-chalk/index.css'
-//     ],
-//     js: [
-//       'https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js',
-//       'https://cdn.jsdelivr.net/npm/v-charts/lib/line.min.js',
-//       'https://cdn.jsdelivr.net/npm/v-charts/lib/histogram.min.js',
-//       'https://cdn.jsdelivr.net/npm/v-charts/lib/pie.min.js',
-//
-//       'https://cdn.bootcss.com/element-ui/2.12.0/index.js'
-//     ]
-//   }
-// }
-//
-// cdn预加载使用
-// const externals = {
-//   'vue': 'Vue',
-//   'vue-router': 'VueRouter',
-//   'router': 'router',
-//   'vuex': 'Vuex',
-//   'axios': 'axios',
-//   'element-ui': 'Element',
-// }
+// 去除console
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+// 压缩css、js
+const CompressionWebpackPlugin = require('compression-webpack-plugin');
+// 要压缩的文件
+const productionGzipExtensions = ['js', 'css'];
+// const productionGzipExtensions = /\.(js|css|json|txt|html|ico|svg)(\?.*)?$/i;
+
+const env = process.env.NODE_ENV;
 
 module.exports = {
+  // 针对请求数进行优化
   chainWebpack: config => {
     // 移除 prefetch 插件
     config.plugins.delete('prefetch')
     // 移除 preload 插件
     config.plugins.delete('preload');
-
-    /**
-     * 添加CDN参数到htmlWebpackPlugin配置中， 详见public/index.html 修改
-     */
-    // config.plugin('html').tap(args => {
-    //   if (process.env.NODE_ENV === 'production') {
-    //     args[0].cdn = cdn.build
-    //   }
-    //   if (process.env.NODE_ENV === 'development') {
-    //     args[0].cdn = cdn.dev
-    //   }
-    //   return args
-    // })
+  },
+  // 代码压缩 console移除
+  configureWebpack: (config) => {
+    if (env !== 'development' || env !== 'test') {
+      // config.plugins.push(new CompressionWebpackPlugin({
+      //   algorithm: 'gzip',
+      //   test: new RegExp(`\\.(${productionGzipExtensions.join('|')})$`),
+      //   threshold: 10240,
+      //   minRatio: 0.8,
+      // }));
+      config.plugins.push(
+          new UglifyJsPlugin({
+            uglifyOptions: {
+              compress: {
+                warnings: false,
+                drop_debugger: true, // 注释console
+                drop_console: true,
+                pure_funcs:['console.log'] // 移除console
+              },
+            },
+            sourceMap: false,
+            parallel: true,
+          }),
+      );
+    }
   },
   css: {
     // 是否使用css分离插件 ExtractTextPlugin
@@ -95,31 +69,5 @@ module.exports = {
       errors: true,
       warnings: true
     }
-  },
-
-  // 代码压缩配置
-  configureWebpack: config => {
-    let myConfig = {}
-
-    if (process.env.NODE_ENV === 'production') {
-      // 为生产环境修改配置...
-      config.plugins.push(
-          //生产环境自动删除console
-          // new UglifyJsPlugin({
-          //   uglifyOptions: {
-          //     compress: {
-          //       warnings: false,
-          //       drop_debugger: true,
-          //       drop_console: true,
-          //     },
-          //   },
-          //   sourceMap: false,
-          //   parallel: true,
-          // })
-      );
-
-      // myConfig.externals = externals
-    }
-    // return myConfig
-  },
-};
+  }
+}
