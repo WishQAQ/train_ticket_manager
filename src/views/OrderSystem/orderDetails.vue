@@ -812,7 +812,7 @@
         :visible.sync="editTicketMessage"
         custom-class="edit_ticket_message_dialog">
       <div class="detail_main">
-        <el-form label-width="50px">
+        <el-form label-width="80px">
           <el-form-item label="行程时间" class="edit_ticket_message_form">
             <el-date-picker
                 v-model="new_riding_time"
@@ -1334,13 +1334,16 @@
         if(ticketNumber > 5){
           this.$message.warning('批量购票最多仅支持5人')
         }else {
-          this.userOrderInfo = {
-            order_sn: this.orderId,
-            info: JSON.stringify(this.batchEditList)
+          if(this.extensionsId) {
+            this.userOrderInfo = {
+              order_sn: this.orderId,
+              info: JSON.stringify(this.batchEditList)
+            }
+            this.getUserAccountList()
+          }else {
+            this.extensionsDialog = true
           }
-          this.getUserAccountList()
         }
-
       },
 
       /**
@@ -1375,11 +1378,6 @@
        * @date 2019/11/21
        */
       jumpEditTicket(userInfo,orderInfo,type){
-        console.log(userInfo, orderInfo,type);
-        // let info = {
-        //   account: userInfo.account,
-        //   password: userInfo.password
-        // }
         if(this.extensionsId){
           userInfo['type'] = type
           window.chrome.runtime.sendMessage(this.extensionsId, {data:{action:type,order:userInfo}},

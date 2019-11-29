@@ -61,7 +61,7 @@
         <div class="content_header">
           <div style="width: 60px;flex-shrink: 0;">序号</div>
           <div style="width: 60px;flex-shrink: 0;">
-            <el-checkbox v-model="checkAll" @change="handleCheckAllChange"></el-checkbox>
+            <el-checkbox v-model="checkAll" @change="handleCheckAllChange"/>
           </div>
           <div style="width: 180px;flex-shrink: 0;">订单号</div>
           <div style="width: 120px; flex-shrink: 0">行程时间</div>
@@ -80,7 +80,7 @@
             <div class="list_num">
               <div style="width: 60px">{{index+1}}</div>
               <div style="width: 60px">
-                <el-checkbox @change="handleCheckChange(item)"></el-checkbox>
+                <el-checkbox :disabled="showAllChecked" ref="checkbox_box" @change="handleCheckChange(item)"/>
               </div>
               <div style="width: 180px">{{item.order_sn}}</div>
             </div>
@@ -235,7 +235,10 @@
         orderId: '', // 订单Id
 
         checkAll: false,
+        showAllChecked: false, // 多选控制单选状态
         selectList: [],  // 多选列表
+
+        checkChangeList: [], // 选中值列表
 
         addRemarksDialog: false, // 添加备注弹窗
         remarksInput: '', // 备注信息
@@ -251,6 +254,11 @@
       }
     },
     methods:{
+      /**
+       * @Description: 导出全部
+       * @author Wish
+       * @date 2019/11/29
+      */
       downAllExcel(){
         this.$message.success('正在整理导出文件，开始导出，请勿刷新页面')
         this.$axios.get('/api/excel/info/'+this.viewsType+'/all',{responseType: 'blob'})
@@ -258,7 +266,24 @@
               window.location.href = window.URL.createObjectURL(res.data);
             })
       },
-      downSelectExcel(){},
+      /**
+       * @Description: 导出所选项
+       * @author Wish
+       * @date 2019/11/29
+      */
+      downSelectExcel(){
+        console.log(this.selectList);
+        if(this.selectList.length > 0){
+          this.$message.success('正在整理导出文件，开始导出，请勿刷新页面')
+          this.$axios.get('/api/excel/info/'+this.viewsType+'/'+String(this.selectList),{responseType: 'blob'})
+              .then(res =>{
+                window.location.href = window.URL.createObjectURL(res.data);
+              })
+        }else {
+          this.$message.warning('请选择需要导出的数据')
+        }
+
+      },
 
       /**
        * @Description: 获取客户商
@@ -353,10 +378,42 @@
        * @date 2019/10/17
        */
       handleCheckAllChange(val) {  // 全选
-        console.log(val);
+        for (let i= 0; i < this.tableData.length; i++){
+          this.$refs.checkbox_box[i].checked = false;
+        }
+        this.selectList = []
+        if(val){
+          this.tableData.forEach(item =>{
+            this.selectList.push(item.order_sn)
+          })
+          this.showAllChecked = true
+        }else {
+          this.selectList = []
+          this.showAllChecked = false
+        }
       },
       handleCheckChange(val){
-        console.log(val);
+        this.checkChangeList.push(val.order_sn)
+        let _res = []; //
+        this.checkChangeList.sort();
+        for (let i = 0; i < this.checkChangeList.length;) {
+          let count = 0;
+          for (let j = i; j < this.checkChangeList.length; j++) {
+            if (this.checkChangeList[i] == this.checkChangeList[j]) {
+              count++;
+            }
+          }
+          _res.push([this.checkChangeList[i], count %2 === 0 ? 0:count]);
+          i += count;
+        }
+        let _newArr = [];
+        for (let i = 0; i < _res.length; i++) {
+          if(_res[i][1] !== 0){
+            _newArr.push(_res[i][0]);
+          }
+        }
+
+        this.selectList = _newArr
       },
 
       /**
