@@ -427,4 +427,7 @@
   /deep/.userInfo_dialog{
     margin: unset !important;
   }
+  /deep/.el-dialog__wrapper{
+    position: fixed !important;
+  }
 </style>
