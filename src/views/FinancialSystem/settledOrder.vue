@@ -396,8 +396,8 @@
           <div class="order_table">
             <div class="order_title">收支汇款底单</div>
             <div class="order_table_images">
-              <PublicImage :pageSize="'3'" :url="detailsImages.remittance_voucher" :preview="true"></PublicImage>
-              <PublicImage :pageSize="'3'" :url="detailsImages.collection_voucher" :preview="true"></PublicImage>
+              <PublicImage :pageSize="'3'" :url="detailsImages.remittance_voucher" :preview="true"/>
+              <PublicImage :pageSize="'3'" :url="detailsImages.collection_voucher" :preview="true"/>
             </div>
           </div>
         </div>
@@ -412,7 +412,7 @@
           :close-on-press-escape="false"
           :visible.sync="uploadDialog">
         <div class="upload_dialog">
-          <UploadImage @uploadAddress="uploadImages" :uploadType="'finance'" ref="uploadImage"></UploadImage>
+          <UploadImage @uploadAddress="uploadImages" :uploadType="'finance'" ref="uploadImage"/>
         </div>
 
         <div slot="footer" class="dialog-footer">
@@ -847,10 +847,11 @@
        * @date 2019/10/28
       */
       openUploadDialog(index,data){
+        console.log(index, data);
         this.orderId = data.order_sn
         this.uploadDialog = true
         this.upload_image = ''
-        // this.$refs.uploadImage.closedImage()
+        this.$refs.upload.closedImage()
         if(index === 1){
           this.uploadType = true
         }else if(index === 2){

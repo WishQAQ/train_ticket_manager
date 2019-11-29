@@ -101,7 +101,10 @@
       },
     },
     mounted() {
-      this.defaultPhoto?this.imageUrl = this.defaultPhoto.split(','):''
+      console.log(this.defaultPhoto);
+      if(this.defaultPhoto){
+        this.imageUrl = 'http://oa.huimin.dev.cq1080.com/'+this.defaultPhoto
+      }
     }
   }
 </script>

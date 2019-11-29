@@ -144,7 +144,7 @@
           append-to-body>
         <div class="select_main">
           <div class="select_left">
-            <el-tree :data="groupList" :props="groupProps" ref="tree" @node-click="handleNodeClick"></el-tree>
+            <el-tree :data="groupList" :props="groupProps" ref="tree" @node-click="handleNodeClick"/>
           </div>
           <div class="select_right" v-loading="personnelLoading">
             <div class="select_right_header" v-if="showPersonnelText">
@@ -187,11 +187,11 @@
         custom-class="add_dialog">
       <el-form>
         <el-form-item label="标题">
-          <el-input v-model="detailForm.title"></el-input>
+          <el-input v-model="detailForm.title"/>
         </el-form-item>
         <el-form-item label="类型名称">
           <el-select v-model="detailForm.typeName" placeholder="请选择">
-            <el-option label="知识信息" value="知识信息"></el-option>
+            <el-option label="知识信息" value="知识信息"/>
           </el-select>
         </el-form-item>
         <el-form-item label="查看权限">
@@ -203,12 +203,12 @@
                 :key="tag.target"
                 @close="handleClose(tag)"
                 closable>
-              {{tag.account}}
+              {{tag.account || tag.user_name}}
             </el-tag>
           </div>
         </el-form-item>
         <el-form-item label="内容">
-          <el-input type="textarea" :rows="8" v-model="detailForm.content"></el-input>
+          <el-input type="textarea" :rows="8" v-model="detailForm.content"/>
         </el-form-item>
         <el-radio-group style="margin-bottom: 15px" @change="openOrderIdShow(detailForm.is_show)" v-model="detailForm.is_show">
           <el-radio label="1">显示</el-radio>
@@ -216,7 +216,7 @@
         </el-radio-group>
         <el-form-item label="是否显示订单详情" v-if="showOrderIdSelect">
           <el-select v-model="detailForm.orderMessage" :multiple="openMultiple" @change="selectOrderId(detailForm.orderMessage)" placeholder="请选择" clearable>
-            <el-option label="全部" value="0"></el-option>
+            <el-option label="全部" value="0"/>
             <el-option
                 v-for="(item ,index) in orderInfo"
                 :key="index"
@@ -235,7 +235,7 @@
             append-to-body>
           <div class="select_main">
             <div class="select_left">
-              <el-tree :data="groupList" :props="groupProps" @node-click="handleNodeClick"></el-tree>
+              <el-tree :data="groupList" :props="groupProps" @node-click="handleNodeClick"/>
             </div>
             <div class="select_right" v-loading="personnelLoading">
               <div class="select_right_header" v-if="showPersonnelText">
@@ -381,11 +381,17 @@
       */
       editDialog(val){
         console.log(val);
+        if(this.viewAddressType === 0){
+          this.addDialog = true
+        }else {
+          this.addNewsDialog = true
+        }
         this.editDialogStatus = false
-        this.addDialog = true
         this.detailForm = JSON.parse(JSON.stringify(val))
         this.detailForm['condition'] = this.detailForm.id
         this.detailForm.objects? this.selectPersonnelList = this.detailForm.objects: ''
+        val.order_detail_show === 0?this.detailForm['is_show'] = '0':
+            val.order_detail_show === 1?this.detailForm['is_show'] = '1': ''
       },
 
       /**

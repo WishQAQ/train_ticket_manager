@@ -103,11 +103,12 @@
             </el-input>
           </div>
           <div class="info_upload_image" v-if="orderInfo.certificates || urlType === 'edit'">
-            <UploadLeaflet
-                v-if="urlType === 'edit'"
-                v-on:uploadAddress="uploadIdPhoto"
-                :defaultPhoto="orderInfo.certificates"
-                :messageText="'证件照片'"></UploadLeaflet>
+            <div v-if="urlType === 'edit'">
+              <UploadLeaflet
+                  v-on:uploadAddress="uploadIdPhoto"
+                  :defaultPhoto="orderInfo.certificates"
+                  :messageText="'证件照片'"></UploadLeaflet>
+            </div>
             <PublicImage v-else :url="orderInfo.certificates"></PublicImage>
 
           </div>
@@ -117,22 +118,21 @@
         <UploadLeaflet :messageText="'证件照片'"></UploadLeaflet>
         <UploadLeaflet :messageText="'源文件'"></UploadLeaflet>
       </div>
-      <div class="info_upload" v-if="urlType === 'edit' || ticketPhotoList.length > 0">
+      <div class="info_upload" v-if="urlType === 'edit' || orderInfo.ticket_photos">
         <div class="upload_image_main">
           <div class="ticket_photo_box">
             <el-image v-for="(item,index) in ticketPhotoList" :key="index" :src="'http://oa.huimin.dev.cq1080.com/'+item"></el-image>
           </div>
+          <PublicImage
+              v-for="(item,index) in orderInfo.ticket_photos"
+              :key="index"
+              :url="item || null">
+          </PublicImage>
           <UploadLeaflet
               v-if="urlType === 'edit'"
               ref="uploadImage"
               v-on:uploadAddress="uploadIdTicketPhoto"
-              :messageText="'车票照片'"></UploadLeaflet>
-          <PublicImage
-              v-else
-              v-for="(item,index) in orderInfo.ticket_photos || 5"
-              :key="index"
-              :url="isNaN(item)? item : ''">
-          </PublicImage>
+              :messageText="'车票照片'"/>
         </div>
         <div class="info_message_box">
           <p>车票照片</p>
@@ -2337,7 +2337,7 @@
               this.getCustomerData()
               this.$routerTab.close()
               this.$router.push({
-                name: 'orderDetails',
+                path: 'orderDetails',
                 query:{
                   order_sn: this.orderInfo.order_sn,
                   type: 'details'
@@ -2377,23 +2377,23 @@
                   this.inputDisabled = false
                   this.addBtnDisabled = false
                   this.addDataList = res.data.result
-                  // this.customerMessage =  res.data.result.customer
+                  this.customerMessage =  res.data.result.customer
                   this.orderInfo.order_sn = this.addDataList.orderNumber.new || this.addDataList.customer.custom_order_sn
                   // this.orderInfo.order_sn = ''
                   this.orderInfo.old_order_sn = this.addDataList.orderNumber.old || ''
                   // this.orderInfo.old_order_sn = ''
 
-                  // this.customerList.forEach(customer =>{
-                  //   if(customer.identity === this.customerMessage.customer){
-                  //     this.orderInfo.cname = customer.name
-                  //   }
-                  //   console.log(customer);
-                  //   customer.issuer.forEach(issuing =>{
-                  //     if(issuing.id ===  this.customerMessage.issuing_clerk){
-                  //       this.orderInfo.dName = issuing.name
-                  //     }
-                  //   })
-                  // })
+                  this.customerList.forEach(customer =>{
+                    if(customer.identity === this.customerMessage.customer){
+                      this.orderInfo.cname = customer.name
+                    }
+                    console.log(customer);
+                    customer.issuer.forEach(issuing =>{
+                      if(issuing.id ===  this.customerMessage.issuing_clerk){
+                        this.orderInfo.dName = issuing.name
+                      }
+                    })
+                  })
 
 
                   console.log(this.customerList);
@@ -2506,7 +2506,10 @@
             })
           })
         })
-
+        if(isNaN(this.orderInfo.cname)){
+          this.orderInfo.cname = this.customerMessage.customer
+          this.orderInfo.dName = this.customerMessage.issuing_clerk
+        }
         let data ={
           order_sn: this.orderInfo.order_sn, // 主订单号
           old_order_sn: this.orderInfo.old_order_sn,  // 旧订单号
@@ -2528,7 +2531,7 @@
                 setTimeout(() =>{
                   this.$routerTab.close()
                   this.$router.push({
-                    name: 'orderDetails',
+                    path: 'orderDetails',
                     query:{
                       order_sn: this.orderInfo.order_sn,
                       type: 'details'

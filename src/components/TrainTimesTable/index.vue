@@ -121,17 +121,21 @@
           label="取票号">
       </el-table-column>
       <el-table-column
+          min-width="150"
           v-if="showTableRows"
           label="出票时间">
         <template slot-scope="scope">
-          <el-date-picker
-              v-model="scope.row.ticketing_time * 1000"
-              v-if="tableModify === 'edit'"
-              type="date"
-              value-format="timestamp"
-              @blur="loseFcous(tableData, scope.row, 'ticketing_time', scope.row.ticketing_time)"
-              placeholder="选择日期">
-          </el-date-picker>
+          <div v-if="tableModify === 'edit'">
+            <el-date-picker
+                style="width: 140px"
+                v-model="scope.row.ticketing_time * 1000"
+                type="date"
+                value-format="timestamp"
+                @blur="loseFcous(tableData, scope.row, 'ticketing_time', scope.row.ticketing_time)"
+                placeholder="选择日期">
+            </el-date-picker>
+          </div>
+
           <span v-else>{{$getTimeYear(scope.row.ticketing_time * 1000) || ''}}</span>
         </template>
       </el-table-column>

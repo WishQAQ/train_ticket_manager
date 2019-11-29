@@ -33,14 +33,14 @@
             sortable
             label="创建时间">
         </el-table-column>
-        <el-table-column
-            label="类别"
-            width="80">
-          <template slot-scope="scope">
-            <el-tag type="success" v-if="scope.row.status === 0">有效</el-tag>
-            <el-tag type="danger" v-if="scope.row.status === 1">停用</el-tag>
-          </template>
-        </el-table-column>
+<!--        <el-table-column-->
+<!--            label="类别"-->
+<!--            width="80">-->
+<!--          <template slot-scope="scope">-->
+<!--            <el-tag type="success" v-if="scope.row.status === 0">有效</el-tag>-->
+<!--            <el-tag type="danger" v-if="scope.row.status === 1">停用</el-tag>-->
+<!--          </template>-->
+<!--        </el-table-column>-->
         <el-table-column
             label="操作"
             width="50">
@@ -236,8 +236,8 @@
       */
       submitBtn(){
         urlAddress = this.urlType?'fareWell':'ticketSpecies';
-        this.submitLoading = true
         if(this.seatName){
+          this.submitLoading = true
           if(this.editType){  // 编辑席别
             let data ={
               type: 0,
@@ -291,13 +291,13 @@
       },
 
     },
-    // watch: {
-    //   '$route'(to, from) {
-    //     this.loading = true;
-    //     this.urlType = this.$route.meta.name === '席别管理';
-    //     this.getDataList();
-    //   },
-    // },
+    watch: {
+      '$route'(to, from) {
+        this.loading = true;
+        this.urlType = this.$route.meta.name === '席别管理';
+        this.getDataList();
+      },
+    },
     mounted(){
 
     },

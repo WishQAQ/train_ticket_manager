@@ -62,7 +62,6 @@
           </template>
         </el-table-column>
         <el-table-column
-            sortable
             width="110"
             label="行程时间">
           <template slot-scope="scope">
@@ -135,7 +134,6 @@
         <el-table-column
             width="120"
             v-if="rulType === '0'"
-            sortable
             label="出票时间">
           <template slot-scope="scope">
             {{$getTimeYear(scope.row.ticketing_time * 1000) || ''}}
