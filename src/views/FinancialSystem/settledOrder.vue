@@ -851,7 +851,7 @@
         this.orderId = data.order_sn
         this.uploadDialog = true
         this.upload_image = ''
-        this.$refs.upload.closedImage()
+        // this.$refs.upload.closedImage()
         if(index === 1){
           this.uploadType = true
         }else if(index === 2){

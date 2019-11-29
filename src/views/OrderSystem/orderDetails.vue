@@ -208,15 +208,15 @@
               <el-table-column
                   label="身份证信息">
                 <template slot-scope="scope">
-                  <el-input v-model="scope.row.IDCard"></el-input>
+                  <el-input v-model="scope.row.IDCard"/>
                 </template>
               </el-table-column>
               <el-table-column
                   label="票种">
                 <template slot-scope="scope">
                   <el-select v-model="scope.row.ticket_type" placeholder="请选择">
-                    <el-option label="成人票" value="成人票"></el-option>
-                    <el-option label="儿童票" value="儿童票"></el-option>
+                    <el-option label="成人票" value="成人票"/>
+                    <el-option label="儿童票" value="儿童票"/>
                   </el-select>
                 </template>
               </el-table-column>
@@ -224,22 +224,22 @@
                   label="车票类型">
                 <template slot-scope="scope">
                   <el-select v-model="scope.row.ticket_species" placeholder="请选择">
-                    <el-option label="网票" value="网票"></el-option>
-                    <el-option label="纸票" value="纸票"></el-option>
-                    <el-option label="电子票" value="电子票"></el-option>
+                    <el-option label="网票" value="网票"/>
+                    <el-option label="纸票" value="纸票"/>
+                    <el-option label="电子票" value="电子票"/>
                   </el-select>
                 </template>
               </el-table-column>
               <el-table-column
                   label="误餐费">
                 <template slot-scope="scope">
-                  <el-input v-model="scope.row.missed_meals_money"></el-input>
+                  <el-input v-model="scope.row.missed_meals_money"/>
                 </template>
               </el-table-column>
               <el-table-column
                   label="备注">
                 <template slot-scope="scope">
-                  <el-input v-model="scope.row.remarks"></el-input>
+                  <el-input v-model="scope.row.remarks"/>
                 </template>
               </el-table-column>
               <el-table-column
@@ -1950,7 +1950,7 @@
                     this.batchEditLoading = false
                     this.batchEditData = res.data.result
                     this.batchEditInfo = JSON.parse(JSON.stringify(this.batchEditData.info.information))
-
+                    console.log(this.batchEditInfo);
                     this.batchEditInfo.forEach(item =>{
                       item['riding_time']= '' // 行车日期
                       item['departure_station']= '' // 发站
@@ -2009,6 +2009,8 @@
        * @date 2019/11/12
       */
       submitEditRoute(val){
+        console.log(val);
+        console.log(this.editRouteData.riding_time);
         this.editRouteDialog = false
         let newForm = {}  // 路线信息
         newForm['type'] = 0
@@ -2071,7 +2073,8 @@
         this.routeStatus = status
         this.editRouteInfo = route  // 获取原路线信息
         this.editRouteData = editData  // 获取当前输入框数据
-        console.log(this.editRouteData.directionOne);
+        console.log(this.editRouteInfo);
+        console.log(this.editRouteData);
         let editInfo = {}
         editInfo['route_id'] = this.editRouteData.route_id
         editInfo['passengers'] = this.editRouteData.passengers
@@ -2413,7 +2416,7 @@
                           console.log(cItem);
                           cItem['initial_station'] = cItem.route[0]  // 发站
                           cItem['stop_station'] = cItem.route[1] // 到站
-                          cItem['riding_time'] = cItem.ride_date  // 发车时间
+                          cItem['riding_time'] = cItem.ride_date * 1000 // 发车时间
                           cItem['trips_number'] = cItem.train_number  // 车次
                           delete cItem.route
                           delete cItem.ride_date
@@ -2436,7 +2439,7 @@
                       this.addDataList.trips.info.forEach(cItem =>{
                         cItem['initial_station'] = cItem.route[0]  // 发站
                         cItem['stop_station'] = cItem.route[1] // 到站
-                        cItem['riding_time'] = cItem.ride_date  // 发车时间
+                        cItem['riding_time'] = cItem.ride_date  * 1000 // 发车时间
                         cItem['trips_number'] = cItem.train_number  // 车次
                         delete cItem.route
                         delete cItem.ride_date
@@ -2531,7 +2534,7 @@
                 setTimeout(() =>{
                   this.$routerTab.close()
                   this.$router.push({
-                    path: 'orderDetails',
+                    name: 'orderDetails',
                     query:{
                       order_sn: this.orderInfo.order_sn,
                       type: 'details'
