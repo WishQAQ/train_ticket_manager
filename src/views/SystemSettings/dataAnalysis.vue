@@ -26,12 +26,12 @@
       <div v-if="showClient"><el-select
           v-model="searchForm.statisticType"
           placeholder="请选择统计类型">
-        <el-option label="车票张数" value="totalTicket"></el-option>
-        <el-option label="误餐费合计" value="totalMissMeals"></el-option>
-        <el-option label="退票合计" value="totalRefundTicket"></el-option>
-        <el-option label="优惠合计" value="totalDiscount"></el-option>
-        <el-option label="利润合计" value="totalProfit"></el-option>
-        <el-option label="应收款合计" value="totalReceivables"></el-option>
+        <el-option label="车票张数" value="totalTicket"/>
+        <el-option label="误餐费合计" value="totalMissMeals"/>
+        <el-option label="退票合计" value="totalRefundTicket"/>
+        <el-option label="优惠合计" value="totalDiscount"/>
+        <el-option label="利润合计" value="totalProfit"/>
+        <el-option label="应收款合计" value="totalReceivables"/>
       </el-select></div>
 
       <!-- 根据售票员筛选 -->
@@ -49,10 +49,10 @@
       <div v-if="showConductor"><el-select
           v-model="searchForm.statisticType"
           placeholder="请选择统计类型">
-        <el-option label="出票张数" value="totalOutTicket"></el-option>
-        <el-option label="票价各计" value="totalTicketPrice"></el-option>
-        <el-option label="误餐费合计" value="totalMissMeals"></el-option>
-        <el-option label="支付宝合计" value="totalAlipay"></el-option>
+        <el-option label="出票张数" value="totalOutTicket"/>
+        <el-option label="票价各计" value="totalTicketPrice"/>
+        <el-option label="误餐费合计" value="totalMissMeals"/>
+        <el-option label="支付宝合计" value="totalAlipay"/>
       </el-select></div>
 
       <!-- 根据订单提交时间 or 乘车时间 or 出票时间筛选 -->
@@ -66,13 +66,23 @@
           type="month"
           placeholder="选择月份">
       </el-date-picker></div>
+      <div v-if="showTimeType !== 1 && showDate || showMonth"><el-select
+          v-model="searchForm.statisticType"
+          placeholder="请选择统计类型">
+        <el-option label="车票张数" value="totalTicket"/>
+        <el-option label="误餐费合计" value="totalMissMeals"/>
+        <el-option label="退票合计" value="totalRefundTicket"/>
+        <el-option label="优惠合计" value="totalDiscount"/>
+        <el-option label="利润合计" value="totalProfit"/>
+        <el-option label="应收款合计" value="totalReceivables"/>
+      </el-select></div>
       <!-- 根据订单提交时间 -->
       <div v-if="showTimeType === 1"><el-select
           v-model="searchForm.statisticType"
           placeholder="请选择统计类型">
-        <el-option label="出票合计" value="totalTicketIssue"></el-option>
-        <el-option label="误餐费合计" value="totalMissMeals"></el-option>
-        <el-option label="利润合计" value="totalProfit"></el-option>
+        <el-option label="出票合计" value="totalTicketIssue"/>
+        <el-option label="误餐费合计" value="totalMissMeals"/>
+        <el-option label="利润合计" value="totalProfit"/>
       </el-select></div>
 
       <!-- 根据发单人筛选 -->
@@ -84,18 +94,18 @@
             v-for="item in billerList"
             :key="item.id"
             :label="item.name"
-            :value="item.identity">
+            :value="item.id">
         </el-option>
       </el-select></div>
       <div v-if="showBiller"><el-select
           v-model="searchForm.statisticType"
           placeholder="请选择统计类型">
-        <el-option label="出票张数" value="totalTicketIssue"></el-option>
-        <el-option label="误餐费合计" value="totalMissMeals"></el-option>
-        <el-option label="退票合计" value="totalRefundTicket"></el-option>
-        <el-option label="优惠合计" value="totalDiscount"></el-option>
-        <el-option label="利润合计" value="totalProfit"></el-option>
-        <el-option label="应收款合计" value="totalReceivables"></el-option>
+        <el-option label="出票张数" value="totalTicketIssue"/>
+        <el-option label="误餐费合计" value="totalMissMeals"/>
+        <el-option label="退票合计" value="totalRefundTicket"/>
+        <el-option label="优惠合计" value="totalDiscount"/>
+        <el-option label="利润合计" value="totalProfit"/>
+        <el-option label="应收款合计" value="totalReceivables"/>
       </el-select></div>
       <!-- 根据创建人or出票员 -->
       <div v-if="showTicket"><el-select
@@ -112,24 +122,36 @@
       <div v-if="showTicket"><el-select
           v-model="searchForm.statisticType"
           placeholder="请选择统计类型">
-        <el-option v-if="showTicketType" label="创建张数" value="totalTicket"></el-option>
-        <el-option v-else label="出票张数" value="totalOutTicket"></el-option>
-        <el-option label="票价合计" value="totalTicketPrice"></el-option>
-        <el-option label="误餐费合计" value="totalMissMeals"></el-option>
-        <el-option label="退票款合计" value="totalRefundTicket"></el-option>
-        <el-option label="快递费合计" value="totalExpressFee"></el-option>
-        <el-option label="出票费合计" value="totalTicketCharge"></el-option>
+        <el-option v-if="showTicketType" label="创建张数" value="totalTicket"/>
+        <el-option v-else label="出票张数" value="totalOutTicket"/>
+        <el-option label="票价合计" value="totalTicketPrice"/>
+        <el-option label="误餐费合计" value="totalMissMeals"/>
+        <el-option label="退票款合计" value="totalRefundTicket"/>
+        <el-option label="快递费合计" value="totalExpressFee"/>
+        <el-option label="出票费合计" value="totalTicketCharge"/>
       </el-select></div>
 
       <!-- 根据发站or到站 -->
-      <div v-if="showSite"><el-input placeholder="请输入地址" v-model="searchForm.site"></el-input></div>
+      <div v-if="showSite">
+        <el-input placeholder="请输入地址" v-model="searchForm.site"/>
+      </div>
+      <div v-if="showSite"><el-select
+          v-model="searchForm.statisticType"
+          placeholder="请选择统计类型">
+        <el-option label="车票张数" value="totalTicket"/>
+        <el-option label="误餐费合计" value="totalMissMeals"/>
+        <el-option label="退票合计" value="totalRefundTicket"/>
+        <el-option label="优惠合计" value="totalDiscount"/>
+        <el-option label="利润合计" value="totalProfit"/>
+        <el-option label="应收款合计" value="totalReceivables"/>
+      </el-select></div>
 
       <!-- 根据票种 -->
       <div v-if="showTicketTypeInput"><el-select
           v-model="searchForm.ticketType"
           placeholder="请选择票种">
-        <el-option label="成人票" value="0"></el-option>
-        <el-option label="儿童票" value="1"></el-option>
+        <el-option label="成人票" value="0"/>
+        <el-option label="儿童票" value="1"/>
       </el-select></div>
 
       <!-- 根据用户登录 -->
@@ -146,16 +168,16 @@
       </el-select></div>
       <div v-if="showLogin"><el-select
           v-model="searchForm.statisticType"
-          placeholder="请选择票种">
-        <el-option label="登录次数" value="totalLoginCount"></el-option>
-        <el-option label="登录时长" value="totalLoginTime"></el-option>
+          placeholder="请选择统计类型">
+        <el-option label="登录次数" value="totalLoginCount"/>
+        <el-option label="登录时长" value="totalLoginTime"/>
       </el-select></div>
       <div style="width: 100px"><el-select
           v-model="searchForm.chartsType"
           placeholder="请选择图表类型">
-        <el-option label="饼图" value="饼图"></el-option>
-        <el-option label="折线图" value="折线图"></el-option>
-        <el-option label="柱状图" value="柱状图"></el-option>
+        <el-option label="饼图" value="饼图"/>
+        <el-option label="折线图" value="折线图"/>
+        <el-option label="柱状图" value="柱状图"/>
       </el-select></div>
 
       <div><el-button @click="submitSearch" v-loading="loading">统计</el-button></div>
@@ -163,9 +185,13 @@
 
     <div class="data_content">
       <div class="data_charts">
-        <ve-line :height="'600px'" v-if="searchForm.chartsType === '折线图' && chartData.rows.length > 0" :data-empty="dataEmpty" :data="chartData"></ve-line>
-        <Ve-pie :settings="chartSettings" :height="'600px'" v-if="searchForm.chartsType === '饼图' && chartData.rows.length > 0" :data-empty="dataEmpty" :data="chartData"></Ve-pie>
-        <Ve-histogram :height="'600px'" v-if="searchForm.chartsType === '柱状图' && chartData.rows.length > 0" :data-empty="dataEmpty" :data="chartData"></Ve-histogram>
+        <ve-line :height="'600px'" v-if="searchForm.chartsType === '折线图' && chartData.rows.length > 0"
+                 :data-empty="dataEmpty" :data="chartData"/>
+        <Ve-pie :settings="chartSettings" :height="'600px'"
+                v-if="searchForm.chartsType === '饼图' && chartData.rows.length > 0" :data-empty="dataEmpty"
+                :data="chartData"/>
+        <Ve-histogram :height="'600px'" v-if="searchForm.chartsType === '柱状图' && chartData.rows.length > 0"
+                      :data-empty="dataEmpty" :data="chartData"/>
       </div>
       <transition name="el-fade-in-linear">
         <div class="data_table" v-if="chartData.rows.length > 0">
@@ -375,7 +401,6 @@
             this.showTimeType = item === '车票' ? 0 :
                 item === '订单提交时间' ? 1 : 3
           }
-          console.log(val);
           this.showClient = item === '客户'
           this.showConductor = item === '售票员'
           this.showDate = item === '每日'
@@ -386,7 +411,6 @@
           this.showSite = item === '发站' || item === '到站'
           this.showTicketTypeInput = item === '票种'
           this.showLogin = item === '用户'
-          console.log(this.showTicketType);
         })
 
         /**
@@ -478,14 +502,13 @@
                     item === '每日' ? 0 :
                         item === '每月' ? 0 :
                             item === '创建人' ? 0 :
-                                item === '出票员' ? 1 :
+                                item === '出票员' ? 0 :
                                     item === '发站' ? 2 :
                                         item === '到站' ? 3 :
                                             item === '乘车日期' ? 4 :
                                                 item === '票种' ? 5 :
                                                     item === '出票时间' ? 6 : ''
           }
-
           // 获取二级搜索类别
           if(item === '客户'){
             searchForm['sign'] = this.searchForm.client || '0'
@@ -502,7 +525,11 @@
           }else if(item === '票种'){
             searchForm['sign'] = this.searchForm.ticketType
           }else if(item === '用户'){
-            searchForm['sign'] = this.searchForm.ticketType
+            searchForm['sign'] = this.searchForm.selectUser
+          }else if(item === '发站'){
+            searchForm['sign'] = this.searchForm.site
+          }else if(item === '到站'){
+            searchForm['sign'] = this.searchForm.site
           }
 
           if(item === '发站' || item === '到站'|| item === '票种' || this.showTimeType === 0){
@@ -516,6 +543,7 @@
           oneLevel: LevelType,
           info: JSON.stringify(searchForm)
         }
+        console.log(this.module);
         if(this.module.length > 0){
           if(this.searchForm.statisticType){
             this.getChartsData(mainCondition,data)
@@ -542,13 +570,13 @@
             .then(res =>{
               if(res.data.code === 0){
                 console.log(res);
-                this.loading = false
+
                 this.$message.success('获取成功')
                 this.tableData = res.data.result
 
                 this.chartData = this.tableData
-                this.dataEmpty = !this.chartData.rows.length
-
+                this.chartData.rows.length?this.dataEmpty = !this.chartData.rows.length:''
+                this.loading = false
               }else {
                 this.$message.warning(res.data.msg)
                 this.loading = false

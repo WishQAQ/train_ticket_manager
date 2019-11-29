@@ -424,4 +424,7 @@
       }
     }
   }
+  /deep/.userInfo_dialog{
+    margin: unset !important;
+  }
 </style>

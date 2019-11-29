@@ -472,7 +472,8 @@
                   prop="nickname">
               </el-table-column>
               <el-table-column
-                  width="55"
+                  width="80"
+                  show-overflow-tooltip
                   label="动作"
                   prop="action">
               </el-table-column>
@@ -882,61 +883,64 @@
               prop="remarks">
           </el-table-column>
         </el-table>
-        <Pagination
-            ref="pagination"
-            :pageData="userPaginationList"
-            @jumpSize="userJumpSize"
-            @jumpPage="userJumpPage">
-        </Pagination>
+        <div class="dialog_bottom_box" style="display: flex;align-items: flex-end;justify-content: space-between;">
+          <Pagination
+              ref="pagination"
+              :pageData="userPaginationList"
+              @jumpSize="userJumpSize"
+              @jumpPage="userJumpPage">
+          </Pagination>
+          <el-button size="mini" type="primary" @click="extensionsDialog = true">修改插件ID</el-button>
+        </div>
+      </div>
+    </el-dialog>
+    <!--
+    选择行程弹窗
+    <el-dialog
+        title="确定发站信息"
+        :close-on-click-modal="false"
+        :close-on-press-escape="false"
+        :show-close="false"
+        modal-append-to-body
+        append-to-body
+        width="500px"
+        :visible.sync="starTicketSite"
+        custom-class="select_ticket_site">
+      <div class="detail_main">
+        <el-select @input="change($event)" v-model="starSite" placeholder="请选择">
+          <el-option
+              v-for="(item,index) in GetTicketData"
+              :key="index"
+              :label="item.name"
+              :value="item.code">
+          </el-option>
+        </el-select>
       </div>
     </el-dialog>
 
-<!--    &lt;!&ndash; 选择行程弹窗 &ndash;&gt;-->
-<!--    <el-dialog-->
-<!--        title="确定发站信息"-->
-<!--        :close-on-click-modal="false"-->
-<!--        :close-on-press-escape="false"-->
-<!--        :show-close="false"-->
-<!--        modal-append-to-body-->
-<!--        append-to-body-->
-<!--        width="500px"-->
-<!--        :visible.sync="starTicketSite"-->
-<!--        custom-class="select_ticket_site">-->
-<!--      <div class="detail_main">-->
-<!--        <el-select @input="change($event)" v-model="starSite" placeholder="请选择">-->
-<!--          <el-option-->
-<!--              v-for="(item,index) in GetTicketData"-->
-<!--              :key="index"-->
-<!--              :label="item.name"-->
-<!--              :value="item.code">-->
-<!--          </el-option>-->
-<!--        </el-select>-->
-<!--      </div>-->
-<!--    </el-dialog>-->
-
-<!--    &lt;!&ndash; 选择行程弹窗 &ndash;&gt;-->
-<!--    <el-dialog-->
-<!--        title="确定到站信息"-->
-<!--        :close-on-click-modal="false"-->
-<!--        :close-on-press-escape="false"-->
-<!--        :show-close="false"-->
-<!--        modal-append-to-body-->
-<!--        append-to-body-->
-<!--        width="500px"-->
-<!--        :visible.sync="endTicketSite"-->
-<!--        custom-class="select_ticket_site">-->
-<!--      <div class="detail_main">-->
-<!--        <el-select @input="change($event)" v-model="endSite" placeholder="请选择">-->
-<!--          <el-option-->
-<!--              v-for="(item,index) in GetTicketData"-->
-<!--              :key="index"-->
-<!--              :label="item.name"-->
-<!--              :value="item.code">-->
-<!--          </el-option>-->
-<!--        </el-select>-->
-<!--      </div>-->
-<!--    </el-dialog>-->
-
+    选择行程弹窗
+    <el-dialog
+        title="确定到站信息"
+        :close-on-click-modal="false"
+        :close-on-press-escape="false"
+        :show-close="false"
+        modal-append-to-body
+        append-to-body
+        width="500px"
+        :visible.sync="endTicketSite"
+        custom-class="select_ticket_site">
+      <div class="detail_main">
+        <el-select @input="change($event)" v-model="endSite" placeholder="请选择">
+          <el-option
+              v-for="(item,index) in GetTicketData"
+              :key="index"
+              :label="item.name"
+              :value="item.code">
+          </el-option>
+        </el-select>
+      </div>
+    </el-dialog>
+-->
     <!-- 填写chrome扩展ID -->
     <el-dialog
         title="填写chrome扩展ID"
