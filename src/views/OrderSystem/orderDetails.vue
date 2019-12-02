@@ -80,6 +80,7 @@
           <div>
             <span>旧单号</span>
             <el-input
+                @input="change($event)"
                 placeholder="请输入旧单号"
                 v-model="orderInfo.old_order_sn"
                 :disabled="inputDisabled">
@@ -732,6 +733,7 @@
 
     <!-- 批量修改路线变更提示框 -->
     <el-dialog
+        v-dialogDrag
         title="提示"
         modal-append-to-body
         append-to-body

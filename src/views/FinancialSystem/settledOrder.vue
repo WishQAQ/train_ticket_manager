@@ -2,29 +2,29 @@
   <div class="content" v-loading="loading">
     <div class="top">
       <div>
-        <el-input style="width: 225px;" placeholder="请输入您要查询的订单号" v-model="searchForm.order_sn" clearable></el-input>
+        <el-input style="width: 225px;" placeholder="请输入您要查询的订单号" v-model="searchForm.order_sn" clearable/>
       </div>
       <div>
         <el-select v-model="searchForm.order_status"  placeholder="任务进度" clearable>
-          <el-option value="0" label="未处理"></el-option>
-          <el-option value="1" label="已处理"></el-option>
+          <el-option value="0" label="未处理"/>
+          <el-option value="1" label="已处理"/>
         </el-select>
       </div>
       <div v-if="viewsType === 1">
         <el-select v-model="searchForm.loss_status"  placeholder="亏盈状态" clearable>
-          <el-option value="0" label="亏损"></el-option>
-          <el-option value="1" label="保本"></el-option>
-          <el-option value="2" label="盈利"></el-option>
+          <el-option value="0" label="亏损"/>
+          <el-option value="1" label="保本"/>
+          <el-option value="2" label="盈利"/>
         </el-select>
       </div>
       <div>
         <el-select v-model="searchForm.customer" placeholder="客户选择" clearable  @change="selectCustomer(searchForm.customer)">
-          <el-option v-for="item in client" :key="item.id" :label="item.name" :value="item.identity"></el-option>
+          <el-option v-for="item in client" :key="item.id" :label="item.name" :value="item.identity"/>
         </el-select>
       </div>
       <div>
         <el-select v-model="searchForm.issuer" placeholder="发单人选择" clearable>
-          <el-option v-for="item in issuerList" :key="item.id" :label="item.name" :value="item.id"></el-option>
+          <el-option v-for="item in issuerList" :key="item.id" :label="item.name" :value="item.id"/>
         </el-select>
       </div>
       <div class="block">
@@ -166,7 +166,7 @@
               align="center"
               label="总赔付费">
             <template slot-scope="scope">
-              <div class="table_row_edit" @blur="openEditInput($event,scope.row,'compensation_fee')" contentEditable>
+              <div class="table_row_edit" @blur="openEditInput($event,scope.row,'compensation_fee',scope.row.cost_item[0].compensation_fee)" contentEditable>
                 {{scope.row.cost_item[0].compensation_fee}}
               </div>
             </template>
@@ -654,15 +654,15 @@
        * @author Wish
        * @date 2019/10/30
       */
-      openEditInput(editData,data,dataName){
+      openEditInput(editData,data,dataName,oldData){
         // if(oldData){
         //   console.log(editData.target.innerText);
         // }
-        console.log(editData, data, dataName);
-        let editText = editData.target.innerText
+        let editText = editData.target.innerText || null
         let orderId = data.order_sn
         let orderName = data.cost_item[0].dataName
-        if(editText !== orderName){
+        console.log(editText);
+        if(editText !== oldData){
           let data ={
             order_sn: orderId,
             field: dataName,
@@ -680,6 +680,7 @@
                 }
               })
         }
+
       },
 
       /**
