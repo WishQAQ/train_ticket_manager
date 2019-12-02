@@ -44,8 +44,8 @@
         deep: true,
         handler(nv, ov) {
           console.log(nv, ov);
-          this.default_photo = this.defaultPhoto
-          this.imageUrl = 'http://oa.huimin.dev.cq1080.com/'+this.default_photo
+          this.default_photo = this.defaultPhoto || ''
+          this.imageUrl = this.default_photo?'http://oa.huimin.dev.cq1080.com/'+this.default_photo:''
         }
       }
     },

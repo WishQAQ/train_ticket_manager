@@ -416,8 +416,7 @@
       .content{
         font-size:18px;
         color:rgba(38,153,251,1);
-        max-height: 300px;
-        height: 100%;
+        height: 300px;
         overflow-y: auto;
         white-space: pre-wrap;
       }

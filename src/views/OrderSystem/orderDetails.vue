@@ -81,7 +81,7 @@
             <span>旧单号</span>
             <el-input
                 @input="change($event)"
-                placeholder="请输入旧单号"
+                :placeholder="inputDisabled?'':'请输入旧单号'"
                 v-model="orderInfo.old_order_sn"
                 :disabled="inputDisabled">
             </el-input>
@@ -106,17 +106,16 @@
           <div class="info_upload_image" v-if="orderInfo.certificates || urlType === 'edit'">
             <div v-if="urlType === 'edit'">
               <UploadLeaflet
-                  class="111"
                   v-if="show_user_data"
                   ref="uploadUserData"
                   v-on:uploadAddress="uploadIdPhoto"
-                  :defaultPhoto="orderInfo.certificates"
+                  :defaultPhoto="orderInfo.certificates || ''"
                   :messageText="'证件照片'"/>
               <UploadLeaflet
                   v-else
                   ref="uploadUserData"
                   v-on:uploadAddress="uploadIdPhoto"
-                  :defaultPhoto="orderInfo.certificates"
+                  :defaultPhoto="orderInfo.certificates || ''"
                   :messageText="'证件照片'"/>
             </div>
             <PublicImage v-else :url="orderInfo.certificates"/>
@@ -830,30 +829,34 @@
         <el-form label-width="80px">
           <el-form-item label="行程时间" class="edit_ticket_message_form">
             <el-date-picker
+                :disabled="editTicketInfo.is_ticket_issue"
                 v-model="new_riding_time"
                 type="date"
                 :placeholder="$getTimeYear(editTicketInfo.riding_time * 1000)">
             </el-date-picker>
           </el-form-item>
           <el-form-item label="发站" class="edit_ticket_message_form">
-            <el-input :disabled="editTicketInfo.is_ticket_issue" class="edit_ticket_message_input" clearable :placeholder="editTicketInfo.departure_station" v-model="new_departure_station"></el-input>
+            <el-input :disabled="editTicketInfo.is_ticket_issue" class="edit_ticket_message_input" clearable
+                      :placeholder="editTicketInfo.departure_station" v-model="new_departure_station"/>
             <el-select clearable style="width: 80px" v-model="departure_path" placeholder="方向">
-              <el-option label="东" value="东"></el-option>
-              <el-option label="南" value="南"></el-option>
-              <el-option label="西" value="西"></el-option>
-              <el-option label="北" value="北"></el-option>
+              <el-option label="东" value="东"/>
+              <el-option label="南" value="南"/>
+              <el-option label="西" value="西"/>
+              <el-option label="北" value="北"/>
             </el-select>
           </el-form-item>
-          <el-form-item label="车次">
-            <el-input :placeholder="editTicketInfo.trips_number" clearable v-model="new_trips_number"></el-input>
+          <el-form-item label="车次" class="edit_ticket_message_form">
+            <el-input :placeholder="editTicketInfo.trips_number" :disabled="editTicketInfo.is_ticket_issue" clearable
+                      v-model="new_trips_number"/>
           </el-form-item>
           <el-form-item label="到站" class="edit_ticket_message_form">
-            <el-input :disabled="editTicketInfo.is_ticket_issue" class="edit_ticket_message_input" clearable :placeholder="editTicketInfo.arrival_station" v-model="new_arrival_station"></el-input>
+            <el-input :disabled="editTicketInfo.is_ticket_issue" class="edit_ticket_message_input" clearable
+                      :placeholder="editTicketInfo.arrival_station" v-model="new_arrival_station"/>
             <el-select clearable style="width: 80px" v-model="arrival_path" placeholder="方向">
-              <el-option label="东" value="东"></el-option>
-              <el-option label="南" value="南"></el-option>
-              <el-option label="西" value="西"></el-option>
-              <el-option label="北" value="北"></el-option>
+              <el-option label="东" value="东"/>
+              <el-option label="南" value="南"/>
+              <el-option label="西" value="西"/>
+              <el-option label="北" value="北"/>
             </el-select>
           </el-form-item>
         </el-form>
@@ -2394,9 +2397,9 @@
       },
       addGroupBtn(){
         this.addTrainTableArray = []
-        this.$message.success('数据识别中')
-        this.addBtnDisabled = true
         if(this.AddGroupOriginData){
+          this.$message.success('数据识别中')
+          this.addBtnDisabled = true
           let data ={
             group_origin_data: this.AddGroupOriginData
           }
@@ -2758,6 +2761,11 @@
               color: #000;
             }
           }
+        }
+      }
+      /deep/.el-input__inner{
+        &::placeholder{
+          color: #000;
         }
       }
     }

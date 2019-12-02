@@ -31,19 +31,21 @@
       </el-date-picker></div>
       <div>
         <el-select v-model="orderSearch.issuer" placeholder="发单人选择" clearable>
-          <el-option v-for="item in issuerList" :key="item.id" :label="item.name" :value="item.id"></el-option>
+          <el-option v-for="item in issuerList" :key="item.id" :label="item.name" :value="item.id"/>
         </el-select>
       </div>
-      <div><el-input clearable v-model="orderSearch.departure" placeholder="发站查询"></el-input></div>
-      <div><el-input clearable v-model="orderSearch.arrival" placeholder="到站查询"></el-input></div>
+      <div>
+        <el-input clearable v-model="orderSearch.departure" placeholder="发站查询"/></div>
+      <div>
+        <el-input clearable v-model="orderSearch.arrival" placeholder="到站查询"/></div>
       <div>
         <el-select v-model="orderSearch.submitter" placeholder="提交人查询" clearable>
-          <el-option v-for="item in companyAccount" :key="item.id" :label="item.nickname" :value="item.target"></el-option>
+          <el-option v-for="item in companyAccount" :key="item.id" :label="item.nickname" :value="item.target"/>
         </el-select>
       </div>
       <div>
         <el-select v-model="orderSearch.ticket_teller" placeholder="出票员查询" clearable>
-          <el-option v-for="item in companyAccount" :key="item.id" :label="item.nickname" :value="item.target"></el-option>
+          <el-option v-for="item in companyAccount" :key="item.id" :label="item.nickname" :value="item.target"/>
         </el-select>
       </div>
 
@@ -758,7 +760,7 @@
                 top: 0;
                 width: 0;
                 height: 0;
-                border-top: 30px solid #ebeef5;
+                border-top: 30px solid red;
                 border-right: 30px solid transparent;
               }
             }

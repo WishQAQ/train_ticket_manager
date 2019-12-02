@@ -1,8 +1,8 @@
 <template>
   <div class="optionLog">
     <div class="table_header">
-      <el-input v-model="searchForm.user_name" placeholder="操作人搜索"></el-input>
-      <el-input v-model="searchForm.remark" placeholder="备注搜索"></el-input>
+      <el-input v-model="searchForm.user_name" placeholder="操作人搜索"/>
+      <el-input v-model="searchForm.remark" placeholder="备注搜索"/>
       <el-button @click="searchBtn">搜索</el-button>
     </div>
     <div class="table_main">
@@ -22,6 +22,7 @@
         </el-table-column>
         <el-table-column
             prop="type"
+            width="85"
             label="类型">
           <template slot-scope="scope">
             {{scope.row.type === 0 ? '后台登录':
@@ -30,6 +31,8 @@
           </template>
         </el-table-column>
         <el-table-column
+            width="120"
+            show-overflow-tooltip
             prop="operator"
             label="操作人">
         </el-table-column>
@@ -38,15 +41,20 @@
             label="备注">
         </el-table-column>
         <el-table-column
+            width="170"
             prop="created_at"
             label="操作时间">
         </el-table-column>
         <el-table-column
+            width="170"
+            show-overflow-tooltip
             prop="ip"
             label="IP">
         </el-table-column>
         <el-table-column
             prop="id"
+            show-overflow-tooltip
+            width="80"
             label="ID">
         </el-table-column>
       </el-table>
