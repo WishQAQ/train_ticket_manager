@@ -31,7 +31,6 @@
     },
     mounted(){
       this.paginationList = this.pageData
-      console.log(this.paginationList);
     },
     methods:{
       /**

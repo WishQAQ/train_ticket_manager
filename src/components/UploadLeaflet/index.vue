@@ -9,10 +9,10 @@
         :show-file-list="false"
         :before-upload="beforeUpload"
         :on-success="handleAvatarSuccess">
-      <img v-if="imageUrl && !showTxtDiv" :src="imageUrl" class="avatar">
+      <img v-if="imageUrl && !showTxtDiv" :src="imageUrl" class="avatar" :alt="imageUrl">
       <div style="display: flex;align-items: center;justify-content: center" v-if="imageUrl && showTxtDiv" class="avatar">{{imageUrl}}</div>
       <div slot="trigger" v-if="!imageUrl">
-        <i class="el-icon-upload"></i>
+        <i class="el-icon-upload"/>
         <div class="el-upload__text">将{{messageText}}拖到此处，或<em>点击上传</em></div>
       </div>
       <el-button v-if="!imageUrl" slot="trigger" style="display: none" ref="selectFile" size="mini" type="primary">选取文件</el-button>
@@ -39,6 +39,16 @@
         default: () => ''
       }
     },
+    watch: {
+      defaultPhoto: {
+        deep: true,
+        handler(nv, ov) {
+          console.log(nv, ov);
+          this.default_photo = this.defaultPhoto
+          this.imageUrl = 'http://oa.huimin.dev.cq1080.com/'+this.default_photo
+        }
+      }
+    },
     data(){
       return {
         uploadLoading: false,
@@ -52,6 +62,8 @@
         imageUrl: '', // 图片地址
 
         submitBtnLoading: true, // 上传按钮
+
+        default_photo: '',
       }
     },
     methods:{
@@ -99,11 +111,14 @@
       closedImage(){
         this.imageUrl = ''
       },
+      reload() {
+        this.$forceUpdate()
+      }
     },
     mounted() {
-      console.log(this.defaultPhoto);
       if(this.defaultPhoto){
-        this.imageUrl = 'http://oa.huimin.dev.cq1080.com/'+this.defaultPhoto
+        this.default_photo = this.defaultPhoto
+        this.imageUrl = 'http://oa.huimin.dev.cq1080.com/'+this.default_photo
       }
     }
   }

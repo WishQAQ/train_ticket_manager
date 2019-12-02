@@ -851,7 +851,7 @@
         this.orderId = data.order_sn
         this.uploadDialog = true
         this.upload_image = ''
-        // this.$refs.upload.closedImage()
+        this.$refs.uploadImage.closedImage()
         if(index === 1){
           this.uploadType = true
         }else if(index === 2){
@@ -865,9 +865,7 @@
        * @date 2019/10/28
       */
       uploadImages(val){
-        if(val){
-          this.upload_image = val
-        }
+        this.upload_image = val
       },
 
       /**

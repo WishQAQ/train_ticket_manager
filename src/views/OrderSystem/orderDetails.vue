@@ -105,23 +105,33 @@
           <div class="info_upload_image" v-if="orderInfo.certificates || urlType === 'edit'">
             <div v-if="urlType === 'edit'">
               <UploadLeaflet
+                  class="111"
+                  v-if="show_user_data"
+                  ref="uploadUserData"
                   v-on:uploadAddress="uploadIdPhoto"
                   :defaultPhoto="orderInfo.certificates"
-                  :messageText="'证件照片'"></UploadLeaflet>
+                  :messageText="'证件照片'"/>
+              <UploadLeaflet
+                  v-else
+                  ref="uploadUserData"
+                  v-on:uploadAddress="uploadIdPhoto"
+                  :defaultPhoto="orderInfo.certificates"
+                  :messageText="'证件照片'"/>
             </div>
-            <PublicImage v-else :url="orderInfo.certificates"></PublicImage>
+            <PublicImage v-else :url="orderInfo.certificates"/>
 
           </div>
         </div>
       </div>
       <div class="add_upload" v-if="urlType === 'add'">
-        <UploadLeaflet :messageText="'证件照片'"></UploadLeaflet>
-        <UploadLeaflet :messageText="'源文件'"></UploadLeaflet>
+        <UploadLeaflet v-on:uploadAddress="uploadUserData" :messageText="'证件照片'"/>
+        <UploadLeaflet v-on:uploadAddress="uploadFileData" :messageText="'源文件'"/>
       </div>
       <div class="info_upload" v-if="urlType === 'edit' || orderInfo.ticket_photos">
         <div class="upload_image_main">
           <div class="ticket_photo_box">
-            <el-image v-for="(item,index) in ticketPhotoList" :key="index" :src="'http://oa.huimin.dev.cq1080.com/'+item"></el-image>
+            <el-image v-for="(item,index) in ticketPhotoList" :key="index"
+                      :src="'http://oa.huimin.dev.cq1080.com/'+item"/>
           </div>
           <PublicImage
               v-for="(item,index) in orderInfo.ticket_photos"
@@ -738,7 +748,7 @@
             {{editRouteInfo[0].arrival_station}}
           </div>
         </div>
-        <div>存在其他车票状态，且新路线关键词被修改，是否保存相关信息将所选乘客移动到新路线？</div>
+        <div>存在其他车票状态或新路线关键词被修改，是否保存相关信息将所选乘客移动到新路线？</div>
       </div>
       <div slot="footer" class="dialog-footer" style="justify-content: flex-end">
         <el-button @click="closedEditRoute">取消</el-button>
@@ -748,6 +758,7 @@
 
     <!-- 新增行程 -->
     <el-dialog
+        v-dialogDrag
         title="新增行程"
         :close-on-click-modal="false"
         :close-on-press-escape="false"
@@ -803,6 +814,7 @@
 
     <!-- 修改乘车区间弹窗 -->
     <el-dialog
+        v-dialogDrag
         title="修改乘车区间"
         :close-on-click-modal="false"
         :close-on-press-escape="false"
@@ -852,6 +864,7 @@
 
     <!-- 选择12306账号弹窗 -->
     <el-dialog
+        v-dialogDrag
         title="12306账号"
         :close-on-click-modal="false"
         modal-append-to-body
@@ -943,6 +956,7 @@
 -->
     <!-- 填写chrome扩展ID -->
     <el-dialog
+        v-dialogDrag
         title="填写chrome扩展ID"
         :close-on-click-modal="false"
         :close-on-press-escape="false"
@@ -1070,6 +1084,13 @@
         userListHeader: '', // 新增弹窗表头信息
         addUserInfo: '', // 新增乘客输入框
 
+        user_data_photo: '',
+
+        show_user_data: false, // 编辑 证件照片 上传框
+
+        add_user_data: '', // 新增 证件照片上传
+        add_file_data: '', // 新增 源文件上传
+
         checkedTableList: {}, // 表格乘客多选列表
         checkedRouteList: {}, // 表格路线多选列表
         editOrderToken: {},
@@ -1192,12 +1213,13 @@
             .then(res =>{
               if(res.data.code === 0){
                 this.loading = false
-                res.data.result.forEach(res =>{
-                  this.orderInfo = res
-                  if(this.orderInfo.ticket_photos){
-                    this.orderInfo.ticket_photos = this.orderInfo.ticket_photos.split(',')
-                  }
-                })
+                this.orderInfo = res.data.result[0]
+
+                this.show_user_data = !!this.orderInfo.certificates
+                console.log(res);
+                if(this.orderInfo.ticket_photos){
+                  this.orderInfo.ticket_photos = this.orderInfo.ticket_photos.split(',')
+                }
               }else {
                 this.$message.warning(res.data.msg)
               }
@@ -1647,7 +1669,7 @@
         })
         // this.closedSelectList()
         // this.inputDisabled = false
-        // this.urlType = 'edit'
+        this.urlType = 'edit'
         this.getBillerData(this.orderInfo.cname)  // 获取发单人列表
       },
 
@@ -2017,7 +2039,7 @@
         newForm['route_id'] = this.editRouteData.route_id
         newForm['passengers'] = this.editRouteData.passengers
         newForm['riding_time'] =  this.$dateToDate(this.editRouteData.riding_time)  || val.riding_time
-        newForm['trips_number'] = this.editRouteData.trips_number || ''
+        newForm['trips_number'] = this.editRouteData.trips_number || val.trips_number
 
         if(this.editRouteData.departure_station){
           newForm['departure'] = this.editRouteData.directionOne? this.editRouteData.departure_station +this.editRouteData.directionOne:this.editRouteData.departure_station
@@ -2324,6 +2346,9 @@
             })
           }
         })
+        this.orderInfo.ticket_photos.forEach(img =>{
+          this.ticketPhotoList.push(img)
+        })
         let data ={
           order_sn: this.orderInfo.order_sn,
           customer: cname,
@@ -2339,7 +2364,7 @@
               this.urlTypeSelect()
               this.getCustomerData()
               this.$routerTab.close()
-              this.$router.push({
+              this.$routerTab.push({
                 path: 'orderDetails',
                 query:{
                   order_sn: this.orderInfo.order_sn,
@@ -2490,6 +2515,24 @@
       },
 
       /**
+       * @Description: 新增证件照片上传
+       * @author Wish
+       * @date 2019/12/2
+      */
+      uploadUserData(val){
+        this.add_user_data = val
+      },
+      /**
+       * @Description: 新增原文件上传
+       * @author Wish
+       * @date 2019/12/2
+       */
+      uploadFileData(val){
+        this.add_file_data = val
+      },
+
+
+      /**
        * @Description: 新增全部保存
        * @author Wish
        * @date 2019/10/22
@@ -2502,10 +2545,10 @@
           item.info.forEach(cItem =>{
             cItem.riding_time = this.$dateToDate(cItem.riding_time)  // 发车时间
             cItem.passenger.forEach(dItem =>{
-              dItem.ticket_type = dItem.ticket_type === '成人票' ? 0 :1   // 车票类型
-              dItem.ticket_species = dItem.ticket_species === '电子票' ? 0:
-                  dItem.ticket_species === '网票' ? 1:
-                      dItem.ticket_species === '纸票' ? 2: '' // 车票类型 0:电子票、1:网票、2:纸票
+              dItem.ticket_type = dItem.ticket_type === '电子票' ? 0:
+                  dItem.ticket_type === '网票' ? 1:
+                      dItem.ticket_type === '纸票' ? 2: '' // 车票类型 0:电子票、1:网票、2:纸票
+              dItem.ticket_species = dItem.ticket_species === '成人票' ? 0 :1   // 车票类型
             })
           })
         })
@@ -2520,27 +2563,26 @@
           issuer: this.orderInfo.dName, // 发单人标识
           origin_data: this.saveGroupMessage, // Q群原始信息
           route_type: 0,
-          certificates: '',
-          source_file: '',
+          certificates: this.add_user_data,
+          source_file: this.add_file_data,
           ticket_photos: '',
-          remarks: '',
+          remarks: this.orderInfo.remarks || '',
           route: JSON.stringify(orderList),
         }
+        console.log(data);
         this.$axios.post('/api/order/add',data)
             .then(res =>{
               if(res.data.code === 0){
                 this.$message.success('保存成功')
                 this.allAddSubmitLoading = false
-                setTimeout(() =>{
-                  this.$routerTab.close()
-                  this.$router.push({
-                    name: 'orderDetails',
-                    query:{
-                      order_sn: this.orderInfo.order_sn,
-                      type: 'details'
-                    }
-                  })
-                },500)
+                this.$routerTab.close()
+                this.$routerTab.push({
+                  name: 'orderDetails',
+                  query:{
+                    order_sn: this.orderInfo.order_sn,
+                    type: 'details'
+                  }
+                })
               }else {
                 this.$message.warning(res.data.msg)
                 this.allAddSubmitLoading = false
