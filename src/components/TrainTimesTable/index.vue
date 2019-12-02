@@ -256,7 +256,9 @@
        * @date 2019/11/18
       */
       loseFcous(orderData, data, rowName, row) {
-        this.$emit('tableRowsData', this.orderInfo, data, rowName, row )
+        // if(data[rowName] !== row){
+          this.$emit('tableRowsData', this.orderInfo, data, rowName, row )
+        // }
       },
 
       /**

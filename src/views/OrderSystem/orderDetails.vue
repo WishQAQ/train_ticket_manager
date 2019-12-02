@@ -2,8 +2,7 @@
   <div class="orderDetails" v-loading="loading">
     <div class="order_header" v-if="urlType !== 'add' || addHeaderShow">
       <div class="header_title" @click="openHeaderDetailsBtn">
-        <i v-if="!headerDetails" class="el-icon-circle-plus-outline"></i>
-        <i v-else class="el-icon-remove-outline"></i>
+        <i :class="headerDetails?'el-icon-remove-outline':'el-icon-circle-plus-outline'"/>
         订单Q群原始信息
       </div>
       <a class="header_btn" :href="this.orderInfo.source_file" download="原始文件" v-if="urlType === 'details' && this.orderInfo.source_file">原始文件下载</a>
@@ -54,7 +53,7 @@
         <p class="title">订单号</p>
         <div class="info_header_table">
 <!--          <div>{{orderInfo.order_sn}}</div>-->
-          <el-input clearable @input="change($event)" v-model="orderInfo.order_sn" :disabled="true"></el-input>
+          <el-input clearable @input="change($event)" v-model="orderInfo.order_sn" :disabled="true"/>
           <div>
             <span>客户商</span>
             <el-select filterable @change="getBillerData(orderInfo.cname)" v-model="orderInfo.cname" :disabled="inputDisabled" placeholder="请选择">
@@ -103,38 +102,39 @@
                 :disabled="inputDisabled">
             </el-input>
           </div>
-          <div class="info_upload_image" v-if="orderInfo.certificates || urlType === 'edit'">
-            <div v-if="urlType === 'edit'">
-              <UploadLeaflet
-                  v-if="show_user_data"
-                  ref="uploadUserData"
-                  v-on:uploadAddress="uploadIdPhoto"
-                  :defaultPhoto="orderInfo.certificates || ''"
-                  :messageText="'证件照片'"/>
-              <UploadLeaflet
-                  v-else
-                  ref="uploadUserData"
-                  v-on:uploadAddress="uploadIdPhoto"
-                  :defaultPhoto="orderInfo.certificates || ''"
-                  :messageText="'证件照片'"/>
-            </div>
-            <PublicImage v-else :url="orderInfo.certificates"/>
-
+          <div class="info_upload_image" v-if="urlType !== 'add'">
+<!--            <div v-if="urlType === 'edit'">-->
+<!--              <UploadLeaflet-->
+<!--                  v-if="show_user_data"-->
+<!--                  ref="uploadUserData"-->
+<!--                  v-on:uploadAddress="uploadIdPhoto"-->
+<!--                  :defaultPhoto="orderInfo.certificates || ''"-->
+<!--                  :messageText="'证件照片'"/>-->
+<!--              <UploadLeaflet-->
+<!--                  v-else-->
+<!--                  ref="uploadUserData"-->
+<!--                  v-on:uploadAddress="uploadIdPhoto"-->
+<!--                  :defaultPhoto="orderInfo.certificates || ''"-->
+<!--                  :messageText="'证件照片'"/>-->
+<!--            </div>-->
+<!--            <PublicImage v-else :url="orderInfo.certificates" :preview="urlType === 'details'"/>-->
+            <el-button type="primary" @click="openAddUserPhotoBtn"><i class="el-icon-camera-solid"/> 证件照片</el-button>
           </div>
         </div>
       </div>
       <div class="add_upload" v-if="urlType === 'add'">
-        <UploadLeaflet v-on:uploadAddress="uploadUserData" :messageText="'证件照片'"/>
+        <div class="add_user_photo_btn"><el-button type="primary" @click="openAddUserPhotoBtn"><i class="el-icon-camera-solid"/> 证件照片</el-button></div>
+<!--        <UploadLeaflet v-on:uploadAddress="uploadUserData" :messageText="'证件照片'"/>-->
         <UploadLeaflet v-on:uploadAddress="uploadFileData" :messageText="'源文件'"/>
       </div>
-      <div class="info_upload" v-if="urlType === 'edit' || orderInfo.ticket_photos">
+      <div class="info_upload" v-if="urlType === 'edit' || orderInfo.ticket_photos.length > 0">
         <div class="upload_image_main">
-          <div class="ticket_photo_box">
-            <el-image v-for="(item,index) in ticketPhotoList" :key="index"
-                      :src="'http://oa.huimin.dev.cq1080.com/'+item"/>
-          </div>
           <PublicImage
+              :preview="urlType === 'details'"
               v-for="(item,index) in orderInfo.ticket_photos"
+              :previewList="orderInfo.ticket_photos"
+              :deleteMask="urlType === 'edit'"
+              @deleteUploadImage="deleteUploadTicketImage"
               :key="index"
               :url="item || null">
           </PublicImage>
@@ -293,10 +293,10 @@
 
       <div class="order_passenger_search">
         <div class="search_box">
-          <el-input v-model="passengerSearch.info" clearable placeholder="请输入乘客信息/支付账号/流水账号/12306账号"></el-input>
-          <el-input v-model="passengerSearch.train_number" clearable placeholder="请输入车次"></el-input>
-          <el-input v-model="passengerSearch.departure_station" clearable placeholder="请输入发站地址"></el-input>
-          <el-input v-model="passengerSearch.arrive_station" clearable placeholder="请输入到站地址"></el-input>
+          <el-input v-model="passengerSearch.info" clearable placeholder="请输入乘客信息/支付账号/流水账号/12306账号"/>
+          <el-input v-model="passengerSearch.train_number" clearable placeholder="请输入车次"/>
+          <el-input v-model="passengerSearch.departure_station" clearable placeholder="请输入发站地址"/>
+          <el-input v-model="passengerSearch.arrive_station" clearable placeholder="请输入到站地址"/>
           <el-date-picker
               v-model="passengerSearch.newTripTime"
               type="date"
@@ -308,16 +308,16 @@
               placeholder="请选择出票时间">
           </el-date-picker>
           <el-select v-model="passengerSearch.ticket_type" clearable placeholder="请选择票类">
-            <el-option label="电子票" value="0"></el-option>
-            <el-option label="网票" value="1"></el-option>
-            <el-option label="纸票" value="2"></el-option>
+            <el-option label="电子票" value="0"/>
+            <el-option label="网票" value="1"/>
+            <el-option label="纸票" value="2"/>
           </el-select>
           <el-select v-model="passengerSearch.ticket_status" clearable placeholder="请选择车票状态">
-            <el-option label="未出票" value="0"></el-option>
-            <el-option label="已出票" value="1"></el-option>
-            <el-option label="已取消票" value="2"></el-option>
-            <el-option label="已改签" value="3"></el-option>
-            <el-option label="已退票" value="4"></el-option>
+            <el-option label="未出票" value="0"/>
+            <el-option label="已出票" value="1"/>
+            <el-option label="已取消票" value="2"/>
+            <el-option label="已改签" value="3"/>
+            <el-option label="已退票" value="4"/>
           </el-select>
           <el-button @click="passengerSearchBtn">搜索</el-button>
         </div>
@@ -360,6 +360,14 @@
             <div>退票交通费：{{item.refund_fare || '0.00'}} 元</div>
             <div>合计：{{item.ticketNumber || '0'}} 张</div>
 
+            <el-button
+                class="addUserListBtn"
+                @click="deleteTableUserBtn(item)"
+                type="danger"
+                size="mini"
+                v-if="urlType === 'edit'">
+              删除行程
+            </el-button>
             <el-button
                 class="addUserListBtn"
                 @click="addTableUserBtn(item)"
@@ -409,7 +417,8 @@
       </div>
 
       <div class="order_add_remarks" v-if="urlType === 'edit'">
-        <div style="flex: 1"><el-input placeholder="请填写需要新添加的备注信息" v-model="addRemarksMessage"></el-input></div>
+        <div style="flex: 1">
+          <el-input placeholder="请填写需要新添加的备注信息" v-model="addRemarksMessage"/></div>
         <el-button @click="submitNewRemarsk" type="primary">提交备注</el-button>
       </div>
 
@@ -528,8 +537,35 @@
 
     </div>
 
+    <!-- 添加证件照片弹窗 -->
+    <el-dialog
+        v-dialogDrag
+        title="证件照片"
+        width="810px"
+        custom-class="add_user_photo_dialog"
+        :visible.sync="addUserPhotoDialog">
+      <div class="dialog_main">
+        <PublicImage
+            :preview="urlType === 'details'"
+            v-for="(item,index) in orderInfo.certificates"
+            :previewList="orderInfo.certificates"
+            :deleteMask="urlType !== 'details'"
+            @deleteUploadImage="deleteUserImage"
+            :key="index"
+            :url="item || null">
+        </PublicImage>
+        <UploadLeaflet
+            v-if="urlType !== 'details'"
+            ref="uploadImage"
+            v-on:uploadAddress="uploadUserPhoto"
+            :messageText="'证件照片'"/>
+        <div class="not_photo_message" v-if="orderInfo.certificates.length < 1 && urlType === 'details'">暂无证件照片</div>
+      </div>
+    </el-dialog>
+
     <!-- 添加乘客弹窗 -->
     <el-dialog
+        v-dialogDrag
         title="添加乘客"
         width="60%"
         :close-on-click-modal="false"
@@ -972,7 +1008,7 @@
         :visible.sync="extensionsDialog"
         custom-class="extensions_id_dialog">
       <div class="detail_main">
-        <el-input placeholder="请填写已安装成功的chrome扩展ID" v-model="extensionsId"></el-input>
+        <el-input placeholder="请填写已安装成功的chrome扩展ID" v-model="extensionsId"/>
       </div>
       <div slot="footer" class="dialog-footer">
         <el-button type="primary" @click="saveExtensionsId">保存</el-button>
@@ -1027,7 +1063,8 @@
         addBtnDisabled: false, // 识别按钮
 
         orderInfo: {
-          certificates: '',
+          ticket_photos: [],
+          certificates: [],
           cname: '',
           dName: ''
         }, // 订单详情列表
@@ -1092,6 +1129,8 @@
         user_data_photo: '',
 
         show_user_data: false, // 编辑 证件照片 上传框
+
+        addUserPhotoDialog: false, // 证件照片上传框
 
         add_user_data: '', // 新增 证件照片上传
         add_file_data: '', // 新增 源文件上传
@@ -1221,9 +1260,15 @@
                 this.orderInfo = res.data.result[0]
 
                 this.show_user_data = !!this.orderInfo.certificates
-                console.log(res);
+                if(this.orderInfo.certificates){
+                  this.orderInfo.certificates = this.orderInfo.certificates.split(',')
+                }else {
+                  this.orderInfo.certificates = []
+                }
                 if(this.orderInfo.ticket_photos){
                   this.orderInfo.ticket_photos = this.orderInfo.ticket_photos.split(',')
+                }else {
+                  this.orderInfo.ticket_photos = []
                 }
               }else {
                 this.$message.warning(res.data.msg)
@@ -1632,18 +1677,57 @@
       },
 
       /**
+       * @Description: 打开上传证件照片弹窗
+       * @author Wish
+       * @date 2019/12/2
+      */
+      openAddUserPhotoBtn(){
+        this.addUserPhotoDialog = true
+      },
+
+      /**
+       * @Description: 上传证件照片
+       * @author Wish
+       * @date 2019/12/2
+      */
+      uploadUserPhoto(val){
+        console.log(val);
+        this.orderInfo.certificates.push(val)
+        this.$refs.uploadImage.closedImage()
+      },
+
+      /**
+       * @Description: 删除证件照片
+       * @author Wish
+       * @date 2019/12/2
+      */
+      deleteUserImage(val){
+        this.orderInfo.certificates.splice(this.orderInfo.certificates.findIndex(item => item === val), 1);
+      },
+
+      /**
        * @Description: 上传车票图片
        * @author Wish
        * @date 2019/11/1
       */
       uploadIdTicketPhoto(val){
-        if(this.ticketPhotoList.length < 5){
-          this.ticketPhotoList.push(val)
+        if(this.orderInfo.ticket_photos.length < 5){
+          this.orderInfo.ticket_photos.push(val)
+          // this.ticketPhotoList.push(val)
         }else {
           this.$message.warning('最多上传五张图片')
         }
         this.$refs.uploadImage.closedImage()
 
+      },
+
+      /**
+       * @Description: 删除上传的车票照片
+       * @author Wish
+       * @date 2019/12/2
+      */
+      deleteUploadTicketImage(val){
+        this.orderInfo.ticket_photos.splice(this.orderInfo.ticket_photos.findIndex(item => item === val), 1);
       },
 
       /**
@@ -1799,6 +1883,27 @@
         }else {
           this.$message.warning('请填写备注信息')
         }
+      },
+
+      /**
+       * @Description: 删除行程
+       * @author Wish
+       * @date 2019/12/2
+      */
+      deleteTableUserBtn(val){
+        let data ={
+          order_sn: val.order_sn,
+          token: val.parent_id
+        };
+        this.$axios.post('/api/order/delTrips',data)
+        .then(res =>{
+          if(res.data.code === 0){
+            this.$message.success('删除成功')
+            this.getPassengerList()
+          }else {
+            this.$message.warning(res.data.msg)
+          }
+        })
       },
 
       /**
@@ -2351,16 +2456,18 @@
             })
           }
         })
-        this.orderInfo.ticket_photos.forEach(img =>{
-          this.ticketPhotoList.push(img)
-        })
+        let newPhoto = []
+        newPhoto = JSON.parse(JSON.stringify(this.orderInfo.ticket_photos))
+        // this.orderInfo.ticket_photos?this.orderInfo.ticket_photos.forEach(img =>{
+        //   newPhoto.push(img)
+        // }): ''
         let data ={
           order_sn: this.orderInfo.order_sn,
           customer: cname,
           issuer: dname,
           remarks: this.orderInfo.remarks,
-          certificates: this.userCardImage,
-          ticket_photos: String(this.ticketPhotoList),
+          certificates: String(this.orderInfo.certificates),
+          ticket_photos: String(newPhoto),
         }
         this.$axios.post('/api/order/edit',data)
           .then(res =>{
@@ -2369,7 +2476,7 @@
               this.urlTypeSelect()
               this.getCustomerData()
               this.$routerTab.close()
-              this.$routerTab.push({
+              this.$router.push({
                 path: 'orderDetails',
                 query:{
                   order_sn: this.orderInfo.order_sn,
@@ -2568,7 +2675,7 @@
           issuer: this.orderInfo.dName, // 发单人标识
           origin_data: this.saveGroupMessage, // Q群原始信息
           route_type: 0,
-          certificates: this.add_user_data,
+          certificates: String(this.orderInfo.certificates),
           source_file: this.add_file_data,
           ticket_photos: '',
           remarks: this.orderInfo.remarks || '',
@@ -2581,7 +2688,7 @@
                 this.$message.success('保存成功')
                 this.allAddSubmitLoading = false
                 this.$routerTab.close()
-                this.$routerTab.push({
+                this.push.push({
                   name: 'orderDetails',
                   query:{
                     order_sn: this.orderInfo.order_sn,
@@ -2915,7 +3022,7 @@
             padding: 15px;
           }
           .info_upload_image{
-            width: 240px;
+            width: 160px;
             flex-shrink: 0;
             /*height: 100px;*/
             display: flex;
@@ -2945,6 +3052,16 @@
         justify-content: center;
         margin-left: 150px;
         height: 120px;
+        .add_user_photo_btn{
+          width: 50%;
+          height: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border: 1px solid #ebeef5;
+          border-right: unset;
+          border-top: unset;
+        }
         /deep/.UploadLeaflet{
           .upload_main{
             width: 100%;
@@ -3181,6 +3298,32 @@
         padding: 12px 60px;
       }
 
+    }
+
+    /*上传证件照片弹窗*/
+    .add_user_photo_dialog{
+      .dialog_main{
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        min-height: 110px;
+        .not_photo_message{
+          margin: 0 auto;
+          color: rgba(0,0,0,.5);
+        }
+        .public_image{
+          width: 100px;
+          height: 100%;
+          margin-left: unset;
+          margin-bottom: 10px;
+          &:not(:last-child){
+            margin-right: 10px;
+          }
+        }
+        .UploadLeaflet{
+
+        }
+      }
     }
 
     /*新增乘客弹窗*/

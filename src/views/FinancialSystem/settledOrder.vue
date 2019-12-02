@@ -455,8 +455,8 @@
         <el-dropdown style="margin-left: auto" trigger="click">
           <el-button class="export">导出</el-button>
           <el-dropdown-menu slot="dropdown">
-            <el-dropdown-item><div @click="exportOrder">导出当前页面</div></el-dropdown-item>
-            <el-dropdown-item><div @click="exportAllTable(0)">导出全部</div></el-dropdown-item>
+            <el-dropdown-item><div @click="exportOrder('select')">导出所选项</div></el-dropdown-item>
+            <el-dropdown-item><div @click="exportOrder('all')">导出全部</div></el-dropdown-item>
           </el-dropdown-menu>
         </el-dropdown>
       </div>
@@ -503,6 +503,8 @@
           begin: '',
           end: '',
         },
+
+        selectDownList: [], // 下载列表
 
         groupDialog: false, // Q群需求信息弹窗
         groupMessage: '', // Q群需求信息
@@ -612,6 +614,11 @@
           let dataForm = {}
           dataForm['order_sn'] = res.order_sn
           dataForm['customer'] = res.customer
+          return dataForm
+        });
+        this.selectDownList = v.map(res =>{
+          let dataForm = {}
+          dataForm['order_sn'] = res.order_sn
           return dataForm
         });
       },
@@ -852,7 +859,6 @@
         this.orderId = data.order_sn
         this.uploadDialog = true
         this.upload_image = ''
-        this.$refs.uploadImage.closedImage()
         if(index === 1){
           this.uploadType = true
         }else if(index === 2){
@@ -885,6 +891,7 @@
               if(res.data.code === 0){
                 this.$message.success('上传成功')
                 this.uploadDialog = false
+                this.$refs.uploadImage.closedImage()
               }else {
                 this.$message.warning(res.data.msg)
               }
@@ -1035,10 +1042,33 @@
        * @author Wish
        * @date 2019/10/28
       */
-      exportAllTable(){
+      exportOrder(type){
+        if(type === 'all'){
+          if(this.tableData.length >0){
+            this.$message.success('正在整理导出文件，开始导出，请勿刷新页面')
+            this.$axios.get('/api/excel/billInfo/'+this.viewsType+'/all',{responseType: 'blob'})
+                .then(res =>{
+                  window.location.href = window.URL.createObjectURL(res.data);
+                })
+          }else {
+            this.$message.warning('暂无数据，无法导出')
+          }
 
-      },
-      exportOrder(){
+        }else {
+          if(this.selectDownList.length > 0){
+            this.$message.success('正在整理导出文件，开始导出，请勿刷新页面')
+            let newArr = []
+            this.selectDownList.forEach(downId =>{
+              newArr.push(downId.order_sn)
+            })
+            this.$axios.get('/api/excel/billInfo/'+this.viewsType+'/'+String(newArr),{responseType: 'blob'})
+                .then(res =>{
+                  window.location.href = window.URL.createObjectURL(res.data);
+                })
+          }else {
+            this.$message.warning('请选择需要下载的数据')
+          }
+        }
       },
 
       //修改分页条数
