@@ -67,8 +67,8 @@
           </div>
           <div style="width: 180px;flex-shrink: 0;">订单号</div>
           <div style="width: 120px; flex-shrink: 0">行程时间</div>
-          <div>发站</div>
-          <div>到站</div>
+          <div style="width: 165px;flex-shrink: 0">发站</div>
+          <div style="width: 165px;flex-shrink: 0">到站</div>
           <div style="width: 80px;flex-shrink: 0;">任务进度</div>
           <div>客户</div>
           <div>发单人</div>
@@ -81,7 +81,7 @@
           <div :class="['main_list',{'is_top': item.is_top === 1}]" v-for="(item, index) in tableData" :key="index" @dblclick="doubleClickDetails(item)">
             <div class="list_num">
               <div style="width: 60px">{{index+1}}</div>
-              <div style="width: 60px">
+              <div class="list_num_checked" style="width: 60px" :style="{'height':item.info.length * 50 + 'px'}">
                 <el-checkbox :disabled="showAllChecked" ref="checkbox_box" @change="handleCheckChange(item)"/>
               </div>
               <div style="width: 180px">{{item.order_sn}}</div>
@@ -89,23 +89,25 @@
             <div class="list_main">
               <div class="list_box" v-for="(cItem, CIndex) in item.info" :key="CIndex">
                 <div style="width: 120px; flex-shrink: 0">{{$getTimeYear(cItem.riding_time * 1000) || ''}}</div>
-                <div>{{cItem.departure_station}}</div>
-                <div>{{cItem.arrival_station}}</div>
-                <div style="width: 80px; flex-shrink: 0">{{item.incompleteTask +'/'+item.finishTask}}</div>
-                <div>{{item.Cname}}</div>
-                <div>{{item.fdName}}</div>
-                <div style="width: 80px;flex-shrink: 0;font-weight: unset">
-                  <span v-if="item.order_status === 0" style="color: red">处理中</span>
-                  <span v-if="item.order_status === 1" style="color: green">已处理</span>
-                </div>
-                <div style="width: 80px;flex-shrink: 0;">{{item.finance_status}}</div>
-                <div>
-                  <p v-if="item.desc.is_important === 1">
-                    <span class="important_remarks">{{item.desc.remarks}}</span>
-                  </p>
-                  <p v-if="viewsType === 4">{{item.desc.remarks}}</p>
-                  <!--<span style="font-size: 10px; color: #bebebe">暂无重要备注</span>-->
-                </div>
+                <div style="width: 165px;flex-shrink: 0">{{cItem.departure_station}}</div>
+                <div style="width: 165px;flex-shrink: 0">{{cItem.arrival_station}}</div>
+              </div>
+            </div>
+            <div class="list_message" :style="{'height':item.info.length * 50 + 'px'}">
+              <div style="width: 80px; flex-shrink: 0">{{item.incompleteTask +'/'+item.finishTask}}</div>
+              <div>{{item.Cname}}</div>
+              <div>{{item.fdName}}</div>
+              <div style="width: 80px;flex-shrink: 0;font-weight: unset">
+                <span v-if="item.order_status === 0" style="color: red">处理中</span>
+                <span v-if="item.order_status === 1" style="color: green">已处理</span>
+              </div>
+              <div style="width: 80px;flex-shrink: 0;">{{item.finance_status}}</div>
+              <div>
+                <p v-if="item.desc.is_important === 1">
+                  <span class="important_remarks">{{item.desc.remarks}}</span>
+                </p>
+                <p v-if="viewsType === 4">{{item.desc.remarks}}</p>
+                <!--<span style="font-size: 10px; color: #bebebe">暂无重要备注</span>-->
               </div>
             </div>
             <div class="option_box">
@@ -769,8 +771,13 @@
             }
             .list_num{
               display: flex;
+              align-items: center;
               height: 100%;
               flex-shrink: 0;
+              .list_num_checked{
+                border-left: 1px solid #ebeef5;
+                border-right: 1px solid #ebeef5;
+              }
               >div{
                 display: flex;
                 align-items: center;
@@ -785,9 +792,8 @@
               }
             }
             .list_main{
-              width: 100%;
               .list_box{
-                width: 100%;
+                width: 450px;
                 display: flex;
                 align-items: center;
                 &:not(:last-child){
@@ -819,6 +825,21 @@
                     border-right: 1px solid #ebeef5;
                   }
                 }
+              }
+            }
+            .list_message{
+              width: 100%;
+              display: flex;
+              align-items: center;
+              font-weight: bold;
+              color: black;
+              >div{
+                width: 100%;
+                height: 100%;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                border-right: 1px solid #ebeef5;
               }
             }
             .option_box{

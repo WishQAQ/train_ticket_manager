@@ -1,6 +1,7 @@
 <template>
   <div class="publicImage">
     <el-image
+        @click="openPreviewIndex(url)"
         class="public_image"
         :src="isNaN(url) ? 'http://oa.huimin.dev.cq1080.com/'+url: ''"
         :preview-src-list="preview_list"
@@ -14,6 +15,8 @@
 </template>
 
 <script>
+  function cmp(a,b){return a=b};
+
   export default {
     props: {
       url:{
@@ -44,23 +47,64 @@
         preview_list: []
       }
     },
+    watch:{
+      previewList(val,oval){
+        if(this.preview){
+          this.preview_list= []
+          this.previewList.map(res =>{
+            this.preview_list.push('http://oa.huimin.dev.cq1080.com/'+ res)
+          })
+        }
+      }
+    },
     methods:{
+      /**
+       * @Description: 删除图片
+       * @author Wish
+       * @date 2019/12/3
+      */
       deleteImage(val){
         if(this.deleteMask){
           this.$emit('deleteUploadImage',val)
         }
       },
-    },
-    mounted() {
-      if(this.preview){
-        console.log(this.previewList);
+
+      /**
+       * @Description: 获取当前图片
+       * @author Wish
+       * @date 2019/12/3
+      */
+      openPreviewIndex(val){
+        this.preview_list= []
         this.previewList.map(res =>{
           this.preview_list.push('http://oa.huimin.dev.cq1080.com/'+ res)
         })
+        this.preview_list.forEach((item,index) =>{
+          let thisIndex
+          if(item === 'http://oa.huimin.dev.cq1080.com/'+val){
+            thisIndex = index
+            if(thisIndex > 0){
+              for (let i = 0; i < thisIndex; i++){
+                console.log(i);
+                this.preview_list.push(this.preview_list[0]);
+                this.preview_list.splice(0,1);
+              }
 
+            }
+          }
+        })
 
+      },
+    },
+    mounted() {
+      if(this.preview){
+        this.preview_list= []
+        this.previewList.map(res =>{
+          this.preview_list.push('http://oa.huimin.dev.cq1080.com/'+ res)
+        })
       }
     }
+
   }
 </script>
 

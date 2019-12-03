@@ -397,7 +397,7 @@
             <div class="order_title">收支汇款底单</div>
             <div class="order_table_images">
               <PublicImage v-if="emittanceList.length > 0" :previewList="emittanceList" :url="detailsImages.remittance_voucher" :preview="true"/>
-              <PublicImage v-if="collectionList.length > 0" :previewList="collectionList" :url="detailsImages.collection_voucher" :preview="true"/>
+              <PublicImage v-if="emittanceList.length > 0" :previewList="emittanceList" :url="detailsImages.collection_voucher" :preview="true"/>
             </div>
           </div>
         </div>
@@ -815,13 +815,9 @@
             .then(res =>{
               if(res.data.code === 0){
                 this.detailsImages = res.data.result
-                if(this.detailsImages.remittance_voucher){
+                if(this.detailsImages.remittance_voucher || this.detailsImages.collection_voucher){
                   this.emittanceList = []
-                  this.emittanceList.push(this.detailsImages.remittance_voucher)
-                }
-                if(this.detailsImages.collection_voucher){
-                  this.collectionList = []
-                  this.collectionList.push(this.detailsImages.collection_voucher)
+                  this.emittanceList.push(this.detailsImages.remittance_voucher,this.detailsImages.collection_voucher)
                 }
               }
             })

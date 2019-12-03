@@ -688,7 +688,7 @@
           <div class="main_box">
             <div class="main_box_title">票类</div>
             <div class="main_box_content">
-              <el-select clearable @input="change($event)" v-model="item.ticket_type" placeholder="请选择">
+              <el-select clearable @input="change($event)" @change="selectTicketType(item.ticket_type,index)" v-model="item.ticket_type" placeholder="请选择">
                 <el-option label="电子票" value="0"></el-option>
                 <el-option label="网票" value="1"></el-option>
                 <el-option label="纸票" value="2"></el-option>
@@ -1838,7 +1838,7 @@
         })
         let infoData = {}
         infoData['passenger_id'] = data.id
-        infoData['field'] = rowName
+        infoData['field'] = rowName === 'account' ? '12306_account': rowName
         infoData['value'] = row
         let param ={
           order_sn: orderInfo.order_sn,
@@ -2094,7 +2094,7 @@
                       item['fwId']= ''  // 席别席位
                       item['ticket_price']= ''  // 票价
                       item['child_ticket_price']= ''  // 儿童票价
-                      item['missed_meals_money']= ''  // 误餐费
+                      item['missed_meals_money']= '5'  // 误餐费
                       item['ticket_fare']= ''  // 出票费
                       item['refund_fee']= '' // 退票费
                       item.ticket_status = item.ticket_status === 0 ? '未出票':
@@ -2125,6 +2125,17 @@
         }
 
       },
+
+      /**
+       * @Description: 根据票类修改出票费
+       * @author Wish
+       * @date 2019/12/3
+      */
+      selectTicketType(val,index){
+        this.batchEditInfo[index].ticket_fare = val !== '1'? '5' : '0'
+        console.log(this.batchEditInfo[index]);
+      },
+
       /**
        * @Description: 关闭路线变更提示框
        * @author Wish
@@ -2568,7 +2579,7 @@
                             dItem['ticket_type'] = dItem.is_child === 0 ? '成人票' :'儿童票'   // 车票类型
                             dItem['ticket_species'] = this.addDataList.ticketType
                             dItem['remarks'] = ''  // 备注
-                            dItem['missed_meals_money'] = '5'  // 误餐费
+                            dItem['missed_meals_money'] = '0'  // 误餐费
                             delete dItem.card
                             delete dItem.is_child
                           })
@@ -2590,7 +2601,7 @@
                           dItem['ticket_type'] = dItem.is_child === 0 ? '成人票' :'儿童票'   // 车票类型
                           dItem['ticket_species'] = this.addDataList.ticketType
                           dItem['remarks'] = ''  // 备注
-                          dItem['missed_meals_money'] = '5'  // 误餐费
+                          dItem['missed_meals_money'] = '0'  // 误餐费
                           delete dItem.card
                           delete dItem.is_child
                         })

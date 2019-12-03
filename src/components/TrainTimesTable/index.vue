@@ -226,17 +226,17 @@
        * @date 2019/10/17
        */
       tableSelect(v,r){
-        let userId = []
+        let userId = [];
         userId = v.map(res =>{
           return res.id;
         });
-        let userRoute = []
+        let userRoute = [];
         userRoute = v.map(res =>{
           return res.route;
         });
-        userRoute = Array.from([...new Set(userRoute)])
+        userRoute = Array.from([...new Set(userRoute)]);
 
-        this.$emit('checkTableData', userId, userRoute, this.index, this.cIndex, this.orderInfo.order_sn, this.orderInfo.parent_id)
+        this.$emit('checkTableData', userId, userRoute, this.index, this.cIndex, this.orderInfo.order_sn, this.orderInfo.parent_id);
       },
 
       /**
