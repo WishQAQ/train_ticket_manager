@@ -2,21 +2,22 @@
   <div class="login">
     <div class="title">To Hcp 车票管理系统</div>
     <div class="main">
-      <el-image class="main_title" :src="loginLogo"></el-image>
+      <el-image class="main_title" :src="loginLogo"/>
       <form>
-        <el-input class="login_input" placeholder="请输入用户名" v-model="userName"></el-input>
-        <el-input class="login_input" placeholder="请输入密码" show-password v-model="userPassword"></el-input>
+        <el-input class="login_input" placeholder="请输入用户名" v-model="userName"/>
+        <el-input class="login_input" placeholder="请输入密码" show-password v-model="userPassword"/>
       </form>
 
       <el-checkbox v-model="passwordChecked" class="login_checked">记住密码</el-checkbox>
 
-      <div class="login_submit" @click="submitLogin">登录</div>
+      <div class="login_submit" v-loading="loading" @click="submitLogin">登录</div>
 
     </div>
   </div>
 </template>
 
 <script>
+  import bus from '../utlis/bus'
   import { loginByUserInfo }from '@/api/login'
   import LogoImage from '../../public/logo.jpg'
 
@@ -61,8 +62,16 @@
             account: _this.userName,
             password: _this.userPassword
           };
+          this.loading = true
           // api登录接口
           loginByUserInfo(data)
+
+          bus.$on('loginError', (val) => {
+            console.log(val);
+            if(val === 'error'){
+              this.loading = false
+            }
+          })
         } else {
           _this.$message.warning('请填写完整您的登录信息')
         }

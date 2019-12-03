@@ -1,5 +1,5 @@
 <template>
-  <div class="note">
+  <div class="note" id="note">
     <div class="title">
       <p>便签墙</p>
       <div @click="openNote">新增</div>
@@ -24,7 +24,7 @@
         <div class="note_main">
           <div class="note_header">
             <p>{{item.title}}</p>
-            <span class="el-icon-close" v-if="item.id === noteId" @click="deleteNote(item)"></span>
+            <span class="el-icon-close" v-if="item.id === noteId" @click="deleteNote(item)"/>
           </div>
           <div class="content">{{item.content}}</div>
           <div class="time">{{$timestampFormat(Date.parse(item.time)/1000)}}</div>
@@ -80,7 +80,7 @@
         <div class="viewNote">
           <div class="title">{{noteForm.title}}</div>
           <div class="content">{{noteForm.content}}</div>
-          <el-divider></el-divider>
+          <el-divider/>
           <div class="bottom">
             <p>{{noteForm.time}}</p>
           </div>
@@ -102,6 +102,9 @@
     data() {
       return {
         loading: true,
+
+        noteWidth: '', // 便签墙dom宽度
+
         noteData:[], // 便签信息
 
         editNote: false, // 便签弹窗类型
@@ -133,17 +136,17 @@
                 this.loading = false
                 this.showNote = true
                 this.noteData = res.data.result
-                this.noteData.map((item,index) =>{
-                  if(index < 5){
+                let boxWidth = parseInt(this.noteWidth) > 825? parseInt(this.noteWidth): 825
+                let noteBoxWidth = Math.floor((boxWidth / 140))
+                this.noteData.map((item,index) =>{  // 第一行
+                  if(index < noteBoxWidth){
                     item['xAxis'] = index* 140
-                  } else if(index >= 5 && index < 10){
-                    console.log(index);
-                    let count = index - 5
+                  } else if(index >= noteBoxWidth && index < noteBoxWidth * 2){  // 第二行
+                    let count = index - noteBoxWidth
                     item['yAxis'] = 165
                     item['xAxis'] = count* 140
-                  } else if(index >= 10 && index < 15){
-                    console.log(index);
-                    let count = index - 10
+                  } else if(index >= noteBoxWidth * 2 && index < noteBoxWidth * 3 ){ // 第三行
+                    let count = index - noteBoxWidth * 2
                     item['yAxis'] = 330
                     item['xAxis'] = count* 140
                   }
@@ -262,7 +265,10 @@
       closeAddDialog(){
         this.addDialog = false
       },
-
+    },
+    mounted() {
+      this.noteWidth = window.document.getElementById('note').clientWidth
+      console.log(this.noteWidth);
     },
     created() {
       this.getData()
@@ -305,7 +311,6 @@
     .note_main_box{
       position: relative;
       min-height: 500px;
-      max-width: 1110px;
       overflow: hidden;
       .note_card{
         border-radius: 8px;

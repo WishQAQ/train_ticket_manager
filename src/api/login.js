@@ -2,6 +2,8 @@ import axios from "axios";
 import store from '@/store'
 import router from '@/router'
 
+import bus from '../utlis/bus'
+
 import {Message} from 'element-ui'
 
 export function loginByUserInfo(username, password) {
@@ -22,14 +24,15 @@ export function loginByUserInfo(username, password) {
         message: res.data.msg,
         type: "error"
       })
+      bus.$emit('loginError', 'error')
     }
 
     // 验证权限信息
     store.dispatch('Logins',res.data.result).then(res => {
+
     }).catch(() => {
 
     })
-
      return res.data.result
   }).catch(() =>{
          Message.error({

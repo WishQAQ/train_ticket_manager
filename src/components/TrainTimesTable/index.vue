@@ -3,7 +3,7 @@
     <el-table
         @select="tableSelect"
         @select-all="tableSelect"
-        :data="tableData"
+        :data="completeData"
         ref="multipleTable"
         border
         style="width: 100%">
@@ -85,9 +85,10 @@
           label="退票款">
         <template slot-scope="scope">
           <el-input
-              v-model="scope.row.refund_fee"
+              v-model="newDataForm[scope.row.tableIndex].refund_fee"
               v-if="tableModify === 'edit'"
-              @blur="loseFcous(tableData, scope.row, 'refund_fee', scope.row.refund_fee)">
+              :placeholder="scope.row.refund_fee"
+              @blur="loseFcous(tableData, scope.row, 'refund_fee', scope.row.refund_fee,newDataForm[scope.row.tableIndex].refund_fee)">
           </el-input>
           <span style="margin-left: 10px" v-else>{{scope.row.refund_fee}}</span>
         </template>
@@ -97,9 +98,10 @@
           label="出票费">
         <template slot-scope="scope">
           <el-input
-              v-model="scope.row.ticket_fare"
+              v-model="newDataForm[scope.row.tableIndex].ticket_fare"
               v-if="tableModify === 'edit'"
-              @blur="loseFcous(tableData, scope.row, 'ticket_fare', scope.row.ticket_fare)">
+              :placeholder="scope.row.ticket_fare"
+              @blur="loseFcous(tableData, scope.row, 'ticket_fare', scope.row.ticket_fare,newDataForm[scope.row.tableIndex].ticket_fare)">
           </el-input>
           <span style="margin-left: 10px" v-else>{{scope.row.ticket_fare}}</span>
         </template>
@@ -116,9 +118,17 @@
         </template>
       </el-table-column>
       <el-table-column
-          width="100"
-          prop="db_auftragsnummer"
+          width="130"
           label="取票号">
+        <template slot-scope="scope">
+          <el-input
+              v-model="newDataForm[scope.row.tableIndex].db_auftragsnummer"
+              v-if="tableModify === 'edit'"
+              :placeholder="scope.row.db_auftragsnummer"
+              @blur="loseFcous(tableData, scope.row, 'db_auftragsnummer', scope.row.db_auftragsnummer,newDataForm[scope.row.tableIndex].db_auftragsnummer)">
+          </el-input>
+          <span v-else>{{$aliPayOrTelPhone(scope.row.db_auftragsnummer)}}</span>
+        </template>
       </el-table-column>
       <el-table-column
           min-width="150"
@@ -128,11 +138,11 @@
           <div v-if="tableModify === 'edit'">
             <el-date-picker
                 style="width: 140px"
-                v-model="scope.row.ticketing_time * 1000"
+                v-model="newDataForm[scope.row.tableIndex].ticketing_time"
                 type="date"
                 value-format="timestamp"
-                @blur="loseFcous(tableData, scope.row, 'ticketing_time', scope.row.ticketing_time)"
-                placeholder="选择日期">
+                :placeholder="$getTimeYear(scope.row.ticketing_time * 1000) !== 0? String($getTimeYear(scope.row.ticketing_time * 1000)): '' || '选择日期'"
+                @blur="loseFcous(tableData, scope.row, 'ticketing_time', scope.row.ticketing_time,newDataForm[scope.row.tableIndex].ticketing_time / 1000)">
             </el-date-picker>
           </div>
 
@@ -144,9 +154,10 @@
           label="支付账号">
         <template slot-scope="scope">
           <el-input
-              v-model="scope.row.payment_account"
+              v-model="newDataForm[scope.row.tableIndex].payment_account"
               v-if="tableModify === 'edit'"
-              @blur="loseFcous(tableData, scope.row, 'payment_account', scope.row.payment_account)">
+              :placeholder="scope.row.payment_account"
+              @blur="loseFcous(tableData, scope.row, 'payment_account', scope.row.payment_account,newDataForm[scope.row.tableIndex].payment_account)">
           </el-input>
           <span v-else>{{$aliPayOrTelPhone(scope.row.payment_account)}}</span>
         </template>
@@ -156,9 +167,10 @@
           label="支付流水号">
         <template slot-scope="scope">
           <el-input
-              v-model="scope.row.payment_flow_number"
+              v-model="newDataForm[scope.row.tableIndex].payment_flow_number"
+              :placeholder="scope.row.payment_flow_number"
               v-if="tableModify === 'edit'"
-              @blur="loseFcous(tableData, scope.row, 'payment_flow_number', scope.row.payment_flow_number)">
+              @blur="loseFcous(tableData, scope.row, 'payment_flow_number', scope.row.payment_flow_number,newDataForm[scope.row.tableIndex].payment_flow_number)">
           </el-input>
           <span v-else>{{scope.row.payment_flow_number}}</span>
         </template>
@@ -168,9 +180,10 @@
           label="12306账号">
         <template slot-scope="scope">
           <el-input
-              v-model="scope.row.account"
+              v-model="newDataForm[scope.row.tableIndex].account"
               v-if="tableModify === 'edit'"
-              @blur="loseFcous(tableData, scope.row, 'account', scope.row.account)">
+              :placeholder="scope.row.account"
+              @blur="loseFcous(tableData, scope.row, 'account', scope.row.account,newDataForm[scope.row.tableIndex].account)">
           </el-input>
           <span v-else>{{scope.row.account}}</span>
         </template>
@@ -180,9 +193,10 @@
           label="12306密码">
         <template slot-scope="scope">
           <el-input
-              v-model="scope.row.password"
+              v-model="newDataForm[scope.row.tableIndex].password"
               v-if="tableModify === 'edit'"
-              @blur="loseFcous(tableData, scope.row, 'password', scope.row.password)">
+              :placeholder="scope.row.password"
+              @blur="loseFcous(tableData, scope.row, 'password', scope.row.password,newDataForm[scope.row.tableIndex].password)">
           </el-input>
           <span v-else>{{scope.row.password}}</span>
         </template>
@@ -214,10 +228,36 @@
     props: ['tableData','orderInfo','showTableRows','tableModify','index','cIndex'],
     data(){
       return {
+        completeData: [],
         userIdList: [],
 
         multipleSelection: [],
+
+        newDataForm: [],// 单元格修改新数据
       }
+    },
+    watch:{
+      tableData(val, oVal){
+        this.completeData = oVal
+      },
+    },
+    mounted() {
+      this.completeData = JSON.parse(JSON.stringify(this.tableData))
+      this.completeData.forEach((item,index) =>{
+        this.completeData[index]['tableIndex'] = index
+        this.newDataForm.push({
+          refund_fee: '',  // 退票款
+          ticket_fare: '', // 出票费
+          db_auftragsnummer: '', // 取票号
+          ticketing_time: '', // 出票时间
+          payment_account: '', // 支付账号
+          payment_flow_number: '', // 支付流水号
+          account: '', // 12306账号
+          password: '', // 12306密码
+        })
+      })
+      console.log(this.newDataForm);
+      console.log(this.completeData);
     },
     methods: {
       /**
@@ -255,10 +295,11 @@
        * @author Wish
        * @date 2019/11/18
       */
-      loseFcous(orderData, data, rowName, row) {
-        // if(data[rowName] !== row){
-          this.$emit('tableRowsData', this.orderInfo, data, rowName, row )
-        // }
+      loseFcous(orderData, data, rowName, row, newRow) {
+        if(row !== newRow && newRow !== ''){
+          console.log(newRow);
+          this.$emit('tableRowsData', this.orderInfo, data, rowName, newRow )
+        }
       },
 
       /**

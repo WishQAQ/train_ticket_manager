@@ -2,7 +2,7 @@
   <div class="index">
     <div class="fast_title">
       <p>快捷入口</p>
-      <el-button :class="['refresh_btn',{'click': isClick}]" @click="refreshClick" :disabled="refreshStatus"></el-button>
+      <el-button :class="['refresh_btn',{'click': isClick}]" @click="refreshClick" :disabled="refreshStatus"/>
     </div>
 
     <div class="fast_router">
@@ -17,7 +17,7 @@
         <div class="main_box">
           <div class="title">
             <p>帮助文档</p>
-            <div @click="jumpDetails('helpDocument')">更多<span></span></div>
+            <div @click="jumpDetails('helpDocument')">更多<span/></div>
           </div>
           <div class="main_content" v-loading="dLoading">
             <div class="main_list" v-for="(item,index) in documentList" :key="index" @click="openDetailsDialog(item,'document')">
@@ -30,7 +30,7 @@
         <div class="main_box">
           <div class="title">
             <p>新闻列表</p>
-            <div @click="jumpDetails('newsCenter')">更多<span></span></div>
+            <div @click="jumpDetails('newsCenter')">更多<span/></div>
           </div>
           <div class="main_content" v-loading="nLoading">
             <div class="main_list" v-for="(item,index) in newList" :key="index" @click="openDetailsDialog(item,'news')">
@@ -42,8 +42,8 @@
         </div>
       </div>
       <div class="right_main">
-        <note ref="note" v-if="true"></note>
-        <notice v-if="true"></notice>
+        <note ref="note" v-if="true"/>
+        <notice v-if="true"/>
       </div>
     </div>
 

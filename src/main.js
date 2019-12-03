@@ -47,6 +47,8 @@ axios.interceptors.request.use(
 import "../public/base.less";
 // 公用方法
 import "../src/utlis/tools"
+// 全局防抖or节流
+// import Debounce from '../src/utlis/DebounceOrThrottle'
 
 // 全局组件
 /**

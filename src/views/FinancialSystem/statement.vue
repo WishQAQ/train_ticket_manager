@@ -1,7 +1,8 @@
 <template>
   <div class="statement" v-loading="loading">
     <div class="table_header">
-      <div><el-input clearable v-model="searchOrder" plcaeholder="请输入对账单号"></el-input></div>
+      <div>
+        <el-input clearable v-model="searchOrder" plcaeholder="请输入对账单号"/></div>
       <el-button @click="searchBtn">搜索</el-button>
     </div>
     <div class="table_main">
@@ -32,25 +33,35 @@
         </el-table-column>
         <el-table-column
             prop="address"
+            width="150"
+            show-overflow-tooltip
             label="客户">
           <template slot-scope="scope">
             {{$multiUserProcess(scope.row.customer)}}
           </template>
         </el-table-column>
         <el-table-column
+            width="100"
+            show-overflow-tooltip
             prop="reconciliationAmount"
             label="对账金额">
         </el-table-column>
         <el-table-column
+            width="100"
+            show-overflow-tooltip
             prop="reconciliationActualReceipts"
             label="对账收款">
         </el-table-column>
         <el-table-column
+            width="100"
+            show-overflow-tooltip
             prop="reconciliationDebtRoute"
             label="对账债途">
         </el-table-column>
         <el-table-column
             prop="address"
+            width="80"
+            show-overflow-tooltip
             label="对账状态">
           <template slot-scope="scope">
             <span v-if="scope.row.status === 0" style="color: red">清账中</span>
@@ -120,11 +131,11 @@
   .statement{
     display: flex;
     flex-direction: column;
-    padding: 80px 10%;
+    padding: 20px 5%;
     .table_header{
       display: flex;
       align-items: center;
-      margin-bottom: 40px;
+      margin-bottom: 15px;
       >div{
         margin-right: 15px;
       }

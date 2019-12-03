@@ -1833,7 +1833,6 @@
         orderInfo.route_config.forEach(item =>{
           item.passengers.data.forEach(cItem =>{
             if(cItem.id === data.id){
-              console.log(item);
               routeId = item.id
             }
           })
@@ -1848,7 +1847,6 @@
           route_id: routeId,
           info: JSON.stringify(infoData),
         }
-        console.log(param);
         this.$axios.post('/api/order/editCellValue/0',param)
           .then(res =>{
             if(res.data.code === 0){
