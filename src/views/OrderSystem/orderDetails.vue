@@ -53,10 +53,10 @@
         <p class="title">订单号</p>
         <div class="info_header_table">
 <!--          <div>{{orderInfo.order_sn}}</div>-->
-          <el-input clearable @input="change($event)" v-model="orderInfo.order_sn" :disabled="true"/>
+          <el-input clearable @input="change($event)" v-model="orderInfo.order_sn" :disabled="inputDisabled || urlType === 'edit'"/>
           <div>
             <span>客户商</span>
-            <el-select filterable @change="getBillerData(orderInfo.cname)" v-model="orderInfo.cname" :disabled="inputDisabled" placeholder="请选择">
+            <el-select filterable @change="getBillerData(orderInfo.cname)" v-model="orderInfo.cname" :disabled="inputDisabled" :placeholder="inputDisabled?'':'请选择客户商'">
               <el-option
                   v-for="item in customerList"
                   :key="item.id"
@@ -67,7 +67,7 @@
           </div>
           <div>
             <span>发单人</span>
-            <el-select filterable v-model="orderInfo.dName" :disabled="inputDisabled" placeholder="请选择">
+            <el-select filterable v-model="orderInfo.dName" :disabled="inputDisabled" :placeholder="inputDisabled?'':'请选择发单人'">
               <el-option
                   v-for="item in billerList"
                   :key="item.id"
@@ -356,8 +356,8 @@
             </div>
 
             <div>合计票款：{{item.ticketPrice || '0.00'}} 元</div>
-            <div>快递费：{{item.express_fee || '0.00'}} 元</div>
-            <div>退票交通费：{{item.refund_fare || '0.00'}} 元</div>
+            <div style="display: inline-flex;align-items: center">快递费：<el-input size="mini" :disabled="urlType !== 'edit'" v-model="item.express_fee"/> &nbsp;元</div>
+            <div style="display: inline-flex;align-items: center">退改交通费：<el-input size="mini" :disabled="urlType !== 'edit'" v-model="item.refund_fare"/> &nbsp;元</div>
             <div>合计：{{item.ticketNumber || '0'}} 张</div>
 
             <div class="table_header_btn">
@@ -1348,6 +1348,8 @@
               let ticketNumber = 0
               let ticketPrice = 0
               this.passengerInfo.forEach((item,index) =>{
+                item.express_fee = item.express_fee?item.express_fee: '0.00'
+                item.refund_fare = item.refund_fare?item.refund_fare: '0.00'
                item.route_config.forEach((cItem,cIndex) =>{
                  if(cIndex < item.route_config.length){
                    ticketNumber += cItem.numberSheet
@@ -3260,6 +3262,12 @@
           align-items: center;
           border: 1px solid #eef7ff;
           padding: 0 16px;
+          /deep/.el-input{
+            width: 80px;
+            .el-input__inner{
+              font-size: 16px;
+            }
+          }
           .table_header_btn{
             display: flex;
             align-items: center;
@@ -3269,8 +3277,9 @@
             }
           }
           >div{
+            flex-shrink: 0;
             &:not(:last-child){
-              margin-right: 10%;
+              margin-right: 8%;
             }
           }
           .addUserListBtn{
