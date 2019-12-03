@@ -1,17 +1,24 @@
 <template>
   <div class="tickets" v-loading="loading">
     <div class="ticket_header">
-      <div><el-input clearable v-model="searchForm.name" placeholder="请输入乘客姓名"></el-input></div>
-      <div><el-input clearable v-model="searchForm.pay_account" placeholder="请输入支付账号"></el-input></div>
-      <div><el-input clearable v-model="searchForm.running_account" placeholder="请输入流水账号"></el-input></div>
-      <div><el-input clearable v-model="searchForm.train_account" placeholder="请输入12306账号"></el-input></div>
-      <div><el-input clearable v-model="searchForm.order" placeholder="请输入订单号"></el-input></div>
-      <div><el-select clearable v-model="searchForm.order_status" placeholder="请选择订单状态">
-        <el-option label="已处理订单" value="1"></el-option>
-        <el-option label="处理中订单" value="2"></el-option>
+      <div>
+        <el-input clearable v-model="searchForm.name" placeholder="请输入乘客姓名"/></div>
+      <div>
+        <el-input clearable v-model="searchForm.pay_account" placeholder="请输入支付账号"/></div>
+      <div>
+        <el-input clearable v-model="searchForm.running_account" placeholder="请输入流水账号"/></div>
+      <div>
+        <el-input clearable v-model="searchForm.train_account" placeholder="请输入12306账号"/></div>
+      <div>
+        <el-input clearable v-model="searchForm.order" placeholder="请输入订单号"/></div>
+      <div><el-select clearable v-model="searchForm.order_status" placeholder="请选择车票状态">
+        <el-option label="已处理订单" value="1"/>
+        <el-option label="处理中订单" value="2"/>
       </el-select></div>
-      <div><el-input clearable v-model="searchForm.departure" placeholder="发站"></el-input></div>
-      <div><el-input clearable v-model="searchForm.arrive" placeholder="到站"></el-input></div>
+      <div>
+        <el-input clearable v-model="searchForm.departure" placeholder="发站"/></div>
+      <div>
+        <el-input clearable v-model="searchForm.arrive" placeholder="到站"/></div>
       <div><el-date-picker
           v-model="searchForm.ridingTime"
           type="daterange"

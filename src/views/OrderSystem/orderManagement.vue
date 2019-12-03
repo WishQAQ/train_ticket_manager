@@ -72,7 +72,7 @@
           <div style="width: 80px;flex-shrink: 0;">任务进度</div>
           <div>客户</div>
           <div>发单人</div>
-          <div style="width: 80px;flex-shrink: 0;">车票状态</div>
+          <div style="width: 80px;flex-shrink: 0;">订单状态</div>
           <div style="width: 80px;flex-shrink: 0;">财务状态</div>
           <div>备注信息</div>
           <div style="width: 80px;flex-shrink: 0;">操作</div>
