@@ -2690,8 +2690,8 @@
               if(res.data.code === 0){
                 this.$message.success('保存成功')
                 this.allAddSubmitLoading = false
-                this.push.push({
-                  name: 'orderDetails',
+                this.$router.push({
+                  path: 'orderDetails',
                   query:{
                     order_sn: this.orderInfo.order_sn,
                     type: 'details'
