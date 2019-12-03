@@ -130,7 +130,7 @@
       <div class="info_upload" v-if="urlType === 'edit' || orderInfo.ticket_photos.length > 0">
         <div class="upload_image_main">
           <PublicImage
-              :preview="urlType === 'details'"
+              :preview="orderInfo.ticket_photos.length > 0"
               v-for="(item,index) in orderInfo.ticket_photos"
               :previewList="orderInfo.ticket_photos"
               :deleteMask="urlType === 'edit'"
@@ -360,22 +360,24 @@
             <div>退票交通费：{{item.refund_fare || '0.00'}} 元</div>
             <div>合计：{{item.ticketNumber || '0'}} 张</div>
 
-            <el-button
-                class="addUserListBtn"
-                @click="deleteTableUserBtn(item)"
-                type="danger"
-                size="mini"
-                v-if="urlType === 'edit'">
-              删除行程
-            </el-button>
-            <el-button
-                class="addUserListBtn"
-                @click="addTableUserBtn(item)"
-                type="primary"
-                size="mini"
-                v-if="urlType === 'edit'">
-              添加乘客
-            </el-button>
+            <div class="table_header_btn">
+              <el-button
+                  class="addUserListBtn"
+                  @click="deleteTableUserBtn(item)"
+                  type="danger"
+                  size="mini"
+                  v-if="urlType === 'edit'">
+                删除行程
+              </el-button>
+              <el-button
+                  class="addUserListBtn"
+                  @click="addTableUserBtn(item)"
+                  type="primary"
+                  size="mini"
+                  v-if="urlType === 'edit'">
+                添加乘客
+              </el-button>
+            </div>
           </div>
           <div
               v-for="(cItem,cIndex) in item.route_config"
@@ -546,7 +548,7 @@
         :visible.sync="addUserPhotoDialog">
       <div class="dialog_main">
         <PublicImage
-            :preview="urlType === 'details'"
+            :preview="orderInfo.certificates.length > 0"
             v-for="(item,index) in orderInfo.certificates"
             :previewList="orderInfo.certificates"
             :deleteMask="urlType !== 'details'"
@@ -2475,7 +2477,6 @@
               this.$message.success('保存成功')
               this.urlTypeSelect()
               this.getCustomerData()
-              this.$routerTab.close()
               this.$router.push({
                 path: 'orderDetails',
                 query:{
@@ -2483,6 +2484,8 @@
                   type: 'details'
                 }
               })
+              this.$routerTab.close()
+
             }else {
               this.$message.warning(res.data.msg)
               this.urlTypeSelect()
@@ -2687,7 +2690,6 @@
               if(res.data.code === 0){
                 this.$message.success('保存成功')
                 this.allAddSubmitLoading = false
-                this.$routerTab.close()
                 this.push.push({
                   name: 'orderDetails',
                   query:{
@@ -2695,6 +2697,8 @@
                     type: 'details'
                   }
                 })
+                this.$routerTab.close()
+
               }else {
                 this.$message.warning(res.data.msg)
                 this.allAddSubmitLoading = false
@@ -3089,7 +3093,7 @@
         .upload_image_main{
           display: flex;
           align-items: center;
-          .public_image{
+          /deep/.publicImage{
             margin-right: 40px;
             width: 140px;
             height: 100px;
@@ -3107,7 +3111,7 @@
         .UploadLeaflet{
           width: 120px;
         }
-        .public_image{
+        .publicImage{
           &:not(:last-child){
             margin-right: 5%;
           }
@@ -3245,6 +3249,14 @@
           align-items: center;
           border: 1px solid #eef7ff;
           padding: 0 16px;
+          .table_header_btn{
+            display: flex;
+            align-items: center;
+            margin-left: auto;
+            /deep/.el-button{
+              margin-left: 10px;
+            }
+          }
           >div{
             &:not(:last-child){
               margin-right: 10%;
@@ -3311,7 +3323,7 @@
           margin: 0 auto;
           color: rgba(0,0,0,.5);
         }
-        .public_image{
+        /deep/.publicImage{
           width: 100px;
           height: 100%;
           margin-left: unset;

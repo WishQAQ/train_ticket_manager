@@ -175,7 +175,7 @@
               align="center"
               label="优惠总额">
             <template slot-scope="scope">
-              <div class="table_row_edit" @blur="openEditInput($event,scope.row,'total_discount')" contentEditable>
+              <div class="table_row_edit" @blur="openEditInput($event,scope.row,'total_discount',scope.row.cost_item[0].total_discount)" contentEditable>
                 {{scope.row.cost_item[0].total_discount}}
               </div>
             </template>
@@ -184,7 +184,7 @@
               align="center"
               label="快递支出">
             <template slot-scope="scope">
-              <div class="table_row_edit" @blur="openEditInput($event,scope.row,'express_fee')" contentEditable>
+              <div class="table_row_edit" @blur="openEditInput($event,scope.row,'express_fee',scope.row.cost_item[0].express_fee)" contentEditable>
                 {{scope.row.cost_item[0].express_fee}}
               </div>
             </template>
@@ -221,7 +221,7 @@
             align="center"
             label="实付款">
           <template slot-scope="scope">
-            <div class="table_row_edit" @blur="openEditInput($event,scope.row,'actual_payment')" contentEditable>
+            <div class="table_row_edit" @blur="openEditInput($event,scope.row,'actual_payment',scope.row.actual_payment)" contentEditable>
               {{scope.row.actual_payment}}
             </div>
           </template>
@@ -396,8 +396,8 @@
           <div class="order_table">
             <div class="order_title">收支汇款底单</div>
             <div class="order_table_images">
-              <PublicImage :pageSize="'3'" :url="detailsImages.remittance_voucher" :preview="true"/>
-              <PublicImage :pageSize="'3'" :url="detailsImages.collection_voucher" :preview="true"/>
+              <PublicImage v-if="emittanceList.length > 0" :previewList="emittanceList" :url="detailsImages.remittance_voucher" :preview="true"/>
+              <PublicImage v-if="collectionList.length > 0" :previewList="collectionList" :url="detailsImages.collection_voucher" :preview="true"/>
             </div>
           </div>
         </div>
@@ -412,7 +412,7 @@
           :close-on-press-escape="false"
           :visible.sync="uploadDialog">
         <div class="upload_dialog">
-          <UploadImage @uploadAddress="uploadImages" :uploadType="'finance'" ref="uploadImage"/>
+          <UploadImage @uploadAddress="uploadImages" :defaultPhoto="uploadType?detailsImages.remittance_voucher:detailsImages.collection_voucher" :uploadType="'finance'" ref="uploadImage"/>
         </div>
 
         <div slot="footer" class="dialog-footer">
@@ -539,6 +539,9 @@
         RemarkPage: '',
 
         detailsImages: {},  // 凭证图片
+
+        emittanceList: [], // 汇款凭证列表
+        collectionList: [], // 收款凭证列表
 
         uploadDialog: false, // 上传弹窗
         uploadType: true, // 上传类型
@@ -812,6 +815,14 @@
             .then(res =>{
               if(res.data.code === 0){
                 this.detailsImages = res.data.result
+                if(this.detailsImages.remittance_voucher){
+                  this.emittanceList = []
+                  this.emittanceList.push(this.detailsImages.remittance_voucher)
+                }
+                if(this.detailsImages.collection_voucher){
+                  this.collectionList = []
+                  this.collectionList.push(this.detailsImages.collection_voucher)
+                }
               }
             })
       },
@@ -864,6 +875,7 @@
         }else if(index === 2){
           this.uploadType = false
         }
+        this.getBottomOrder()
       },
 
       /**
