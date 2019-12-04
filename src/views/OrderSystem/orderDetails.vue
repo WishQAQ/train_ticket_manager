@@ -269,6 +269,7 @@
       <div class="submitAllDataBtn" v-if="urlType !== 'details' && addTrainTableArray.length > 0">
         <el-button
             type="primary"
+            :disabled="allAddSubmitLoading"
             v-loading="allAddSubmitLoading"
             @click="allAddSubmit">
           全部保存
@@ -342,7 +343,7 @@
       </div>
 
       <!-- 订单表格 -->
-      <div class="order_passenger">
+      <div class="order_passenger" v-if="showPassengersTable">
         <div class="passenger_table"
              v-for="(item,index) in passengerInfo"
              :key="index">
@@ -356,8 +357,26 @@
             </div>
 
             <div>合计票款：{{item.ticketPrice || '0.00'}} 元</div>
-            <div style="display: inline-flex;align-items: center">快递费：<el-input size="mini" :disabled="urlType !== 'edit'" v-model="item.express_fee"/> &nbsp;元</div>
-            <div style="display: inline-flex;align-items: center">退改交通费：<el-input size="mini" :disabled="urlType !== 'edit'" v-model="item.refund_fare"/> &nbsp;元</div>
+            <div style="display: inline-flex;align-items: center" v-if="tableRoleStatus.refund_fare.show">
+              快递费：
+              <el-input
+                  size="mini"
+                  v-if="urlType === 'edit' && tableRoleStatus.refund_fare.read"
+                  :placeholder="item.express_fee"
+                  v-model="newEditTableForm[item.itemIndex].express_fee"
+                  @blur="editTableHeaderRows(item, 'express_fee', item.express_fee, newEditTableForm[item.itemIndex].express_fee)"/>
+              <span v-else>{{item.express_fee}}</span>&nbsp;元
+            </div>
+            <div style="display: inline-flex;align-items: center" v-if="tableRoleStatus.refund_fare.show">
+              退改交通费：
+              <el-input
+                  v-if="urlType === 'edit' && tableRoleStatus.refund_fare.read"
+                  size="mini"
+                  :placeholder="item.refund_fare"
+                  v-model="newEditTableForm[item.itemIndex].refund_fare"
+                  @blur="editTableHeaderRows(item, 'refund_fare', item.refund_fare, newEditTableForm[item.itemIndex].refund_fare)"/>
+              <span v-else>{{item.refund_fare}}</span>&nbsp;元
+            </div>
             <div>合计：{{item.ticketNumber || '0'}} 张</div>
 
             <div class="table_header_btn">
@@ -383,7 +402,7 @@
               v-for="(cItem,cIndex) in item.route_config"
               :key="cIndex"
               class="passenger_table_route">
-            <div class="train_route_message">
+            <div class="train_route_message" v-if="showPassengersTable">
 <!--              <div style="margin-right: 15px"-->
 <!--                   v-if="urlType === 'edit'">-->
 <!--                <el-checkbox @change="checkedOrderData(item,cItem)" v-model="checkedOrderBtn"></el-checkbox>-->
@@ -400,13 +419,23 @@
                   </el-tooltip>
 
                 </div>
-              <div>检票口：{{cItem.ticket_check}}</div>
+              <div v-if="tableRoleStatus.ticket_check.show">
+                检票口：
+                <el-input
+                    size="mini"
+                    v-model="newEditTableRouteForm[cItem.cItemIndex].ticket_check"
+                    v-if="urlType === 'edit' && tableRoleStatus.ticket_check.read"
+                    :placeholder="cItem.ticket_check"
+                    @blur="editTableHeaderBows(item, cItem, 'ticket_check', cItem.ticket_check, newEditTableRouteForm[cItem.cItemIndex].ticket_check)"/>
+                <span v-else>{{cItem.ticket_check}}</span>
+              </div>
             </div>
             <TrainTimesTable
                 v-on:tableRowsData="editTableRows"
                 v-on:checkTableData="checkTableList"
                 v-on:jumpPayTicket="jumpPayTicket"
                 v-on:jumpEditTicket="jumpEditTicket"
+                :tableRoleStatus="tableRoleStatus"
                 :tableModify="urlType"
                 :index="index"
                 :cIndex="cIndex"
@@ -531,6 +560,8 @@
         <el-button
             v-if="urlType === 'edit'"
             type="primary"
+            v-loading="allAddSubmitLoading"
+            :disabled="allAddSubmitLoading"
             @click="allEditSubmit">
           全部保存
         </el-button>
@@ -1053,6 +1084,9 @@
 
         showTableType: false, // 显示隐藏单元格
 
+        tableRowRole: [], // 单元格权限列表
+        tableRoleStatus: {}, // 单元格权限
+
         /***
          * 新增订单
          */
@@ -1121,6 +1155,11 @@
          */
         orderId: '', // 订单id
         orderToken: '', // 订单token
+
+        showPassengersTable: false, // 编辑页面表格显示
+
+        newEditTableForm: [],
+        newEditTableRouteForm: [],
 
         addRemarksMessage: '', // 新增备注信息
 
@@ -1341,25 +1380,37 @@
       */
       getPassengerList(){
         this.loading = true;
+        this.showPassengersTable = false
         this.$axios.get('/api/order/detailsRoute/'+this.orderSn)
             .then(res =>{
+              this.showPassengersTable = true
               this.loading = false
               this.passengerInfo = res.data
               let ticketNumber = 0
               let ticketPrice = 0
               this.passengerInfo.forEach((item,index) =>{
+                this.passengerInfo[index]['itemIndex'] = index
+                this.newEditTableForm.push({
+                  express_fee: '', // 快递费
+                  refund_fare: '', // 退改交通费
+                })
                 item.express_fee = item.express_fee?item.express_fee: '0.00'
                 item.refund_fare = item.refund_fare?item.refund_fare: '0.00'
-               item.route_config.forEach((cItem,cIndex) =>{
-                 if(cIndex < item.route_config.length){
-                   ticketNumber += cItem.numberSheet
-                   if(cItem.totalPrice !== 0){
-                     ticketPrice += cItem.totalPrice
-                   }
-                   this.passengerInfo[index]['ticketNumber'] = ticketNumber
-                   this.passengerInfo[index]['ticketPrice'] =  Math.floor(ticketPrice * 100) / 100
-                 }
-               })
+                item.route_config.forEach((cItem,cIndex) =>{
+                  item.route_config[cIndex]['cItemIndex'] = cIndex
+                  this.newEditTableRouteForm.push({
+                    ticket_check: '',  // 检票口
+                  })
+
+                  if(cIndex < item.route_config.length){
+                    ticketNumber += cItem.numberSheet
+                    if(cItem.totalPrice !== 0){
+                      ticketPrice += cItem.totalPrice
+                    }
+                    this.passengerInfo[index]['ticketNumber'] = ticketNumber
+                    this.passengerInfo[index]['ticketPrice'] =  Math.floor(ticketPrice * 100) / 100
+                  }
+                })
                 ticketNumber = 0
                 ticketPrice = 0
               })
@@ -1816,6 +1867,71 @@
                 this.editTicketMessageLoading = false
               }
             })
+      },
+
+      /**
+       * @Description: 行程信息单元格修改
+       * @author Wish
+       * @date 2019/12/4
+      */
+      editTableHeaderRows(data, name, oldData, newData){
+        console.log(data);
+        if(oldData !== newData && newData !== ''){
+          let infoData = {
+            field: name,
+            value: newData
+          }
+          let param = {
+            order_sn: data.order_sn,
+            token: data.parent_id,
+            info: JSON.stringify(infoData)
+          }
+          this.$axios.post('/api/order/editCellValue/2',param)
+              .then(res =>{
+                if(res.data.code === 0){
+                  this.$message.success('修改成功')
+                  this.newEditTableForm = []
+                  this.getPassengerList()
+                }else {
+                  this.$message.warning(res.data.msg)
+                  this.newEditTableForm = []
+                  this.getPassengerList()
+                }
+              })
+
+        }
+      },
+
+      /**
+       * @Description: 检票口单元格修改
+       * @author Wish
+       * @date 2019/12/4
+      */
+      editTableHeaderBows(data, cData, name, oldData, newData){
+        if(oldData !== newData && newData !== ''){
+          let infoData = {
+            field: name,
+            value: newData
+          }
+          let param = {
+            order_sn: data.order_sn,
+            token: data.parent_id,
+            route_id: cData.id,
+            info: JSON.stringify(infoData)
+          }
+          this.$axios.post('/api/order/editCellValue/1',param)
+          .then(res =>{
+            if(res.data.code === 0){
+              this.$message.success('修改成功')
+              this.newEditTableRouteForm = []
+              this.getPassengerList()
+            }else {
+              this.$message.warning(res.data.msg)
+              this.newEditTableRouteForm = []
+              this.getPassengerList()
+            }
+          })
+        }
       },
 
       /**
@@ -2457,6 +2573,7 @@
        * @date 2019/10/30
       */
       allEditSubmit(){
+        this.allAddSubmitLoading = true
         let cname
         let dname
         this.customerList.forEach(item =>{
@@ -2488,19 +2605,15 @@
               this.$message.success('保存成功')
               this.urlTypeSelect()
               this.getCustomerData()
-              this.$router.push({
-                path: 'orderDetails',
-                query:{
-                  order_sn: this.orderInfo.order_sn,
-                  type: 'details'
-                }
+              this.$routerTab.close({
+                to: 'orderDetails?order_sn='+this.orderInfo.order_sn+'&type=details',
+                refresh: true
               })
-              this.$routerTab.close()
-
             }else {
               this.$message.warning(res.data.msg)
               this.urlTypeSelect()
               this.getCustomerData()
+              this.allAddSubmitLoading = false
             }
           })
       },
@@ -2678,15 +2791,17 @@
             })
           })
         })
+        let customerName
+        let issuingClerkName
         if(isNaN(this.orderInfo.cname)){
-          this.orderInfo.cname = this.customerMessage.customer
-          this.orderInfo.dName = this.customerMessage.issuing_clerk
+          customerName = this.customerMessage.customer
+          issuingClerkName = this.customerMessage.issuing_clerk
         }
         let data ={
           order_sn: this.orderInfo.order_sn, // 主订单号
           old_order_sn: this.orderInfo.old_order_sn,  // 旧订单号
-          customer: this.orderInfo.cname, // 客户商标识
-          issuer: this.orderInfo.dName, // 发单人标识
+          customer: customerName, // 客户商标识
+          issuer: issuingClerkName, // 发单人标识
           origin_data: this.saveGroupMessage, // Q群原始信息
           route_type: 0,
           certificates: String(this.orderInfo.certificates),
@@ -2700,15 +2815,10 @@
             .then(res =>{
               if(res.data.code === 0){
                 this.$message.success('保存成功')
-                this.allAddSubmitLoading = false
-                this.$router.push({
-                  path: 'orderDetails',
-                  query:{
-                    order_sn: this.orderInfo.order_sn,
-                    type: 'details'
-                  }
+                this.$routerTab.close({
+                  to: 'orderDetails?order_sn='+this.orderInfo.order_sn+'&type=details',
+                  refresh: true
                 })
-                this.$routerTab.close()
 
               }else {
                 this.$message.warning(res.data.msg)
@@ -2727,6 +2837,17 @@
       if(this.$route.query.type === 'edit'){
         this.deleteUserList = []
       }
+      this.tableRowRole = this.tableRowRole.length < 1? JSON.parse(sessionStorage.getItem('FieldInfo')): []
+
+      this.tableRowRole.forEach((item,index) =>{
+        if(item.type === 0){
+          this.tableRoleStatus[item.field] = {
+            show: item.is_show === 0,
+            read: item.is_read_in === 0
+          }
+        }
+      })
+      console.log(this.tableRoleStatus);
     }
   }
 </script>
@@ -3248,6 +3369,14 @@
           >div{
             display: inline-flex;
             align-items: center;
+            /deep/.el-input{
+              .el-input__inner{
+                &::placeholder{
+                  font-size: 14px;
+                  color: #000;
+                }
+              }
+            }
             &:not(:last-child){
               margin-right: 10%;
             }
@@ -3264,6 +3393,9 @@
             width: 80px;
             .el-input__inner{
               font-size: 16px;
+              &::placeholder{
+                color: #000;
+              }
             }
           }
           .table_header_btn{

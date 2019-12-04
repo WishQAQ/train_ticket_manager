@@ -140,7 +140,8 @@
               label="应收款">
           </el-table-column>
           <el-table-column
-              v-if="viewsType === 0 || viewsType === 3 || viewsType === 2"
+              v-show="viewsType === 0 || viewsType === 3 || viewsType === 2"
+              v-if="tableOrderRoleStatus.actual_receipts.show"
               prop="actual_receipts"
               align="center"
               label="实收款">
@@ -159,51 +160,102 @@
             label="成本项">
           <el-table-column
               align="center"
+              v-if="tableOrderRoleStatus.total_ticket_issue_fee.show"
               label="总出票费">
-            <template slot-scope="scope">{{scope.row.verification_item.ticket_fare}}</template>
+            <template slot-scope="scope">
+              {{scope.row.verification_item.total_ticket_issue_fee}}
+<!--              <el-input-->
+<!--                  size="mini"-->
+<!--                  v-model="newDataForm[scope.row.tableIndex]['total_ticket_issue_fee']"-->
+<!--                  v-if="tableOrderRoleStatus.total_ticket_issue_fee.read"-->
+<!--                  :placeholder="scope.row.verification_item.total_ticket_issue_fee"-->
+<!--                  @blur="openEditInput(scope.row,'total_ticket_issue_fee',scope.row.verification_item.total_ticket_issue_fee,newDataForm[scope.row.tableIndex]['total_ticket_issue_fee'])">-->
+<!--              </el-input>-->
+<!--              <span v-else>{{scope.row.verification_item.total_ticket_issue_fee}}</span>-->
+            </template>
           </el-table-column>
           <el-table-column
               align="center"
+              v-if="tableOrderRoleStatus.compensation_fee.show"
               label="总赔付费">
             <template slot-scope="scope">
-              <div class="table_row_edit" @blur="openEditInput($event,scope.row,'compensation_fee',scope.row.cost_item[0].compensation_fee)" contentEditable>
-                {{scope.row.cost_item[0].compensation_fee}}
-              </div>
+              <el-input
+                  size="mini"
+                  v-model="newDataForm[scope.row.tableIndex]['compensation_fee']"
+                  v-if="tableOrderRoleStatus.compensation_fee.read"
+                  :placeholder="scope.row.cost_item[0].compensation_fee"
+                  @blur="openEditInput(scope.row,'compensation_fee',scope.row.cost_item[0].compensation_fee,newDataForm[scope.row.tableIndex]['compensation_fee'])">
+              </el-input>
+              <span v-else>{{scope.row.cost_item[0].compensation_fee}}</span>
             </template>
           </el-table-column>
           <el-table-column
               align="center"
+              v-if="tableOrderRoleStatus.total_discount.show"
               label="优惠总额">
             <template slot-scope="scope">
-              <div class="table_row_edit" @blur="openEditInput($event,scope.row,'total_discount',scope.row.cost_item[0].total_discount)" contentEditable>
-                {{scope.row.cost_item[0].total_discount}}
-              </div>
+              <el-input
+                  size="mini"
+                  v-model="newDataForm[scope.row.tableIndex]['total_discount']"
+                  v-if="tableOrderRoleStatus.total_discount.read"
+                  :placeholder="scope.row.cost_item[0].total_discount"
+                  @blur="openEditInput(scope.row,'total_discount',scope.row.cost_item[0].total_discount,newDataForm[scope.row.tableIndex]['total_discount'])">
+              </el-input>
+              <span v-else>{{scope.row.cost_item[0].total_discount}}</span>
             </template>
           </el-table-column>
           <el-table-column
+              v-if="tableOrderRoleStatus.express_fee.show"
               align="center"
               label="快递支出">
             <template slot-scope="scope">
-              <div class="table_row_edit" @blur="openEditInput($event,scope.row,'express_fee',scope.row.cost_item[0].express_fee)" contentEditable>
-                {{scope.row.cost_item[0].express_fee}}
-              </div>
+              <el-input
+                  size="mini"
+                  v-model="newDataForm[scope.row.tableIndex]['finance_express_fee']"
+                  v-if="tableOrderRoleStatus.express_fee.read"
+                  :placeholder="scope.row.cost_item[0].finance_express_fee"
+                  @blur="openEditInput(scope.row,'finance_express_fee',scope.row.cost_item[0].finance_express_fee,newDataForm[scope.row.tableIndex]['finance_express_fee'])">
+              </el-input>
+              <span v-else>{{scope.row.cost_item[0].finance_express_fee}}</span>
             </template>
           </el-table-column>
         </el-table-column>
 
         <el-table-column
-            v-if="viewsType === 1"
+            v-show="viewsType === 1"
+            v-if="tableOrderRoleStatus.actual_receipts.show"
             prop="actual_receipts"
             align="center"
             label="实收款">
+<!--          <template slot-scope="scope">-->
+<!--            <el-input-->
+<!--                size="mini"-->
+<!--                v-model="newDataForm[scope.row.tableIndex]['actual_receipts']"-->
+<!--                v-if="tableOrderRoleStatus.actual_receipts.read"-->
+<!--                :placeholder="scope.row.actual_receipts"-->
+<!--                @blur="openEditInput(scope.row,'actual_receipts',scope.row.actual_receipts,newDataForm[scope.row.tableIndex]['actual_receipts'])">-->
+<!--            </el-input>-->
+<!--            <span v-else>{{scope.row.actual_receipts}}</span>-->
+<!--          </template>-->
         </el-table-column>
 
 
         <el-table-column
-            v-if="viewsType === 1"
+            v-show="viewsType === 1"
+            v-if="tableOrderRoleStatus.profit.show"
             prop="profit"
             align="center"
             label="利润">
+<!--          <template slot-scope="scope">-->
+<!--            <el-input-->
+<!--                size="mini"-->
+<!--                v-model="newDataForm[scope.row.tableIndex]['profit']"-->
+<!--                v-if="tableOrderRoleStatus.profit.read"-->
+<!--                :placeholder="scope.row.profit"-->
+<!--                @blur="openEditInput(scope.row,'profit',scope.row.profit,newDataForm[scope.row.tableIndex]['profit'])">-->
+<!--            </el-input>-->
+<!--            <span v-else>{{scope.row.profit}}</span>-->
+<!--          </template>-->
         </el-table-column>
 
         <el-table-column
@@ -216,14 +268,19 @@
         </el-table-column>
 
         <el-table-column
-            v-if="viewsType === 1"
-            prop="actual_payment"
+            v-show="viewsType === 1"
+            v-if="tableOrderRoleStatus.actual_payment.show"
             align="center"
             label="实付款">
           <template slot-scope="scope">
-            <div class="table_row_edit" @blur="openEditInput($event,scope.row,'actual_payment',scope.row.actual_payment)" contentEditable>
-              {{scope.row.actual_payment}}
-            </div>
+            <el-input
+                size="mini"
+                v-model="newDataForm[scope.row.tableIndex]['actual_payment']"
+                v-if="tableOrderRoleStatus.actual_payment.read"
+                :placeholder="scope.row.actual_payment"
+                @blur="openEditInput(scope.row,'actual_payment',scope.row.actual_payment,newDataForm[scope.row.tableIndex]['actual_payment'])">
+            </el-input>
+            <span v-else>{{scope.row.actual_payment}}</span>
           </template>
         </el-table-column>
 
@@ -396,8 +453,8 @@
           <div class="order_table">
             <div class="order_title">收支汇款底单</div>
             <div class="order_table_images">
-              <PublicImage v-if="emittanceList.length > 0" :previewList="emittanceList" :url="detailsImages.remittance_voucher" :preview="true"/>
-              <PublicImage v-if="emittanceList.length > 0" :previewList="emittanceList" :url="detailsImages.collection_voucher" :preview="true"/>
+              <PublicImage v-if="emittanceList.length > 0 && tableOrderRoleStatus.remittance_voucher.show" :previewList="emittanceList" :url="detailsImages.remittance_voucher" :preview="true"/>
+              <PublicImage v-if="emittanceList.length > 0 && tableOrderRoleStatus.collection_voucher.show" :previewList="emittanceList" :url="detailsImages.collection_voucher" :preview="true"/>
             </div>
           </div>
         </div>
@@ -490,6 +547,9 @@
         loading: false,  // 加载
         tableData: [],
 
+        tableOrderRole: [], // 权限列表
+        tableOrderRoleStatus: {}, // 权限
+
         selectList: [], // 多选列表
 
         viewsType: '',  // 页面类型
@@ -511,6 +571,8 @@
 
         showEditInput: false, // 单元格修改
         editTotalData: '', // 修改数据
+
+        newDataForm: [], // 新单元格修改数据
 
         viewBillNumberDialog: false, // 对账单号弹窗
         billNumberList: [],  // 对账单号列表
@@ -583,6 +645,13 @@
             .then(res =>{
               this.tableData = res.data.data;
               this.paginationList = res.data;
+              this.tableData.forEach((item,index) =>{
+                item['tableIndex'] = index
+                this.newDataForm.push({
+                  total_ticket_issue_fee: '',
+
+                })
+              })
               this.showTable = true
               this.loading = false;
               this.getDataTotal()
@@ -590,6 +659,9 @@
                 item.bill_numbers?item.bill_numbers =item.bill_numbers.split(','): ''
               })
             })
+        .catch(() =>{
+          this.$message.error('数据获取失败，请稍后重试')
+        })
       },
 
       /**
@@ -664,33 +736,28 @@
        * @author Wish
        * @date 2019/10/30
       */
-      openEditInput(editData,data,dataName,oldData){
-        // if(oldData){
-        //   console.log(editData.target.innerText);
-        // }
-        let editText = editData.target.innerText || null
-        let orderId = data.order_sn
-        let orderName = data.cost_item[0].dataName
-        console.log(editText);
-        if(editText !== oldData){
-          let data ={
-            order_sn: orderId,
+      openEditInput(data,dataName,row,newRow){
+        console.log(data, dataName, row, newRow);
+        if(row !== newRow && newRow !== '' && newRow !== undefined && newRow !== null){
+          let param ={
+            id: data.id,
+            order_sn: data.order_sn,
             field: dataName,
-            value: editText
+            value: newRow
           }
-          this.$axios.post('/api/finance/editCellContent',data)
+          this.$axios.post('/api/finance/editCellContent',param)
               .then(res =>{
                 if(res.data.code === 0){
                   this.$message.success('修改成功')
+                  this.newDataForm = []
                   this.getData()
                 }else {
                   this.$message.warning(res.data.msg)
+                  this.newDataForm = []
                   this.getData()
-                  editData.target.innerText =  orderName || null
                 }
               })
         }
-
       },
 
       /**
@@ -1089,6 +1156,19 @@
         this.page = val
         this.getData()
       },
+    },
+    mounted() {
+      this.tableOrderRole = this.tableOrderRole.length < 1? JSON.parse(sessionStorage.getItem('FieldInfo')): []
+
+      this.tableOrderRole.forEach((item,index) =>{
+        if(item.type === 1){
+          this.tableOrderRoleStatus[item.field] = {
+            show: item.is_show === 0,
+            read: item.is_read_in === 0
+          }
+        }
+      })
+      console.log(this.tableOrderRoleStatus);
     },
     getDataList: {
       '$route'(to, from) {

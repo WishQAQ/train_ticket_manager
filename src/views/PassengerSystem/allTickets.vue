@@ -11,9 +11,12 @@
         <el-input clearable v-model="searchForm.train_account" placeholder="请输入12306账号"/></div>
       <div>
         <el-input clearable v-model="searchForm.order" placeholder="请输入订单号"/></div>
-      <div><el-select clearable v-model="searchForm.order_status" placeholder="请选择车票状态">
-        <el-option label="已处理订单" value="1"/>
-        <el-option label="处理中订单" value="2"/>
+      <div><el-select clearable v-model="searchForm.ticket_status" placeholder="请选择车票状态">
+        <el-option label="未出票" value="0"/>
+        <el-option label="已出票" value="1"/>
+        <el-option label="已取消票" value="2"/>
+        <el-option label="已改签" value="3"/>
+        <el-option label="已退票" value="4"/>
       </el-select></div>
       <div>
         <el-input clearable v-model="searchForm.departure" placeholder="发站"/></div>
@@ -92,7 +95,7 @@
         </el-table-column>
         <el-table-column
             prop="fwName"
-            width="80"
+            width="200"
             label="席别名称">
           <template slot-scope="scope">
             {{scope.row.fwName}}
@@ -201,7 +204,7 @@
           running_account: '',
           train_account: '',
           order: '',
-          order_status: '',
+          ticket_status: '',
           departure: '',
           arrive: '',
           ridingTime: [],
@@ -261,7 +264,7 @@
           running_account: this.searchForm.running_account,
           '12306_account': this.searchForm.train_account,
           order: this.searchForm.order,
-          order_status: this.searchForm.order_status,
+          ticket_status: this.searchForm.ticket_status,
           departure: this.searchForm.departure,
           arrive: this.searchForm.arrive,
         }

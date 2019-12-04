@@ -69,15 +69,26 @@
         <div class="upload_list">
           <div class="title">收款凭证</div>
           <div class="image_list_box">
-            <PublicImage v-for="(item,index) in receiptImage" :key="index" :url="item" :preview="true" :fit="'contain'"></PublicImage>
-            <UploadImage @uploadAddress="uploadReceiptImage" ref="uploadImage" :fit="'contain'"></UploadImage>
+            <PublicImage v-for="(item,index) in receiptImage"
+                         :previewList="receiptImage"
+                         :preview="true"
+                         :key="index"
+                         :url="item"
+                         :fit="'cover'"/>
+            <UploadImage @uploadAddress="uploadReceiptImage"
+                         ref="uploadReceiptImage"/>
           </div>
         </div>
         <div class="upload_list">
           <div class="title">付款凭证</div>
           <div class="image_list_box">
-            <PublicImage v-for="(item,index) in paymentImage" :key="index" :url="item" :preview="true" :fit="'contain'"></PublicImage>
-            <UploadImage @uploadAddress="uploadPaymentImage" ref="uploadImage"></UploadImage>
+            <PublicImage
+                v-for="(item,index) in paymentImage"
+                :key="index" :url="item"
+                :previewList="paymentImage"
+                :preview="true"
+                :fit="'cover'"/>
+            <UploadImage @uploadAddress="uploadPaymentImage" ref="uploadPaymentImage"/>
           </div>
         </div>
       </div>
@@ -424,6 +435,7 @@
        * @date 2019/10/29
       */
       uploadReceiptImage(val){
+        this.$refs.uploadReceiptImage.closedImage()
         if(val){
           let data ={
             info: val,
@@ -431,9 +443,22 @@
           }
           this.$axios.post('/api/finance/operateBill/2',data)
               .then(res =>{
-
+                if(res.data.code === 0){
+                  this.$message.success('上传成功')
+                  this.getOrderImage()
+                }else {
+                  this.$message.warning(res.data.msg)
+                }
               })
         }
+      },
+      /**
+       * @Description: 删除收款凭证
+       * @author Wish
+       * @date 2019/12/4
+      */
+      deleteUserImage(val){
+        console.log(val);
       },
       /**
        * @Description: 上传付款凭证
@@ -441,6 +466,7 @@
        * @date 2019/10/29
       */
       uploadPaymentImage(val){
+        this.$refs.uploadPaymentImage.closedImage()
         if(val){
           let data ={
             info: val,
@@ -448,7 +474,12 @@
           }
           this.$axios.post('/api/finance/operateBill/1',data)
               .then(res =>{
-
+                if(res.data.code === 0){
+                  this.$message.success('上传成功')
+                  this.getOrderImage()
+                }else {
+                  this.$message.warning(res.data.msg)
+                }
               })
         }
       },
@@ -562,6 +593,7 @@
           border: 1px solid #ebeef5;
           min-height: 150px;
           width: 100%;
+          padding: 20px 0;
           &:first-child{
             margin-right: 5%;
           }
@@ -580,10 +612,16 @@
             padding: 0 10px;
             width: 100%;
             flex-wrap: wrap;
+            /deep/.publicImage{
+              height: 100px;
+              width: 100px;
+              margin-right: 10px;
+              margin-bottom: 10px;
+            }
             .UploadLeaflet{
               height: 100px;
               width: 120px;
-              margin: unset;
+              margin: 0 0 10px;
             }
             .public_image{
               height: 100px;

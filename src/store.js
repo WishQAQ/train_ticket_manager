@@ -30,7 +30,7 @@ export default new Vuex.Store({
     Logins({ commit }, info){
       return new Promise((resolve, reject) => {
         let data={};
-        //获取所以用户信息
+        //获取所有用户信息
         commit('SET_USERNAME',info.nickname);  //将username和role进行存储
         sessionStorage.setItem('USERNAME', info.nickname); //存入 session
         commit('SET_ROLE',info.permission.ownedMenus);

@@ -120,7 +120,6 @@
                 <el-switch
                     @input="change($event)"
                     @change="roleSwitch(item)"
-                    v-if="item.is_show"
                     v-model="item.is_read_in"
                     active-color="#13ce66"
                     inactive-text="可否写入">
@@ -587,8 +586,10 @@
                   display: flex;
                   align-items: center;
                   width: 70%;
-                  justify-content: space-evenly;
                   /deep/.el-switch{
+                    &:first-child{
+                      margin-right: 20%;
+                    }
                     .el-switch__label{
                       &.is-active{
                         color: unset;

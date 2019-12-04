@@ -9,6 +9,7 @@ import {Message} from 'element-ui'
 export function loginByUserInfo(username, password) {
    axios.post('http://oa.huimin.dev.cq1080.com/account/login', username, password).then(res =>{
      sessionStorage.setItem('CSRF', res.data.result.csrf);
+     sessionStorage.setItem('FieldInfo', JSON.stringify(res.data.result.fieldInfo))
     if(res.data.code === 0){
       // 页面跳转
       Message.success({
@@ -39,6 +40,7 @@ export function loginByUserInfo(username, password) {
            message: '登录失败，请稍后重试',
            type: "error"
          })
+     bus.$emit('loginError', 'error')
        })
 }
 

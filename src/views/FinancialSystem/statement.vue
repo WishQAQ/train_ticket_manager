@@ -9,7 +9,7 @@
       <el-table
           :data="tableData"
           border
-          @current-change="handledTable"
+          @row-dblclick="handledTable"
           style="width: 100%">
         <el-table-column
             label="序号"
@@ -113,12 +113,15 @@
         }
       },
       handledTable(val){
-        this.$router.push({
-          name: 'statementInfo',
-          query:{
-            condition: val.bill_number
-          },
-        })
+        if(val.bill_number){
+          console.log(val.bill_number);
+          this.$router.push({
+            path: 'statementInfo',
+            query:{
+              condition: String(val.bill_number)
+            },
+          })
+        }
       }
     },
     created() {
