@@ -3,7 +3,7 @@
     <div class="left_main">
       <div class="left_header">
         <el-button type="primary" @click="addRoleUser">新增角色</el-button>
-        <el-input v-model="searchUserName" clearable placeholder="用户名名称搜索"></el-input>
+        <el-input v-model="searchUserName" clearable placeholder="用户名名称搜索"/>
         <el-button type="primary" @click="searchUser">搜索</el-button>
       </div>
       <div class="user_table">
@@ -440,7 +440,7 @@
       */
       submitBtn(){
         if(this.userInfo.role_name){
-          let roleListData = JSON.parse(JSON.stringify(this.userInfo.permission_field))
+          let roleListData = this.userInfo.permission_field?JSON.parse(JSON.stringify(this.userInfo.permission_field)): []
 
           roleListData.map(res =>{
             res['field_id'] = res.id;

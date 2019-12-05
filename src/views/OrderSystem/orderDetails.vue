@@ -76,11 +76,11 @@
               </el-option>
             </el-select>
           </div>
-          <div>
-            <span>旧单号</span>
+          <div v-if="urlType !== 'add'">
+            <span>新订单号</span>
             <el-input
                 @input="change($event)"
-                :placeholder="inputDisabled?'':'请输入旧单号'"
+                :placeholder="inputDisabled?'':'请输入新订单号'"
                 v-model="orderInfo.old_order_sn"
                 :disabled="inputDisabled">
             </el-input>
@@ -357,20 +357,20 @@
             </div>
 
             <div>合计票款：{{item.ticketPrice || '0.00'}} 元</div>
-            <div style="display: inline-flex;align-items: center" v-if="tableRoleStatus.refund_fare.show">
+            <div style="display: inline-flex;align-items: center" v-if="tableRoleStatus['refund_fare']['show']">
               快递费：
               <el-input
                   size="mini"
-                  v-if="urlType === 'edit' && tableRoleStatus.refund_fare.read"
+                  v-if="urlType === 'edit' && tableRoleStatus['refund_fare']['read']"
                   :placeholder="item.express_fee"
                   v-model="newEditTableForm[item.itemIndex].express_fee"
                   @blur="editTableHeaderRows(item, 'express_fee', item.express_fee, newEditTableForm[item.itemIndex].express_fee)"/>
               <span v-else>{{item.express_fee}}</span>&nbsp;元
             </div>
-            <div style="display: inline-flex;align-items: center" v-if="tableRoleStatus.refund_fare.show">
+            <div style="display: inline-flex;align-items: center" v-if="tableRoleStatus['refund_fare']['show']">
               退改交通费：
               <el-input
-                  v-if="urlType === 'edit' && tableRoleStatus.refund_fare.read"
+                  v-if="urlType === 'edit' && tableRoleStatus['refund_fare']['read']"
                   size="mini"
                   :placeholder="item.refund_fare"
                   v-model="newEditTableForm[item.itemIndex].refund_fare"
@@ -419,12 +419,12 @@
                   </el-tooltip>
 
                 </div>
-              <div v-if="tableRoleStatus.ticket_check.show">
+              <div v-if="tableRoleStatus['ticket_check']['show']">
                 检票口：
                 <el-input
                     size="mini"
                     v-model="newEditTableRouteForm[cItem.cItemIndex].ticket_check"
-                    v-if="urlType === 'edit' && tableRoleStatus.ticket_check.read"
+                    v-if="urlType === 'edit' && tableRoleStatus['ticket_check']['read']"
                     :placeholder="cItem.ticket_check"
                     @blur="editTableHeaderBows(item, cItem, 'ticket_check', cItem.ticket_check, newEditTableRouteForm[cItem.cItemIndex].ticket_check)"/>
                 <span v-else>{{cItem.ticket_check}}</span>
@@ -528,7 +528,7 @@
                   prop="action">
               </el-table-column>
               <el-table-column
-                  width="75"
+                  width="120"
                   label="字段"
                   prop="field">
               </el-table-column>
@@ -671,10 +671,11 @@
           <div class="main_box_title">车票状态</div>
           <div class="main_box_content">
             <el-select v-model="item.ticket_status" placeholder="请选择">
-              <el-option label="已出票" value="1"></el-option>
-              <el-option label="已取消票" value="2"></el-option>
-              <el-option label="已改签" value="3"></el-option>
-              <el-option label="已退票" value="4"></el-option>
+              <el-option label="未出票" value="0"/>
+              <el-option label="已出票" value="1"/>
+              <el-option label="已取消票" value="2"/>
+              <el-option label="已改签" value="3"/>
+              <el-option label="已退票" value="4"/>
             </el-select>
           </div>
         </div>
@@ -693,23 +694,25 @@
                   </el-date-picker>
                 </div>
                 <div class="route_message edit_route_message" style="margin-top: 5px;margin-left: 0;width: 100%;justify-content: space-between">
-                  <div style="width: 105px"><el-input clearable @input="change($event)" v-model="item.departure_station" :placeholder="cItem.departure_station"></el-input></div>
+                  <div style="width: 105px">
+                    <el-input clearable @input="change($event)" v-model="item.departure_station"
+                              :placeholder="cItem.departure_station"/></div>
                   <div style="width: 60px">
                     <el-select clearable @input="change($event)" v-model="item.directionOne" placeholder="">
-                      <el-option label="东" value="东"></el-option>
-                      <el-option label="南" value="南"></el-option>
-                      <el-option label="西" value="西"></el-option>
-                      <el-option label="北" value="北"></el-option>
+                      <el-option label="东" value="东"/>
+                      <el-option label="南" value="南"/>
+                      <el-option label="西" value="西"/>
+                      <el-option label="北" value="北"/>
                     </el-select>
                   </div>
-                  <p style="margin: 0 5px"><el-input clearable @input="change($event)" v-model="item.trips_number" :placeholder="cItem.trips_number"></el-input></p>
-                  <div style="width: 105px"><el-input clearable @input="change($event)" v-model="item.arrival_station" :placeholder="cItem.arrival_station"></el-input></div>
+                  <p style="margin: 0 5px"><el-input clearable @input="change($event)" v-model="item.trips_number" :placeholder="cItem.trips_number"/></p>
+                  <div style="width: 105px"><el-input clearable @input="change($event)" v-model="item.arrival_station" :placeholder="cItem.arrival_station"/></div>
                   <div style="width: 60px">
                     <el-select clearable @input="change($event)" v-model="item.directionTwo" placeholder="">
-                      <el-option label="东" value="东"></el-option>
-                      <el-option label="南" value="南"></el-option>
-                      <el-option label="西" value="西"></el-option>
-                      <el-option label="北" value="北"></el-option>
+                      <el-option label="东" value="东"/>
+                      <el-option label="南" value="南"/>
+                      <el-option label="西" value="西"/>
+                      <el-option label="北" value="北"/>
                     </el-select>
                   </div>
               </div>
@@ -720,9 +723,9 @@
             <div class="main_box_title">票类</div>
             <div class="main_box_content">
               <el-select clearable @input="change($event)" @change="selectTicketType(item.ticket_type,index)" v-model="item.ticket_type" placeholder="请选择">
-                <el-option label="电子票" value="0"></el-option>
-                <el-option label="网票" value="1"></el-option>
-                <el-option label="纸票" value="2"></el-option>
+                <el-option label="电子票" value="0"/>
+                <el-option label="网票" value="1"/>
+                <el-option label="纸票" value="2"/>
               </el-select>
             </div>
           </div>
@@ -742,25 +745,48 @@
           <div class="main_box">
             <div class="main_box_title">票价</div>
             <div class="main_box_content">
-              <el-input clearable @input="change($event)" v-model="item.ticket_price" placeholder="请输入票价"></el-input>
+              <el-input clearable @input="change($event)" v-model="item.ticket_price" placeholder="请输入票价"/>
             </div>
           </div>
           <div class="main_box">
             <div class="main_box_title">儿童票价</div>
             <div class="main_box_content">
-              <el-input clearable @input="change($event)" v-model="item.child_ticket_price" placeholder="请输入儿童票价"></el-input>
+              <el-input clearable @input="change($event)" v-model="item.child_ticket_price" placeholder="请输入儿童票价"/>
             </div>
           </div>
           <div class="main_box">
             <div class="main_box_title">误餐费</div>
             <div class="main_box_content">
-              <el-input clearable @input="change($event)" v-model="item.missed_meals_money" placeholder="请输入误餐费"></el-input>
+              <el-input clearable @input="change($event)" v-model="item.missed_meals_money" placeholder="请输入误餐费"/>
             </div>
           </div>
           <div class="main_box">
             <div class="main_box_title">出票费</div>
             <div class="main_box_content">
-              <el-input clearable @input="change($event)" v-model="item.ticket_fare" placeholder="请输入出票费"></el-input>
+              <el-input clearable @input="change($event)" v-model="item.ticket_fare" placeholder="请输入出票费"/>
+            </div>
+          </div>
+        </div>
+
+        <div class="ticket_box" v-if="item.ticket_status === '0'">
+
+          <div class="main_box">
+            <div class="main_box_title">误餐费</div>
+            <div class="main_box_content">
+              <el-input clearable @input="change($event)" v-model="item.missed_meals_money" placeholder="请输入误餐费"/>
+            </div>
+          </div>
+          <div class="main_box">
+            <div class="main_box_title">席别</div>
+            <div class="main_box_content">
+              <el-select clearable @input="change($event)" v-model="item.fwId" placeholder="请选择">
+                <el-option
+                    v-for="(o,i) in agentCategory"
+                    :key="i"
+                    :label="o.name"
+                    :value="o.id">
+                </el-option>
+              </el-select>
             </div>
           </div>
         </div>
@@ -770,7 +796,7 @@
           <div class="main_box">
             <div class="main_box_title">退票款</div>
             <div class="main_box_content">
-              <el-input clearable @input="change($event)" v-model="item.refund_fee" placeholder="请输入退票款"></el-input>
+              <el-input clearable @input="change($event)" v-model="item['refund_fee']" placeholder="请输入退票款"/>
             </div>
           </div>
         </div>
@@ -2298,7 +2324,7 @@
         newEditForm['child_ticket_price'] = this.editRouteData.child_ticket_price
         newEditForm['missed_meals_money'] = this.editRouteData.missed_meals_money
         newEditForm['ticket_fare'] = this.editRouteData.ticket_fare
-        newEditForm['refund_fee'] = this.editRouteData.refund_fee
+        newEditForm['refund_fee'] = this.editRouteData['refund_fee']
 
         let info = {}
         info['condition'] = []
@@ -2339,7 +2365,31 @@
         let editInfo = {}
         editInfo['route_id'] = this.editRouteData.route_id
         editInfo['passengers'] = this.editRouteData.passengers
-        if(status === '1' || status === '3'){  // 出票or改签
+        if(status === '0'){  // 未出票
+          console.log(status, editData, route);
+          editInfo['fwId'] = this.editRouteData.fwId
+          editInfo['missed_meals_money'] = this.editRouteData.missed_meals_money
+          let newEditArr = []
+          newEditArr.push(editInfo)
+          let newToken = ''
+          for(let key in this.checkedTableList){
+            newToken = String(this.editOrderToken[key])
+          }
+          let data = {
+            order_sn: this.orderId,
+            token: newToken,
+            ticket_status: status,
+            info: JSON.stringify(newEditArr)
+          }
+          this.$axios.post('/api/order/routeInfo/editBatch',data)
+              .then(res =>{
+                if(res.data.code === 0){
+                  this.$message.success('保存成功')
+                }else {
+                  this.$message.warning(res.data.code)
+                }
+              })
+        }else if(status === '1' || status === '3'){  // 出票or改签
           if(this.editRouteData.riding_time || this.editRouteData.departure_station || this.editRouteData.arrival_station || this.editRouteData.trips_number){
             this.editRouteDialog = true
           }else{
@@ -2359,7 +2409,7 @@
             newEditForm['child_ticket_price'] = this.editRouteData.child_ticket_price
             newEditForm['missed_meals_money'] = this.editRouteData.missed_meals_money
             newEditForm['ticket_fare'] = this.editRouteData.ticket_fare
-            newEditForm['refund_fee'] = this.editRouteData.refund_fee
+            newEditForm['refund_fee'] = this.editRouteData['refund_fee']
 
             let info = {}
             info['condition'] = []
@@ -2412,7 +2462,7 @@
               })
 
         }else if(status === '4'){  // 退票
-          editInfo['refund_fee'] = this.editRouteData.refund_fee
+          editInfo['refund_fee'] = this.editRouteData['refund_fee']
           let newEditArr = []
           newEditArr.push(editInfo)
           let newToken = ''
@@ -2433,7 +2483,7 @@
                 this.$message.warning(res.data.code)
               }
             })
-      }
+        }
       },
 
 
@@ -2593,6 +2643,7 @@
         // }): ''
         let data ={
           order_sn: this.orderInfo.order_sn,
+          old_order_sn: this.orderInfo.old_order_sn,
           customer: cname,
           issuer: dname,
           remarks: this.orderInfo.remarks,
@@ -3409,7 +3460,7 @@
           >div{
             flex-shrink: 0;
             &:not(:last-child){
-              margin-right: 8%;
+              margin-right: 5%;
             }
           }
           .addUserListBtn{

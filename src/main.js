@@ -4,6 +4,8 @@ import router from './router'
 import { powerRouterLazy } from './router';//添加一个powerRouterLazy加载
 import './plugins/element.js'
 
+import {Message} from 'element-ui'
+
 import store from './store'
 
 import Router from 'vue-router'
@@ -86,7 +88,15 @@ router.beforeEach((to, from, next) => {
   let _role= store.getters.role;
   if(_role){ //判断role 是否存在
     if(store.getters.newrouter.length !== 0){ // 判断newrouter是否为空
-      next()
+      const list = store.getters.newrouter;
+      //如果没有匹配到，证明没有权限
+      if(String(JSON.stringify(list)).indexOf(to.name) === -1) {
+        if(to.name !== 'login'){
+          Message.error('当前账号暂无权限，请联系管理员')
+        }
+      }else {
+        next()
+      }
     }else{
       let newrouter=[]
       generaMenu(newrouter,_role); // router循环

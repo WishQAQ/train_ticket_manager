@@ -1,11 +1,7 @@
 <template>
   <div id="app">
-    <nav-menu v-if="$store.state.showHeader"></nav-menu>
-<!--    <tab-menu v-if="$store.state.showHeader"></tab-menu>-->
-<!--    <keep-alive>-->
-<!--      <router-view v-if="$route.meta.keepAlive"></router-view>-->
-<!--    </keep-alive>-->
-    <router-view></router-view>
+    <nav-menu v-if="$store.state.showHeader"/>
+    <router-view/>
   </div>
 </template>
 
@@ -16,9 +12,6 @@ export default {
     'NavMenu': () => import('@/components/NavMenu'),
     'TabMenu':() => import('@/components/TabMenu')
   },
-  mounted() {
-
-  }
 }
 </script>
 

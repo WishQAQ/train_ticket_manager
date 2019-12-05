@@ -3,16 +3,17 @@
     <div class="table_header">
       <div v-if="viewsType === 0"><el-button type="primary" @click="jumpDetailsBtn('add')">新增订单</el-button></div>
 <!--      <div v-if="viewsType === 2"><el-button>批量还原</el-button></div>-->
-      <div><el-input clearable v-model="orderSearch.order" placeholder="订单号查询"></el-input></div>
+      <div>
+        <el-input clearable v-model="orderSearch.order" placeholder="订单号查询"/></div>
       <div>
         <el-select v-model="orderSearch.order_status" placeholder="车票状态查询" clearable  @change="selectCustomer(orderSearch.customer)">
-          <el-option label="已处理" value="1"></el-option>
-          <el-option label="处理中" value="2"></el-option>
+          <el-option label="已处理" value="1"/>
+          <el-option label="处理中" value="2"/>
         </el-select>
       </div>
       <div>
         <el-select v-model="orderSearch.customer" placeholder="客户选择" clearable  @change="selectCustomer(orderSearch.customer)">
-          <el-option v-for="item in client" :key="item.id" :label="item.name" :value="item.identity"></el-option>
+          <el-option v-for="item in client" :key="item.id" :label="item.name" :value="item.identity"/>
         </el-select>
       </div>
       <div><el-date-picker
@@ -80,7 +81,7 @@
         <div class="content_main">
           <div :class="['main_list',{'is_top': item.is_top === 1}]" v-for="(item, index) in tableData" :key="index" @dblclick="doubleClickDetails(item)">
             <div class="list_num">
-              <div style="width: 60px">{{index+1}}</div>
+              <div style="width: 60px">{{parseInt(index)+1}}</div>
               <div class="list_num_checked" style="width: 60px" :style="{'height':item.info.length * 50 + 'px'}">
                 <el-checkbox :disabled="showAllChecked" ref="checkbox_box" @change="handleCheckChange(item)"/>
               </div>
@@ -91,10 +92,11 @@
                 <div style="width: 120px; flex-shrink: 0">{{$getTimeYear(cItem.riding_time * 1000) || ''}}</div>
                 <div style="width: 165px;flex-shrink: 0">{{cItem.departure_station}}</div>
                 <div style="width: 165px;flex-shrink: 0">{{cItem.arrival_station}}</div>
+                <div style="width: 80px; flex-shrink: 0">{{cItem.incompleteTask +'/'+cItem.finishTask}}</div>
+
               </div>
             </div>
             <div class="list_message" :style="{'height':item.info.length * 50 + 'px'}">
-              <div style="width: 80px; flex-shrink: 0">{{item.incompleteTask +'/'+item.finishTask}}</div>
               <div>{{item.Cname}}</div>
               <div>{{item.fdName}}</div>
               <div style="width: 80px;flex-shrink: 0;font-weight: unset">
@@ -111,20 +113,21 @@
               </div>
             </div>
             <div class="option_box">
-              <el-dropdown trigger="click" v-if="viewsType !== 2">
+              <el-dropdown trigger="click">
                 <el-button size="mini">操作</el-button>
                 <el-dropdown-menu slot="dropdown">
-                  <el-dropdown-item><div @click="jumpDetailsBtn('details',item)">详情</div></el-dropdown-item>
-                  <el-dropdown-item><div @click="addRemarksBtn(item)">备注</div></el-dropdown-item>
+                  <el-dropdown-item v-if="viewsType !== 2"><div @click="jumpDetailsBtn('details',item)">详情</div></el-dropdown-item>
+                  <el-dropdown-item v-if="viewsType !== 2"><div @click="addRemarksBtn(item)">备注</div></el-dropdown-item>
                   <el-dropdown-item v-if="viewsType === 1"><div @click="editOrderType(item,0)">取消不明订单</div></el-dropdown-item>
-                  <el-dropdown-item v-else><div @click="editOrderType(item,1)">设为不明订单</div></el-dropdown-item>
-                  <el-dropdown-item><div @click="editOrderTop(item)">{{item.is_top === 0 ? '标红置顶': '取消标红置顶'}}</div></el-dropdown-item>
+                  <el-dropdown-item v-if="viewsType !== 2 && viewsType !== 1"><div @click="editOrderType(item,1)">设为不明订单</div></el-dropdown-item>
+                  <el-dropdown-item v-if="viewsType !== 2"><div @click="editOrderTop(item)">{{item.is_top === 0 ? '标红置顶': '取消标红置顶'}}</div></el-dropdown-item>
                   <el-dropdown-item v-if="viewsType === 0"><div @click="openMergerOrderDialog(item)">合并订单</div></el-dropdown-item>
-                  <el-dropdown-item><div @click="jumpDetailsBtn('edit',item)">编辑</div></el-dropdown-item>
-                  <el-dropdown-item><div @click="editOrderType(item,2)">删除</div></el-dropdown-item>
+                  <el-dropdown-item v-if="viewsType !== 2"><div @click="jumpDetailsBtn('edit',item)">编辑</div></el-dropdown-item>
+                  <el-dropdown-item v-if="viewsType !== 2"><div @click="editOrderType(item,2)">删除</div></el-dropdown-item>
+                  <el-dropdown-item v-if="viewsType === 2"><div @click="reductionOrder(item)">还原</div></el-dropdown-item>
+                  <el-dropdown-item v-if="viewsType === 2"><div @click="deleteOrderType(item)">删除</div></el-dropdown-item>
                 </el-dropdown-menu>
               </el-dropdown>
-              <el-button v-else size="mini" @click="reductionOrder(item)">还原</el-button>
             </div>
           </div>
 
@@ -382,6 +385,7 @@
        * @date 2019/10/17
        */
       handleCheckAllChange(val) {  // 全选
+        console.log(this.tableData);
         for (let i= 0; i < this.tableData.length; i++){
           this.$refs.checkbox_box[i].checked = false;
         }
@@ -548,6 +552,36 @@
               })
         }).catch(() => {});
 
+      },
+
+      /**
+       * @Description: 删除回收站订单
+       * @author Wish
+       * @date 2019/12/5
+      */
+      deleteOrderType(val){
+        this.$confirm(
+            '此操作将彻底删除该订单数据且不可恢复, 是否继续?',
+            '警告', {
+              confirmButtonText: '确定彻底删除',
+              cancelButtonText: '取消',
+              type: 'error'
+            }).then(() => {
+              let data = {
+                order_sn: val.order_sn
+              }
+              this.$axios.post('/api/order/delRecycleOrder',data)
+                .then(res =>{
+                  if(res.data.code === 0){
+                    this.$message.success('删除成功')
+                    this.getDataList()
+                  }else {
+                    this.$message.warning(res.data.msg)
+                  }
+                })
+
+        }).catch(() => {});
+        console.log(val);
       },
 
       /**
@@ -793,7 +827,7 @@
             }
             .list_main{
               .list_box{
-                width: 450px;
+                width: 530px;
                 display: flex;
                 align-items: center;
                 &:not(:last-child){
@@ -857,6 +891,11 @@
         align-items: flex-end;
         justify-content: space-between;
       }
+    }
+  }
+  /deep/.el-dropdown-menu{
+    .el-dropdown-menu__item{
+      padding: 0;
     }
   }
 </style>

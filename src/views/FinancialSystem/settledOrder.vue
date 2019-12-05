@@ -139,13 +139,13 @@
               align="center"
               label="应收款">
           </el-table-column>
-          <el-table-column
-              v-show="viewsType === 0 || viewsType === 3 || viewsType === 2"
-              v-if="tableOrderRoleStatus.actual_receipts.show"
-              prop="actual_receipts"
-              align="center"
-              label="实收款">
-          </el-table-column>
+<!--          <el-table-column-->
+<!--              v-show="viewsType === 0 || viewsType === 3 || viewsType === 2"-->
+<!--              v-if="tableOrderRoleStatus.actual_receipts.show"-->
+<!--              prop="actual_receipts"-->
+<!--              align="center"-->
+<!--              label="实收款">-->
+<!--          </el-table-column>-->
           <el-table-column
               v-if="viewsType === 0 || viewsType === 3 || viewsType === 2"
               align="center"
@@ -160,7 +160,7 @@
             label="成本项">
           <el-table-column
               align="center"
-              v-if="tableOrderRoleStatus.total_ticket_issue_fee.show"
+              v-if="tableOrderRoleStatus['total_ticket_issue_fee']['show']"
               label="总出票费">
             <template slot-scope="scope">
               {{scope.row.verification_item.total_ticket_issue_fee}}
@@ -176,13 +176,13 @@
           </el-table-column>
           <el-table-column
               align="center"
-              v-if="tableOrderRoleStatus.compensation_fee.show"
+              v-if="tableOrderRoleStatus['compensation_fee']['show']"
               label="总赔付费">
             <template slot-scope="scope">
               <el-input
                   size="mini"
                   v-model="newDataForm[scope.row.tableIndex]['compensation_fee']"
-                  v-if="tableOrderRoleStatus.compensation_fee.read"
+                  v-if="tableOrderRoleStatus['compensation_fee']['read']"
                   :placeholder="scope.row.cost_item[0].compensation_fee"
                   @blur="openEditInput(scope.row,'compensation_fee',scope.row.cost_item[0].compensation_fee,newDataForm[scope.row.tableIndex]['compensation_fee'])">
               </el-input>
@@ -191,13 +191,13 @@
           </el-table-column>
           <el-table-column
               align="center"
-              v-if="tableOrderRoleStatus.total_discount.show"
+              v-if="tableOrderRoleStatus['total_discount']['show']"
               label="优惠总额">
             <template slot-scope="scope">
               <el-input
                   size="mini"
                   v-model="newDataForm[scope.row.tableIndex]['total_discount']"
-                  v-if="tableOrderRoleStatus.total_discount.read"
+                  v-if="tableOrderRoleStatus['total_discount']['read']"
                   :placeholder="scope.row.cost_item[0].total_discount"
                   @blur="openEditInput(scope.row,'total_discount',scope.row.cost_item[0].total_discount,newDataForm[scope.row.tableIndex]['total_discount'])">
               </el-input>
@@ -205,14 +205,14 @@
             </template>
           </el-table-column>
           <el-table-column
-              v-if="tableOrderRoleStatus.express_fee.show"
+              v-if="tableOrderRoleStatus['express_fee']['show']"
               align="center"
               label="快递支出">
             <template slot-scope="scope">
               <el-input
                   size="mini"
                   v-model="newDataForm[scope.row.tableIndex]['finance_express_fee']"
-                  v-if="tableOrderRoleStatus.express_fee.read"
+                  v-if="tableOrderRoleStatus['express_fee']['read']"
                   :placeholder="scope.row.cost_item[0].finance_express_fee"
                   @blur="openEditInput(scope.row,'finance_express_fee',scope.row.cost_item[0].finance_express_fee,newDataForm[scope.row.tableIndex]['finance_express_fee'])">
               </el-input>
@@ -223,7 +223,7 @@
 
         <el-table-column
             v-show="viewsType === 1"
-            v-if="tableOrderRoleStatus.actual_receipts.show"
+            v-if="tableOrderRoleStatus['actual_receipts']['show']"
             prop="actual_receipts"
             align="center"
             label="实收款">
@@ -242,7 +242,7 @@
 
         <el-table-column
             v-show="viewsType === 1"
-            v-if="tableOrderRoleStatus.profit.show"
+            v-if="tableOrderRoleStatus['profit']['show']"
             prop="profit"
             align="center"
             label="利润">
@@ -269,14 +269,14 @@
 
         <el-table-column
             v-show="viewsType === 1"
-            v-if="tableOrderRoleStatus.actual_payment.show"
+            v-if="tableOrderRoleStatus['actual_payment']['show']"
             align="center"
             label="实付款">
           <template slot-scope="scope">
             <el-input
                 size="mini"
                 v-model="newDataForm[scope.row.tableIndex]['actual_payment']"
-                v-if="tableOrderRoleStatus.actual_payment.read"
+                v-if="tableOrderRoleStatus['actual_payment']['read']"
                 :placeholder="scope.row.actual_payment"
                 @blur="openEditInput(scope.row,'actual_payment',scope.row.actual_payment,newDataForm[scope.row.tableIndex]['actual_payment'])">
             </el-input>

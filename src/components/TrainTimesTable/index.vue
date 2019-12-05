@@ -87,23 +87,23 @@
           label="误餐费">
       </el-table-column>
       <el-table-column
-          v-if="tableRoleStatus.refund_fee.show"
+          v-if="tableRoleStatus['refund_fee']['show']"
           show-overflow-tooltip
           width="80"
           label="退票款">
         <template slot-scope="scope">
           <el-input
               size="mini"
-              v-model="newDataForm[scope.row.tableIndex].refund_fee"
-              v-if="tableModify === 'edit' && tableRoleStatus.refund_fee.read"
-              :placeholder="scope.row.refund_fee"
-              @blur="loseFcous(tableData, scope.row, 'refund_fee', scope.row.refund_fee,newDataForm[scope.row.tableIndex].refund_fee)">
+              v-model="newDataForm[scope.row.tableIndex]['refund_fee']"
+              v-if="tableModify === 'edit' && tableRoleStatus['refund_fee']['read']"
+              :placeholder="scope.row['refund_fee']"
+              @blur="loseFcous(tableData, scope.row, 'refund_fee', scope.row['refund_fee'],newDataForm[scope.row.tableIndex]['refund_fee'])">
           </el-input>
-          <span style="margin-left: 10px" v-else>{{scope.row.refund_fee}}</span>
+          <span style="margin-left: 10px" v-else>{{scope.row['refund_fee']}}</span>
         </template>
       </el-table-column>
       <el-table-column
-          v-if="tableRoleStatus.ticket_fare.show"
+          v-if="tableRoleStatus['ticket_fare']['show']"
           show-overflow-tooltip
           width="80"
           label="出票费">
@@ -111,7 +111,7 @@
           <el-input
               size="mini"
               v-model="newDataForm[scope.row.tableIndex].ticket_fare"
-              v-if="tableModify === 'edit' && tableRoleStatus.ticket_fare.read"
+              v-if="tableModify === 'edit' && tableRoleStatus['ticket_fare']['read']"
               :placeholder="scope.row.ticket_fare"
               @blur="loseFcous(tableData, scope.row, 'ticket_fare', scope.row.ticket_fare,newDataForm[scope.row.tableIndex].ticket_fare)">
           </el-input>
@@ -119,7 +119,7 @@
         </template>
       </el-table-column>
       <el-table-column
-          v-if="tableRoleStatus.ticket_status.show"
+          v-if="tableRoleStatus['ticket_status']['show']"
           show-overflow-tooltip
           width="80"
           label="车票状态">
@@ -132,7 +132,7 @@
         </template>
       </el-table-column>
       <el-table-column
-          v-if="tableRoleStatus.db_auftragsnummer.show"
+          v-if="tableRoleStatus['db_auftragsnummer']['show']"
           show-overflow-tooltip
           width="130"
           label="取票号">
@@ -140,7 +140,7 @@
           <el-input
               size="mini"
               v-model="newDataForm[scope.row.tableIndex].db_auftragsnummer"
-              v-if="tableModify === 'edit' && tableRoleStatus.db_auftragsnummer.read"
+              v-if="tableModify === 'edit' && tableRoleStatus['db_auftragsnummer']['read']"
               :placeholder="scope.row.db_auftragsnummer"
               @blur="loseFcous(tableData, scope.row, 'db_auftragsnummer', scope.row.db_auftragsnummer,newDataForm[scope.row.tableIndex].db_auftragsnummer)">
           </el-input>
@@ -170,14 +170,14 @@
       </el-table-column>
       <el-table-column
           show-overflow-tooltip
-          v-if="tableRoleStatus.payment_account.show"
+          v-if="tableRoleStatus['payment_account']['show']"
           v-show="showTableRows"
           label="支付账号">
         <template slot-scope="scope">
           <el-input
               size="mini"
               v-model="newDataForm[scope.row.tableIndex].payment_account"
-              v-if="tableModify === 'edit' && tableRoleStatus.payment_account.read"
+              v-if="tableModify === 'edit' && tableRoleStatus['payment_account']['read']"
               :placeholder="scope.row.payment_account"
               @blur="loseFcous(tableData, scope.row, 'payment_account', scope.row.payment_account,newDataForm[scope.row.tableIndex].payment_account)">
           </el-input>
@@ -186,7 +186,7 @@
       </el-table-column>
       <el-table-column
           show-overflow-tooltip
-          v-if="tableRoleStatus.payment_flow_number.show"
+          v-if="tableRoleStatus['payment_flow_number']['show']"
           v-show="showTableRows"
           label="支付流水号">
         <template slot-scope="scope">
@@ -194,14 +194,14 @@
               size="mini"
               v-model="newDataForm[scope.row.tableIndex].payment_flow_number"
               :placeholder="scope.row.payment_flow_number"
-              v-if="tableModify === 'edit' && tableRoleStatus.payment_flow_number.read"
+              v-if="tableModify === 'edit' && tableRoleStatus['payment_flow_number']['read']"
               @blur="loseFcous(tableData, scope.row, 'payment_flow_number', scope.row.payment_flow_number,newDataForm[scope.row.tableIndex].payment_flow_number)">
           </el-input>
           <span v-else>{{scope.row.payment_flow_number}}</span>
         </template>
       </el-table-column>
       <el-table-column
-          v-if="tableRoleStatus['12306_account'].show"
+          v-if="tableRoleStatus['12306_account']['show']"
           show-overflow-tooltip
           v-show="showTableRows"
           label="12306账号">
@@ -209,7 +209,7 @@
           <el-input
               size="mini"
               v-model="newDataForm[scope.row.tableIndex].account"
-              v-if="tableModify === 'edit' && tableRoleStatus['12306_account'].read"
+              v-if="tableModify === 'edit' && tableRoleStatus['12306_account']['read']"
               :placeholder="scope.row.account"
               @blur="loseFcous(tableData, scope.row, 'account', scope.row.account,newDataForm[scope.row.tableIndex].account)">
           </el-input>
@@ -218,14 +218,14 @@
       </el-table-column>
       <el-table-column
           show-overflow-tooltip
-          v-if="tableRoleStatus['12306_account'].show"
+          v-if="tableRoleStatus['12306_account']['show']"
           v-show="showTableRows"
           label="12306密码">
         <template slot-scope="scope">
           <el-input
               size="mini"
               v-model="newDataForm[scope.row.tableIndex].password"
-              v-if="tableModify === 'edit' && tableRoleStatus['12306_account'].read"
+              v-if="tableModify === 'edit' && tableRoleStatus['12306_account']['read']"
               :placeholder="scope.row.password"
               @blur="loseFcous(tableData, scope.row, 'password', scope.row.password,newDataForm[scope.row.tableIndex].password)">
           </el-input>

@@ -5,12 +5,12 @@
       <el-image class="main_title" :src="loginLogo"/>
       <form>
         <el-input class="login_input" placeholder="请输入用户名" v-model="userName"/>
-        <el-input class="login_input" placeholder="请输入密码" show-password v-model="userPassword"/>
+        <el-input class="login_input" placeholder="请输入密码" show-password v-model="userPassword" @keyup.enter.native="submitLogin()"/>
       </form>
 
       <el-checkbox v-model="passwordChecked" class="login_checked">记住密码</el-checkbox>
 
-      <div class="login_submit" v-loading="loading" @click="submitLogin">登录</div>
+      <el-button class="login_submit" v-loading="loading" :disabled="loading"  @click="submitLogin">登录</el-button>
 
     </div>
   </div>
@@ -44,10 +44,13 @@
       */
       this.$store.state.showHeader = false
 
-      localStorage.clear();
-      sessionStorage.clear();
     },
     methods:{
+      /**
+       * @Description: 登录按钮
+       * @author Wish
+       * @date 2019/10/4
+      */
       submitLogin(){
         let _this = this;
         // 判断输入状态
@@ -76,8 +79,8 @@
           _this.$message.warning('请填写完整您的登录信息')
         }
 
-
       },
+
       // 设置cookie
       setCookie(c_name, c_pwd, exdays) {
         let exdate = new Date(); //获取时间
@@ -170,6 +173,9 @@
       }
 
       .login_submit{
+        width: 100%;
+        border: none;
+        padding: unset;
         display: flex;
         align-items: center;
         justify-content: center;

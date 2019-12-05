@@ -110,8 +110,8 @@
       <el-form class="user_form" ref="form" label-width="120px">
         <el-form-item label="用户类型">
           <el-select v-model="userInfo.type" @change="selectUserType" placeholder="请选择账户类型">
-            <el-option label="内部账号" value="0"></el-option>
-            <el-option label="客户商账号" value="1"></el-option>
+            <el-option label="内部账号" value="0"/>
+            <el-option label="客户商账号" value="1"/>
           </el-select>
         </el-form-item>
         <el-form-item label="用户名">
@@ -138,12 +138,14 @@
         </el-form-item>
         <el-form-item label="联系方式">
           <el-input
+              maxlength="11"
+              show-word-limit
               v-model="userInfo.contact">
           </el-input>
         </el-form-item>
 
         <el-form-item label="选择角色">
-          <el-select clearable v-model="roleCheckList" multiple placeholder="请选择">
+          <el-select clearable v-model="roleCheckList" placeholder="请选择">
             <el-option
                 v-for="item in roleList"
                 :key="item.role_id"
@@ -154,31 +156,26 @@
         </el-form-item>
 
         <el-form-item label="所属旅行社" v-if="userInfo.type === '1'">
-          <el-select v-model="travelAgencyType" placeholder="请选择所属旅行社">
-            <el-option label="旅行社1" value="0"></el-option>
-            <el-option label="旅行社2" value="1"></el-option>
-            <el-option label="旅行社3" value="2"></el-option>
-            <el-option label="旅行社4" value="3"></el-option>
-            <el-option label="旅行社5" value="4"></el-option>
-            <el-option label="旅行社6" value="5"></el-option>
+          <el-select v-model="userInfo.pertTravel" placeholder="请选择所属旅行社">
+            <el-option v-for="(item,index) in customerList" :key="index" :label="item.name" :value="item.identity"/>
           </el-select>
         </el-form-item>
 
-        <el-form-item label="所属组">
-          <el-cascader-panel
-              @change="cascaderClick"
-              v-model="groupCheckList"
-              :options="groupList"
-              :show-all-levels="false"
-              :props="{
-                multiple: true,
-                checkStrictly: true,
-                label:'group_name',
-                children:'subGroup',
-                value:'id',
-                emitPath: false,}">
-          </el-cascader-panel>
-        </el-form-item>
+<!--        <el-form-item label="所属组">-->
+<!--          <el-cascader-panel-->
+<!--              @change="cascaderClick"-->
+<!--              v-model="groupCheckList"-->
+<!--              :options="groupList"-->
+<!--              :show-all-levels="false"-->
+<!--              :props="{-->
+<!--                multiple: true,-->
+<!--                checkStrictly: true,-->
+<!--                label:'group_name',-->
+<!--                children:'subGroup',-->
+<!--                value:'id',-->
+<!--                emitPath: false,}">-->
+<!--          </el-cascader-panel>-->
+<!--        </el-form-item>-->
         <el-form-item>
           <el-button type="primary" @click="submitBtn">保存</el-button>
         </el-form-item>
@@ -213,11 +210,13 @@
         userInfo: {},  // 用户详细信息
         formLoading: false, // 用户详细信息加载
 
-        roleCheckList: [], // 角色选中列表
+        roleCheckList: '', // 角色选中列表
         roleList: [], // 角色列表
 
         groupCheckList: [], // 组选中列表
         groupList: [], // 组列表
+
+        customerList: [], // 客户商列表
 
         travelAgencyType: '', // 所属旅行社
         showTravelAgency: false, // 显示旅行社选项
@@ -245,8 +244,27 @@
                 this.loading = false;
                 this.userData = res.data.result.data
                 this.paginationList = res.data.result
+                this.getRoleData();
+                this.getGroupData()
+                this.getCustomer()
               }
             })
+      },
+
+      /**
+       * @Description: 获取客户商列表
+       * @author Wish
+       * @date 2019/12/5
+      */
+      getCustomer(){
+        this.$axios.get('/api/user/customer/showAll')
+        .then(res =>{
+          if(res.data.code === 0){
+            this.customerList = res.data.result
+          }else {
+            this.$message.warning(res.data.msg)
+          }
+        })
       },
 
       /**
@@ -291,7 +309,7 @@
       */
       closeData(){
         this.userInfo = {}
-        this.roleCheckList = []
+        this.roleCheckList = ''
         this.groupCheckList = []
         this.userId = ''
       },
@@ -316,15 +334,14 @@
 
                   this.formLoading = false;
                   this.userInfo = res.data.result[0]
-                  this.userInfo.type = this.userInfo.type === 0?'内部账号':'客户商账号'
+                  this.userInfo.type = String(this.userInfo.type)
+                  this.userInfo['pertTravel'] = this.userInfo.customer_mark?this.userInfo.customer_mark:''
                   if(this.userInfo.groups){
                     this.userInfo.groups.map(item =>{
                       this.groupCheckList.push(item.id)
                     })
                   }
-                  if(this.userInfo.role_id){
-                    this.roleCheckList.push(this.userInfo.role_id)
-                  }
+                  this.roleCheckList = this.userInfo.role_id?this.userInfo.role_id: ''
 
                 }else {
                   this.$message.warning(res.data.msg)
@@ -435,6 +452,7 @@
        * @date 2019/9/29
       */
       submitBtn(){
+        console.log(this.userInfo);
         this.userInfo['pertGroups'] = String(this.groupCheckList)
         this.userInfo['role_id'] = String(this.roleCheckList)
         if(this.addUserInfoStatic){  // 新增
@@ -453,7 +471,7 @@
         }else {  // 编辑
           this.userInfo['condition'] = this.userInfo.target
           delete this.userInfo['target']
-          this.userInfo.type = JSON.parse(JSON.stringify(this.userInfo.type === '内部账号'?'0':'1'))
+          this.userInfo.type = JSON.parse(JSON.stringify(this.userInfo.type))
           this.$axios.post('/api/user/modifyAccount',this.userInfo)
               .then(res =>{
                 if(res.data.code === 0){
@@ -489,8 +507,6 @@
     },
     created() {
       this.getData();
-      this.getRoleData();
-      this.getGroupData()
     }
   }
 </script>

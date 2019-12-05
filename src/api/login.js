@@ -50,6 +50,7 @@ export function userExit() {
     router.push({ path: '/login' });
     localStorage.clear();
     sessionStorage.clear();
+
   }).catch(err => {
     Message.error(err);
   });

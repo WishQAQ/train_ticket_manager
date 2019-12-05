@@ -71,10 +71,6 @@
         navDrawerHeight: '', //
       }
     },
-    mounted(){
-      this.newrouter = this.$store.state.newrouter
-      console.log(this.newrouter);
-    },
     methods:{
       // 跳转首页
       getHomeBtn(){
@@ -126,9 +122,7 @@
         this.isIndexActive = true
         this.navDrawer = false
         if(this.$route.path !== val.path){
-          this.$router.push({
-            path: val.path
-          })
+          this.$routerTab.open(val.path)
         }
       },
 
@@ -143,14 +137,10 @@
         this.$router.push({
           name: 'login'
         })
+        userExit()
         this.$axios.get('/api/user/exit')
             .then(res =>{
-              if(res.data.code === 0){
-                userExit()
-                this.$message.success('退出成功')
-              }else {
-                this.$message.warning(res.data.msg)
-              }
+
             })
       },
 
@@ -173,6 +163,7 @@
 
     },
     created() {
+      this.newrouter = this.$store.state.newrouter
       bus.$on('tabName',function (val) {
         this.tabMenuName = val
       })
@@ -205,7 +196,6 @@
   .nav{
     display: flex;
     align-items: center;
-    justify-content: space-between;
     height: 60px;
     padding: 0 30px;
     background:rgba(38,153,251,1);
@@ -219,6 +209,7 @@
       height: 100%;
       line-height: 60px;
       flex-shrink: 0;
+      margin-right: 20px;
     }
 
     .nav_menu{
@@ -302,6 +293,7 @@
       cursor: pointer;
       height: 100%;
       flex-shrink: 0;
+      margin-left: auto;
       .nav_message{
         width: 100%;
         height: 100%;
