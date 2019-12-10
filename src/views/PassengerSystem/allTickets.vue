@@ -40,6 +40,7 @@
     </div>
     <div class="ticket_main">
       <el-table
+          stripe
           :data="ticketData"
           @select="tableSelect"
           @select-all="tableSelect"
@@ -50,9 +51,9 @@
             width="40">
         </el-table-column>
         <el-table-column
-            label="序号"
+            label="序"
             align="center"
-            width="50px">
+            width="55px">
           <template slot-scope="scope">
             {{scope.$index+1}}
           </template>
@@ -73,6 +74,8 @@
         </el-table-column>
         <el-table-column
             width="110"
+            sortable
+            prop="riding_time"
             label="行程时间">
           <template slot-scope="scope">
             {{$getTimeYear(scope.row.riding_time * 1000)}}
@@ -161,18 +164,32 @@
           </template>
         </el-table-column>
         <el-table-column
+            show-overflow-tooltip
             v-if="rulType === '1'"
             prop="remarks"
-            label="备注">
+            label="乘客备注">
+        </el-table-column>
+        <el-table-column
+            show-overflow-tooltip
+            v-if="rulType === '1'"
+            prop="order_remarks"
+            label="订单备注">
         </el-table-column>
       </el-table>
       <div class="table_bottom">
-        <Pagination
-            ref="pagination"
-            :pageData="paginationList"
-            @jumpSize="jumpSize"
-            @jumpPage="jumpPage">
-        </Pagination>
+        <div class="customize_pagination">
+          <el-input style="width: 95px;margin-right: 5px;" size="mini" placeholder="自定义条数" v-model="customizeSize"/>
+          <el-button style="margin-right: 10px" size="mini" type="text" @click="customizeSizeBtn(customizeSize)">确定</el-button>
+          <Pagination
+              ref="pagination"
+              :customizeSize="customizeNum"
+              :pageSize="pageSize"
+              :pageData="paginationList"
+              @jumpSize="jumpSize"
+              @jumpPage="jumpPage">
+          </Pagination>
+        </div>
+
         <el-dropdown trigger="click">
           <el-button>导出</el-button>
           <el-dropdown-menu slot="dropdown">
@@ -216,8 +233,11 @@
         selectUserId: [], // 多选
 
         paginationList: {},
-        per_page: 10,
+        per_page: 30,
         page: '',
+        pageSize: [this.customizeNum || 30],
+        customizeSize: 30,
+        customizeNum: null,
       }
     },
     methods:{
@@ -235,6 +255,13 @@
               this.paginationList = res.data.result
               this.loading = false
             })
+      },
+
+      customizeSizeBtn(val){
+        this.per_page = val>0?parseInt(val):30
+        this.customizeNum =  val>0?parseInt(val):30
+        this.page = 1
+        this.getData()
       },
 
       /**
@@ -396,7 +423,6 @@
       }
     }
     .ticket_main{
-      font-weight: bold;
       /deep/.el-table{
         font-size: 14px;
         color: #000;
@@ -412,6 +438,13 @@
       display: flex;
       align-items: flex-end;
       justify-content: space-between;
+      .customize_pagination{
+        display: flex;
+        align-items: flex-end;
+        /deep/.el-pagination__sizes{
+          display: none;
+        }
+      }
     }
   }
 </style>

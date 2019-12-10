@@ -2,12 +2,13 @@
   <div class="statement" v-loading="loading">
     <div class="table_header">
       <div>
-        <el-input clearable v-model="searchOrder" plcaeholder="请输入对账单号"/></div>
+        <el-input clearable v-model="searchOrder" placeholder="请输入对账单号"/></div>
       <el-button @click="searchBtn">搜索</el-button>
     </div>
     <div class="table_main">
       <el-table
           :data="tableData"
+          stripe
           border
           @row-dblclick="handledTable"
           style="width: 100%">
@@ -33,7 +34,7 @@
         </el-table-column>
         <el-table-column
             prop="address"
-            width="150"
+            width="200"
             show-overflow-tooltip
             label="客户">
           <template slot-scope="scope">
@@ -64,8 +65,8 @@
             show-overflow-tooltip
             label="对账状态">
           <template slot-scope="scope">
-            <span v-if="scope.row.status === 0" style="color: red">清账中</span>
-            <span v-if="scope.row.status === 1" style="color: green">已清账</span>
+            <span v-if="scope.row.reconciliationDebtRoute === '0.00'" style="color: green">已清账</span>
+            <span v-else style="color: red">清账中</span>
           </template>
         </el-table-column>
 

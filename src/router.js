@@ -39,7 +39,7 @@ export function powerRouterLazy(name) {
       return {path: '/orderSystem', name: 'orderSystem',component: Frame,children: [
           {path: '/orderManagement', name: 'orderManagement', component: importPage('OrderSystem/orderManagement'),meta:{name: '订单管理',hidden: false,title: '订单管理',aliveId: 'orderManagement'}},  // 订单管理
           {path: '/orderDetails', name: 'orderDetails', component: importPage('OrderSystem/orderDetails'),meta:{name: '订单详情',hidden: true,title: '订单详情',aliveId: 'orderDetails'}},  // 订单详情
-          {path: '/addOrder', name: 'addOrder', component: importPage('OrderSystem/orderDetails'),meta:{name: '新增订单',hidden: true,title: '新增订单',aliveId: 'addOrder'}},  // 新增订单
+          {path: '/addOrder', name: 'addOrder', component: importPage('OrderSystem/orderDetails'),meta:{name: '新增订单',hidden: false,title: '新增订单',aliveId: 'addOrder'}},  // 新增订单
           {path: '/editOrder', name: 'editOrder', component: importPage('OrderSystem/orderDetails'),meta:{name: '订单编辑',hidden: true,title: '订单编辑',aliveId: 'editOrder'}},  // 订单编辑
           {path: '/historicalOrder', name: 'historicalOrder', component: importPage('OrderSystem/orderManagement'),meta:{name: '历史订单查询',hidden: false,title: '历史订单查询',aliveId: 'historicalOrder'}},  // 历史订单查询
           {path: '/UnOrder', name: 'UnOrder', component: importPage('OrderSystem/orderManagement'),meta:{name: '不明订单',hidden: false,title: '不明订单',aliveId: 'UnOrder'}},  // 不明订单

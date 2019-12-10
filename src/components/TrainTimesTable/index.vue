@@ -1,6 +1,7 @@
 <template>
   <div class="">
     <el-table
+        stripe
         class="ticketPublicTable"
         @select="tableSelect"
         @select-all="tableSelect"
@@ -14,7 +15,7 @@
           width="40">
       </el-table-column>
       <el-table-column
-          label="序号"
+          label="序"
           align="center"
           width="50px">
         <template slot-scope="scope">
@@ -30,15 +31,44 @@
 <!--      </el-table-column>-->
       <el-table-column
           show-overflow-tooltip
-          min-width="280"
+          min-width="287"
           align="center"
           label="乘客信息+票种">
         <template slot-scope="scope">
-          <div>
-            <div>
-              <span>{{scope.row.name}}</span>
-              <span style="margin: 0 10px">{{scope.row.IDCard}}</span>
-              <span v-if="scope.row.ticket_species !== 0">{{scope.row.ticket_species === 0 ? '成人票': '儿童票'}}</span>
+          <div class="user_message">
+            <div v-if="tableRoleStatus.name.show">
+              <el-input
+                  style="width: 70px"
+                  size="mini"
+                  v-model="newDataForm[scope.row.tableIndex].name"
+                  v-if="tableModify === 'edit' && tableRoleStatus.name.read"
+                  :placeholder="scope.row.name"
+                  @blur="loseFcous(tableData, scope.row, 'name', scope.row.name,newDataForm[scope.row.tableIndex].name)">
+              </el-input>
+              <span v-else>{{scope.row.name}}</span>
+            </div>
+            <div v-if="tableRoleStatus.IDCard.show">
+              <el-input
+                  style="width: 135px"
+                  size="mini"
+                  v-model="newDataForm[scope.row.tableIndex].IDCard"
+                  v-if="tableModify === 'edit' && tableRoleStatus.IDCard.read"
+                  :placeholder="scope.row.IDCard"
+                  @blur="loseFcous(tableData, scope.row, 'IDCard', scope.row.IDCard,newDataForm[scope.row.tableIndex].IDCard)">
+              </el-input>
+              <span style="margin: 0 10px" v-else>{{scope.row.IDCard}}</span>
+            </div>
+            <div v-if="tableRoleStatus.ticket_species.show">
+              <el-select size="mini"
+                         @change="loseFcous(tableData, scope.row, 'ticket_species', scope.row.ticket_species,newDataForm[scope.row.tableIndex].ticket_species)"
+                         style="width: 68px"
+                         v-model="newDataForm[scope.row.tableIndex].ticket_species"
+                         :placeholder="scope.row.ticket_species === 0 ? '成人票': '儿童票'"
+                         v-if="tableModify === 'edit' && tableRoleStatus.ticket_species.read">
+                <el-option label="成人票" value="0"/>
+                <el-option label="儿童票" value="1"/>
+              </el-select>
+              <span v-else-if="scope.row.ticket_species !== 0">{{scope.row.ticket_species === 0 ? '成人票': '儿童票'}}</span>
             </div>
           </div>
         </template>
@@ -87,23 +117,23 @@
           label="误餐费">
       </el-table-column>
       <el-table-column
-          v-if="tableRoleStatus['refund_fee']['show']"
+          v-if="tableRoleStatus.refund_fee.show"
           show-overflow-tooltip
           width="80"
           label="退票款">
         <template slot-scope="scope">
           <el-input
               size="mini"
-              v-model="newDataForm[scope.row.tableIndex]['refund_fee']"
-              v-if="tableModify === 'edit' && tableRoleStatus['refund_fee']['read']"
-              :placeholder="scope.row['refund_fee']"
-              @blur="loseFcous(tableData, scope.row, 'refund_fee', scope.row['refund_fee'],newDataForm[scope.row.tableIndex]['refund_fee'])">
+              v-model="newDataForm[scope.row.tableIndex].refund_fee"
+              v-if="tableModify === 'edit' && tableRoleStatus.refund_fee.read"
+              :placeholder="scope.row.refund_fee"
+              @blur="loseFcous(tableData, scope.row, 'refund_fee', scope.row.refund_fee,newDataForm[scope.row.tableIndex].refund_fee)">
           </el-input>
-          <span style="margin-left: 10px" v-else>{{scope.row['refund_fee']}}</span>
+          <span style="margin-left: 10px" v-else>{{scope.row.refund_fee}}</span>
         </template>
       </el-table-column>
       <el-table-column
-          v-if="tableRoleStatus['ticket_fare']['show']"
+          v-if="tableRoleStatus.ticket_fare.show"
           show-overflow-tooltip
           width="80"
           label="出票费">
@@ -111,7 +141,7 @@
           <el-input
               size="mini"
               v-model="newDataForm[scope.row.tableIndex].ticket_fare"
-              v-if="tableModify === 'edit' && tableRoleStatus['ticket_fare']['read']"
+              v-if="tableModify === 'edit' && tableRoleStatus.ticket_fare.read"
               :placeholder="scope.row.ticket_fare"
               @blur="loseFcous(tableData, scope.row, 'ticket_fare', scope.row.ticket_fare,newDataForm[scope.row.tableIndex].ticket_fare)">
           </el-input>
@@ -119,10 +149,10 @@
         </template>
       </el-table-column>
       <el-table-column
-          v-if="tableRoleStatus['ticket_status']['show']"
+          v-if="tableRoleStatus.ticket_status.show"
           show-overflow-tooltip
-          width="80"
-          label="车票状态">
+          width="50"
+          label="状态">
         <template slot-scope="scope">
           <span v-if="scope.row.ticket_status === 0" style="color: red">未出票</span>
           <span v-if="scope.row.ticket_status === 1" style="color: green">已出票</span>
@@ -132,7 +162,7 @@
         </template>
       </el-table-column>
       <el-table-column
-          v-if="tableRoleStatus['db_auftragsnummer']['show']"
+          v-if="tableRoleStatus.db_auftragsnummer.show"
           show-overflow-tooltip
           width="130"
           label="取票号">
@@ -140,7 +170,7 @@
           <el-input
               size="mini"
               v-model="newDataForm[scope.row.tableIndex].db_auftragsnummer"
-              v-if="tableModify === 'edit' && tableRoleStatus['db_auftragsnummer']['read']"
+              v-if="tableModify === 'edit' && tableRoleStatus.db_auftragsnummer.read"
               :placeholder="scope.row.db_auftragsnummer"
               @blur="loseFcous(tableData, scope.row, 'db_auftragsnummer', scope.row.db_auftragsnummer,newDataForm[scope.row.tableIndex].db_auftragsnummer)">
           </el-input>
@@ -149,7 +179,7 @@
       </el-table-column>
       <el-table-column
           show-overflow-tooltip
-          min-width="100"
+          width="122"
           v-if="showTableRows"
           label="出票时间">
         <template slot-scope="scope">
@@ -169,15 +199,15 @@
         </template>
       </el-table-column>
       <el-table-column
+          width="200"
           show-overflow-tooltip
-          v-if="tableRoleStatus['payment_account']['show']"
-          v-show="showTableRows"
+          v-if="tableRoleStatus.payment_account.show && showTableRows"
           label="支付账号">
         <template slot-scope="scope">
           <el-input
               size="mini"
               v-model="newDataForm[scope.row.tableIndex].payment_account"
-              v-if="tableModify === 'edit' && tableRoleStatus['payment_account']['read']"
+              v-if="tableModify === 'edit' && tableRoleStatus.payment_account.read"
               :placeholder="scope.row.payment_account"
               @blur="loseFcous(tableData, scope.row, 'payment_account', scope.row.payment_account,newDataForm[scope.row.tableIndex].payment_account)">
           </el-input>
@@ -185,31 +215,31 @@
         </template>
       </el-table-column>
       <el-table-column
+          width="200"
           show-overflow-tooltip
-          v-if="tableRoleStatus['payment_flow_number']['show']"
-          v-show="showTableRows"
-          label="支付流水号">
+          v-if="tableRoleStatus.payment_flow_number.show && showTableRows"
+          label="支付流水">
         <template slot-scope="scope">
           <el-input
               size="mini"
               v-model="newDataForm[scope.row.tableIndex].payment_flow_number"
               :placeholder="scope.row.payment_flow_number"
-              v-if="tableModify === 'edit' && tableRoleStatus['payment_flow_number']['read']"
+              v-if="tableModify === 'edit' && tableRoleStatus.payment_flow_number.read"
               @blur="loseFcous(tableData, scope.row, 'payment_flow_number', scope.row.payment_flow_number,newDataForm[scope.row.tableIndex].payment_flow_number)">
           </el-input>
           <span v-else>{{scope.row.payment_flow_number}}</span>
         </template>
       </el-table-column>
       <el-table-column
-          v-if="tableRoleStatus['12306_account']['show']"
+          width="200"
+          v-if="tableRoleStatus['12306_account'].show && showTableRows"
           show-overflow-tooltip
-          v-show="showTableRows"
-          label="12306账号">
+          label="1230账号">
         <template slot-scope="scope">
           <el-input
               size="mini"
               v-model="newDataForm[scope.row.tableIndex].account"
-              v-if="tableModify === 'edit' && tableRoleStatus['12306_account']['read']"
+              v-if="tableModify === 'edit' && tableRoleStatus['12306_account'].read"
               :placeholder="scope.row.account"
               @blur="loseFcous(tableData, scope.row, 'account', scope.row.account,newDataForm[scope.row.tableIndex].account)">
           </el-input>
@@ -217,15 +247,15 @@
         </template>
       </el-table-column>
       <el-table-column
+          width="200"
           show-overflow-tooltip
-          v-if="tableRoleStatus['12306_account']['show']"
-          v-show="showTableRows"
-          label="12306密码">
+          v-if="tableRoleStatus['12306_account'].show && showTableRows"
+          label="1230密码">
         <template slot-scope="scope">
           <el-input
               size="mini"
               v-model="newDataForm[scope.row.tableIndex].password"
-              v-if="tableModify === 'edit' && tableRoleStatus['12306_account']['read']"
+              v-if="tableModify === 'edit' && tableRoleStatus['12306_account'].read"
               :placeholder="scope.row.password"
               @blur="loseFcous(tableData, scope.row, 'password', scope.row.password,newDataForm[scope.row.tableIndex].password)">
           </el-input>
@@ -235,7 +265,7 @@
       <el-table-column
           width="80"
           fixed="right"
-          v-if="tableModify === 'details'"
+          v-if="tableModify !== 'add' && roleType === 0"
           label="操作">
         <template slot-scope="scope">
           <el-dropdown trigger="click">
@@ -288,6 +318,8 @@
     },
     data(){
       return {
+        roleType: parseInt(sessionStorage.getItem('TYPE')),
+
         completeData: [],
         userIdList: [],
 
@@ -303,7 +335,8 @@
     // },
     beforeMount() {
       this.dataReorganization()
-      console.log(this.tableData);
+      // console.log(this.tableData);
+      // console.log(this.tableRoleStatus);
     },
     methods: {
       /**
@@ -316,6 +349,8 @@
         this.tableData.forEach((item,index) =>{
           this.tableData[index]['tableIndex'] = index
           this.newDataForm.push({
+            name: '',
+            IDCard: '',
             refund_fee: '',  // 退票款
             ticket_fare: '', // 出票费
             db_auftragsnummer: '', // 取票号
@@ -324,6 +359,7 @@
             payment_flow_number: '', // 支付流水号
             account: '', // 12306账号
             password: '', // 12306密码
+            ticket_species: '', // 票类
           })
         })
       },
@@ -363,13 +399,26 @@
        * @date 2019/11/18
       */
       loseFcous(orderData, data, rowName, row, newRow) {
-        console.log(rowName,newRow);
         if(rowName === 'ticketing_time'){
           newRow = String(newRow) === '0'? '': newRow
+        }else if(rowName === 'ticket_species'){
+          row = String(row)
         }
+        console.log(row,newRow);
+
         if(row !== newRow && newRow !== ''){
-          console.log(newRow);
-          this.$emit('tableRowsData', this.orderInfo, data, rowName, newRow )
+          if(row){
+            this.$confirm('系统检测到当前输入框已有默认值为：'+ row +' , 是否将其修改为：'+ newRow, '提示', {
+              confirmButtonText: '确定',
+              cancelButtonText: '取消',
+              type: 'warning'
+            }).then(() => {
+              this.$emit('tableRowsData', this.orderInfo, data, rowName, newRow )
+            }).catch(() => {
+            });
+          } else {
+            this.$emit('tableRowsData', this.orderInfo, data, rowName, newRow )
+          }
         }
       },
 
@@ -396,8 +445,28 @@
 
 <style scoped lang="less">
   /deep/.ticketPublicTable{
+    /*.el-input{*/
+    /*  .el-input__inner{*/
+    /*    border: unset;*/
+    /*  }*/
+    /*}*/
+    font-size: 12px;
+    th{
+      padding: 5px 0;
+    }
+    td{
+      padding: 2px 0;
+      color: black;
+      >.cell{
+        padding: unset;
+      }
+    }
+    .user_message{
+      display: flex;
+      align-items: center;
+    }
     .editTimeInput{
-      width: 100px;
+      width: 120px;
       .el-input__inner{
         padding-right: unset;
         padding-left: 28px !important;
@@ -408,7 +477,7 @@
         padding-left: 5px;
         padding-right: unset;
         &::placeholder{
-          color: #000;
+          /*color: #000;*/
         }
       }
     }

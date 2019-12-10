@@ -198,6 +198,7 @@
         <el-table
             :data="tableData.rows"
             border
+            stripe
             style="width: 100%">
           <el-table-column
               label="序号"

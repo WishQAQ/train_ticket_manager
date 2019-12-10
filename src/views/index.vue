@@ -42,8 +42,8 @@
         </div>
       </div>
       <div class="right_main">
-        <note ref="note" v-if="true"/>
-        <notice v-if="true"/>
+        <note ref="note" v-if="roleType === 0"/>
+        <notice  ref="notice"/>
       </div>
     </div>
 
@@ -80,6 +80,8 @@
     },
     data(){
       return {
+        roleType: parseInt(sessionStorage.getItem('TYPE')),
+
         dLoading: true,  // 加载文档
         nLoading: true,  // 加载新闻
         fastList: [{  // 快捷入口
@@ -125,7 +127,8 @@
           this.$message.success('刷新成功，正在获取最新数据')
           this.getDocumentData()
           this.getNewData()
-          this.$refs.note.getData()
+          this.roleType === 0?this.$refs.note.getData(): null
+          this.roleType === 1?this.$refs.notice.getData(): null
           this.refreshStatus = true
           setTimeout(() =>{
             this.isClick = false

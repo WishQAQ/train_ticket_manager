@@ -2,12 +2,13 @@
   <div class="helpDocument" v-loading="loading">
     <div class="help_main">
       <div class="table_header">
-        <el-input v-model="searchInput" placeholder="输入关键字搜索"></el-input>
+        <el-input v-model="searchInput" placeholder="输入关键字搜索"/>
         <el-button type="primary" @click="searchBtn">搜索</el-button>
-        <el-button type="primary" @click="addDialogBtn">新增</el-button>
+        <el-button type="primary" @click="addDialogBtn" v-if="roleType === 0">新增</el-button>
       </div>
       <div class="table_main">
         <el-table
+            stripe
             :data="helpTableData"
             border
             style="width: 100%">
@@ -53,6 +54,7 @@
             </template>
           </el-table-column>
           <el-table-column
+              v-if="roleType === 0"
               label="操作"
               width="80">
             <template slot-scope="scope">
@@ -284,6 +286,8 @@
     name: "document",
     data(){
       return {
+        roleType: parseInt(sessionStorage.getItem('TYPE')),
+
         viewAddressType: '',
 
         loading: true,

@@ -1,12 +1,13 @@
 <template>
   <el-pagination
+      v-if="showPagination"
       background
       class="table_pagination"
       @size-change="handleSizeChange"
       @current-change="handleCurrentChange"
-      :page-sizes="[10, 15, 20, 25]"
+      :page-sizes="page_size"
       :current-page.sync="paginationList.current_page"
-      layout="total, sizes, prev, pager, next"
+      :layout="layout"
       :total="paginationList.total">
   </el-pagination>
 </template>
@@ -14,11 +15,34 @@
 <script>
   export default {
     name: "index",
-    props: ['pageData'],
+    props: {
+      pageData: {
+        type: Object,
+        default: () => {},
+      },
+      pageSize: {
+        type: Array,
+        default: () => [10, 15, 20, 25]
+      },
+      layout: {
+        type: String,
+        default: () => "total, sizes, prev, pager, next",
+      },
+      customizeSize: {
+        type: Number,
+        default: () => null,
+      },
+    },
     watch:{
       pageData(val, oldVal){
-        if(val !== oldVal){
-          this.paginationList = this.pageData
+        this.paginationList = this.pageData
+        this.page_size = this.pageSize
+        if(this.customizeSize){
+          this.showPagination = false
+          this.$nextTick(() => {
+            this.pageSize[0] = this.customizeSize
+            this.showPagination = true
+          })
         }
       }
     },
@@ -27,10 +51,22 @@
         paginationList: {},  // 分页数据
         per_page: 10,
         page: '',
+        showPagination: true,
+        page_size: [],
       }
     },
     mounted(){
       this.paginationList = this.pageData
+      this.page_size = this.pageSize
+
+      this.showPagination = false
+      this.$nextTick(() => {
+        if(this.customizeSize){
+          this.pageSize[0] = this.customizeSize
+        }
+        this.showPagination = true
+      })
+
     },
     methods:{
       /**

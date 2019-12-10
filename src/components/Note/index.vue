@@ -16,6 +16,7 @@
           :y="item.yAxis"
           :parentH="500"
           :isActive="item.id === noteId"
+          :style="{background: item.color}"
           :isResizable="false"
           :parentLimitation="true"
           @deactivated="onDeactivated"
@@ -56,7 +57,7 @@
           </el-form-item>
           <el-form-item label="内容">
             <el-input
-                maxlength="200"
+                maxlength="500"
                 show-word-limit
                 type="textarea"
                 :rows="10"
@@ -111,8 +112,8 @@
 
         showNote: false,
 
-        width: 135,
-        height: 160,
+        width: 260,
+        height: 290,
         xAxis: 0,
         yAxis: 0,
         noteId: '', // 便签Id
@@ -136,19 +137,27 @@
                 this.loading = false
                 this.showNote = true
                 this.noteData = res.data.result
+                this.noteData.forEach(item =>{
+                  let r = Math.floor(Math.random()*255);
+                  let g = Math.floor(Math.random()*255);
+                  let b = Math.floor(Math.random()*255);
+                  item['color'] = 'rgba('+ r +','+ g +','+ b +')'
+                })
+                console.log(this.noteData);
+
                 let boxWidth = parseInt(this.noteWidth) > 825? parseInt(this.noteWidth): 825
-                let noteBoxWidth = Math.floor((boxWidth / 140))
+                let noteBoxWidth = Math.floor((boxWidth / 275))
                 this.noteData.map((item,index) =>{  // 第一行
                   if(index < noteBoxWidth){
-                    item['xAxis'] = index* 140
+                    item['xAxis'] = index* 270
                   } else if(index >= noteBoxWidth && index < noteBoxWidth * 2){  // 第二行
                     let count = index - noteBoxWidth
-                    item['yAxis'] = 165
-                    item['xAxis'] = count* 140
+                    item['yAxis'] = 295
+                    item['xAxis'] = count* 270
                   } else if(index >= noteBoxWidth * 2 && index < noteBoxWidth * 3 ){ // 第三行
                     let count = index - noteBoxWidth * 2
-                    item['yAxis'] = 330
-                    item['xAxis'] = count* 140
+                    item['yAxis'] = 590
+                    item['xAxis'] = count* 270
                   }
                 })
 
@@ -268,7 +277,6 @@
     },
     mounted() {
       this.noteWidth = window.document.getElementById('note').clientWidth
-      console.log(this.noteWidth);
     },
     created() {
       this.getData()
@@ -310,7 +318,7 @@
     }
     .note_main_box{
       position: relative;
-      min-height: 500px;
+      min-height: 635px;
       overflow: hidden;
       .note_card{
         border-radius: 8px;
@@ -323,9 +331,10 @@
         cursor: move;
         box-shadow:0 2px 3px rgba(0,0,0,0.05);
         &.active{
-          width: 230px !important;
-          height: 275px !important;
-          background: #E5F3FF;
+
+          width: 320px !important;
+          height: 335px !important;
+          /*background: #E5F3FF !important;*/
           box-shadow:0 3px 6px rgba(0,0,0,0.1);
           z-index: 1 !important;
           &::before{
@@ -341,7 +350,7 @@
           }
         }
         .note_main{
-          opacity: .5;
+          /*opacity: .5;*/
           .note_header{
             display: flex;
             align-items: center;
@@ -350,24 +359,24 @@
             >p{
               flex: 1;
               font-size:14px;
-              color:rgba(38,153,251,1);
+              color: white;
               overflow: hidden;
               white-space: nowrap;
               text-overflow: ellipsis;
             }
             >span{
               cursor: pointer;
-              color:rgba(38,153,251,1);
+              color: white;
               flex-shrink: 0;
             }
           }
           .content{
             font-size:10px;
-            color:rgba(38,153,251,1);
+            color: white;
             text-align: justify;
             display: -webkit-box;
             overflow: hidden;
-            -webkit-line-clamp: 3;
+            -webkit-line-clamp: 8;
             -webkit-box-orient: vertical;
             margin-bottom: 10px;
             transition: all .3s;
@@ -377,7 +386,7 @@
           }
           .time,.user_name{
             font-size:10px;
-            color:rgba(38,153,251,1);
+            color: white;
           }
         }
 
@@ -386,7 +395,7 @@
           align-items: center;
           justify-content: space-between;
           font-size:14px;
-          color:rgba(38,153,251,1);
+          color: white;
           >p{
             cursor: pointer;
             display: inline-flex;
@@ -420,6 +429,7 @@
         max-height: 500px;
         min-height: 200px;
         overflow-y: auto;
+        white-space: pre-wrap;
       }
       .bottom{
         margin-top: 30px;

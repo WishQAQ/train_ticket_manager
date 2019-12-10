@@ -1,6 +1,7 @@
 <template>
   <div class="account" v-loading="loading">
     <el-table
+        stripe
         :data="tableData"
         border
         style="width: 100%">

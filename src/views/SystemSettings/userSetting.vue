@@ -27,6 +27,7 @@
       <div class="user_table">
         <el-table
             :data="userData"
+            stripe
             border
             ref="singleTable"
             highlight-current-row
@@ -300,6 +301,7 @@
         this.addUserInfoStatic = true
         this.$refs.singleTable.setCurrentRow();
         this.userInfo = {}
+        this.roleCheckList = ''
       },
 
       /**
@@ -518,7 +520,7 @@
     background:rgba(238,247,255,.5);
     .left_main{
       background-color: #fff;
-      flex: 1;
+      width: 60%;
       margin-right: 16px;
       padding: 60px 34px 30px;
       .left_header{
@@ -534,7 +536,7 @@
       }
     }
     .right_main{
-      flex: 1;
+      width: 40%;
       flex-shrink: 0;
       background: #fff;
       .right_header{

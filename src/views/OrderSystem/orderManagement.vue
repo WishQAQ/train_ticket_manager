@@ -1,61 +1,62 @@
 <template>
   <div class="orderManagement" v-loading="loading">
     <div class="table_header">
-      <div v-if="viewsType === 0"><el-button type="primary" @click="jumpDetailsBtn('add')">新增订单</el-button></div>
+
+<!--      <div v-if="viewsType === 0 && roleType === 0"><el-button type="primary" @click="jumpDetailsBtn('add')">新增订单</el-button></div>-->
 <!--      <div v-if="viewsType === 2"><el-button>批量还原</el-button></div>-->
       <div>
         <el-input clearable v-model="orderSearch.order" placeholder="订单号查询"/></div>
       <div>
-        <el-select v-model="orderSearch.order_status" placeholder="车票状态查询" clearable  @change="selectCustomer(orderSearch.customer)">
+        <el-select style="width: 120px" v-model="orderSearch.order_status" placeholder="车票状态" clearable  @change="selectCustomer(orderSearch.customer)">
           <el-option label="已处理" value="1"/>
           <el-option label="处理中" value="2"/>
         </el-select>
       </div>
-      <div>
-        <el-select v-model="orderSearch.customer" placeholder="客户选择" clearable  @change="selectCustomer(orderSearch.customer)">
-          <el-option v-for="item in client" :key="item.id" :label="item.name" :value="item.identity"/>
-        </el-select>
-      </div>
-      <div><el-date-picker
-          v-model="orderSearch.submitTime"
-          type="daterange"
-          range-separator="至"
-          start-placeholder="订单提交开始时间"
-          end-placeholder="订单提交结束时间">
-      </el-date-picker></div>
       <div><el-date-picker
           v-model="orderSearch.ridingTime"
           type="daterange"
           range-separator="至"
-          start-placeholder="行程开始时间"
-          end-placeholder="行程结束时间">
+          start-placeholder="行程开始"
+          end-placeholder="行程结束">
       </el-date-picker></div>
       <div>
-        <el-select v-model="orderSearch.issuer" placeholder="发单人选择" clearable>
-          <el-option v-for="item in issuerList" :key="item.id" :label="item.name" :value="item.id"/>
+        <el-input clearable style="width: 120px" v-model="orderSearch.departure" placeholder="发站查询"/></div>
+      <div>
+        <el-input clearable style="width: 120px" v-model="orderSearch.arrival" placeholder="到站查询"/></div>
+      <div>
+        <el-select style="width: 150px" v-model="orderSearch.customer" placeholder="客户选择" clearable  @change="selectCustomer(orderSearch.customer)">
+          <el-option v-for="item in client" :key="item.id" :label="item.name" :value="item.identity"/>
         </el-select>
       </div>
       <div>
-        <el-input clearable v-model="orderSearch.departure" placeholder="发站查询"/></div>
-      <div>
-        <el-input clearable v-model="orderSearch.arrival" placeholder="到站查询"/></div>
-      <div>
+        <el-select style="width: 120px" v-model="orderSearch.issuer" placeholder="发单人" clearable>
+          <el-option v-for="item in issuerList" :key="item.id" :label="item.name" :value="item.id"/>
+        </el-select>
+      </div>
+      <div v-if="roleType === 0">
         <el-select v-model="orderSearch.submitter" placeholder="提交人查询" clearable>
           <el-option v-for="item in companyAccount" :key="item.id" :label="item.nickname" :value="item.target"/>
         </el-select>
       </div>
-      <div>
+      <div v-if="roleType === 0">
         <el-select v-model="orderSearch.ticket_teller" placeholder="出票员查询" clearable>
           <el-option v-for="item in companyAccount" :key="item.id" :label="item.nickname" :value="item.target"/>
         </el-select>
       </div>
+      <div v-if="roleType === 0"><el-date-picker
+          v-model="orderSearch.submitTime"
+          type="daterange"
+          range-separator="至"
+          start-placeholder="订单提交"
+          end-placeholder="订单提交">
+      </el-date-picker></div>
 
-      <div><el-date-picker
+      <div v-if="roleType === 0"><el-date-picker
           v-model="orderSearch.remarkTime"
           type="daterange"
           range-separator="至"
-          start-placeholder="备注开始日期"
-          end-placeholder="备注结束日期">
+          start-placeholder="备注开始"
+          end-placeholder="备注结束">
       </el-date-picker></div>
       <div><el-button @click="getDataList('search')">搜索</el-button></div>
     </div>
@@ -66,7 +67,7 @@
           <div style="width: 60px;flex-shrink: 0;">
             <el-checkbox v-model="checkAll" @change="handleCheckAllChange"/>
           </div>
-          <div style="width: 180px;flex-shrink: 0;">订单号</div>
+          <div style="width: 130px;flex-shrink: 0;">订单号</div>
           <div style="width: 120px; flex-shrink: 0">行程时间</div>
           <div style="width: 165px;flex-shrink: 0">发站</div>
           <div style="width: 165px;flex-shrink: 0">到站</div>
@@ -75,8 +76,8 @@
           <div>发单人</div>
           <div style="width: 80px;flex-shrink: 0;">订单状态</div>
           <div style="width: 80px;flex-shrink: 0;">财务状态</div>
-          <div>备注信息</div>
-          <div style="width: 80px;flex-shrink: 0;">操作</div>
+          <div v-if="roleType === 0">备注信息</div>
+          <div style="width: 80px;flex-shrink: 0;" v-if="roleType === 0">操作</div>
         </div>
         <div class="content_main">
           <div :class="['main_list',{'is_top': item.is_top === 1}]" v-for="(item, index) in tableData" :key="index" @dblclick="doubleClickDetails(item)">
@@ -85,7 +86,7 @@
               <div class="list_num_checked" style="width: 60px" :style="{'height':item.info.length * 50 + 'px'}">
                 <el-checkbox :disabled="showAllChecked" ref="checkbox_box" @change="handleCheckChange(item)"/>
               </div>
-              <div style="width: 180px">{{item.order_sn}}</div>
+              <div style="width: 130px">{{item.order_sn}}</div>
             </div>
             <div class="list_main">
               <div class="list_box" v-for="(cItem, CIndex) in item.info" :key="CIndex">
@@ -104,7 +105,7 @@
                 <span v-if="item.order_status === 1" style="color: green">已处理</span>
               </div>
               <div style="width: 80px;flex-shrink: 0;">{{item.finance_status}}</div>
-              <div>
+              <div v-if="roleType === 0" style="font-size: 12px">
                 <p v-if="item.desc.is_important === 1">
                   <span class="important_remarks">{{item.desc.remarks}}</span>
                 </p>
@@ -112,7 +113,7 @@
                 <!--<span style="font-size: 10px; color: #bebebe">暂无重要备注</span>-->
               </div>
             </div>
-            <div class="option_box">
+            <div class="option_box" v-if="roleType === 0">
               <el-dropdown trigger="click">
                 <el-button size="mini">操作</el-button>
                 <el-dropdown-menu slot="dropdown">
@@ -137,12 +138,18 @@
 
 
       <div class="table_bottom">
-        <Pagination
-            ref="pagination"
-            :pageData="paginationList"
-            @jumpSize="jumpSize"
-            @jumpPage="jumpPage">
-        </Pagination>
+        <div class="customize_pagination">
+          <el-input style="width: 95px;margin-right: 5px;" size="mini" placeholder="自定义条数" v-model="customizeSize"/>
+          <el-button style="margin-right: 10px" size="mini" type="text" @click="customizeSizeBtn(customizeSize)">确定</el-button>
+          <Pagination
+              ref="pagination"
+              :customizeSize="customizeNum"
+              :pageData="paginationList"
+              :pageSize="pageSize"
+              @jumpSize="jumpSize"
+              @jumpPage="jumpPage">
+          </Pagination>
+        </div>
 
         <el-dropdown trigger="click">
           <el-button>导出</el-button>
@@ -217,6 +224,8 @@
     },
     data(){
       return {
+        roleType: parseInt(sessionStorage.getItem('TYPE')),
+
         loading: true,
         tableData: [],
         viewsType: 0, // 网页类型
@@ -237,6 +246,8 @@
         client: [], // 客户商列表
         issuerList: [], // 发单人列表
 
+        issuerAllList: [], // 所有发单人列表
+
         companyAccount: [], // 公司内部账号列表
 
         orderId: '', // 订单Id
@@ -256,8 +267,11 @@
         mergerOrder: '', // 选中订单
 
         paginationList: {},
-        per_page: 10,
+        per_page: 30,
         page: '',
+        pageSize: [this.customizeNum || 30],
+        customizeSize: 30, // 自定义条数
+        customizeNum: null
       }
     },
     methods:{
@@ -302,6 +316,21 @@
             .then(res =>{
               this.client = res.data.result;
             })
+        this.getIssuerData()
+      },
+      /**
+       * @Description: 获取所有发单人
+       * @author Wish
+       * @date 2019/12/7
+       */
+      getIssuerData(){
+        this.$axios.get('/api/user/issuer/showAll/1')
+            .then(res =>{
+              if(res.data.code === 0){
+                this.issuerAllList = res.data.result
+                this.issuerList = this.issuerAllList
+              }
+            })
       },
 
       /**
@@ -311,11 +340,17 @@
        */
       selectCustomer(val){
         this.orderSearch.issuer = ''
-        this.client.forEach(res =>{
-          if(res.identity === val){
-            this.issuerList = res.issuer
-          }
-        })
+
+        if(val){
+          this.client.forEach(res =>{
+            if(res.identity === val){
+              this.issuerList = res.issuer
+            }
+          })
+        }else {
+          this.issuerList = this.issuerAllList
+        }
+
       },
 
       /**
@@ -379,6 +414,13 @@
             })
       },
 
+      customizeSizeBtn(val){
+        this.per_page = val>0?parseInt(val):30
+        this.customizeNum =  val>0?parseInt(val):30
+        this.page = 1
+        this.getDataList()
+      },
+
       /**
        * @Description: 多选按钮
        * @author Wish
@@ -430,7 +472,18 @@
        * @date 2019/10/18
       */
       jumpDetailsBtn(type,val){
-        if(type === 'details'){
+        if(type === 'add'){
+          this.$routerTab.open({
+            path: '/addOrder', // 通过路由路径关闭页签，可 location 对象方式传入。如果未配置 id 和 path 则关闭当前页签
+            title: '新增订单',
+            match: false, // path 方式关闭时，是否匹配 path 完整路径，默认 true
+            force: false, // 是否强制关闭，默认 true
+            refresh: true, // 是否全新打开跳转地址 默认 false
+            query:{
+              type: 'add'
+            }
+          })
+        }else if(type === 'details'){
           this.$routerTab.open({
             path: '/orderDetails', // 通过路由路径关闭页签，可 location 对象方式传入。如果未配置 id 和 path 则关闭当前页签
             title: '订单详情',
@@ -452,18 +505,6 @@
               type: 'edit'
             }
           })
-        }else if(type === 'add'){
-          this.$routerTab.open({
-            path: '/addOrder', // 通过路由路径关闭页签，可 location 对象方式传入。如果未配置 id 和 path 则关闭当前页签
-            title: '新增订单',
-            match: false, // path 方式关闭时，是否匹配 path 完整路径，默认 true
-            force: false, // 是否强制关闭，默认 true
-            refresh: true, // 是否全新打开跳转地址 默认 false
-            query:{
-              type: 'add'
-            }
-          })
-
         }
       },
 
@@ -473,17 +514,19 @@
        * @date 2019/10/23
       */
       doubleClickDetails(val){
-        this.$routerTab.open({
-          path: '/orderDetails', // 通过路由路径关闭页签，可 location 对象方式传入。如果未配置 id 和 path 则关闭当前页签
-          title: '订单详情',
-          match: false, // path 方式关闭时，是否匹配 path 完整路径，默认 true
-          force: false, // 是否强制关闭，默认 true
-          refresh: true, // 是否全新打开跳转地址 默认 false
-          query:{
-            order_sn: val.order_sn,
-            type: 'details'
-          }
-        })
+        if(this.viewsType !== 2){
+          this.$routerTab.open({
+            path: '/orderDetails', // 通过路由路径关闭页签，可 location 对象方式传入。如果未配置 id 和 path 则关闭当前页签
+            title: '订单详情',
+            match: false, // path 方式关闭时，是否匹配 path 完整路径，默认 true
+            force: false, // 是否强制关闭，默认 true
+            refresh: true, // 是否全新打开跳转地址 默认 false
+            query:{
+              order_sn: val.order_sn,
+              type: 'details'
+            }
+          })
+        }
       },
 
       /**
@@ -524,14 +567,22 @@
        * @date 2019/10/17
       */
       editOrderType(val,type){
+        let deleteMessage = '此操作将移动该订单数据至回收站, 是否继续?'
+        let deleteTitle = '提示'
+        let messageType = 'warning'
+        if(val.is_include && type === 2){
+          deleteMessage = '当前订单含实收款，此操作将移动该订单数据至回收站, 是否继续?'
+          deleteTitle = '警告！当前订单含实收款'
+          messageType = 'error'
+        }
         this.$confirm(
             type === 1?'此操作会把所选订单修改为不明订单, 是否继续?':
-                type === 2?'此操作删除所选订单, 是否继续?':
+                type === 2?deleteMessage:
                     type === 0?'此操作会把所选订单还原为正常订单, 是否继续?':'',
-            '提示', {
+            deleteTitle, {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
-          type: 'warning'
+          type: messageType
         }).then(() => {
           this.loading = true
           let data = {
@@ -581,7 +632,6 @@
                 })
 
         }).catch(() => {});
-        console.log(val);
       },
 
       /**
@@ -749,6 +799,9 @@
       >div{
         margin-right: 15px;
         margin-bottom: 10px;
+        /deep/.el-date-editor{
+          width: 260px !important;
+        }
       }
     }
     .table_main{
@@ -787,6 +840,9 @@
             border-top: unset;
             width: 100%;
             transition: all .3s;
+            &:nth-child(2n){
+              background: #FAFAFA;
+            }
             &.is_top{
               position: relative;
               &::before{
@@ -820,7 +876,7 @@
                 min-height: 50px;
                 &:last-child{
                   color: #000;
-                  font-weight: bold;
+                  /*font-weight: bold;*/
                 }
 
               }
@@ -854,7 +910,7 @@
                   border-left: 1px solid #ebeef5;
                   padding: 0 5px;
                   color: #000;
-                  font-weight: bold;
+                  /*font-weight: bold;*/
                   &:last-child{
                     border-right: 1px solid #ebeef5;
                   }
@@ -865,7 +921,7 @@
               width: 100%;
               display: flex;
               align-items: center;
-              font-weight: bold;
+              /*font-weight: bold;*/
               color: black;
               >div{
                 width: 100%;
@@ -890,6 +946,13 @@
         display: flex;
         align-items: flex-end;
         justify-content: space-between;
+        .customize_pagination{
+          display: flex;
+          align-items: flex-end;
+          /deep/.el-pagination__sizes{
+            display: none;
+          }
+        }
       }
     }
   }

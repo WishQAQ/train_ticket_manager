@@ -22,8 +22,9 @@
           </div>
         </transition>
       </div>
+
+
       <div class="nav_item" @click="jumpTicket"><span class="nav_icon"><i class="iconfont icon-huochezhan"></i></span>铁路官网</div>
-      <div class="nav_item" @click="jumpTicketBack"><span class="nav_icon"><i class="iconfont icon-kehu"></i></span>客户后台</div>
     </div>
 
     <el-dropdown class="nav_info" :tabindex="99" trigger="click">
@@ -61,7 +62,7 @@
 
         tabMenuName: '', // tab当前选中值
 
-        userName: sessionStorage.USERNAME,
+        userName: sessionStorage.getItem('USERNAME'),
 
         indexActive: true, // 主页选中
         isIndexActive: false, // 导航栏选中
@@ -69,6 +70,8 @@
         current: '-1', // 下标
         navDrawer: false, // 菜单详单
         navDrawerHeight: '', //
+
+        clientMenu: {}, // 客户后台
       }
     },
     methods:{
@@ -102,7 +105,7 @@
               }
             })
             this.navDrawer = true;  // 打开菜单详单
-            this.navDrawerHeight = this.childrenList.length * 46 + 16 + 'px'
+            this.navDrawerHeight = this.childrenList.length * 36 + 16 + 'px'
           } else {
             this.navDrawer = false;
             if(val.path){
@@ -117,12 +120,17 @@
       },
       // 菜单跳转
       jumpAddress(val){
-        bus.$emit('getNavStatus',val);
-        this.indexActive = false
-        this.isIndexActive = true
-        this.navDrawer = false
-        if(this.$route.path !== val.path){
-          this.$routerTab.open(val.path)
+        console.log(val);
+        if(val.status){
+          window.open('http://' + val.path,'_blank')
+        }else {
+          bus.$emit('getNavStatus',val);
+          this.indexActive = false
+          this.isIndexActive = true
+          this.navDrawer = false
+          if(this.$route.path !== val.path){
+            this.$routerTab.open(val.path)
+          }
         }
       },
 
@@ -152,42 +160,68 @@
       jumpTicket(){
         window.open("https://kyfw.12306.cn/otn/resources/login.html",'_blank')
       },
-      /**
-       * @Description: 跳转原系统后台
-       * @author Wish
-       * @date 2019/11/7
-      */
-      jumpTicketBack(){
-        window.open("http://tohcp.com",'_blank')
-      },
+      // /**
+      //  * @Description: 跳转原系统后台
+      //  * @author Wish
+      //  * @date 2019/11/7
+      // */
+      // jumpTicketBack(){
+      //   window.open("http://tohcp.com",'_blank')
+      // },
 
     },
     created() {
+      let newChildrenMenu = []
+
       this.newrouter = this.$store.state.newrouter
       bus.$on('tabName',function (val) {
         this.tabMenuName = val
       })
+      let clientBackend = JSON.parse(sessionStorage.getItem('ROLE'))
+      clientBackend.forEach(item =>{
+        if(item.menu_name === '客户后台' || item.menu_english_name === 'clientBackEnd'){
+          this.clientMenu = item
+          item.childrenMenu.forEach(cItem =>{
+            newChildrenMenu.push({
+              status: true,
+              path: cItem.menu_english_name,
+              name: cItem.menu_english_name,
+              menuName: cItem.menu_name,
+              icon: cItem.icon,
+              meta: {
+                hidden: false,
+                title: cItem.menu_name,
+                aliveId: cItem.menu_name,
+              }
+            })
+          })
+          this.newrouter.push({
+            path: item.menu_english_name,
+            name: item.menu_english_name,
+            menuName: item.menu_name,
+            icon: item.icon,
+            children: [...new Set(newChildrenMenu)]
+          })
+        }
+      })
+
+      console.log(this.newrouter);
     }
   }
 </script>
 
 <style scoped lang="less">
-  @media (max-width: 1620px) {
-    .nav_logo{
-      display: none;
-    }
-  }
   @media (max-width: 1410px) {
     .nav{
       .nav_menu{
         .nav_item{
-          font-size: 16px !important;
+          font-size: 14px !important;
         }
       }
       .nav_info{
         .nav_message{
           .info_userName{
-            font-size: 16px !important;
+            font-size: 14px !important;
           }
         }
       }
@@ -196,18 +230,18 @@
   .nav{
     display: flex;
     align-items: center;
-    height: 60px;
+    height: 40px;
     padding: 0 30px;
     background:rgba(38,153,251,1);
     position: relative;
     min-width: 1280px;
     transition: all .3s;
     .nav_logo{
-      font-size:22px;
+      font-size:16px;
       color:rgba(255,255,255,1);
       cursor: pointer;
       height: 100%;
-      line-height: 60px;
+      line-height: 40px;
       flex-shrink: 0;
       margin-right: 20px;
     }
@@ -222,7 +256,7 @@
         padding: 0 14px;
         display: inline-flex;
         align-items: center;
-        font-size:18px;
+        font-size:16px;
         color:rgba(255,255,255,1);
         position: relative;
         height: 100%;
@@ -242,7 +276,7 @@
           align-items: center;
           margin-right: 10px;
           >i{
-            font-size: 20px;
+            font-size: 16px;
             color: #fff;
           }
         }
@@ -250,17 +284,17 @@
         .nav_menu_more{
           position: absolute;
           left: 18px;
-          top: 76px;
+          top: 56px;
           width: 100%;
           z-index: 2002;
-          max-height: 330px;
+          max-height: 260px;
           display: flex;
           flex-direction: column;
           flex-wrap: wrap;
           .more_list{
             display: flex;
             align-items: center;
-            font-size:16px;
+            font-size:14px;
             color:rgba(38,153,251,.8);
             white-space:nowrap;
             margin-right: 25px;
@@ -268,7 +302,7 @@
               color:rgba(38,153,251,1);
             }
             &:not(:last-child){
-              margin-bottom: 25px;
+              margin-bottom: 15px;
             }
             >.more_icon{
               width: 20px;
@@ -301,8 +335,8 @@
         align-items: center;
         justify-content: center;
         .info_avatar{
-          width:40px;
-          height:40px;
+          width:25px;
+          height:25px;
           border-radius:50%;
           overflow: hidden;
           background:rgba(238,247,255,1);
@@ -310,11 +344,11 @@
           align-items: center;
           justify-content: center;
           margin-right: 10px;
-          font-size: 20px;
+          font-size: 14px;
           color: rgba(38,153,251,1);
         }
         .info_userName{
-          font-size:20px;
+          font-size:16px;
           color:rgba(255,255,255,1);
         }
       }
@@ -325,14 +359,14 @@
       height: calc(100vh - 60px);
       position: absolute;
       left: 0;
-      top: 60px;
+      top: 40px;
       display: flex;
       flex-direction: column;
       z-index: 2001;
       .nav_list_mask{
         background:rgba(238,247,255,.9);
         flex-shrink: 0;
-        max-height: 330px;
+        max-height: 260px;
         transition: all .3s;
 
       }

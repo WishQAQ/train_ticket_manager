@@ -16,6 +16,7 @@
       <el-table
           :data="clientData"
           border
+          stripe
           style="width: 100%">
         <el-table-column
             label="序号"

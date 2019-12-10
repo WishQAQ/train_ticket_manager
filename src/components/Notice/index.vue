@@ -1,29 +1,28 @@
 <template>
   <div class="notice">
     <div class="title">
-      <p>帮助文档</p>
-      <div @click="openNote">新增</div>
+      <p>重要通知</p>
+      <div @click="openNote" v-if="roleType === 0">新增</div>
     </div>
     <div class="notice_main" v-loading="loading">
       <el-card
           v-for="(item,index) in this.noticeList"
           :key="index"
           class="notice_card"
+          :style="{background: 'rgba('+noticeColor[index]+')'}"
           shadow="hover">
         <div class="notice_box">
           <div class="header">
             <p><span>{{item.title}}</span></p>
-            <span class="close el-icon-close" @click="closedNotice(item)"></span>
+            <span v-if="roleType === 0" class="close el-icon-close" @click="closedNotice(item)"/>
           </div>
           <div class="content">{{item.content}}</div>
         </div>
-        <div class="edit_btn" @click="openEditBtn(item)">编辑</div>
+        <div class="edit_btn" v-if="roleType === 0" @click="openEditBtn(item)">编辑</div>
       </el-card>
     </div>
     <el-dialog
         :title="editNote?'新增重要通知':'编辑重要通知'"
-        modal-append-to-body
-        append-to-body
         custom-class="add_note_dialog"
         :visible.sync="addDialog"
         :close-on-click-modal="false"
@@ -62,13 +61,17 @@
     name: "index",
     data(){
       return {
+        roleType: parseInt(sessionStorage.getItem('TYPE')),
+
         noticeList: [],
         loading: false,
 
         editNote: true, // 重要通知类型
         addDialog: false,  // 新增弹窗
         showSubmitAddBtn: false,
-        noteForm: {}
+        noteForm: {},
+
+        noticeColor: ['246,92,120,.1','255,210,113,.1','195,245,132,.1','229,243,255,1'],
       }
     },
     methods:{
@@ -224,9 +227,8 @@
       flex-wrap: wrap;
       min-height: 230px;
       .notice_card{
-        width:160px;
-        height:215px;
-        background:rgba(229,243,255,1);
+        width: 48%;
+        height:350px;
         border: unset;
         transition: all .3s;
         margin-right: 15px;
@@ -287,6 +289,7 @@
               overflow: hidden;
               -webkit-line-clamp: 7;
               -webkit-box-orient: vertical;
+              white-space: pre-wrap;
             }
           }
           .edit_btn{

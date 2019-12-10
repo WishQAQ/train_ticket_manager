@@ -11,6 +11,7 @@
           @select-all="tableSelect"
           :data="tableData"
           ref="accountTable"
+          stripe
           border
           style="width: 100%">
         <el-table-column

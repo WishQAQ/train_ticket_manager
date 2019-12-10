@@ -10,6 +10,7 @@
         <el-table
             :data="userData"
             border
+            stripe
             ref="singleTable"
             highlight-current-row
             @current-change="handleCurrentChange"
@@ -28,12 +29,12 @@
           </el-table-column>
           <el-table-column
               sortable
+              width="160"
               prop="created_at"
               label="创建时间">
           </el-table-column>
           <el-table-column
               prop="desc"
-              max-width="300px"
               show-overflow-tooltip
               label="角色说明">
           </el-table-column>
@@ -90,6 +91,7 @@
         </el-form-item>
         <el-form-item label="角色权限">
           <el-tree
+              v-if="showRoleData"
               v-loading="roleLoading"
               class="menu_tree"
               :data="menuList"
@@ -151,6 +153,7 @@
         loading: true,
         roleLoading: true,
         treeLoading: true, // 详细信息加载
+        showRoleData: true,
         searchUserName: '',  // 用户名搜索
 
         submitLoading: false, // 保存按钮加载
@@ -252,6 +255,7 @@
         this.roleCheckedList = []
         this.$refs.tree.setCheckedKeys([]);
         this.treeLoading = false
+        roleArray = []
       },
 
       /**
@@ -364,6 +368,7 @@
           this.$axios.get('/api/authority/role/showOne/'+this.userRoleId)
               .then(res =>{
                 if(res.data.code === 0){
+                  this.showRoleData = false
                   this.treeLoading = false
                   this.userInfo = JSON.parse(JSON.stringify(res.data.result[0]))
                   /**
@@ -374,7 +379,8 @@
                   if(this.userInfo.ownedPermissions.length >=1){
                     this.roleCheckedList = this.userInfo.ownedPermissions.split(',')
                   }
-
+                  console.log(this.roleCheckedList);
+                  this.showRoleData = true
                   /**
                    * @Description: 设置默认选中权限字段
                    * @author Wish
@@ -416,6 +422,16 @@
         }
         roleArray.push(val)
         roleArray = [...new Set(roleArray)]
+        roleArray.forEach((item, index) =>{
+          if(!item.is_show){
+            roleArray.splice(index, 1)
+          }
+          if(!item.is_read_in){
+            delete item.is_read_in
+          }
+        })
+        console.log(roleArray);
+
         this.userInfo['permission_field'] = roleArray
       },
 
@@ -444,10 +460,13 @@
 
           roleListData.map(res =>{
             res['field_id'] = res.id;
-            res.is_read_in =  res.is_read_in ? 0 : 1
             res.is_show =  res.is_show ? 0 : 1
+            res.is_read_in?res.is_read_in = 0: null
           })
+
+
           this.userInfo['permission_field'] = JSON.stringify(roleListData)
+          console.log(this.userInfo['permission_field']);
           if(this.showAddForm){
             this.submitLoading = true
             this.treeLoading = true
@@ -530,7 +549,7 @@
     background:rgba(238,247,255,.5);
     .left_main{
       background-color: #fff;
-      flex: 1;
+      width: 50%;
       margin-right: 16px;
       padding: 60px 34px 30px;
       .left_header{
@@ -543,7 +562,7 @@
       }
     }
     .right_tree{
-      flex: 1;
+      width: 50%;
       background-color: #fff;
       padding: 0 10px 30px;
       .title{
@@ -569,6 +588,7 @@
               flex-direction: column;
               line-height: unset;
               padding-left: 15px;
+              min-width: 400px;
               .role_list{
                 line-height: unset;
                 height: 26px;

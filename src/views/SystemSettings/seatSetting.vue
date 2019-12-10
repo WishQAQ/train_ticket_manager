@@ -15,6 +15,7 @@
       <el-table
           :data="seatTableData"
           border
+          stripe
           style="width: 100%">
         <el-table-column
             label="序号"

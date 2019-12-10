@@ -26,12 +26,12 @@
 <style scoped lang="less">
   /deep/.router-tab{
     .router-tab-header{
-      height: 40px;
+      height: 30px;
       background: #eef7ff;
       .router-tab-scroll{
         .router-tab-nav{
           .router-tab-item{
-            line-height: 40px;
+            line-height: 30px;
             padding: 0 20px;
             font-size: 14px;
             margin: unset;

@@ -39,12 +39,10 @@
         <el-form-item label="地址">
           <el-input
               :disabled="showInput"
-              maxlength="15"
-              show-word-limit
               v-model="menuMessage.menu_english_name"></el-input>
         </el-form-item>
 
-        <el-form-item label="类型">
+        <el-form-item label="类型" v-show="false">
           <el-select @change="changeSelectType" :disabled="showInput" v-model="menuType" placeholder="请选择">
             <el-option label="菜单" value="菜单"></el-option>
             <el-option label="按钮" value="按钮"></el-option>
@@ -65,6 +63,23 @@
 
       </el-form>
     </div>
+
+    <el-dialog
+        title="提示"
+        :visible.sync="messageDialog"
+        width="400px">
+      <div class="message_info">
+        <p>客户后台下<span class="info"><b>所有子地址将跳转外部网页</b></span></p>
+        <p>请新建或编辑时保存的地址为<span class="info"><b>完整地址</b></span></p>
+        <p>例：baidu.com 或 www.baidu.com</p>
+        <p class="info">请勿添加 http:// 或 https://</p>
+        <p>由于该菜单的特殊性，请勿修改或删除 <span class="info"><b>客户后台</b></span> 菜单</p>
+      </div>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="closedMessageDialog">已 读</el-button>
+      </div>
+    </el-dialog>
+
   </div>
 </template>
 
@@ -94,6 +109,9 @@
           children: 'subMenu',
           label: 'menu_name'
         },
+
+        readType: false,  // 提示弹窗状态
+        messageDialog: false, // 提示弹窗
 
       }
     },
@@ -148,6 +166,7 @@
        * @date 2019/9/24
       */
       treeClick(data){
+        this.messageDialog = !this.readType?data.menu_name === '客户后台' || data.menu_english_name === 'clientBackEnd':false
         this.addTree = false
         this.menuMessage = JSON.parse(JSON.stringify(data))
         this.parentId = this.menuMessage.parent_id
@@ -222,7 +241,7 @@
        * @date 2019/9/25
       */
       submitBtn(){
-        if(this.menuMessage.menu_name ==='' || this.menuMessage.type ==='' || this.menuMessage.menu_english_name ===''){
+        if(this.menuMessage.menu_name ==='' || this.menuMessage.menu_english_name ===''){
           this.$message.warning('请填写完整信息')
           this.showInput = false;
         } else {
@@ -261,6 +280,16 @@
           }
         }
       },
+
+      /**
+       * @Description: 关闭提示弹窗
+       * @author Wish
+       * @date 2019/12/9
+      */
+      closedMessageDialog(){
+        this.readType = true
+        this.messageDialog = false
+      }
     },
     created() {
       this.getData()
@@ -300,6 +329,19 @@
       }
       .form_main{
         width: 80%;
+      }
+    }
+  }
+  .message_info{
+    line-height: 30px;
+    text-align: center;
+    .info{
+      font-size: 12px;
+      color: #8c939d;
+      font-style: italic;
+      >b{
+        color: #000;
+        font-weight: bold;
       }
     }
   }

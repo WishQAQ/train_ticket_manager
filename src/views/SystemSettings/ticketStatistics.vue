@@ -34,6 +34,7 @@
       <el-table
           @select="tableSelect"
           @select-all="tableSelect"
+          stripe
           :data="ticketData"
           border>
         <el-table-column

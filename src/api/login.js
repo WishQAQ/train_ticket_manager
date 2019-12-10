@@ -10,10 +10,12 @@ export function loginByUserInfo(username, password) {
    axios.post('http://oa.huimin.dev.cq1080.com/account/login', username, password).then(res =>{
      sessionStorage.setItem('CSRF', res.data.result.csrf);
      sessionStorage.setItem('FieldInfo', JSON.stringify(res.data.result.fieldInfo))
+     sessionStorage.setItem('FieldInfoAll', JSON.stringify(res.data.result.fieldAllInfo))
+
     if(res.data.code === 0){
       // 页面跳转
       Message.success({
-        message: '正在登录'
+        message: '登录成功'
       })
       setTimeout(() =>{
         router.push({

@@ -8,12 +8,19 @@ export default new Vuex.Store({
     username: sessionStorage.getItem('USERNAME'),
     role: JSON.parse(sessionStorage.getItem('ROLE')),
     newrouter: [],
-    showHeader: true
+    showHeader: true,
+    type: sessionStorage.getItem('TYPE'),
+    csrf: '',
+    fieldInfo: [],
+    fieldInfoAll: [],
   },
   getters: {
     username: state => state.nickname,
     role: state => state.role,
-    newrouter: state => state.newrouter
+    newrouter: state => state.newrouter,
+    usertype: state => state.type,
+    fieldInfo: state => state.fieldInfo,
+    fieldInfoAll: state => state.fieldInfoAll,
   },
   mutations: {
     SET_USERNAME:(state, username) => {
@@ -25,6 +32,15 @@ export default new Vuex.Store({
     SET_NEWROUER:(state, newrouter) =>{
       state.newrouter = newrouter;
     },
+    SET_USERTYPE:(state, usertype) =>{
+      state.usertype = usertype;
+    },
+    SET_FIELDINFO:(state, fieldInfo) =>{
+      state.fieldInfo = fieldInfo;
+    },
+    SET_FIELDINFOALL:(state, fieldInfoAll) =>{
+      state.fieldInfoAll = fieldInfoAll;
+    },
   },
   actions: {
     Logins({ commit }, info){
@@ -32,8 +48,12 @@ export default new Vuex.Store({
         let data={};
         //获取所有用户信息
         commit('SET_USERNAME',info.nickname);  //将username和role进行存储
-        sessionStorage.setItem('USERNAME', info.nickname); //存入 session
+        commit('SET_USERTYPE',info.type);  //将username和role进行存储
         commit('SET_ROLE',info.permission.ownedMenus);
+        commit('SET_FIELDINFO',info.fieldInfo);
+        commit('SET_FIELDINFOALL',info.fieldAllInfo);
+        sessionStorage.setItem('USERNAME', info.nickname); //存入 session
+        sessionStorage.setItem('TYPE', info.type); //存入 session
         sessionStorage.setItem('ROLE',JSON.stringify(info.permission.ownedMenus));
         return data= {username:info.nickname,introduce:info.permission.role_name};
 
@@ -54,9 +74,10 @@ export default new Vuex.Store({
         commit('SET_USERNAME','');
         commit('SET_ROLE','');
         commit('SET_NEWROUER',[]);
-        sessionStorage.removeItem('USERNAME');
-        sessionStorage.removeItem('ROLE');
-        sessionStorage.removeItem('CSRF');
+        commit('SET_USERTYPE','');
+        commit('SET_FIELDINFO',[]);
+        commit('SET_FIELDINFOALL',[]);
+        sessionStorage.clear()
         resolve();
       }).catch(error => {
         reject(error);

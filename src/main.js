@@ -65,7 +65,7 @@ Vue.config.productionTip = false;
 let generaMenu = (obj,data) =>{
   data.forEach((v,i)=>{
     obj.push(powerRouterLazy(v.menu_english_name))
-    obj.forEach(res =>{
+    obj.forEach((res, index) =>{
       if(res.name === v.menu_english_name){
         res['menuName'] = v.menu_name
         res['icon'] = v.icon
@@ -76,13 +76,36 @@ let generaMenu = (obj,data) =>{
                 cres['menuName'] = rcrs.menu_name
                 cres['icon'] = rcrs.icon
               }
+              // if(cres.name !== 'home'){
+              //   if(cres['menuName'] === '' || cres['menuName'] === null || cres['menuName'] === undefined){
+              //     console.log(cres);
+              //     cres.path = ''
+              //     cres.name = ''
+              //     // obj[index].children.splice(index,1)
+              //   }
+              // }
             })
           })
         }
       }
     })
-  })
 
+  })
+  // obj.map((item, index) =>{
+  //   item.children.forEach((cItem, cIndex) =>{
+  //     if(cItem.name !== 'home'){
+  //       if(cItem['menuName'] === '' || cItem['menuName'] === null || cItem['menuName'] === undefined){
+  //         console.log(cItem);
+  //         cItem.path = ''
+  //         cItem.name = ''
+  //         // obj[index].children.splice(index,1)
+  //       }
+  //     }
+  //
+  //   })
+  // })
+  // console.log(obj);
+  // obj = []
 };
 router.beforeEach((to, from, next) => {
   let _role= store.getters.role;
@@ -95,17 +118,24 @@ router.beforeEach((to, from, next) => {
           Message.error('当前账号暂无权限，请联系管理员')
         }
       }else {
-        next()
+        if (to.matched.length ===0) {
+          from.name ? next({ name:from.name }) : next('/');
+          Message.error('当前账号暂无权限，请联系管理员')
+        } else {
+          next();
+        }
       }
     }else{
-      let newrouter=[]
-      generaMenu(newrouter,_role); // router循环
-      router.addRoutes(newrouter); // 添加动态路由
-      store.dispatch('Roles',newrouter).then(res => {
-        next({...to})
-      }).catch(() => {
+      if(_role){
+        let newrouter=[]
+        generaMenu(newrouter,_role); // router循环
+        router.addRoutes(newrouter); // 添加动态路由
+        store.dispatch('Roles',newrouter).then(res => {
+          next({...to})
+        }).catch(() => {
 
-      })
+        })
+      }
     }
   }else{
     if (['/login'].indexOf(to.path) !== -1) {

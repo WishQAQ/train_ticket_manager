@@ -24,6 +24,7 @@
       </div>
       <el-table
           :data="mailListData"
+          stripe
           border
           style="width: 100%">
         <el-table-column

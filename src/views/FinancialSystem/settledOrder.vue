@@ -45,21 +45,23 @@
       </div>
       <div style="display: flex">
         <el-button type="primary" @click="getData('search')">搜索</el-button>
-        <el-button v-if="viewsType !== 1" :disabled="selectList.length < 1" type="primary" @click="jumpBatchStatement()">批量对账</el-button>
+        <el-button v-if="viewsType !== 1 && roleType === 0" :disabled="selectList.length < 1" type="primary" @click="jumpBatchStatement()">批量对账</el-button>
       </div>
     </div>
     <div class="center" v-if="showTable">
       <el-table
+          stripe
           ref="multipleTable"
           @select="tableSelect"
           @select-all="tableSelect"
           :data="tableData || []"
           border
+          class="settledOrderTable"
           style="width: 100%; margin-top: 20px">
         <el-table-column
-            label="序号"
+            label="序"
             align="center"
-            width="50px">
+            width="45px">
           <template slot-scope="scope">
             {{scope.$index+1}}
           </template>
@@ -75,7 +77,6 @@
             align="center"
             label="订单信息">
           <el-table-column
-              align="center"
               width="150"
               label="单号">
             <template slot-scope="scope">
@@ -93,8 +94,7 @@
           </el-table-column>
           <el-table-column
               prop="customer_name"
-              align="center"
-              min-width="170"
+              width="170"
               label="客户">
             <template slot-scope="scope">
               <span v-if="scope.row.customer_name">{{scope.row.customer_name}}</span>
@@ -139,13 +139,12 @@
               align="center"
               label="应收款">
           </el-table-column>
-<!--          <el-table-column-->
-<!--              v-show="viewsType === 0 || viewsType === 3 || viewsType === 2"-->
-<!--              v-if="tableOrderRoleStatus.actual_receipts.show"-->
-<!--              prop="actual_receipts"-->
-<!--              align="center"-->
-<!--              label="实收款">-->
-<!--          </el-table-column>-->
+        <el-table-column
+            v-if="tableOrderRoleStatus.actual_receipts.show && viewsType !== 1"
+            prop="actual_receipts"
+            align="center"
+            label="实收款">
+        </el-table-column>
           <el-table-column
               v-if="viewsType === 0 || viewsType === 3 || viewsType === 2"
               align="center"
@@ -156,11 +155,12 @@
           </el-table-column>
 
         <el-table-column
+            v-if="roleType === 0"
             align="center"
             label="成本项">
           <el-table-column
               align="center"
-              v-if="tableOrderRoleStatus['total_ticket_issue_fee']['show']"
+              v-if="tableOrderRoleStatus.total_ticket_issue_fee.show"
               label="总出票费">
             <template slot-scope="scope">
               {{scope.row.verification_item.total_ticket_issue_fee}}
@@ -176,13 +176,13 @@
           </el-table-column>
           <el-table-column
               align="center"
-              v-if="tableOrderRoleStatus['compensation_fee']['show']"
+              v-if="tableOrderRoleStatus.compensation_fee.show"
               label="总赔付费">
             <template slot-scope="scope">
               <el-input
                   size="mini"
                   v-model="newDataForm[scope.row.tableIndex]['compensation_fee']"
-                  v-if="tableOrderRoleStatus['compensation_fee']['read']"
+                  v-if="tableOrderRoleStatus.compensation_fee.read"
                   :placeholder="scope.row.cost_item[0].compensation_fee"
                   @blur="openEditInput(scope.row,'compensation_fee',scope.row.cost_item[0].compensation_fee,newDataForm[scope.row.tableIndex]['compensation_fee'])">
               </el-input>
@@ -191,13 +191,13 @@
           </el-table-column>
           <el-table-column
               align="center"
-              v-if="tableOrderRoleStatus['total_discount']['show']"
+              v-if="tableOrderRoleStatus.total_discount.show"
               label="优惠总额">
             <template slot-scope="scope">
               <el-input
                   size="mini"
                   v-model="newDataForm[scope.row.tableIndex]['total_discount']"
-                  v-if="tableOrderRoleStatus['total_discount']['read']"
+                  v-if="tableOrderRoleStatus.total_discount.read"
                   :placeholder="scope.row.cost_item[0].total_discount"
                   @blur="openEditInput(scope.row,'total_discount',scope.row.cost_item[0].total_discount,newDataForm[scope.row.tableIndex]['total_discount'])">
               </el-input>
@@ -205,14 +205,14 @@
             </template>
           </el-table-column>
           <el-table-column
-              v-if="tableOrderRoleStatus['express_fee']['show']"
+              v-if="tableOrderRoleStatus.finance_express_fee.show"
               align="center"
               label="快递支出">
             <template slot-scope="scope">
               <el-input
                   size="mini"
                   v-model="newDataForm[scope.row.tableIndex]['finance_express_fee']"
-                  v-if="tableOrderRoleStatus['express_fee']['read']"
+                  v-if="tableOrderRoleStatus.finance_express_fee.read"
                   :placeholder="scope.row.cost_item[0].finance_express_fee"
                   @blur="openEditInput(scope.row,'finance_express_fee',scope.row.cost_item[0].finance_express_fee,newDataForm[scope.row.tableIndex]['finance_express_fee'])">
               </el-input>
@@ -222,27 +222,15 @@
         </el-table-column>
 
         <el-table-column
-            v-show="viewsType === 1"
-            v-if="tableOrderRoleStatus['actual_receipts']['show']"
+            v-if="tableOrderRoleStatus.actual_receipts.show && viewsType === 1"
             prop="actual_receipts"
             align="center"
             label="实收款">
-<!--          <template slot-scope="scope">-->
-<!--            <el-input-->
-<!--                size="mini"-->
-<!--                v-model="newDataForm[scope.row.tableIndex]['actual_receipts']"-->
-<!--                v-if="tableOrderRoleStatus.actual_receipts.read"-->
-<!--                :placeholder="scope.row.actual_receipts"-->
-<!--                @blur="openEditInput(scope.row,'actual_receipts',scope.row.actual_receipts,newDataForm[scope.row.tableIndex]['actual_receipts'])">-->
-<!--            </el-input>-->
-<!--            <span v-else>{{scope.row.actual_receipts}}</span>-->
-<!--          </template>-->
         </el-table-column>
 
 
         <el-table-column
-            v-show="viewsType === 1"
-            v-if="tableOrderRoleStatus['profit']['show']"
+            v-if="tableOrderRoleStatus.profit.show && viewsType === 1"
             prop="profit"
             align="center"
             label="利润">
@@ -259,6 +247,7 @@
         </el-table-column>
 
         <el-table-column
+            v-if="roleType === 0"
             align="center"
             width="80"
             label="对账单号">
@@ -268,15 +257,14 @@
         </el-table-column>
 
         <el-table-column
-            v-show="viewsType === 1"
-            v-if="tableOrderRoleStatus['actual_payment']['show']"
+            v-if="tableOrderRoleStatus.actual_payment.show && viewsType === 1"
             align="center"
             label="实付款">
           <template slot-scope="scope">
             <el-input
                 size="mini"
                 v-model="newDataForm[scope.row.tableIndex]['actual_payment']"
-                v-if="tableOrderRoleStatus['actual_payment']['read']"
+                v-if="tableOrderRoleStatus.actual_payment.read"
                 :placeholder="scope.row.actual_payment"
                 @blur="openEditInput(scope.row,'actual_payment',scope.row.actual_payment,newDataForm[scope.row.tableIndex]['actual_payment'])">
             </el-input>
@@ -296,6 +284,7 @@
         </el-table-column>
 
         <el-table-column
+            v-if="roleType === 0"
             label="操作"
             fixed="right"
             width="80">
@@ -453,8 +442,8 @@
           <div class="order_table">
             <div class="order_title">收支汇款底单</div>
             <div class="order_table_images">
-              <PublicImage v-if="emittanceList.length > 0 && tableOrderRoleStatus.remittance_voucher.show" :previewList="emittanceList" :url="detailsImages.remittance_voucher" :preview="true"/>
-              <PublicImage v-if="emittanceList.length > 0 && tableOrderRoleStatus.collection_voucher.show" :previewList="emittanceList" :url="detailsImages.collection_voucher" :preview="true"/>
+              <PublicImage v-if="emittanceList.length > 0 && tableOrderRoleStatus['remittance_voucher']['show'] || false" :previewList="emittanceList" :url="detailsImages.remittance_voucher" :preview="true"/>
+              <PublicImage v-if="emittanceList.length > 0 && tableOrderRoleStatus['collection_voucher']['show'] || false" :previewList="emittanceList" :url="detailsImages.collection_voucher" :preview="true"/>
             </div>
           </div>
         </div>
@@ -502,13 +491,19 @@
 
 
       <div class="pages">
-        <Pagination
-            v-if="paginationList"
-            ref="pagination"
-            :pageData="paginationList"
-            @jumpSize="jumpSize"
-            @jumpPage="jumpPage">
-        </Pagination>
+        <div class="customize_pagination">
+          <el-input style="width: 95px;margin-right: 5px;" size="mini" placeholder="自定义条数" v-model="customizeSize"/>
+          <el-button style="margin-right: 10px" size="mini" type="text" @click="customizeSizeBtn(customizeSize)">确定</el-button>
+          <Pagination
+              ref="pagination"
+
+              :customizeSize="customizeNum"
+              :pageSize="pageSize"
+              :pageData="paginationList"
+              @jumpSize="jumpSize"
+              @jumpPage="jumpPage">
+          </Pagination>
+        </div>
         <el-dropdown style="margin-left: auto" trigger="click">
           <el-button class="export">导出</el-button>
           <el-dropdown-menu slot="dropdown">
@@ -520,7 +515,7 @@
     </div>
     <div class="bottom">
       <div class="total">
-        <p>本页合计</p>
+        <p>本页合计：</p>
         <div class="total-item">
           <div>总票价：{{dataTotal.TotalPrice}}</div>
           <div>总餐费：{{dataTotal.MealFee}}</div>
@@ -543,12 +538,16 @@
     },
     data(){
       return {
+        roleType: parseInt(sessionStorage.getItem('TYPE')),
+
         showTable: false,
         loading: false,  // 加载
         tableData: [],
 
         tableOrderRole: [], // 权限列表
-        tableOrderRoleStatus: {}, // 权限
+        tableOrderRoleStatus: { // 权限
+
+        },
 
         selectList: [], // 多选列表
 
@@ -620,8 +619,11 @@
          * 分页
          * */
         paginationList: {},
-        per_page: 10,
+        per_page: 30,
         page: '',
+        pageSize: [this.customizeNum || 30],
+        customizeSize: 30,
+        customizeNum: null
       }
     },
     methods:{
@@ -637,7 +639,7 @@
           data['page'] = this.page || null
         }else {
           data = {
-            page: this.page || null
+            cur_page: this.page || null
           }
         }
 
@@ -647,10 +649,7 @@
               this.paginationList = res.data;
               this.tableData.forEach((item,index) =>{
                 item['tableIndex'] = index
-                this.newDataForm.push({
-                  total_ticket_issue_fee: '',
-
-                })
+                this.newDataForm.push({})
               })
               this.showTable = true
               this.loading = false;
@@ -662,6 +661,13 @@
         .catch(() =>{
           this.$message.error('数据获取失败，请稍后重试')
         })
+      },
+
+      customizeSizeBtn(val){
+        this.per_page = val>0?parseInt(val):30
+        this.customizeNum = val>0?parseInt(val):30
+        this.page = 1
+        this.getData()
       },
 
       /**
@@ -745,18 +751,41 @@
             field: dataName,
             value: newRow
           }
-          this.$axios.post('/api/finance/editCellContent',param)
-              .then(res =>{
-                if(res.data.code === 0){
-                  this.$message.success('修改成功')
-                  this.newDataForm = []
-                  this.getData()
-                }else {
-                  this.$message.warning(res.data.msg)
-                  this.newDataForm = []
-                  this.getData()
-                }
-              })
+          if(row){
+            this.$confirm('系统检测到当前输入框已有默认值为：'+ row +' , 是否将其修改为：'+ newRow, '提示', {
+              confirmButtonText: '确定',
+              cancelButtonText: '取消',
+              type: 'warning'
+            }).then(() => {
+              this.$axios.post('/api/finance/editCellContent',param)
+                  .then(res =>{
+                    if(res.data.code === 0){
+                      this.$message.success('修改成功')
+                      this.newDataForm = []
+                      this.getData()
+                    }else {
+                      this.$message.warning(res.data.msg)
+                      this.newDataForm = []
+                      this.getData()
+                    }
+                  })
+            }).catch(() => {
+              newRow = ''
+            });
+          }else {
+            this.$axios.post('/api/finance/editCellContent',param)
+                .then(res =>{
+                  if(res.data.code === 0){
+                    this.$message.success('修改成功')
+                    this.newDataForm = []
+                    this.getData()
+                  }else {
+                    this.$message.warning(res.data.msg)
+                    this.newDataForm = []
+                    this.getData()
+                  }
+                })
+          }
         }
       },
 
@@ -1158,17 +1187,27 @@
       },
     },
     mounted() {
-      this.tableOrderRole = this.tableOrderRole.length < 1? JSON.parse(sessionStorage.getItem('FieldInfo')): []
 
-      this.tableOrderRole.forEach((item,index) =>{
-        if(item.type === 1){
-          this.tableOrderRoleStatus[item.field] = {
-            show: item.is_show === 0,
-            read: item.is_read_in === 0
-          }
+      let FieldInfoAll  = JSON.parse(sessionStorage.getItem('FieldInfoAll'))
+      let FieldInfo = JSON.parse(sessionStorage.getItem('FieldInfo'))
+      FieldInfoAll.forEach(item =>{
+        this.tableOrderRoleStatus[item.field] = {
+          show: false,
+          read: false
         }
+        FieldInfo.forEach(cItem =>{
+          if(item.field === cItem.field){
+            if(item.type === 1){
+              this.tableOrderRoleStatus[item.field] = {
+                show: true,
+                read: true
+              }
+            }
+          }
+        })
       })
       console.log(this.tableOrderRoleStatus);
+
     },
     getDataList: {
       '$route'(to, from) {
@@ -1177,11 +1216,6 @@
                 this.$route.meta.name === '未出账订单'? 3:
                     this.$route.meta.name === '出账中订单'? 2: this.$route.meta.name
         this.getData();
-        // this.getClient();
-        this.showTable = false
-        this.$nextTick(() => {
-          this.showTable = true
-        })
       },
     },
     created() {
@@ -1208,8 +1242,28 @@
       }
     }
     .center{
+      /deep/.settledOrderTable{
+        th{
+          padding: 2px 0;
+        }
+        td{
+          padding: 2px 0;
+          font-size: 12px;
+        }
+        .el-input{
+          .el-input__inner{
+            padding-left: 5px;
+            padding-right: unset;
+            font-size: 14px;
+            &::placeholder{
+              /*color: #000;*/
+            }
+          }
+        }
+      }
+
       /deep/.el-table{
-        font-weight: bold;
+        /*font-weight: bold;*/
         color: black;
       }
       .statement_number{
@@ -1262,6 +1316,13 @@
           height: 28px;
           margin-top: 32px;
         }
+        .customize_pagination{
+          display: flex;
+          align-items: flex-end;
+          /deep/.el-pagination__sizes{
+            display: none;
+          }
+        }
       }
       .info-table td{
         width: 15%;
@@ -1313,7 +1374,7 @@
         float: right;
         color: #2699FB;
         >p{
-          text-align: center;
+          /*text-align: center;*/
           margin: 10px 0;
         }
         >div{

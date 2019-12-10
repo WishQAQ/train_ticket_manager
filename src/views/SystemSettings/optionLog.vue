@@ -10,6 +10,7 @@
           v-loading="loading"
           :data="tableData"
           ref="accountTable"
+          stripe
           border
           style="width: 100%">
         <el-table-column
