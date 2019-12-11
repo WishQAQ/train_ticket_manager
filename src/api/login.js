@@ -11,6 +11,9 @@ export function loginByUserInfo(username, password) {
      sessionStorage.setItem('CSRF', res.data.result.csrf);
      sessionStorage.setItem('FieldInfo', JSON.stringify(res.data.result.fieldInfo))
      sessionStorage.setItem('FieldInfoAll', JSON.stringify(res.data.result.fieldAllInfo))
+     if(res.data.result.permission.isHighest){
+       sessionStorage.setItem('isHighest', '超级管理员');
+     }
 
     if(res.data.code === 0){
       // 页面跳转

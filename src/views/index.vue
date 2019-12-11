@@ -43,7 +43,7 @@
       </div>
       <div class="right_main">
         <note ref="note" v-if="roleType === 0"/>
-        <notice  ref="notice"/>
+        <notice v-if="noticeType || roleType === 1" ref="notice"/>
       </div>
     </div>
 
@@ -80,6 +80,8 @@
     },
     data(){
       return {
+        noticeType: !!sessionStorage.getItem('isHighest'),
+
         roleType: parseInt(sessionStorage.getItem('TYPE')),
 
         dLoading: true,  // 加载文档

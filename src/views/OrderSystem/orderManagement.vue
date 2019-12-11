@@ -63,8 +63,8 @@
     <div class="table_main">
       <div class="table_content">
         <div class="content_header">
-          <div style="width: 60px;flex-shrink: 0;">序号</div>
-          <div style="width: 60px;flex-shrink: 0;">
+          <div style="width: 45px;flex-shrink: 0;">序号</div>
+          <div style="width: 45px;flex-shrink: 0;">
             <el-checkbox v-model="checkAll" @change="handleCheckAllChange"/>
           </div>
           <div style="width: 130px;flex-shrink: 0;">订单号</div>
@@ -76,14 +76,15 @@
           <div>发单人</div>
           <div style="width: 80px;flex-shrink: 0;">订单状态</div>
           <div style="width: 80px;flex-shrink: 0;">财务状态</div>
-          <div v-if="roleType === 0">备注信息</div>
+          <div v-if="roleType === 0 && viewsType !== 2">备注信息</div>
+          <div v-if="viewsType === 2">删除理由</div>
           <div style="width: 80px;flex-shrink: 0;" v-if="roleType === 0">操作</div>
         </div>
         <div class="content_main">
           <div :class="['main_list',{'is_top': item.is_top === 1}]" v-for="(item, index) in tableData" :key="index" @dblclick="doubleClickDetails(item)">
             <div class="list_num">
-              <div style="width: 60px">{{parseInt(index)+1}}</div>
-              <div class="list_num_checked" style="width: 60px" :style="{'height':item.info.length * 50 + 'px'}">
+              <div style="width: 45px">{{parseInt(index)+1}}</div>
+              <div class="list_num_checked" style="width: 45px" :style="{'height':item.info.length * 50 + 'px'}">
                 <el-checkbox :disabled="showAllChecked" ref="checkbox_box" @change="handleCheckChange(item)"/>
               </div>
               <div style="width: 130px">{{item.order_sn}}</div>
@@ -105,13 +106,14 @@
                 <span v-if="item.order_status === 1" style="color: green">已处理</span>
               </div>
               <div style="width: 80px;flex-shrink: 0;">{{item.finance_status}}</div>
-              <div v-if="roleType === 0" style="font-size: 12px">
+              <div v-if="roleType === 0 && viewsType !== 2" style="font-size: 12px">
                 <p v-if="item.desc.is_important === 1">
                   <span class="important_remarks">{{item.desc.remarks}}</span>
                 </p>
                 <p v-if="viewsType === 4">{{item.desc.remarks}}</p>
                 <!--<span style="font-size: 10px; color: #bebebe">暂无重要备注</span>-->
               </div>
+              <div v-if="viewsType === 2">{{item.reason}}</div>
             </div>
             <div class="option_box" v-if="roleType === 0">
               <el-dropdown trigger="click">
@@ -567,41 +569,72 @@
        * @date 2019/10/17
       */
       editOrderType(val,type){
-        let deleteMessage = '此操作将移动该订单数据至回收站, 是否继续?'
-        let deleteTitle = '提示'
-        let messageType = 'warning'
         if(val.is_include && type === 2){
-          deleteMessage = '当前订单含实收款，此操作将移动该订单数据至回收站, 是否继续?'
+          deleteMessage = '当前订单含实收款，此操作将移动该订单数据至回收站, 请输入删除理由?'
           deleteTitle = '警告！当前订单含实收款'
           messageType = 'error'
         }
-        this.$confirm(
-            type === 1?'此操作会把所选订单修改为不明订单, 是否继续?':
-                type === 2?deleteMessage:
-                    type === 0?'此操作会把所选订单还原为正常订单, 是否继续?':'',
-            deleteTitle, {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: messageType
-        }).then(() => {
-          this.loading = true
-          let data = {
-            order_sn: val.order_sn,
-            type: type
-          }
-          this.$axios.post('/api/order/operateOrderType',data)
-              .then(res =>{
-                if(res.data.code === 0){
-                  this.$message.success(
-                      type === 1?'设为不明订单成功':
-                          type === 2?'删除订单成功':
-                              type === 0?'还原不明订单成功':'')
-                  this.getDataList()
-                }else {
-                  this.$message.warning(res.data.msg)
-                }
-              })
-        }).catch(() => {});
+        let deleteMessage = '此操作将移动该订单数据至回收站, 请输入删除理由?'
+        let deleteTitle = '提示'
+        let messageType = 'warning'
+
+        if(type === 1 || type === 0){
+          this.$confirm(
+              type === 1?'此操作会把所选订单修改为不明订单, 是否继续?':
+                      type === 0?'此操作会把所选订单还原为正常订单, 是否继续?':'',
+              deleteTitle, {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: messageType
+              }).then(() => {
+            this.loading = true
+            let data = {
+              order_sn: val.order_sn,
+              type: type
+            }
+            this.$axios.post('/api/order/operateOrderType',data)
+                .then(res =>{
+                  if(res.data.code === 0){
+                    this.$message.success(
+                        type === 1?'设为不明订单成功':
+                                type === 0?'还原不明订单成功':'')
+                    this.getDataList()
+                  }else {
+                    this.$message.warning(res.data.msg)
+                  }
+                })
+          }).catch(() => {});
+        }
+
+        if(type === 2){
+          this.$prompt(
+              deleteMessage,
+              deleteTitle, {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                inputPattern: /\S/,
+                inputErrorMessage: '请输入删除理由'
+              }).then(({value}) => {
+            this.loading = true
+            let data = {
+              order_sn: val.order_sn,
+              type: type,
+              reason: value
+            }
+            this.$axios.post('/api/order/operateOrderType',data)
+                .then(res =>{
+                  if(res.data.code === 0){
+                    this.$message.success(
+                        type === 1?'设为不明订单成功':
+                            type === 2?'删除订单成功':
+                                type === 0?'还原不明订单成功':'')
+                    this.getDataList()
+                  }else {
+                    this.$message.warning(res.data.msg)
+                  }
+                })
+          }).catch(() => {});
+        }
 
       },
 

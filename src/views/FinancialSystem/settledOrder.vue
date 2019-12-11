@@ -310,7 +310,7 @@
       <!-- Q群需求查看 -->
       <el-dialog
           title="Q群需求信息"
-          width="30%"
+          width="450px"
           :visible.sync="groupDialog">
         <div class="group_message_dialog">
           {{groupMessage}}
@@ -320,7 +320,7 @@
       <!-- 对账单号列表 -->
       <el-dialog
           title="对账单号列表"
-          width="30%"
+          width="450px"
           :visible.sync="viewBillNumberDialog">
         <div class="view_bill_number_dialog" v-if="billNumberList.length > 0">
           <p v-for="(item,index) in billNumberList" :key="index" @click="jumpOrderDetails(item)">{{item}}</p>
@@ -330,7 +330,7 @@
       <!-- 添加备注信息 -->
       <el-dialog
           title="备注"
-          width="30%"
+          width="450px"
           :show-close="false"
           :close-on-click-modal="false"
           :close-on-press-escape="false"
@@ -353,7 +353,7 @@
       <!-- 详情 -->
       <el-dialog
           title="订单详情"
-          width="75%"
+          custom-class="order_details_dialog"
           :visible.sync="OrderDetailsDialog">
         <div class="order_details_main">
           <div class="order_table">
@@ -361,8 +361,7 @@
             <div class="order_table_content">
               <el-table
                   :data="OrderDetailsTable"
-                  border
-                  style="width: 100%">
+                  border>
                 <el-table-column
                     label="序号"
                     width="50">
@@ -452,7 +451,7 @@
       <!-- 上传汇款凭证 -->
       <el-dialog
           :title="uploadType?'上传汇款凭证':'上传付款凭证'"
-          width="30%"
+          width="450px"
           :show-close="false"
           :close-on-click-modal="false"
           :close-on-press-escape="false"
@@ -470,7 +469,7 @@
       <!-- 单个对账 -->
       <el-dialog
           title="对账"
-          width="30%"
+          width="450px"
           :show-close="false"
           :close-on-click-modal="false"
           :close-on-press-escape="false"
@@ -1330,6 +1329,10 @@
         border: 1px solid #EBEEF5;
       }
 
+      /deep/.order_details_dialog{
+        min-width: 1090px;
+        width: 75%;
+      }
       .order_details_main{
         max-height: 80vh;
         overflow-y: auto;

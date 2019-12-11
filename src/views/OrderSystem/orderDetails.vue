@@ -902,7 +902,7 @@
           </div>
         </div>
 
-        <el-button size="mini" style="margin-top: 10px" type="primary" @click="saveEditBtn(item.ticket_status,item,item.route)">保存</el-button>
+        <el-button size="mini" style="margin-top: 10px" type="primary" @click="saveEditBtn(item.ticket_status,item,item.route,$event)">保存</el-button>
 
       </div>
       <div slot="footer" class="dialog-footer" style="justify-content: flex-end">
@@ -1961,10 +1961,12 @@
         this.editTicketMessage = this.urlType === 'edit'
         this.editTicketOrderInfo = val  // 乘车区间订单信息
         this.editTicketInfo = cVal  // 乘车区间路线信息
-        this.departure_path = ''
-        this.arrival_path = ''
-        this.new_departure_station = ''
-        this.new_arrival_station = ''
+        this.new_departure_station = '' // 新发站
+        this.new_arrival_station = '' // 新到站
+        this.departure_path = '' // 发站方向
+        this.arrival_path = '' // 到站方向
+        this.new_trips_number = '' //新车次
+        this.new_riding_time = '' // 新时间
       },
 
       /**
@@ -1975,7 +1977,8 @@
       submitEditTicketMessage(){
         this.editTicketMessageLoading = true
         let editTicketType = 1
-        if(this.editTicketInfo.departure_station !== this.new_departure_station && this.new_departure_station !== '' || this.editTicketInfo.arrival_station !== this.new_arrival_station  && this.new_arrival_station !== ''){
+
+        if(this.$dateToMs(this.new_riding_time) !== '' && this.editTicketInfo.riding_time !==  this.$dateToMs(this.new_riding_time) / 1000 || this.editTicketInfo.trips_number !== this.new_trips_number && this.new_trips_number !== '' || this.editTicketInfo.departure_station !== this.new_departure_station && this.new_departure_station !== '' || this.editTicketInfo.arrival_station !== this.new_arrival_station  && this.new_arrival_station !== ''){
           editTicketType = 0
         }
         let newForm = {}
@@ -2508,7 +2511,8 @@
        * @author Wish
        * @date 2019/11/1
       */
-      saveEditBtn(status,editData,route){
+      saveEditBtn(status,editData,route,domData){
+        console.log(status);
         this.routeStatus = status
         this.editRouteInfo = route  // 获取原路线信息
         this.editRouteData = editData  // 获取当前输入框数据
@@ -2517,6 +2521,11 @@
         let editInfo = {}
         editInfo['route_id'] = this.editRouteData.route_id
         editInfo['passengers'] = this.editRouteData.passengers
+
+        domData.toElement.disabled = true
+        domData.toElement.classList.add('is-disabled')
+
+
         if(status === '0'){  // 未出票
           console.log(status, editData, route);
           editInfo['fwId'] = this.editRouteData.fwId
@@ -2550,6 +2559,61 @@
                   this.$message.warning(res.data.code)
                 }
               })
+        }else if(status === '5' || status === '请选择'){  // 啥都没选
+          if(this.editRouteData.riding_time || this.editRouteData.departure_station || this.editRouteData.arrival_station || this.editRouteData.trips_number){
+            this.routeStatus = 5
+            this.editRouteDialog = true
+          }else{
+            let newForm = {}  // 路线信息
+            newForm['type'] = 1
+            newForm['route_id'] = this.editRouteData.route_id
+            newForm['passengers'] = this.editRouteData.passengers
+            newForm['riding_time'] =  this.editRouteData.route[0].riding_time
+            newForm['departure'] = this.editRouteData.directionOne?this.editRouteData.route[0].departure_station + this.editRouteData.directionOne:this.editRouteData.route[0].departure_station
+            newForm['arrive'] = this.editRouteData.directionTwo?this.editRouteData.route[0].arrival_station + this.editRouteData.directionTwo:this.editRouteData.route[0].arrival_station
+            newForm['trips_number'] = this.editRouteData.route[0].trips_number || ''
+
+            let newEditForm = {}  // 修改输入框信息
+            newEditForm['ticket_type'] = this.editRouteData.ticket_type
+            newEditForm['fwId'] = this.editRouteData.fwId
+            newEditForm['ticket_price'] = this.editRouteData.ticket_price
+            newEditForm['child_ticket_price'] = this.editRouteData.child_ticket_price
+            newEditForm['missed_meals_money'] = this.editRouteData.missed_meals_money
+            newEditForm['ticket_fare'] = this.editRouteData.ticket_fare
+            // newEditForm['refund_fee'] = this.editRouteData.refund_fee
+            newEditForm['payment_account'] = this.editRouteData.payment_account
+            newEditForm['payment_flow_number'] = this.editRouteData.payment_flow_number
+            newEditForm['12306_account'] = this.editRouteData['12306_account']
+            newEditForm['password'] = this.editRouteData.password
+
+            let info = {}
+            info['condition'] = []
+            info['params'] = newEditForm
+            info.condition.push(newForm)
+
+            let newToken = ''
+            for(let key in this.checkedTableList){
+              newToken = String(this.editOrderToken[key])
+            }
+
+            let data = {
+              order_sn: this.orderId,
+              token: newToken,
+              ticket_status: 5,
+              info: JSON.stringify(info)
+            }
+            console.log(data);
+            this.$axios.post('/api/order/routeInfo/editBatch',data)
+                .then(res =>{
+                  if(res.data.code === 0){
+                    this.$message.success('保存成功')
+                  }else {
+                    this.$message.warning(res.data.code)
+                  }
+                })
+
+          }
+
         }else if(status === '1' || status === '3'){  // 出票or改签
           if(this.editRouteData.riding_time || this.editRouteData.departure_station || this.editRouteData.arrival_station || this.editRouteData.trips_number){
             this.editRouteDialog = true
@@ -2650,6 +2714,7 @@
               }
             })
         }
+
       },
 
       /**
@@ -2665,6 +2730,7 @@
           initial_station: '',  // 发站
           stop_station: '', // 到站
           trips_number: '',  // 车次
+          is_add_passenger: true,
         }]
         this.addStrokePassengers = ''
       },
@@ -2676,15 +2742,13 @@
       */
       deleteAddStrokeRoute(val,index,valId){
         console.log(val, index, valId);
-        // if(this.$refs.add_stroke_table_box[index].className === 'header_box hidden'){
-        //   this.$refs.add_stroke_table_box[index].className = 'header_box'
-        //   this.userListHeaderRoute.push(valId)
-        //   this.userListHeaderRoute = [...new Set(this.userListHeaderRoute)]
-        // }else {
-        //   this.$refs.add_stroke_table_box[index].className = 'header_box hidden'
-        //   let i = this.userListHeaderRoute.indexOf(valId)
-        //   this.userListHeaderRoute.splice(i,1)
-        // }
+        if(this.addStrokeArr[index].is_add_passenger){
+          this.$refs.add_stroke_table_box[index].className = 'header_box hidden'
+          this.addStrokeArr[index].is_add_passenger = false
+        }else {
+          this.$refs.add_stroke_table_box[index].className = 'header_box'
+          this.addStrokeArr[index].is_add_passenger = true
+        }
       },
 
       /**
@@ -2693,6 +2757,9 @@
        * @date 2019/11/14
       */
       changeStrokeType(val){
+        this.$refs.add_stroke_table_box.forEach(item =>{
+          item.classList = 'header_box'
+        })
         this.addStrokePassengers = ''
         if(this.strokeTableType === '单程'){
           this.addStrokeArr = [{
@@ -2700,6 +2767,7 @@
             initial_station: '',  // 发站
             stop_station: '', // 到站
             trips_number: '',  // 车次
+            is_add_passenger: true,
           }]
         }else if(this.strokeTableType === '往返'){
           this.addStrokeArr = [{
@@ -2707,11 +2775,13 @@
             initial_station: '',  // 发站
             stop_station: '', // 到站
             trips_number: '',  // 车次
+            is_add_passenger: true,
           },{
             riding_time: '',  // 行程时间
             initial_station: '',  // 发站
             stop_station: '', // 到站
             trips_number: '',  // 车次
+            is_add_passenger: true,
           }]
         }else if(this.strokeTableType === '中转'){
           this.addStrokeArr = [{
@@ -2719,11 +2789,13 @@
             initial_station: '',  // 发站
             stop_station: '', // 到站
             trips_number: '',  // 车次
+            is_add_passenger: true,
           },{
             riding_time: '',  // 行程时间
             initial_station: '',  // 发站
             stop_station: '', // 到站
             trips_number: '',  // 车次
+            is_add_passenger: true,
           }]
         }else if(this.strokeTableType === '中转往返'){
           this.addStrokeArr = [{
@@ -2731,21 +2803,25 @@
             initial_station: '',  // 发站
             stop_station: '', // 到站
             trips_number: '',  // 车次
+            is_add_passenger: true,
           },{
             riding_time: '',  // 行程时间
             initial_station: '',  // 发站
             stop_station: '', // 到站
             trips_number: '',  // 车次
+            is_add_passenger: true,
           },{
             riding_time: '',  // 行程时间
             initial_station: '',  // 发站
             stop_station: '', // 到站
             trips_number: '',  // 车次
+            is_add_passenger: true,
           },{
             riding_time: '',  // 行程时间
             initial_station: '',  // 发站
             stop_station: '', // 到站
             trips_number: '',  // 车次
+            is_add_passenger: true,
           }]
         }
 
@@ -2779,6 +2855,7 @@
           passengers: this.addStrokePassengers,
           info: JSON.stringify(newArr)
         }
+        console.log(data);
         if(submitType){
           this.addStrokeLoading = true
           this.$axios.post('/api/order/addTrips',data)
@@ -2990,7 +3067,20 @@
        * @date 2019/12/10
       */
       addSelectAllTableData(){
-
+        console.log(this.selectAllEditTable);
+        console.log(this.addTrainTableArray);
+        this.addTrainTableArray.forEach(item =>{
+          item.info.forEach(cItem =>{
+            cItem.passenger.forEach(dItem =>{
+              if(dItem.checked){
+                dItem.ticket_species = this.selectAllEditTable.ticket_species || ''
+                dItem.ticket_type = this.selectAllEditTable.ticket_type || ''
+                dItem.remarks = this.selectAllEditTable.remarks || ''
+                dItem.missed_meals_money = this.selectAllEditTable.missed_meals_money || 0
+              }
+            })
+          })
+        })
       },
 
       /**
@@ -3029,6 +3119,7 @@
                   dItem.ticket_type === '网票' ? 1:
                       dItem.ticket_type === '纸票' ? 2: '' // 车票类型 0:电子票、1:网票、2:纸票
               console.log(dItem.ticket_species);
+              console.log(dItem.missed_meals_money);
               dItem.ticket_species = dItem.ticket_species === '成人票' ? 0 : dItem.ticket_species === '儿童票'? 1: 0   // 车票类型
             })
           })
@@ -3053,7 +3144,6 @@
           remarks: this.orderInfo.remarks || '',
           route: JSON.stringify(orderList),
         }
-        console.log(data);
         this.$axios.post('/api/order/add',data)
             .then(res =>{
               if(res.data.code === 0){
@@ -3143,6 +3233,7 @@
     align-items: unset;
     justify-content: unset;
     position: fixed !important;
+    min-height: 900px;
     .el-dialog {
       margin: unset !important;
       top: 20%;
@@ -3203,6 +3294,9 @@
           background: #eef7ff;
           padding: 0 10px;
           justify-content: space-between;
+          &.hidden{
+            opacity: .5;
+          }
           &:not(:last-child){
             border-bottom: 2px solid #fff;
           }
@@ -3339,6 +3433,24 @@
     .addOrderTable{
       margin-bottom: 30px;
       /deep/.add_order_table{
+        .el-table__header{
+          tr{
+            .el-table-column--selection{
+              .cell{
+                padding: 0 3px;
+                &::before{
+                  content: '选择';
+                  color: #909399;
+                  font-weight: bold;
+                }
+                .el-checkbox{
+                  display: none;
+                }
+              }
+            }
+          }
+        }
+
         td{
           padding: 2px 0;
         }
@@ -3922,6 +4034,7 @@
 
     /*批量编辑*/
     /deep/.batch_edit_dialog{
+      min-width: 435px;
       .el-dialog__header{
         height: 40px;
         .el-dialog__title{

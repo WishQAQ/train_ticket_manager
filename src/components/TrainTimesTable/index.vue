@@ -36,35 +36,35 @@
           label="乘客信息+票种">
         <template slot-scope="scope">
           <div class="user_message">
-            <div v-if="tableRoleStatus.name.show">
+            <div>
               <el-input
                   style="width: 70px"
                   size="mini"
                   v-model="newDataForm[scope.row.tableIndex].name"
-                  v-if="tableModify === 'edit' && tableRoleStatus.name.read"
+                  v-if="tableModify === 'edit'"
                   :placeholder="scope.row.name"
                   @blur="loseFcous(tableData, scope.row, 'name', scope.row.name,newDataForm[scope.row.tableIndex].name)">
               </el-input>
               <span v-else>{{scope.row.name}}</span>
             </div>
-            <div v-if="tableRoleStatus.IDCard.show">
+            <div>
               <el-input
                   style="width: 135px"
                   size="mini"
                   v-model="newDataForm[scope.row.tableIndex].IDCard"
-                  v-if="tableModify === 'edit' && tableRoleStatus.IDCard.read"
+                  v-if="tableModify === 'edit'"
                   :placeholder="scope.row.IDCard"
                   @blur="loseFcous(tableData, scope.row, 'IDCard', scope.row.IDCard,newDataForm[scope.row.tableIndex].IDCard)">
               </el-input>
               <span style="margin: 0 10px" v-else>{{scope.row.IDCard}}</span>
             </div>
-            <div v-if="tableRoleStatus.ticket_species.show">
+            <div>
               <el-select size="mini"
                          @change="loseFcous(tableData, scope.row, 'ticket_species', scope.row.ticket_species,newDataForm[scope.row.tableIndex].ticket_species)"
                          style="width: 68px"
                          v-model="newDataForm[scope.row.tableIndex].ticket_species"
                          :placeholder="scope.row.ticket_species === 0 ? '成人票': '儿童票'"
-                         v-if="tableModify === 'edit' && tableRoleStatus.ticket_species.read">
+                         v-if="tableModify === 'edit'">
                 <el-option label="成人票" value="0"/>
                 <el-option label="儿童票" value="1"/>
               </el-select>
@@ -199,7 +199,7 @@
         </template>
       </el-table-column>
       <el-table-column
-          width="200"
+          width="130"
           show-overflow-tooltip
           v-if="tableRoleStatus.payment_account.show && showTableRows"
           label="支付账号">
@@ -215,7 +215,7 @@
         </template>
       </el-table-column>
       <el-table-column
-          width="200"
+          width="130"
           show-overflow-tooltip
           v-if="tableRoleStatus.payment_flow_number.show && showTableRows"
           label="支付流水">
@@ -231,7 +231,7 @@
         </template>
       </el-table-column>
       <el-table-column
-          width="200"
+          width="130"
           v-if="tableRoleStatus['12306_account'].show && showTableRows"
           show-overflow-tooltip
           label="1230账号">
@@ -247,7 +247,7 @@
         </template>
       </el-table-column>
       <el-table-column
-          width="200"
+          width="130"
           show-overflow-tooltip
           v-if="tableRoleStatus['12306_account'].show && showTableRows"
           label="1230密码">

@@ -6,7 +6,7 @@
     </div>
     <div class="notice_main" v-loading="loading">
       <el-card
-          v-for="(item,index) in this.noticeList"
+          v-for="(item,index) in noticeList"
           :key="index"
           class="notice_card"
           :style="{background: 'rgba('+noticeColor[index]+')'}"
@@ -113,9 +113,14 @@
        * @date 2019/11/25
       */
       openNote(){
-        this.editNote = true
-        this.addDialog = true
-        this.noteForm ={}
+        if(this.noticeList.length < 4){
+          this.editNote = true
+          this.addDialog = true
+          this.noteForm ={}
+        }else {
+          this.$message.warning('只能上传4条重要通知，如需上传新通知请删除或修改旧通知')
+        }
+
       },
 
       /**
@@ -124,7 +129,6 @@
        * @date 2019/9/27
        */
       openEditBtn(data){
-        console.log(data);
         this.noteId = data.id
         this.editNote = false
         this.addDialog = true
@@ -287,7 +291,7 @@
               text-align: justify;
               display: -webkit-box;
               overflow: hidden;
-              -webkit-line-clamp: 7;
+              -webkit-line-clamp: 15;
               -webkit-box-orient: vertical;
               white-space: pre-wrap;
             }
