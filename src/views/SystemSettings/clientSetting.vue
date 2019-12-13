@@ -35,6 +35,10 @@
             label="订单前缀">
         </el-table-column>
         <el-table-column
+            prop="customerId"
+            label="客户商ID">
+        </el-table-column>
+        <el-table-column
             prop="contact"
             label="联系方式">
         </el-table-column>
@@ -96,6 +100,9 @@
         <el-form-item label="订单号前缀配置">
           <el-input v-model="addDataForm.prefix"></el-input>
         </el-form-item>
+        <el-form-item label="客户商ID">
+          <el-input v-model="addDataForm.customerId"></el-input>
+        </el-form-item>
         <el-form-item label="联系方式">
           <el-input  maxlength="11" show-word-limit v-model="addDataForm.contact"></el-input>
         </el-form-item>
@@ -125,10 +132,7 @@
 
         addDialog: false, // 添加弹窗
         addDataForm: {
-          name: '',
-          prefix: '',
-          contact: '',
-          address: ''
+
         },
         dialogType: true,  // 弹窗状态
 
@@ -144,16 +148,12 @@
     methods:{
       getDataList(type){
         this.loading = true
-        let data
-
-        if(type === 'search'){
-          data = JSON.parse(JSON.stringify(this.searchForm))
-          data['page'] = this.page || null
-          data.time?data.time = this.$dateToDate(data.time):''
-        }else {
-          data = {
-            page: this.page || null,
-          }
+        let data = {
+          page: this.page || null,
+          name: this.searchForm.name || null,
+          contact: this.searchForm.contact || null,
+          address: this.searchForm.address || null,
+          time: this.searchForm.time? this.$dateToDate(this.searchForm.time) || null: null
         }
 
         this.$axios.post('/api/user/customer/show/'+this.per_page || null,data)
@@ -180,6 +180,7 @@
         this.addDataForm = {
           name: '',
           prefix: '',
+          customerId: '',
           contact: '',
           address: ''
         }
@@ -192,7 +193,7 @@
       */
       submitAdd(){
         if(this.dialogType){  // 新建
-          if(this.addDataForm.name && this.addDataForm.prefix){
+          if(this.addDataForm.name){
             this.$axios.post('/api/user/customer/add',this.addDataForm)
                 .then(res =>{
                   if(res.data.code === 0){
@@ -209,7 +210,7 @@
 
         }else { // 修改
           this.addDataForm['type'] = 0
-          if(this.addDataForm.name && this.addDataForm.prefix){
+          if(this.addDataForm.name){
             this.$axios.post('/api/user/customer/operation',this.addDataForm)
                 .then(res =>{
                   if(res.data.code === 0){
@@ -233,6 +234,7 @@
        * @date 2019/10/8
       */
       editBtn(val){
+        console.log(val);
         this.addDataForm = {}
         this.dialogType = false
         val['prefix'] = val.order_prefix

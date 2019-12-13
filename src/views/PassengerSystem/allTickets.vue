@@ -36,7 +36,7 @@
           start-placeholder="出票开始日期"
           end-placeholder="出票结束日期">
       </el-date-picker></div>
-      <div><el-button @click="submitSearchBtn">搜索</el-button></div>
+      <div><el-button @click="getData">搜索</el-button></div>
     </div>
     <div class="ticket_main">
       <el-table
@@ -247,9 +247,22 @@
             this.$route.meta.name === '未出票订单' ?'1':''
         let data ={
           page: this.page || null,
+          name: this.searchForm.name || null,
+          pay_account: this.searchForm.pay_account || null,
+          running_account: this.searchForm.running_account || null,
+          '12306_account': this.searchForm.train_account || null,
+          order: this.searchForm.order || null,
+          ticket_status: this.searchForm.ticket_status || null,
+          departure: this.searchForm.departure || null,
+          arrive: this.searchForm.arrive || null,
         }
-
-        this.$axios.get('/api/system/passengerTicket/' + this.rulType + '/'+this.per_page || null,{params: data})
+        if(this.searchForm.ridingTime){
+          this.searchForm.ridingTime?data['ridingBegin'] = this.$dateToMs(this.searchForm.ridingTime[0] / 1000): ''
+          this.searchForm.ridingTime?data['ridingEnd'] = this.$dateToMs(this.searchForm.ridingTime[1] / 1000): ''
+          this.searchForm.beginTime?data['begin'] = this.$dateToMs(this.searchForm.beginTime[0] / 1000): ''
+          this.searchForm.beginTime?data['end'] = this.$dateToMs(this.searchForm.beginTime[1] / 1000): ''
+        }
+        this.$axios.post('/api/system/passengerTicket/' + this.rulType + '/'+this.per_page || null,data)
             .then(res =>{
               this.ticketData = res.data.result.data
               this.paginationList = res.data.result
@@ -277,36 +290,6 @@
             type: 'details'
           }
         })
-      },
-
-      /**
-       * @Description: 搜索
-       * @author Wish
-       * @date 2019/10/25
-      */
-      submitSearchBtn(){
-        let data ={
-          name: this.searchForm.name,
-          pay_account: this.searchForm.pay_account,
-          running_account: this.searchForm.running_account,
-          '12306_account': this.searchForm.train_account,
-          order: this.searchForm.order,
-          ticket_status: this.searchForm.ticket_status,
-          departure: this.searchForm.departure,
-          arrive: this.searchForm.arrive,
-        }
-        if(this.searchForm.ridingTime){
-          this.searchForm.ridingTime?data['ridingBegin'] = this.$dateToMs(this.searchForm.ridingTime[0] / 1000): ''
-          this.searchForm.ridingTime?data['ridingEnd'] = this.$dateToMs(this.searchForm.ridingTime[1] / 1000): ''
-          this.searchForm.beginTime?data['begin'] = this.$dateToMs(this.searchForm.beginTime[0] / 1000): ''
-          this.searchForm.beginTime?data['end'] = this.$dateToMs(this.searchForm.beginTime[1] / 1000): ''
-        }
-        this.$axios.post('/api/system/passengerTicket/' + this.rulType + '/'+this.per_page,data)
-            .then(res =>{
-              this.ticketData = res.data.result.data
-              this.paginationList = res.data.result
-              this.loading = false
-            })
       },
 
       /**

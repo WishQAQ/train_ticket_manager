@@ -172,7 +172,6 @@
     },
     created() {
       let newChildrenMenu = []
-
       this.newrouter = this.$store.state.newrouter
       bus.$on('tabName',function (val) {
         this.tabMenuName = val
@@ -195,6 +194,7 @@
               }
             })
           })
+          console.log(this.newrouter);
           this.newrouter.push({
             path: item.menu_english_name,
             name: item.menu_english_name,
@@ -204,8 +204,6 @@
           })
         }
       })
-
-      console.log(this.newrouter);
     }
   }
 </script>

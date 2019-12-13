@@ -51,7 +51,7 @@
               label="操作">
             <template slot-scope="scope">
               <el-dropdown trigger="click">
-                <el-button size="mini" :disabled="scope.row.role_name === '超级管理员'">操作</el-button>
+                <el-button size="mini" :disabled="scope.row.role_name === '超级管理员' || scope.row.role_name === '普通用户'">操作</el-button>
                 <el-dropdown-menu slot="dropdown">
                   <el-dropdown-item><div @click="roleUserOperating(scope.row)">{{scope.row.status === 0?'停用':'启用'}}</div></el-dropdown-item>
                   <el-dropdown-item><div @click="deleteRole(scope.row)">删除</div></el-dropdown-item>
@@ -78,7 +78,7 @@
           <el-input
               maxlength="10"
               show-word-limit
-              :disabled="userInfo.role_name === '超级管理员'"
+              :disabled="userInfo.role_name === '超级管理员' || userInfo.role_name === '普通用户'"
               v-model="userInfo.role_name">
           </el-input>
         </el-form-item>

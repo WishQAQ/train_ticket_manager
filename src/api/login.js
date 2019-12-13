@@ -14,6 +14,9 @@ export function loginByUserInfo(username, password) {
      if(res.data.result.permission.isHighest){
        sessionStorage.setItem('isHighest', '超级管理员');
      }
+     if(res.data.result.permission.role_name === '普通用户'){
+       sessionStorage.setItem('roleUserStatus', '[\'paa47tbjsoje\',\'dju63yicid7h\']');
+     }
 
     if(res.data.code === 0){
       // 页面跳转

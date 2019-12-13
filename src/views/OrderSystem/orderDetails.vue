@@ -5,7 +5,7 @@
         <i :class="headerDetails?'el-icon-remove-outline':'el-icon-circle-plus-outline'"/>
         订单Q群原始信息
       </div>
-      <a class="header_btn" :href="this.orderInfo.source_file" download="原始文件" v-if="urlType === 'details' && this.orderInfo.source_file">原始文件下载</a>
+      <el-button class="header_btn" v-if="urlType !== 'add' && this.orderInfo.source_file && roleType === 0" @click="filesDownload">源文件下载</el-button>
     </div>
 
     <!-- Q群信息展开 -->
@@ -133,9 +133,11 @@
         </div>
       </div>
       <div class="add_upload" v-if="urlType === 'add' && roleType === 0">
+        <div class="title">文件上传</div>
         <div class="add_user_photo_btn"><el-button type="primary" @click="openAddUserPhotoBtn"><i class="el-icon-camera-solid"/> 证件照片</el-button></div>
+        <div class="add_user_photo_btn"><el-button type="primary" @click="openAddUserFileBtn"><i class="el-icon-upload"/> 源文件</el-button></div>
 <!--        <UploadLeaflet v-on:uploadAddress="uploadUserData" :messageText="'证件照片'"/>-->
-        <UploadLeaflet v-on:uploadAddress="uploadFileData" :messageText="'源文件'"/>
+
       </div>
       <div class="info_upload" v-if="urlType === 'edit' || orderInfo.ticket_photos.length > 0 && roleType === 0">
         <div class="upload_image_main">
@@ -157,12 +159,12 @@
         <div class="info_upload_right_box">
           <div class="info_message_box">
             <p>车票照片</p>
-            <el-button v-if="urlType === 'edit'" @click="openUploadBox" type="primary" size="mini">车票/快递单上传</el-button>
+            <el-button v-if="urlType === 'edit' && roleType === 0" @click="openUploadBox" type="primary" size="mini">车票/快递单上传</el-button>
             <el-button v-else type="primary" size="mini" @click="downAllPhoto"><a>下载所有图片</a></el-button>
           </div>
           <div class="info_message_button" v-if="urlType !== 'details' && roleType === 0">
             <el-button
-                v-if="urlType === 'edit'"
+                v-if="urlType === 'edit' && roleType === 0"
                 type="success"
                 v-loading="allAddSubmitLoading"
                 :disabled="allAddSubmitLoading"
@@ -270,7 +272,7 @@
               <el-table-column
                   label="票种">
                 <template slot-scope="scope">
-                  <el-select size="mini" v-model="scope.row.ticket_species" placeholder="请选择">
+                  <el-select @input="change($event)" size="mini" v-model="scope.row.ticket_species" placeholder="请选择">
                     <el-option label="成人票" value="成人票"/>
                     <el-option label="儿童票" value="儿童票"/>
                   </el-select>
@@ -279,7 +281,7 @@
               <el-table-column
                   label="车票类型">
                 <template slot-scope="scope">
-                  <el-select size="mini" v-model="scope.row.ticket_type" placeholder="请选择">
+                  <el-select @input="change($event)" size="mini" v-model="scope.row.ticket_type" placeholder="请选择">
                     <el-option label="网票" value="网票"/>
                     <el-option label="纸票" value="纸票"/>
                     <el-option label="电子票" value="电子票"/>
@@ -378,13 +380,13 @@
             <el-button type="warning"
                        @click="openBatchEdit"
                        :loading="batchEditLoading"
-                       v-if="urlType === 'edit'">
+                       v-if="urlType === 'edit' && roleType === 0">
               批量修改</el-button>
             <el-button type="danger"
                        @click="deleteOrderList"
-                       v-if="urlType === 'edit'">
+                       v-if="urlType === 'edit' && roleType === 0">
               批量删除</el-button>
-            <el-button type="primary" v-if="urlType === 'edit'" @click="addStrokeBtn">添加行程</el-button>
+            <el-button type="primary" v-if="urlType === 'edit' && roleType === 0" @click="addStrokeBtn">添加行程</el-button>
           </div>
 <!--          <el-button v-if="urlType === 'edit'">导出菜单</el-button>-->
         </div>
@@ -490,17 +492,20 @@
               </el-button>
             </div>
             <TrainTimesTable
+                v-if="showTrainTable"
                 v-on:tableRowsData="editTableRows"
                 v-on:checkTableData="checkTableList"
                 v-on:jumpPayTicket="jumpPayTicket"
                 v-on:jumpEditTicket="jumpEditTicket"
+                v-on:tableRowsUserData="tableRowsUserData"
                 :tableRoleStatus="tableRoleStatus"
                 :tableModify="urlType"
                 :index="index"
                 :cIndex="cIndex"
                 :showTableRows="showTableType"
                 :orderInfo="item"
-                :tableData="cItem.passengers.data">
+                :tableData="cItem.passengers.data"
+                :dbTableData="dbPassengerInfo[index].route_config[cIndex].passengers.data">
             </TrainTimesTable>
           </div>
         </div>
@@ -621,24 +626,25 @@
         </div>
       </div>
 
-<!--      <div class="submitAllDataBtn" v-if="urlType !== 'details' && roleType === 0">-->
-<!--        <el-button-->
-<!--            v-if="urlType === 'edit'"-->
-<!--            type="primary"-->
-<!--            v-loading="allAddSubmitLoading"-->
-<!--            :disabled="allAddSubmitLoading"-->
-<!--            @click="allEditSubmit">-->
-<!--          全部保存-->
-<!--        </el-button>-->
-<!--      </div>-->
-
+      <!--
+      <div class="submitAllDataBtn" v-if="urlType !== 'details' && roleType === 0">
+        <el-button
+            v-if="urlType === 'edit'"
+            type="primary"
+            v-loading="allAddSubmitLoading"
+            :disabled="allAddSubmitLoading"
+            @click="allEditSubmit">
+          全部保存
+        </el-button>
+      </div>
+      -->
 
     </div>
 
     <!-- 添加证件照片弹窗 -->
     <el-dialog
         v-dialogDrag
-        title="证件照片"
+        title="证件照片上传"
         width="810px"
         custom-class="add_user_photo_dialog"
         :visible.sync="addUserPhotoDialog">
@@ -658,6 +664,28 @@
             v-on:uploadAddress="uploadUserPhoto"
             :messageText="'证件照片'"/>
         <div class="not_photo_message" v-if="orderInfo.certificates.length < 1 && urlType === 'details'">暂无证件照片</div>
+      </div>
+    </el-dialog>
+
+    <!-- 添加原始文件弹窗 -->
+    <el-dialog
+        v-dialogDrag
+        title="源文件上传"
+        width="810px"
+        custom-class="add_user_photo_dialog"
+        :visible.sync="addUserFileDialog">
+      <div class="dialog_main">
+        <div class="add_upload_files_box">
+          <div class="add_upload_file_list" v-for="(item, index) in add_file_data" :key="index">
+            <p>{{item.split('/').pop()}}</p>
+            <span @click="deleteAddFileList(item,index)" class="el-icon-error"/>
+          </div>
+        </div>
+        <UploadLeaflet
+            v-if="urlType !== 'details'"
+            ref="uploadFile"
+            v-on:uploadAddress="uploadFileData"
+            :messageText="'源文件'"/>
       </div>
     </el-dialog>
 
@@ -733,7 +761,7 @@
           <div class="main_box_title">原路线信息</div>
           <div class="main_box_content" :style="{ opacity: '.5'}">
             <div class="content_route" v-for="(cItem,cIndex) in item.route" :key="cIndex">
-              <div>{{$getTimeYear(cItem.riding_time * 1000)}}</div>
+              <div>{{$getTimeYear(cItem.riding_time)}}</div>
               <div class="route_message">
                 <span>{{cItem.departure_station}}</span>
                 <p>{{cItem.trips_number}}</p>
@@ -765,15 +793,14 @@
                   <el-date-picker
                       size="mini"
                       @input="change($event)"
-                      v-model="item.riding_time"
-                      type="date"
-                      :placeholder="$getTimeYear(cItem.riding_time * 1000)">
+                      v-model="dbBatchEditInfo[index].route[cIndex].riding_time"
+                      type="date">
                   </el-date-picker>
                 </div>
                 <div class="route_message edit_route_message" style="margin-top: 5px;margin-left: 0;width: 100%;justify-content: space-between">
                   <div style="width: 105px">
-                    <el-input size="mini" clearable @input="change($event)" v-model="item.departure_station"
-                              :placeholder="cItem.departure_station"/></div>
+                    <el-input size="mini" clearable @input="change($event)" v-model="dbBatchEditInfo[index].route[cIndex].departure_station"/>
+                  </div>
                   <div style="width: 60px">
                     <el-select size="mini" clearable @input="change($event)" v-model="item.directionOne" placeholder="">
                       <el-option label="东" value="东"/>
@@ -782,8 +809,8 @@
                       <el-option label="北" value="北"/>
                     </el-select>
                   </div>
-                  <p style="margin: 0 5px"><el-input size="mini" clearable @input="change($event)" v-model="item.trips_number" :placeholder="cItem.trips_number"/></p>
-                  <div style="width: 105px"><el-input size="mini" clearable @input="change($event)" v-model="item.arrival_station" :placeholder="cItem.arrival_station"/></div>
+                  <p style="margin: 0 5px"><el-input size="mini" clearable @input="change($event)" v-model="dbBatchEditInfo[index].route[cIndex].trips_number"/></p>
+                  <div style="width: 105px"><el-input size="mini" clearable @input="change($event)" v-model="dbBatchEditInfo[index].route[cIndex].arrival_station"/></div>
                   <div style="width: 60px">
                     <el-select size="mini" clearable @input="change($event)" v-model="item.directionTwo" placeholder="">
                       <el-option label="东" value="东"/>
@@ -902,7 +929,7 @@
           </div>
         </div>
 
-        <el-button size="mini" style="margin-top: 10px" type="primary" @click="saveEditBtn(item.ticket_status,item,item.route,$event)">保存</el-button>
+        <el-button size="mini" :disabled="item.disabled" style="margin-top: 10px" type="primary" @click="saveEditBtn(item.ticket_status,item,item.route,index)">保存</el-button>
 
       </div>
       <div slot="footer" class="dialog-footer" style="justify-content: flex-end">
@@ -939,7 +966,7 @@
         <div>
           由于系统检测到原路线
           <div class="edit_route_info" style="display: inline-flex; font-weight: bold; font-size: 12px;margin-bottom: 15px">
-            {{$getTimeYear(editRouteInfo[0].riding_time * 1000)}}
+            {{$getTimeYear(editRouteInfo[0].riding_time)}}
             {{editRouteInfo[0].departure_station}}
             <span style="margin: 0 8px;color: #409EFF;position: relative;top: -3px">{{editRouteInfo[0].trips_number}}</span>
             {{editRouteInfo[0].arrival_station}}
@@ -972,6 +999,8 @@
           <el-radio-button label="中转"></el-radio-button>
           <el-radio-button label="中转往返"></el-radio-button>
         </el-radio-group>
+
+<!--        <div @click="add">添加行程</div>-->
 
         <div class="add_stroke_table">
           <div class="table_header">
@@ -1192,6 +1221,10 @@
 
   import GetTicketData from '../../api/FeHelper-20191122183718'
 
+  function sortNum(a,b) {
+    return b - a;
+  }
+
   export default {
     name: "orderDetails",
     components:{
@@ -1261,11 +1294,16 @@
          * 上传
          */
         userCardImage: '', // 证件照片
+
         fileList: [], // 上传文件列表
 
         ticketPhotoList: [], // 车票图片列表
 
         passengerInfo: [], // 乘客信息列表 筛选表格状态 0:单程 1：往返 2：中转 3：中转往返
+
+        dbPassengerInfo: [], // 乘客信息列表备份
+
+        showTrainTable: true, // 表格显示
 
         passengerSearch: { // 乘客信息搜索
           info: '',
@@ -1319,11 +1357,14 @@
         addUserPhotoDialog: false, // 证件照片上传框
 
         add_user_data: '', // 新增 证件照片上传
-        add_file_data: '', // 新增 源文件上传
+        add_file_data: [], // 新增 源文件上传
+        addUserFileDialog: false,  // 上传原始文件弹窗
 
         checkedTableList: {}, // 表格乘客多选列表
         checkedRouteList: {}, // 表格路线多选列表
-        editOrderToken: {},
+        editOrderToken: {},  // 路线token
+        editOrderPrice: {}, // 票价
+
         orderRouteId: '', // 父数组下标
         orderTableId: '', // 子数组下标
         selectOrderId: 0, // 选择器自增下标
@@ -1337,7 +1378,11 @@
             information: [],
           }
         },
+
+        checkedEditData: {},
         batchEditInfo: [],  // 批量修改数据
+        dbBatchEditInfo: [], // 批量修改备份
+        dbEditRouteData: {},
         selectTicketStatus: '', // 选择车票状态
 
         routeStatus: '', // 修改行程状态
@@ -1424,6 +1469,24 @@
 
               link.href = URL.createObjectURL(res.data); //创建一个指向该参数对象的URL
               link.download = this.orderSn+ '车票照片包.zip';
+              link.click(); // 触发下载
+              URL.revokeObjectURL(link.href);
+            })
+      },
+
+      /**
+       * @Description: 下载所有源文件
+       * @author Wish
+       * @date 2019/12/12
+      */
+      filesDownload(){
+        this.$axios.get('/api/order/downloadFile/'+this.orderSn,{responseType: 'blob'})
+            .then(res =>{
+              let link = document.createElement('a');
+              link.style.display = 'none';
+
+              link.href = URL.createObjectURL(res.data); //创建一个指向该参数对象的URL
+              link.download = this.orderSn+ '源文件包.zip';
               link.click(); // 触发下载
               URL.revokeObjectURL(link.href);
             })
@@ -1564,6 +1627,8 @@
                 ticketNumber = 0
                 ticketPrice = 0
               })
+
+              this.dbPassengerInfo = JSON.parse(JSON.stringify(this.passengerInfo))
               this.getOrderLog()
             })
       },
@@ -1575,13 +1640,51 @@
       */
       passengerSearchBtn(){
         this.loading = true;
+        this.showTrainTable = false
+        this.showPassengersTable = false
         this.passengerSearch['trip_time'] = JSON.parse(JSON.stringify(this.passengerSearch.newTripTime / 1000))
         this.passengerSearch['draw_bill_time'] = JSON.parse(JSON.stringify(this.passengerSearch.newDrawBillTime / 1000))
         this.$axios.post('/api/order/detailsRoute/'+this.orderSn,this.passengerSearch)
             .then(res =>{
-              console.log(res);
+              this.showTrainTable = true
+              this.showPassengersTable = true
               this.loading = false
+              let ticketNumber = 0
+              let ticketPrice = 0
               this.passengerInfo = res.data
+              this.passengerInfo.forEach((item,index) =>{
+                console.log(item, index);
+                let r = Math.floor(Math.random()*255);
+                let g = Math.floor(Math.random()*255);
+                let b = Math.floor(Math.random()*255);
+                item['color'] = 'rgba('+ r +','+ g +','+ b +',1)'
+                this.passengerInfo[index]['itemIndex'] = index
+                this.newEditTableForm.push({
+                  express_fee: '', // 快递费
+                  refund_fare: '', // 退改交通费
+                })
+                item.express_fee = item.express_fee?item.express_fee: '0.00'
+                item.refund_fare = item.refund_fare?item.refund_fare: '0.00'
+                item.route_config.forEach((cItem,cIndex) =>{
+                  item.route_config[cIndex]['cItemIndex'] = cIndex
+                  this.newEditTableRouteForm.push({
+                    ticket_check: '',  // 检票口
+                  })
+
+                  if(cIndex < item.route_config.length){
+                    ticketNumber += cItem.numberSheet
+                    if(cItem.totalPrice !== 0){
+                      ticketPrice += cItem.totalPrice
+                    }
+                    this.passengerInfo[index]['ticketNumber'] = ticketNumber
+                    this.passengerInfo[index]['ticketPrice'] =  Math.floor(ticketPrice * 100) / 100
+                  }
+                })
+                ticketNumber = 0
+                ticketPrice = 0
+              })
+              this.dbPassengerInfo = JSON.parse(JSON.stringify(this.passengerInfo))
+
             })
       },
 
@@ -1886,7 +1989,6 @@
        * @date 2019/12/2
       */
       uploadUserPhoto(val){
-        console.log(val);
         this.orderInfo.certificates.push(val)
         this.$refs.uploadImage.closedImage()
       },
@@ -1898,6 +2000,35 @@
       */
       deleteUserImage(val){
         this.orderInfo.certificates.splice(this.orderInfo.certificates.findIndex(item => item === val), 1);
+      },
+
+      /**
+       * @Description: 打开源文件上传弹窗
+       * @author Wish
+       * @date 2019/12/12
+       */
+      openAddUserFileBtn(){
+        this.addUserFileDialog = true
+      },
+      /**
+       * @Description: 新增原文件上传
+       * @author Wish
+       * @date 2019/12/2
+       */
+      uploadFileData(val){
+        console.log(val);
+        this.add_file_data.push(val)
+        this.$refs.uploadFile.closedImage()
+        console.log(this.add_file_data);
+      },
+
+      /**
+       * @Description: 删除新增源文件
+       * @author Wish
+       * @date 2019/12/12
+      */
+      deleteAddFileList(val,index){
+        this.add_file_data.splice(this.add_file_data.findIndex(item => item === val), 1);
       },
 
       /**
@@ -2114,6 +2245,48 @@
       },
 
       /**
+       * @Description: 修改客户资料
+       * @author Wish
+       * @date 2019/12/12
+      */
+      tableRowsUserData(orderInfo, data, rowName, row){
+        /**
+         * @Description: 遍历数组对比相同乘客路线，输出当前路线id
+         * @author Wish
+         * @data 2019/11/7
+         */
+        let routeId
+        orderInfo.route_config.forEach(item =>{
+          item.passengers.data.forEach(cItem =>{
+            if(cItem.id === data.id){
+              routeId = item.id
+            }
+          })
+        })
+        let infoData = {}
+        // infoData['passenger_id'] = data.id
+        infoData['field'] = rowName === 'account' ? '12306_account': rowName
+        infoData['value'] = row
+        let param ={
+          order_sn: orderInfo.order_sn,
+          token: orderInfo.parent_id,
+          route: routeId,
+          passenger_id: data.id,
+          info: JSON.stringify(infoData),
+        }
+        this.$axios.post('/api//order/modifyPassengerInfo',param)
+            .then(res =>{
+              if(res.data.code === 0){
+                this.$message.success('修改成功')
+                this.getPassengerList()
+              }else {
+                this.$message.warning(res.data.msg)
+                this.getPassengerList()
+              }
+            })
+      },
+
+      /**
        * @Description: 新增备注信息
        * @author Wish
        * @date 2019/10/30
@@ -2255,10 +2428,12 @@
        * @author Wish
        * @date 2019/10/30
       */
-      checkTableList(userId,userRoute, routeIndex, tableIndex,orderId, token){
+      checkTableList(userId,userRoute, routeIndex, tableIndex,orderId, token, userTicketPrice){
         this.checkedTableList[String(routeIndex)+String(tableIndex)] = userId
         this.checkedRouteList[String(routeIndex)+String(tableIndex)] = userRoute
         this.editOrderToken[String(routeIndex)+String(tableIndex)] = token
+
+        this.editOrderPrice[String(routeIndex)+String(tableIndex)] = userTicketPrice  // 票价
 
         if(this.checkedTableList[String(routeIndex)+String(tableIndex)].length < 1){
           delete this.checkedTableList[String(routeIndex)+String(tableIndex)]
@@ -2268,6 +2443,9 @@
         }
         if(this.editOrderToken[String(routeIndex)+String(tableIndex)].length < 1){
           delete this.editOrderToken[String(routeIndex)+String(tableIndex)]
+        }
+        if(this.editOrderPrice[String(routeIndex)+String(tableIndex)].length < 1){
+          delete this.editOrderPrice[String(routeIndex)+String(tableIndex)]
         }
 
         this.orderId = orderId
@@ -2338,6 +2516,9 @@
         this.batchEditDialog = false
         this.getPassengerList()
         this.closedSelectList()
+        this.batchEditInfo.forEach(item =>{
+          item.disabled = false
+        })
       },
 
       /**
@@ -2346,14 +2527,17 @@
        * @date 2019/11/1
       */
       openBatchEdit(){
+        console.log(this.editOrderPrice);
         this.batchEditList = []
         let newTokenArr = []
+        let newPriceArr = []
         for(let key in this.checkedTableList){
           this.batchEditList.push({
             route_id: String(this.checkedRouteList[key]),
             passengers: String(this.checkedTableList[key])
           })
           newTokenArr.push(this.editOrderToken[key])
+          newPriceArr.push(this.editOrderPrice[key])
         }
         newTokenArr = Array.from([...new Set(newTokenArr)])
         if(this.batchEditList.length > 0){
@@ -2376,7 +2560,10 @@
                     this.batchEditData = res.data.result
                     this.batchEditInfo = JSON.parse(JSON.stringify(this.batchEditData.info.information))
                     console.log(this.batchEditInfo);
-                    this.batchEditInfo.forEach(item =>{
+                    this.batchEditInfo.forEach((item,index) =>{
+                      item.route[0].riding_time = item.route[0].riding_time * 1000
+                      item['editPriceData'] = newPriceArr[index].sort(sortNum)[0] || 0
+                      item['disabled'] = false
                       item['riding_time']= '' // 行车日期
                       item['departure_station']= '' // 发站
                       item['arrival_station']= '' // 到站
@@ -2399,6 +2586,7 @@
                       //             item.ticket_status === 3 ? '已改签':
                       //                 item.ticket_status === 4 ? '已退票': item.ticket_status
                     })
+                    this.dbBatchEditInfo = JSON.parse(JSON.stringify(this.batchEditInfo))
                   }else {
                     this.batchEditLoading = false
                     this.$message.warning(res.data.msg)
@@ -2452,22 +2640,22 @@
       */
       submitEditRoute(val){
         console.log(val);
-        console.log(this.editRouteData.riding_time);
+        console.log(this.dbEditRouteData);
         this.editRouteDialog = false
         let newForm = {}  // 路线信息
         newForm['type'] = 0
         newForm['route_id'] = this.editRouteData.route_id
         newForm['passengers'] = this.editRouteData.passengers
-        newForm['riding_time'] =  this.$dateToDate(this.editRouteData.riding_time)  || val.riding_time
-        newForm['trips_number'] = this.editRouteData.trips_number || val.trips_number
+        newForm['riding_time'] =  this.dbEditRouteData.route[0].riding_time / 1000 || val.riding_time / 1000
+        newForm['trips_number'] = this.dbEditRouteData.route[0].trips_number || val.trips_number
 
-        if(this.editRouteData.departure_station){
-          newForm['departure'] = this.editRouteData.directionOne? this.editRouteData.departure_station +this.editRouteData.directionOne:this.editRouteData.departure_station
+        if(this.dbEditRouteData.route[0].departure_station){
+          newForm['departure'] = this.editRouteData.directionOne? this.dbEditRouteData.route[0].departure_station +this.editRouteData.directionOne:this.dbEditRouteData.route[0].departure_station
         }else {
           newForm['departure'] = this.editRouteData.directionOne? val.departure_station +this.editRouteData.directionOne:val.departure_station
         }
-        if(this.editRouteData.arrival_station){
-          newForm['arrive'] = this.editRouteData.directionTwo? this.editRouteData.arrival_station +this.editRouteData.directionTwo:this.editRouteData.arrival_station
+        if(this.dbEditRouteData.route[0].arrival_station){
+          newForm['arrive'] = this.editRouteData.directionTwo? this.dbEditRouteData.route[0].arrival_station +this.editRouteData.directionTwo:this.dbEditRouteData.route[0].arrival_station
         }else {
           newForm['arrive'] = this.editRouteData.directionTwo? val.arrival_station +this.editRouteData.directionTwo:val.arrival_station
         }
@@ -2511,19 +2699,40 @@
        * @author Wish
        * @date 2019/11/1
       */
-      saveEditBtn(status,editData,route,domData){
-        console.log(status);
+      saveEditBtn(status,editData,route,rowIndex){
+        console.log(status,editData,route,rowIndex);
+
         this.routeStatus = status
         this.editRouteInfo = route  // 获取原路线信息
         this.editRouteData = editData  // 获取当前输入框数据
+
+        this.dbEditRouteData = this.dbBatchEditInfo[rowIndex]
         console.log(this.editRouteInfo);
         console.log(this.editRouteData);
         let editInfo = {}
         editInfo['route_id'] = this.editRouteData.route_id
         editInfo['passengers'] = this.editRouteData.passengers
 
-        domData.toElement.disabled = true
-        domData.toElement.classList.add('is-disabled')
+        if(status === '3'){
+          if(parseFloat(this.editRouteData.ticket_price) < parseFloat(this.editRouteData.editPriceData)){
+            this.$message.warning('当前修改项最高票价为 '+ this.editRouteData.editPriceData + ' ，请勿修改低于此票价的值')
+            return false;
+          }
+          console.log(parseFloat(this.editRouteData.ticket_price));
+          console.log(parseFloat(this.editRouteData.editPriceData));
+        }
+        if(status === '4'){
+          if(parseFloat(this.editRouteData.refund_fee) > parseFloat(this.editRouteData.editPriceData)){
+            this.$message.warning('当前修改项最高票价为 '+ this.editRouteData.editPriceData + ' ，请勿修改高于此票价的值')
+            return false;
+          }
+        }
+
+        this.batchEditInfo[rowIndex].disabled = true
+
+        // domData.toElement.disabled = true
+        // domData.toElement.classList.add('is-disabled')
+
 
 
         if(status === '0'){  // 未出票
@@ -2560,7 +2769,7 @@
                 }
               })
         }else if(status === '5' || status === '请选择'){  // 啥都没选
-          if(this.editRouteData.riding_time || this.editRouteData.departure_station || this.editRouteData.arrival_station || this.editRouteData.trips_number){
+          if(this.dbBatchEditInfo[rowIndex].route[0].riding_time !== this.editRouteInfo[rowIndex].riding_time || this.dbBatchEditInfo[rowIndex].route[0].departure_station !== this.editRouteInfo[rowIndex].departure_station || this.dbBatchEditInfo[rowIndex].route[0].arrival_station !== this.editRouteInfo[rowIndex].arrival_station || this.dbBatchEditInfo[rowIndex].route[0].trips_number !== this.editRouteInfo[rowIndex].trips_number){
             this.routeStatus = 5
             this.editRouteDialog = true
           }else{
@@ -2568,10 +2777,13 @@
             newForm['type'] = 1
             newForm['route_id'] = this.editRouteData.route_id
             newForm['passengers'] = this.editRouteData.passengers
-            newForm['riding_time'] =  this.editRouteData.route[0].riding_time
-            newForm['departure'] = this.editRouteData.directionOne?this.editRouteData.route[0].departure_station + this.editRouteData.directionOne:this.editRouteData.route[0].departure_station
-            newForm['arrive'] = this.editRouteData.directionTwo?this.editRouteData.route[0].arrival_station + this.editRouteData.directionTwo:this.editRouteData.route[0].arrival_station
-            newForm['trips_number'] = this.editRouteData.route[0].trips_number || ''
+            newForm['riding_time'] =  this.dbBatchEditInfo[rowIndex].route[0].riding_time? this.dbBatchEditInfo[rowIndex].route[0].riding_time / 1000 : ''
+            newForm['departure'] = this.editRouteData.directionOne?this.dbBatchEditInfo[rowIndex].route[0].departure_station + this.editRouteData.directionOne:this.dbBatchEditInfo[rowIndex].route[0].departure_station
+            newForm['arrive'] = this.editRouteData.directionTwo?this.dbBatchEditInfo[rowIndex].route[0].arrival_station + this.editRouteData.directionTwo:this.dbBatchEditInfo[rowIndex].route[0].arrival_station
+            newForm['trips_number'] = this.dbBatchEditInfo[rowIndex].route[0].trips_number || ''
+
+            console.log(newForm);
+            console.log(this.dbBatchEditInfo[rowIndex]);
 
             let newEditForm = {}  // 修改输入框信息
             newEditForm['ticket_type'] = this.editRouteData.ticket_type
@@ -2615,17 +2827,17 @@
           }
 
         }else if(status === '1' || status === '3'){  // 出票or改签
-          if(this.editRouteData.riding_time || this.editRouteData.departure_station || this.editRouteData.arrival_station || this.editRouteData.trips_number){
+          if(this.dbBatchEditInfo[rowIndex].route[0].riding_time !== this.editRouteInfo[rowIndex].riding_time || this.dbBatchEditInfo[rowIndex].route[0].departure_station !== this.editRouteInfo[rowIndex].departure_station || this.dbBatchEditInfo[rowIndex].route[0].arrival_station !== this.editRouteInfo[rowIndex].arrival_station || this.dbBatchEditInfo[rowIndex].route[0].trips_number !== this.editRouteInfo[rowIndex].trips_number){
             this.editRouteDialog = true
           }else{
             let newForm = {}  // 路线信息
             newForm['type'] = 1
             newForm['route_id'] = this.editRouteData.route_id
             newForm['passengers'] = this.editRouteData.passengers
-            newForm['riding_time'] =  this.editRouteData.route[0].riding_time
-            newForm['departure'] = this.editRouteData.directionOne?this.editRouteData.route[0].departure_station + this.editRouteData.directionOne:this.editRouteData.route[0].departure_station
-            newForm['arrive'] = this.editRouteData.directionTwo?this.editRouteData.route[0].arrival_station + this.editRouteData.directionTwo:this.editRouteData.route[0].arrival_station
-            newForm['trips_number'] = this.editRouteData.route[0].trips_number || ''
+            newForm['riding_time'] = this.dbBatchEditInfo[rowIndex].route[0].riding_time ?this.dbBatchEditInfo[rowIndex].route[0].riding_time / 1000 : ''
+            newForm['departure'] = this.editRouteData.directionOne?this.dbBatchEditInfo[rowIndex].route[0].departure_station + this.editRouteData.directionOne:this.dbBatchEditInfo[rowIndex].route[0].departure_station
+            newForm['arrive'] = this.editRouteData.directionTwo?this.dbBatchEditInfo[rowIndex].route[0].arrival_station + this.editRouteData.directionTwo:this.dbBatchEditInfo[rowIndex].route[0].arrival_station
+            newForm['trips_number'] = this.dbBatchEditInfo[rowIndex].route[0].trips_number || ''
 
             let newEditForm = {}  // 修改输入框信息
             newEditForm['ticket_type'] = this.editRouteData.ticket_type
@@ -2796,6 +3008,12 @@
             stop_station: '', // 到站
             trips_number: '',  // 车次
             is_add_passenger: true,
+          },{
+            riding_time: '',  // 行程时间
+            initial_station: '',  // 发站
+            stop_station: '', // 到站
+            trips_number: '',  // 车次
+            is_add_passenger: true,
           }]
         }else if(this.strokeTableType === '中转往返'){
           this.addStrokeArr = [{
@@ -2837,13 +3055,8 @@
         let submitType = false
         newArr = JSON.parse(JSON.stringify(this.addStrokeArr))
         newArr.forEach(item =>{
-          if(!item.riding_time || !item.initial_station || !item.stop_station || !item.trips_number){
-            this.$message.warning('请填写完整数据！')
-            submitType = false
-          }else {
-            item.riding_time = this.$dateToDate(item.riding_time)
-            submitType = true
-          }
+          item.riding_time = this.$dateToDate(item.riding_time)
+          submitType = true
         })
 
         let data ={
@@ -2998,7 +3211,7 @@
                             console.log(dItem);
                             dItem['IDCard'] = dItem.card  // 身份证
                             dItem['ticket_species'] = dItem.is_child === 0 ? '成人票' :'儿童票'   // 车票类型
-                            dItem['ticket_type'] = this.addDataList.ticketType
+                            dItem['ticket_type'] = ''
                             dItem['remarks'] = ''  // 备注
                             dItem['missed_meals_money'] = '0'  // 误餐费
                             delete dItem.card
@@ -3067,20 +3280,20 @@
        * @date 2019/12/10
       */
       addSelectAllTableData(){
-        console.log(this.selectAllEditTable);
-        console.log(this.addTrainTableArray);
-        this.addTrainTableArray.forEach(item =>{
-          item.info.forEach(cItem =>{
-            cItem.passenger.forEach(dItem =>{
+        this.addTrainTableArray.map(item =>{
+          item.info.map(cItem =>{
+            cItem.passenger.map(dItem =>{
               if(dItem.checked){
-                dItem.ticket_species = this.selectAllEditTable.ticket_species || ''
-                dItem.ticket_type = this.selectAllEditTable.ticket_type || ''
-                dItem.remarks = this.selectAllEditTable.remarks || ''
-                dItem.missed_meals_money = this.selectAllEditTable.missed_meals_money || 0
+                dItem.ticket_species = this.selectAllEditTable.ticket_species?this.selectAllEditTable.ticket_species: dItem.ticket_species
+                dItem.ticket_type = this.selectAllEditTable.ticket_type?this.selectAllEditTable.ticket_type:dItem.ticket_type
+                dItem.remarks = this.selectAllEditTable.remarks?this.selectAllEditTable.remarks:dItem.remarks
+                dItem.missed_meals_money = this.selectAllEditTable.missed_meals_money?this.selectAllEditTable.missed_meals_money:dItem.missed_meals_money
               }
             })
           })
         })
+
+        console.log(this.addTrainTableArray);
       },
 
       /**
@@ -3091,15 +3304,6 @@
       uploadUserData(val){
         this.add_user_data = val
       },
-      /**
-       * @Description: 新增原文件上传
-       * @author Wish
-       * @date 2019/12/2
-       */
-      uploadFileData(val){
-        this.add_file_data = val
-      },
-
 
       /**
        * @Description: 新增全部保存
@@ -3139,7 +3343,7 @@
           origin_data: this.saveGroupMessage, // Q群原始信息
           route_type: 0,
           certificates: String(this.orderInfo.certificates),
-          source_file: this.add_file_data,
+          source_file: String(this.add_file_data),
           ticket_photos: '',
           remarks: this.orderInfo.remarks || '',
           route: JSON.stringify(orderList),
@@ -3398,10 +3602,10 @@
       }
       .header_btn{
         margin-left: 20px;
-        color: #606266;
-        border: 1px solid #DCDFE6;
-        padding: 12px 20px;
-        border-radius: 4px;
+        /*color: #606266;*/
+        /*border: 1px solid #DCDFE6;*/
+        /*padding: 12px 20px;*/
+        /*border-radius: 4px;*/
       }
     }
 
@@ -3605,7 +3809,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        height: 120px;
+        height: 55px;
         border: 1px solid #ebeef5;
         border-top: unset;
         .add_user_photo_btn{
@@ -3614,6 +3818,7 @@
           display: flex;
           align-items: center;
           justify-content: center;
+          border-left: 1px solid #ebeef5;
         }
         /deep/.UploadLeaflet{
           .upload_main{
@@ -3952,6 +4157,43 @@
         align-items: center;
         flex-wrap: wrap;
         min-height: 110px;
+        .add_upload_files_box{
+          display: flex;
+          align-items: center;
+          flex-wrap: wrap;
+          width: 100%;
+          .add_upload_file_list{
+            width: 48%;
+            height: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding: 0 10px;
+            transition: all .3s;
+            &:hover{
+              background: #f6f6f6;
+              span{
+                opacity: 1;
+              }
+            }
+            >p{
+              display: inline;
+              overflow: hidden;
+              white-space: nowrap;
+              text-overflow: ellipsis;
+              width: 300px;
+            }
+            >span{
+              opacity: 0;
+              color: red;
+              cursor: pointer;
+            }
+            &:nth-child(2n){
+              margin-left: 4%;
+            }
+          }
+        }
         .not_photo_message{
           margin: 0 auto;
           color: rgba(0,0,0,.5);

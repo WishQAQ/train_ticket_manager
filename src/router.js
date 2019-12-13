@@ -79,7 +79,7 @@ export function powerRouterLazy(name) {
           {path: '/accountSetting', name: 'accountSetting', component: importPage('SystemSettings/accountSetting'),meta:{name: '账号管理',hidden: false,title: '账号管理',aliveId: 'accountSetting'}},  // 12306账号管理
           {path: '/account', name: 'account', component: importPage('SystemSettings/account'),meta:{hidden: false,title: '12306账号',aliveId: 'account'}},  // 12306账号
           {path: '/billerSetting', name: 'billerSetting', component: importPage('SystemSettings/billerSetting'),meta:{hidden: false,title: '发单人配置',aliveId: 'billerSetting'}},  // 发单人配置
-          {path: '/optionLog', name: 'optionLog', component: importPage('SystemSettings/optionLog'),meta:{hidden: false,title: '操作日志',aliveId: 'optionLog'}},  // 操作日志
+          {path: '/operationLog', name: 'operationLog', component: importPage('SystemSettings/optionLog'),meta:{hidden: false,title: '操作日志',aliveId: 'operationLog'}},  // 操作日志
         ]};
       break;
     default:

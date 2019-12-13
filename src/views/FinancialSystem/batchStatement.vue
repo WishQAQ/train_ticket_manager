@@ -74,11 +74,6 @@
 </template>
 
 <script>
-  window.onbeforeunload = onbeforeunload_handler;
-  function onbeforeunload_handler() {
-    return "确认退出?";
-  }
-
   export default {
     name: "batchStatement",
     components:{

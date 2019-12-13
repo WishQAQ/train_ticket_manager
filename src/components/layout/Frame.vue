@@ -1,6 +1,6 @@
 <template>
  <div>
-   <router-tab>
+   <router-tab restore >
      <template v-slot="{ tab: { id, title, icon, closable }, tabs, index}">
        <i v-if="icon" class="tab-icon" :class="['iconfont',icon]" />
        <span class="tab-title">{{ $routerTab.i18nText(title) || '未命名页签' }}</span>

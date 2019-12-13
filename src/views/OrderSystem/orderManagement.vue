@@ -7,7 +7,7 @@
       <div>
         <el-input clearable v-model="orderSearch.order" placeholder="订单号查询"/></div>
       <div>
-        <el-select style="width: 120px" v-model="orderSearch.order_status" placeholder="车票状态" clearable  @change="selectCustomer(orderSearch.customer)">
+        <el-select style="width: 120px" v-model="orderSearch.order_status" placeholder="订单状态" clearable  @change="selectCustomer(orderSearch.customer)">
           <el-option label="已处理" value="1"/>
           <el-option label="处理中" value="2"/>
         </el-select>
@@ -107,10 +107,10 @@
               </div>
               <div style="width: 80px;flex-shrink: 0;">{{item.finance_status}}</div>
               <div v-if="roleType === 0 && viewsType !== 2" style="font-size: 12px">
-                <p v-if="item.desc.is_important === 1">
+                <p v-if="item.desc.is_important === 1 || viewsType === 4">
                   <span class="important_remarks">{{item.desc.remarks}}</span>
                 </p>
-                <p v-if="viewsType === 4">{{item.desc.remarks}}</p>
+<!--                <p v-if="viewsType === 4">{{item.desc.remarks}}</p>-->
                 <!--<span style="font-size: 10px; color: #bebebe">暂无重要备注</span>-->
               </div>
               <div v-if="viewsType === 2">{{item.reason}}</div>
@@ -233,17 +233,7 @@
         viewsType: 0, // 网页类型
 
         orderSearch: {
-          order: '',
-          order_status: '',
-          customer: '',
-          issuer: '',
-          departure: '',
-          arrival: '',
-          submitter: '',
-          ticket_teller: '',
-          ridingTime: '',
-          submitTime: '',
-          remarkTime: '',
+
         }, // 订单搜索
         client: [], // 客户商列表
         issuerList: [], // 发单人列表
@@ -383,23 +373,25 @@
                 this.$route.meta.name === '回收订单'? 2:
                     this.$route.meta.name === '历史订单查询'? 3:
                         this.$route.meta.name === '新备注订单列表'? 4: ''
-        let data
-        if(type === 'search'){
-          data = JSON.parse(JSON.stringify(this.orderSearch))
-          console.log(data.ridingTime);
-          data.ridingTime?data['ridingBegin'] = this.$dateToDate(data.ridingTime[0]) || '':''
-          data.ridingTime?data['ridingEnd'] = this.$dateToDate(data.ridingTime[1]) || '': ''
-          data.submitTime?data['submitBegin'] = this.$dateToDate(data.submitTime[0]) || '': ''
-          data.submitTime?data['submitEnd'] = this.$dateToDate(data.submitTime[1]) || '': ''
-          data.remarkTime?data['remarkBegin'] = this.$dateToDate(data.remarkTime[0]) || '': ''
-          data.remarkTime?data['remarkEnd'] = this.$dateToDate(data.remarkTime[1]) || '': ''
-          data['page'] = this.page || null
-
-        }else {
-          data = {
-            page: this.page || null
-          }
+        let data = {
+          order: this.orderSearch.order || null,
+          order_status: this.orderSearch.order_status || null,
+          customer: this.orderSearch.customer || null,
+          issuer: this.orderSearch.issuer || null,
+          departure: this.orderSearch.departure || null,
+          arrival: this.orderSearch.arrival || null,
+          submitter: this.orderSearch.submitter || null,
+          ticket_teller: this.orderSearch.ticket_teller || null,
+          ridingBegin: this.orderSearch.ridingTime?this.$dateToDate(this.orderSearch.ridingTime[0]) || null: null,
+          ridingEnd: this.orderSearch.ridingTime?this.$dateToDate(this.orderSearch.ridingTime[1]) || null: null,
+          submitBegin: this.orderSearch.submitTime? this.$dateToDate(this.orderSearch.submitTime[0]) || null: null,
+          submitEnd: this.orderSearch.submitTime? this.$dateToDate(this.orderSearch.submitTime[1]) || null: null,
+          remarkBegin: this.orderSearch.remarkTime? this.$dateToDate(this.orderSearch.remarkTime[0]) || null: null,
+          remarkEnd: this.orderSearch.remarkTime? this.$dateToDate(this.orderSearch.remarkTime[1]) || null: null,
+          page: this.page || null
         }
+
+
 
         this.$axios.post('/api/order/list/'+this.viewsType + '/'+ this.per_page,data)
             .then(res =>{
@@ -569,14 +561,14 @@
        * @date 2019/10/17
       */
       editOrderType(val,type){
+        let deleteMessage = '此操作将移动该订单数据至回收站, 请输入删除理由?'
+        let deleteTitle = '提示'
+        let messageType = 'warning'
         if(val.is_include && type === 2){
           deleteMessage = '当前订单含实收款，此操作将移动该订单数据至回收站, 请输入删除理由?'
           deleteTitle = '警告！当前订单含实收款'
           messageType = 'error'
         }
-        let deleteMessage = '此操作将移动该订单数据至回收站, 请输入删除理由?'
-        let deleteTitle = '提示'
-        let messageType = 'warning'
 
         if(type === 1 || type === 0){
           this.$confirm(

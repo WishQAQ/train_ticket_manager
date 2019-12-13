@@ -184,7 +184,7 @@
                   v-model="newDataForm[scope.row.tableIndex]['compensation_fee']"
                   v-if="tableOrderRoleStatus.compensation_fee.read"
                   :placeholder="scope.row.cost_item[0].compensation_fee"
-                  @blur="openEditInput(scope.row,'compensation_fee',scope.row.cost_item[0].compensation_fee,newDataForm[scope.row.tableIndex]['compensation_fee'])">
+                  @blur="openEditInput(scope.row,'compensation_fee',scope.row.cost_item[0].compensation_fee,newDataForm[scope.row.tableIndex]['compensation_fee'],scope.row.tableIndex)">
               </el-input>
               <span v-else>{{scope.row.cost_item[0].compensation_fee}}</span>
             </template>
@@ -199,7 +199,7 @@
                   v-model="newDataForm[scope.row.tableIndex]['total_discount']"
                   v-if="tableOrderRoleStatus.total_discount.read"
                   :placeholder="scope.row.cost_item[0].total_discount"
-                  @blur="openEditInput(scope.row,'total_discount',scope.row.cost_item[0].total_discount,newDataForm[scope.row.tableIndex]['total_discount'])">
+                  @blur="openEditInput(scope.row,'total_discount',scope.row.cost_item[0].total_discount,newDataForm[scope.row.tableIndex]['total_discount'],scope.row.tableIndex)">
               </el-input>
               <span v-else>{{scope.row.cost_item[0].total_discount}}</span>
             </template>
@@ -214,7 +214,7 @@
                   v-model="newDataForm[scope.row.tableIndex]['finance_express_fee']"
                   v-if="tableOrderRoleStatus.finance_express_fee.read"
                   :placeholder="scope.row.cost_item[0].finance_express_fee"
-                  @blur="openEditInput(scope.row,'finance_express_fee',scope.row.cost_item[0].finance_express_fee,newDataForm[scope.row.tableIndex]['finance_express_fee'])">
+                  @blur="openEditInput(scope.row,'finance_express_fee',scope.row.cost_item[0].finance_express_fee,newDataForm[scope.row.tableIndex]['finance_express_fee'],scope.row.tableIndex)">
               </el-input>
               <span v-else>{{scope.row.cost_item[0].finance_express_fee}}</span>
             </template>
@@ -266,7 +266,7 @@
                 v-model="newDataForm[scope.row.tableIndex]['actual_payment']"
                 v-if="tableOrderRoleStatus.actual_payment.read"
                 :placeholder="scope.row.actual_payment"
-                @blur="openEditInput(scope.row,'actual_payment',scope.row.actual_payment,newDataForm[scope.row.tableIndex]['actual_payment'])">
+                @blur="openEditInput(scope.row,'actual_payment',scope.row.actual_payment,newDataForm[scope.row.tableIndex]['actual_payment'],scope.row.tableIndex)">
             </el-input>
             <span v-else>{{scope.row.actual_payment}}</span>
           </template>
@@ -297,8 +297,8 @@
                 <el-dropdown-item><div @click="openUploadDialog(1,scope.row)">上传汇款凭证</div></el-dropdown-item>
                 <el-dropdown-item><div @click="openUploadDialog(2,scope.row)">上传收款凭证</div></el-dropdown-item>
                 <el-dropdown-item><div @click="toggleSelection(scope.row)">移除多选</div></el-dropdown-item>
-                <el-dropdown-item><div @click="changeOrderType(scope.row)">{{scope.row.is_lock === 1? '解除锁定': '锁定'}}</div></el-dropdown-item>
-                <el-dropdown-item v-if="viewsType !== 1 && $numberSubtract(scope.row.receivables,scope.row.actual_receipts) > 0">
+                <el-dropdown-item v-if="!generalUser"><div @click="changeOrderType(scope.row)">{{scope.row.is_lock === 1? '解除锁定': '锁定'}}</div></el-dropdown-item>
+                <el-dropdown-item v-if="viewsType !== 1 && $numberSubtract(scope.row.receivables,scope.row.actual_receipts) > 0 && !generalUser">
                   <div @click="openBatchDialog(scope.row)">对账</div>
                 </el-dropdown-item>
               </el-dropdown-menu>
@@ -538,6 +538,7 @@
     data(){
       return {
         roleType: parseInt(sessionStorage.getItem('TYPE')),
+        generalUser: sessionStorage.getItem('roleUserStatus'),
 
         showTable: false,
         loading: false,  // 加载
@@ -741,7 +742,7 @@
        * @author Wish
        * @date 2019/10/30
       */
-      openEditInput(data,dataName,row,newRow){
+      openEditInput(data,dataName,row,newRow, rowIndex){
         console.log(data, dataName, row, newRow);
         if(row !== newRow && newRow !== '' && newRow !== undefined && newRow !== null){
           let param ={
@@ -769,7 +770,7 @@
                     }
                   })
             }).catch(() => {
-              newRow = ''
+              this.newDataForm[rowIndex][dataName] = row
             });
           }else {
             this.$axios.post('/api/finance/editCellContent',param)

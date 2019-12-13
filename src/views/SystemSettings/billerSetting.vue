@@ -81,7 +81,9 @@
             <el-input v-model="userName"></el-input>
           </el-form-item>
           <el-form-item label="联系方式">
-            <el-input v-model="telPhone"></el-input>
+            <el-input   maxlength="11"
+                        show-word-limit
+                        v-model="telPhone"></el-input>
           </el-form-item>
           <el-form-item label="QQ">
             <el-input v-model="qq"></el-input>
@@ -255,37 +257,35 @@
        * @date 2019/10/16
       */
       submitDialog(){
-        if(this.$telPhone(this.telPhone)){
-          if(this.dialogType){
-            let data ={
-              name: this.userName,
-              target: this.target,
-              contact: this.telPhone,
-              qq: this.qq
-            }
-            this.$axios.post('/api/user/issuer/add',data)
-                .then(res => {
-                  if (res.data.code === 0) {
-                    this.$message.success('添加成功')
-                    this.getDataList()
-                    this.closeDialog()
-                  } else {
-                    this.$message.warning(res.data.msg)
-                  }
-                })
-          }else {
-            let data ={
-              type: 0,
-              name: this.userName,
-              target: this.target,
-              contact: this.telPhone,
-              qq: this.qq,
-              condition: this.condition
-            }
-            let message = '修改成功'
-            this.optionUserInfo(data,message)
-            this.userInfoDialog = false
+        if(this.dialogType){
+          let data ={
+            name: this.userName,
+            target: this.target,
+            contact: this.telPhone,
+            qq: this.qq
           }
+          this.$axios.post('/api/user/issuer/add',data)
+              .then(res => {
+                if (res.data.code === 0) {
+                  this.$message.success('添加成功')
+                  this.getDataList()
+                  this.closeDialog()
+                } else {
+                  this.$message.warning(res.data.msg)
+                }
+              })
+        }else {
+          let data ={
+            type: 0,
+            name: this.userName,
+            target: this.target,
+            contact: this.telPhone,
+            qq: this.qq,
+            condition: this.condition
+          }
+          let message = '修改成功'
+          this.optionUserInfo(data,message)
+          this.userInfoDialog = false
         }
       },
 

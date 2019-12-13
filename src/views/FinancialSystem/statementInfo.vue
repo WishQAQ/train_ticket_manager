@@ -43,20 +43,20 @@
       <div class="receipt_table">
         <div class="table_header">
           <div style="width: 30%; flex-shrink: 0">订单号</div>
-          <div>实收款</div>
+          <div v-if="!generalUser">实收款</div>
           <div>收款时间</div>
-          <div style="width: 80px;flex-shrink: 0" v-if="roleType === 0">操作</div>
+          <div style="width: 80px;flex-shrink: 0" v-if="roleType === 0 && !generalUser">操作</div>
         </div>
         <div class="table_content" v-for="(item,index) in receiptData" :key="index">
           <div class="content_left">
             <div class="left_title">{{item.order_sn}}</div>
-            <el-button v-if="roleType === 0" type="text" size="mini" @click="openReceiptDialog(item)">添加一条</el-button>
+            <el-button v-if="roleType === 0 && !generalUser" type="text" size="mini" @click="openReceiptDialog(item)">添加一条</el-button>
           </div>
           <div class="content_right">
             <div class="content_right_box" v-for="(cItem,cIndex) in item.info" :key="cIndex">
-              <div>{{cItem.actual_receipts}}</div>
+              <div v-if="!generalUser">{{cItem.actual_receipts}}</div>
               <div>{{$getTime(cItem.created_at * 1000)}}</div>
-              <div style="width: 80px;flex-shrink: 0" v-if="roleType === 0">
+              <div style="width: 80px;flex-shrink: 0" v-if="roleType === 0 && !generalUser">
                 <el-button size="mini" @click="deleteReceiptData(item,cItem)">删除</el-button>
               </div>
             </div>
@@ -95,7 +95,7 @@
       </div>
 
       <!-- 备注or操作日志表格 -->
-      <div class="order_message" v-if="roleType === 0">
+      <div class="order_message" v-if="roleType === 0 && !generalUser">
         <div>
           <el-table
               border
@@ -222,6 +222,7 @@
     data(){
       return {
         roleType: parseInt(sessionStorage.getItem('TYPE')),
+        generalUser: sessionStorage.getItem('roleUserStatus'),
 
         searchTime: '', // 账期搜索
         tableData: [], // 账期数据

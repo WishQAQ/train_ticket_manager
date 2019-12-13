@@ -40,10 +40,10 @@
               <el-input
                   style="width: 70px"
                   size="mini"
-                  v-model="newDataForm[scope.row.tableIndex].name"
+                  v-model="dbTableData[scope.row.tableIndex].name"
                   v-if="tableModify === 'edit'"
                   :placeholder="scope.row.name"
-                  @blur="loseFcous(tableData, scope.row, 'name', scope.row.name,newDataForm[scope.row.tableIndex].name)">
+                  @blur="loseUserFcous(tableData, scope.row, 'name', scope.row.name,dbTableData[scope.row.tableIndex].name,scope.row.tableIndex)">
               </el-input>
               <span v-else>{{scope.row.name}}</span>
             </div>
@@ -51,24 +51,25 @@
               <el-input
                   style="width: 135px"
                   size="mini"
-                  v-model="newDataForm[scope.row.tableIndex].IDCard"
+                  v-model="dbTableData[scope.row.tableIndex].IDCard"
                   v-if="tableModify === 'edit'"
                   :placeholder="scope.row.IDCard"
-                  @blur="loseFcous(tableData, scope.row, 'IDCard', scope.row.IDCard,newDataForm[scope.row.tableIndex].IDCard)">
+                  @blur="loseUserFcous(tableData, scope.row, 'IDCard', scope.row.IDCard,dbTableData[scope.row.tableIndex].IDCard,scope.row.tableIndex)">
               </el-input>
               <span style="margin: 0 10px" v-else>{{scope.row.IDCard}}</span>
             </div>
             <div>
               <el-select size="mini"
-                         @change="loseFcous(tableData, scope.row, 'ticket_species', scope.row.ticket_species,newDataForm[scope.row.tableIndex].ticket_species)"
+                         @input="change($event)"
+                         @change="loseUserFcous(tableData, scope.row, 'ticket_species', scope.row.ticket_species,dbTableData[scope.row.tableIndex].ticket_species,scope.row.tableIndex)"
                          style="width: 68px"
-                         v-model="newDataForm[scope.row.tableIndex].ticket_species"
-                         :placeholder="scope.row.ticket_species === 0 ? '成人票': '儿童票'"
+                         v-model="dbTableData[scope.row.tableIndex].ticket_species"
+                         :placeholder="scope.row.ticket_species"
                          v-if="tableModify === 'edit'">
-                <el-option label="成人票" value="0"/>
-                <el-option label="儿童票" value="1"/>
+                <el-option label="成人票" value="成人票"/>
+                <el-option label="儿童票" value="儿童票"/>
               </el-select>
-              <span v-else-if="scope.row.ticket_species !== 0">{{scope.row.ticket_species === 0 ? '成人票': '儿童票'}}</span>
+              <span v-else-if="scope.row.ticket_species !== '成人票'">{{scope.row.ticket_species}}</span>
             </div>
           </div>
         </template>
@@ -124,10 +125,10 @@
         <template slot-scope="scope">
           <el-input
               size="mini"
-              v-model="newDataForm[scope.row.tableIndex].refund_fee"
+              v-model="dbTableData[scope.row.tableIndex].refund_fee"
               v-if="tableModify === 'edit' && tableRoleStatus.refund_fee.read"
               :placeholder="scope.row.refund_fee"
-              @blur="loseFcous(tableData, scope.row, 'refund_fee', scope.row.refund_fee,newDataForm[scope.row.tableIndex].refund_fee)">
+              @blur="loseFcous(tableData, scope.row, 'refund_fee', scope.row.refund_fee,dbTableData[scope.row.tableIndex].refund_fee,scope.row.tableIndex)">
           </el-input>
           <span style="margin-left: 10px" v-else>{{scope.row.refund_fee}}</span>
         </template>
@@ -140,10 +141,10 @@
         <template slot-scope="scope">
           <el-input
               size="mini"
-              v-model="newDataForm[scope.row.tableIndex].ticket_fare"
+              v-model="dbTableData[scope.row.tableIndex].ticket_fare"
               v-if="tableModify === 'edit' && tableRoleStatus.ticket_fare.read"
               :placeholder="scope.row.ticket_fare"
-              @blur="loseFcous(tableData, scope.row, 'ticket_fare', scope.row.ticket_fare,newDataForm[scope.row.tableIndex].ticket_fare)">
+              @blur="loseFcous(tableData, scope.row, 'ticket_fare', scope.row.ticket_fare,dbTableData[scope.row.tableIndex].ticket_fare,scope.row.tableIndex)">
           </el-input>
           <span style="margin-left: 10px" v-else>{{scope.row.ticket_fare}}</span>
         </template>
@@ -169,10 +170,10 @@
         <template slot-scope="scope">
           <el-input
               size="mini"
-              v-model="newDataForm[scope.row.tableIndex].db_auftragsnummer"
+              v-model="dbTableData[scope.row.tableIndex].db_auftragsnummer"
               v-if="tableModify === 'edit' && tableRoleStatus.db_auftragsnummer.read"
               :placeholder="scope.row.db_auftragsnummer"
-              @blur="loseFcous(tableData, scope.row, 'db_auftragsnummer', scope.row.db_auftragsnummer,newDataForm[scope.row.tableIndex].db_auftragsnummer)">
+              @blur="loseFcous(tableData, scope.row, 'db_auftragsnummer', scope.row.db_auftragsnummer,dbTableData[scope.row.tableIndex].db_auftragsnummer,scope.row.tableIndex)">
           </el-input>
           <span v-else>{{$aliPayOrTelPhone(scope.row.db_auftragsnummer)}}</span>
         </template>
@@ -183,19 +184,19 @@
           v-if="showTableRows"
           label="出票时间">
         <template slot-scope="scope">
-          <div v-if="tableModify === 'edit'">
-            <el-date-picker
-                size="mini"
-                class="editTimeInput"
-                v-model="newDataForm[scope.row.tableIndex].ticketing_time"
-                type="date"
-                value-format="timestamp"
-                :placeholder="$getTimeYear(scope.row.ticketing_time * 1000) !== 0? String($getTimeYear(scope.row.ticketing_time * 1000)): '' || '选择日期'"
-                @blur="loseFcous(tableData, scope.row, 'ticketing_time', scope.row.ticketing_time,newDataForm[scope.row.tableIndex].ticketing_time / 1000)">
-            </el-date-picker>
-          </div>
+<!--          <div v-if="tableModify === 'edit'">-->
+<!--            <el-date-picker-->
+<!--                size="mini"-->
+<!--                class="editTimeInput"-->
+<!--                v-model="dbTableData[scope.row.tableIndex].ticketing_time"-->
+<!--                type="date"-->
+<!--                value-format="timestamp"-->
+<!--                :placeholder="$getTimeYear(scope.row.ticketing_time * 1000) !== 0? String($getTimeYear(scope.row.ticketing_time * 1000)): '' || '选择日期'"-->
+<!--                @blur="loseFcous(tableData, scope.row, 'ticketing_time', scope.row.ticketing_time,dbTableData[scope.row.tableIndex].ticketing_time / 1000,scope.row.tableIndex)">-->
+<!--            </el-date-picker>-->
+<!--          </div>-->
 
-          <span v-else>{{$getTimeYear(scope.row.ticketing_time * 1000) || ''}}</span>
+          <span>{{$getTimeYear(scope.row.ticketing_time * 1000) || ''}}</span>
         </template>
       </el-table-column>
       <el-table-column
@@ -206,10 +207,10 @@
         <template slot-scope="scope">
           <el-input
               size="mini"
-              v-model="newDataForm[scope.row.tableIndex].payment_account"
+              v-model="dbTableData[scope.row.tableIndex].payment_account"
               v-if="tableModify === 'edit' && tableRoleStatus.payment_account.read"
               :placeholder="scope.row.payment_account"
-              @blur="loseFcous(tableData, scope.row, 'payment_account', scope.row.payment_account,newDataForm[scope.row.tableIndex].payment_account)">
+              @blur="loseFcous(tableData, scope.row, 'payment_account', scope.row.payment_account,dbTableData[scope.row.tableIndex].payment_account,scope.row.tableIndex)">
           </el-input>
           <span v-else>{{$aliPayOrTelPhone(scope.row.payment_account)}}</span>
         </template>
@@ -222,10 +223,10 @@
         <template slot-scope="scope">
           <el-input
               size="mini"
-              v-model="newDataForm[scope.row.tableIndex].payment_flow_number"
+              v-model="dbTableData[scope.row.tableIndex].payment_flow_number"
               :placeholder="scope.row.payment_flow_number"
               v-if="tableModify === 'edit' && tableRoleStatus.payment_flow_number.read"
-              @blur="loseFcous(tableData, scope.row, 'payment_flow_number', scope.row.payment_flow_number,newDataForm[scope.row.tableIndex].payment_flow_number)">
+              @blur="loseFcous(tableData, scope.row, 'payment_flow_number', scope.row.payment_flow_number,dbTableData[scope.row.tableIndex].payment_flow_number,scope.row.tableIndex)">
           </el-input>
           <span v-else>{{scope.row.payment_flow_number}}</span>
         </template>
@@ -238,10 +239,10 @@
         <template slot-scope="scope">
           <el-input
               size="mini"
-              v-model="newDataForm[scope.row.tableIndex].account"
+              v-model="dbTableData[scope.row.tableIndex].account"
               v-if="tableModify === 'edit' && tableRoleStatus['12306_account'].read"
               :placeholder="scope.row.account"
-              @blur="loseFcous(tableData, scope.row, 'account', scope.row.account,newDataForm[scope.row.tableIndex].account)">
+              @blur="loseFcous(tableData, scope.row, 'account', scope.row.account,dbTableData[scope.row.tableIndex].account,scope.row.tableIndex)">
           </el-input>
           <span v-else>{{scope.row.account}}</span>
         </template>
@@ -254,10 +255,10 @@
         <template slot-scope="scope">
           <el-input
               size="mini"
-              v-model="newDataForm[scope.row.tableIndex].password"
+              v-model="dbTableData[scope.row.tableIndex].password"
               v-if="tableModify === 'edit' && tableRoleStatus['12306_account'].read"
               :placeholder="scope.row.password"
-              @blur="loseFcous(tableData, scope.row, 'password', scope.row.password,newDataForm[scope.row.tableIndex].password)">
+              @blur="loseFcous(tableData, scope.row, 'password', scope.row.password,dbTableData[scope.row.tableIndex].password,scope.row.tableIndex)">
           </el-input>
           <span v-else>{{scope.row.password}}</span>
         </template>
@@ -315,6 +316,10 @@
         type: Object,
         default: () => {}
       },
+      'dbTableData': {
+        type: Array,
+        default: () => []
+      }
     },
     data(){
       return {
@@ -339,6 +344,10 @@
       // console.log(this.tableRoleStatus);
     },
     methods: {
+      change(e){
+        this.$forceUpdate()
+      },
+
       /**
        * @Description: 数据处理
        * @author Wish
@@ -346,7 +355,10 @@
       */
       dataReorganization(){
         // this.completeData = JSON.parse(JSON.stringify(this.tableData))
+        console.log(this.dbTableData);
+        console.log(this.tableData);
         this.tableData.forEach((item,index) =>{
+          item.ticket_species = item.ticket_species === 0 ? '成人票': '儿童票'
           this.tableData[index]['tableIndex'] = index
           this.newDataForm.push({
             name: '',
@@ -362,6 +374,9 @@
             ticket_species: '', // 票类
           })
         })
+        this.dbTableData.forEach(item =>{
+          item.ticket_species = item.ticket_species === 0 ? '成人票': '儿童票'
+        })
       },
       /**
        * @Description: 多选按钮
@@ -369,6 +384,7 @@
        * @date 2019/10/17
        */
       tableSelect(v,r){
+        console.log(v);
         let userId = [];
         userId = v.map(res =>{
           return res.id;
@@ -377,9 +393,13 @@
         userRoute = v.map(res =>{
           return res.route;
         });
+        let userTicketPrice
+        userTicketPrice = v.map(res =>{
+          return res.ticket_price
+        })
         userRoute = Array.from([...new Set(userRoute)]);
 
-        this.$emit('checkTableData', userId, userRoute, this.index, this.cIndex, this.orderInfo.order_sn, this.orderInfo.parent_id);
+        this.$emit('checkTableData', userId, userRoute, this.index, this.cIndex, this.orderInfo.order_sn, this.orderInfo.parent_id,userTicketPrice);
       },
 
       /**
@@ -398,7 +418,39 @@
        * @author Wish
        * @date 2019/11/18
       */
-      loseFcous(orderData, data, rowName, row, newRow) {
+      loseFcous(orderData, data, rowName, row, newRow, rowIndex) {
+        if(rowName === 'ticketing_time'){
+          newRow = String(newRow) === '0'? '': parseInt(newRow)
+        }
+        console.log(row,newRow);
+
+        if(row !== newRow && newRow !== ''){
+          if(row){
+            this.$confirm('系统检测到当前输入框已有默认值为：'+ row +' , 是否将其修改为：'+ newRow, '提示', {
+              confirmButtonText: '确定',
+              cancelButtonText: '取消',
+              type: 'warning'
+            }).then(() => {
+              if(rowName === 'ticket_species'){
+                row = row === '成人票'? 0: 1
+                newRow = newRow === '成人票'? 0: 1
+              }
+              this.$emit('tableRowsData', this.orderInfo, data, rowName, newRow )
+            }).catch(() => {
+              if(rowName === 'ticket_species'){
+                row = row === '成人票'? 0: 1
+                newRow = newRow === '成人票'? 0: 1
+              }
+              this.dbTableData[rowIndex][rowName] = row
+            });
+          } else {
+            this.$emit('tableRowsData', this.orderInfo, data, rowName, newRow )
+          }
+        }
+      },
+
+      loseUserFcous(orderData, data, rowName, row, newRow, rowIndex){
+        console.log(row, newRow);
         if(rowName === 'ticketing_time'){
           newRow = String(newRow) === '0'? '': newRow
         }else if(rowName === 'ticket_species'){
@@ -413,11 +465,12 @@
               cancelButtonText: '取消',
               type: 'warning'
             }).then(() => {
-              this.$emit('tableRowsData', this.orderInfo, data, rowName, newRow )
+              this.$emit('tableRowsUserData', this.orderInfo, data, rowName, newRow )
             }).catch(() => {
+              this.dbTableData[rowIndex][rowName] = row
             });
           } else {
-            this.$emit('tableRowsData', this.orderInfo, data, rowName, newRow )
+            this.$emit('tableRowsUserData', this.orderInfo, data, rowName, newRow )
           }
         }
       },

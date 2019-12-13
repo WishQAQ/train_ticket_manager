@@ -5,6 +5,7 @@
         class="upload_main"
         ref="upload"
         action="/"
+        multiple
         drag
         :show-file-list="false"
         :before-upload="beforeUpload"
@@ -74,7 +75,7 @@
        * @date 2019/10/10
        */
       handleAvatarSuccess(res, file) {
-
+        console.log(res, file);
       },
 
       /**
@@ -83,6 +84,7 @@
        * @date 2019/10/10
        */
       beforeUpload (file) {
+        console.log(file);
         this.$message.success('上传中，请勿刷新页面')
         let uploadData = new FormData();
         uploadData.append('type', String(this.uploadType))

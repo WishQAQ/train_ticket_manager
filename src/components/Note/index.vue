@@ -182,9 +182,14 @@
       },
 
       openNote(){
-        this.editNote = true
-        this.addDialog = true
-        this.noteForm ={}
+        if(this.noteData.length < 9){
+          this.editNote = true
+          this.addDialog = true
+          this.noteForm ={}
+        }else {
+          this.$message.warning('最多添加9条便签，如需添加新的便签请删除或修改旧便签')
+        }
+
       },
 
       /**
