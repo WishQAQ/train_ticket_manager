@@ -25,10 +25,13 @@
               label="标题">
           </el-table-column>
           <el-table-column
-              prop="content"
               label="内容"
-              show-overflow-tooltip
-              width="300">
+              show-overflow-tooltip>
+            <template slot-scope="scope">
+              <div style="max-width: 300px;overflow: hidden;white-space: nowrap;text-overflow: ellipsis;">
+                {{scope.row.content}}
+              </div>
+            </template>
           </el-table-column>
           <el-table-column
               prop="source"
@@ -54,7 +57,6 @@
             </template>
           </el-table-column>
           <el-table-column
-              v-if="roleType === 0"
               label="操作"
               width="80">
             <template slot-scope="scope">
@@ -62,8 +64,8 @@
                 <el-button size="mini">操作</el-button>
                 <el-dropdown-menu slot="dropdown">
                   <el-dropdown-item><div @click="openDetails(scope.row)">详情</div></el-dropdown-item>
-                  <el-dropdown-item><div @click="editDialog(scope.row)">编辑</div></el-dropdown-item>
-                  <el-dropdown-item><div @click="deleteListBtn(scope.row)">删除</div></el-dropdown-item>
+                  <el-dropdown-item v-if="roleType === 0"><div @click="editDialog(scope.row)">编辑</div></el-dropdown-item>
+                  <el-dropdown-item v-if="roleType === 0"><div @click="deleteListBtn(scope.row)">删除</div></el-dropdown-item>
                 </el-dropdown-menu>
               </el-dropdown>
 
@@ -83,7 +85,7 @@
 
 
     <el-dialog
-        :title="viewAddressType === 0 ? '帮助文档': '新闻中心'"
+        :title="viewAddressType === 0 ? '帮助文档': '通知公告'"
         modal-append-to-body
         append-to-body
         :visible.sync="detailDialog"
@@ -179,7 +181,7 @@
     </el-dialog>
 
     <el-dialog
-        :title="editDialogStatus?'添加新闻':'修改新闻'"
+        :title="editDialogStatus?'添加通知公告':'修改通知公告'"
         modal-append-to-body
         append-to-body
         :close-on-click-modal="false"

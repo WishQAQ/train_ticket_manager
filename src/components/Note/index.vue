@@ -73,7 +73,7 @@
       </el-dialog>
 
       <el-dialog
-          title="查看便签墙"
+          :title="'便签墙 - ' + noteForm.title"
           modal-append-to-body
           append-to-body
           custom-class="view_note_dialog"

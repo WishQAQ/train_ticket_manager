@@ -12,6 +12,9 @@ export default {
     'NavMenu': () => import('@/components/NavMenu'),
     'TabMenu':() => import('@/components/TabMenu')
   },
+  mounted() {
+    console.log(this.$route);
+  }
 }
 </script>
 

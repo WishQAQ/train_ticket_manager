@@ -29,13 +29,13 @@
         </div>
         <div class="main_box">
           <div class="title">
-            <p>新闻列表</p>
+            <p>通知公告</p>
             <div @click="jumpDetails('newsCenter')">更多<span/></div>
           </div>
           <div class="main_content" v-loading="nLoading">
             <div class="main_list" v-for="(item,index) in newList" :key="index" @click="openDetailsDialog(item,'news')">
               <p>{{item.created_at.split(' ')[0]}}</p>
-              <p>新闻：{{item.title}}</p>
+              <p>通知公告：{{item.title}}</p>
             </div>
 
           </div>

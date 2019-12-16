@@ -209,7 +209,7 @@
 </script>
 
 <style scoped lang="less">
-  @media (max-width: 1410px) {
+  @media (max-width: 1440px) {
     .nav{
       .nav_menu{
         .nav_item{
@@ -232,7 +232,7 @@
     padding: 0 30px;
     background:rgba(38,153,251,1);
     position: relative;
-    min-width: 1280px;
+    min-width: 1366px;
     transition: all .3s;
     .nav_logo{
       font-size:16px;

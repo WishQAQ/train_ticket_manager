@@ -18,7 +18,10 @@
           </div>
           <div class="content">{{item.content}}</div>
         </div>
-        <div class="edit_btn" v-if="roleType === 0" @click="openEditBtn(item)">编辑</div>
+        <div class="edit_btn">
+          <div v-if="roleType === 0" @click="openEditBtn(item)">编辑</div>
+          <div v-if="roleType === 0" @click="openViewBtn(item)">查看详情</div>
+        </div>
       </el-card>
     </div>
     <el-dialog
@@ -53,6 +56,21 @@
         <el-button type="primary" :loading="showSubmitAddBtn" @click="submitAddDialog">确 定</el-button>
       </div>
     </el-dialog>
+    <el-dialog
+        :title="'重要通知 - '+ noteForm.title"
+        modal-append-to-body
+        append-to-body
+        custom-class="view_note_dialog"
+        :visible.sync="viewDialog">
+      <div class="viewNote">
+        <div class="title">{{noteForm.title}}</div>
+        <div class="content">{{noteForm.content}}</div>
+        <el-divider/>
+        <div class="bottom">
+          <p>{{$getTime(noteForm.created_at * 1000)}}</p>
+        </div>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -69,6 +87,7 @@
         editNote: true, // 重要通知类型
         addDialog: false,  // 新增弹窗
         showSubmitAddBtn: false,
+        viewDialog: false,
         noteForm: {},
 
         noticeColor: ['246,92,120,.1','255,210,113,.1','195,245,132,.1','229,243,255,1'],
@@ -121,6 +140,17 @@
           this.$message.warning('只能上传4条重要通知，如需上传新通知请删除或修改旧通知')
         }
 
+      },
+
+      /**
+       * @Description: 查看
+       * @author Wish
+       * @date 2019/12/16
+      */
+      openViewBtn(data){
+        console.log(data);
+        this.viewDialog = true
+        this.noteForm = JSON.parse(JSON.stringify(data))
       },
 
       /**
@@ -231,7 +261,7 @@
       flex-wrap: wrap;
       min-height: 230px;
       .notice_card{
-        width: 48%;
+        width: 47.5%;
         height:350px;
         border: unset;
         transition: all .3s;
@@ -286,17 +316,18 @@
             }
             .content{
               padding: 0 15px;
-              font-size:10px;
+              font-size:14px;
               color:rgba(38,153,251,1);
               text-align: justify;
               display: -webkit-box;
               overflow: hidden;
-              -webkit-line-clamp: 15;
+              -webkit-line-clamp: 13;
               -webkit-box-orient: vertical;
               white-space: pre-wrap;
             }
           }
           .edit_btn{
+
             display: none;
             font-size:14px;
             color:rgba(38,153,251,1);
@@ -310,12 +341,45 @@
           /deep/.el-card__body{
             .edit_btn{
               display: flex;
+              align-items: center;
+              justify-content: space-between;
               opacity: 1;
             }
           }
         }
       }
 
+    }
+  }
+  .view_note_dialog{
+    .viewNote{
+      width: 80%;
+      margin: 0 auto;
+      .title{
+        font-size:14px;
+        color:rgba(38,153,251,1);
+        margin-bottom: 30px;
+      }
+      .content{
+        font-size:14px;
+        color:rgba(38,153,251,1);
+        margin-bottom: 50px;
+        text-indent: 2em;
+        max-height: 500px;
+        min-height: 200px;
+        overflow-y: auto;
+        white-space: pre-wrap;
+      }
+      .bottom{
+        margin-top: 30px;
+        >p{
+          font-size:14px;
+          color:rgba(38,153,251,1);
+          &:last-child{
+            margin-top: 10px;
+          }
+        }
+      }
     }
   }
 </style>

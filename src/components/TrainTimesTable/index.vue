@@ -264,17 +264,32 @@
         </template>
       </el-table-column>
       <el-table-column
+          show-overflow-tooltip
+          width="80"
+          label="乘客备注">
+        <template slot-scope="scope">
+          <el-input
+              size="mini"
+              v-model="dbTableData[scope.row.tableIndex].remarks"
+              v-if="tableModify === 'edit'"
+              :placeholder="scope.row.remarks"
+              @blur="loseFcous(tableData, scope.row, 'remarks', scope.row.remarks,dbTableData[scope.row.tableIndex].remarks,scope.row.tableIndex)">
+          </el-input>
+          <span v-else>{{scope.row.remarks}}</span>
+        </template>
+      </el-table-column>
+      <el-table-column
           width="80"
           fixed="right"
           v-if="tableModify !== 'add' && roleType === 0"
           label="操作">
         <template slot-scope="scope">
           <el-dropdown trigger="click">
-            <el-button size="mini" :disabled="scope.row.ticket_status === 2 || scope.row.ticket_status === 4">操作</el-button>
+            <el-button size="mini">操作</el-button>
             <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item><el-button size="mini" type="text" @click="jumpPayTicket(scope.row,scope.$index)" v-if="scope.row.ticket_status === 0">购票</el-button></el-dropdown-item>
+              <el-dropdown-item><el-button size="mini" type="text" @click="jumpPayTicket(scope.row,scope.$index)" v-if="scope.row.ticket_status === 0 || scope.row.ticket_status === 3 || scope.row.ticket_status === 4">购票</el-button></el-dropdown-item>
               <el-dropdown-item><el-button size="mini" type="text" @click="jumpEditTicket(scope.row,'refund')" v-if="scope.row.ticket_status === 1 || scope.row.ticket_status === 3">退票</el-button></el-dropdown-item>
-              <el-dropdown-item><el-button size="mini" type="text" @click="jumpEditTicket(scope.row,'change')" v-if="scope.row.ticket_status === 1">改签</el-button></el-dropdown-item>
+              <el-dropdown-item><el-button size="mini" type="text" @click="jumpEditTicket(scope.row,'change')" v-if="scope.row.ticket_status === 1 || scope.row.ticket_status === 4">改签</el-button></el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
 
@@ -465,11 +480,19 @@
               cancelButtonText: '取消',
               type: 'warning'
             }).then(() => {
+              if(rowName === 'ticket_species'){
+                row = row === '儿童票'? 1 :  row === '成人票'? 0 : row
+                newRow = newRow === '儿童票'? 1 :  newRow === '成人票'? 0 : newRow
+              }
               this.$emit('tableRowsUserData', this.orderInfo, data, rowName, newRow )
             }).catch(() => {
               this.dbTableData[rowIndex][rowName] = row
             });
           } else {
+            if(rowName === 'ticket_species'){
+              row = row === '儿童票'? 1 :  row === '成人票'? 0 : row
+              newRow = newRow === '儿童票'? 1 :  newRow === '成人票'? 0 : newRow
+            }
             this.$emit('tableRowsUserData', this.orderInfo, data, rowName, newRow )
           }
         }
@@ -529,6 +552,7 @@
       .el-input__inner{
         padding-left: 5px;
         padding-right: unset;
+        color: #000;
         &::placeholder{
           /*color: #000;*/
         }

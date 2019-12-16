@@ -32,7 +32,7 @@ export function powerRouterLazy(name) {
           {path: '/setting', name: 'setting', component: importPage('DocumentCenter/userSetting'),meta:{hidden: false,title: '个人设置',aliveId: 'setting'}},  // 个人设置
           {path: '/addressBook', name: 'addressBook', component: importPage('DocumentCenter/addressBook'),meta:{hidden: false,title: '内部通讯录',aliveId: 'addressBook'}},  // 内部通讯录
           {path: '/helpDocument', name: 'helpDocument', component: importPage('DocumentCenter/document'),meta:{hidden: false,title: '帮助文档',aliveId: 'helpDocument'}},  // 帮助文档
-          {path: '/newsCenter', name: 'newsCenter', component: importPage('DocumentCenter/document'),meta:{hidden: false,title: '新闻中心',aliveId: 'newsCenter'}},  // 新闻中心
+          {path: '/newsCenter', name: 'newsCenter', component: importPage('DocumentCenter/document'),meta:{hidden: false,title: '通知公告',aliveId: 'newsCenter'}},  // 新闻中心
         ]};
       break;
     case 'orderSystem':  // 订单系统

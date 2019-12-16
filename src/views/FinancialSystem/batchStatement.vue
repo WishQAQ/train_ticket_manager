@@ -4,6 +4,8 @@
       <div class="table_row">
         <div class="table_title">设置对账单号</div>
         <div class="table_content">{{orderId}}</div>
+        <div class="table_title" style="border-left: 1px solid #ebebeb">自定义对账单号</div>
+        <div class="table_content"><el-input clearable placeholder="请输入自定义对账的单号" v-model="edit_order_id" /></div>
       </div>
       <div class="table_row">
         <div class="table_title">设置账期</div>
@@ -20,13 +22,13 @@
       <div class="table_row" style="height: 170px;">
         <div class="table_title">上传收款凭证</div>
         <div class="table_content">
-          <UploadImage style="width: 300px;height: 150px;" @uploadAddress="uploadPayment" ref="uploadImage"></UploadImage>
+          <UploadImage style="width: 300px;height: 150px;" @uploadAddress="uploadPayment" ref="uploadImage"/>
         </div>
       </div>
       <div class="table_row" style="height: 170px;">
         <div class="table_title">上传付款凭证</div>
         <div class="table_content">
-          <UploadImage style="width: 300px;height: 150px;"  @uploadAddress="uploadReceipt" ref="uploadImage"></UploadImage>
+          <UploadImage style="width: 300px;height: 150px;" @uploadAddress="uploadReceipt" ref="uploadImage"/>
         </div>
       </div>
       <div class="table_row">
@@ -84,6 +86,7 @@
         orderInfo: {}, // 跳转获取值
         orderId: '',  // 单号
         orderTime: '', // 账期
+        edit_order_id: '', // 自定义对账单号
 
         upload_payment: '', // 付款凭证
         upload_receipt: '', // 收款凭证
@@ -189,6 +192,7 @@
         }
         let data ={
           bill_number: this.orderId,
+          custom_bill_number: this.edit_order_id,
           orders: JSON.stringify(dataArr),
           bill_file: JSON.stringify(this.orderFileData),
           receivables: this.upload_receipt,
@@ -223,7 +227,7 @@
   .batchStatement{
     display: flex;
     flex-direction: column;
-    padding: 80px 10%;
+    padding: 20px 5%;
     .batchStatement_table{
       border:1px solid #ebebeb;
       width: 100%;

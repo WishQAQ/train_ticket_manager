@@ -6,23 +6,24 @@
       <div>
         <el-input clearable v-model="searchForm.pay_account" placeholder="请输入支付账号"/></div>
       <div>
-        <el-input clearable v-model="searchForm.running_account" placeholder="请输入流水账号"/></div>
+        <el-input clearable v-model="searchForm.running_account" placeholder="请输入流水号"/></div>
       <div>
         <el-input clearable v-model="searchForm.train_account" placeholder="请输入12306账号"/></div>
       <div>
         <el-input clearable v-model="searchForm.order" placeholder="请输入订单号"/></div>
-      <div><el-select clearable v-model="searchForm.ticket_status" placeholder="请选择车票状态">
-        <el-option label="未出票" value="0"/>
+      <div><el-select style="width: 120px" clearable v-model="searchForm.ticket_status" placeholder="车票状态">
+        <el-option label="未出票" value="5"/>
         <el-option label="已出票" value="1"/>
         <el-option label="已取消票" value="2"/>
         <el-option label="已改签" value="3"/>
         <el-option label="已退票" value="4"/>
       </el-select></div>
       <div>
-        <el-input clearable v-model="searchForm.departure" placeholder="发站"/></div>
+        <el-input clearable style="width: 120px" v-model="searchForm.departure" placeholder="发站"/></div>
       <div>
-        <el-input clearable v-model="searchForm.arrive" placeholder="到站"/></div>
+        <el-input clearable style="width: 120px" v-model="searchForm.arrive" placeholder="到站"/></div>
       <div><el-date-picker
+          style="width: 260px"
           v-model="searchForm.ridingTime"
           type="daterange"
           range-separator="至"
@@ -30,6 +31,7 @@
           end-placeholder="乘车结束日期">
       </el-date-picker></div>
       <div><el-date-picker
+          style="width: 260px"
           v-model="searchForm.beginTime"
           type="daterange"
           range-separator="至"
@@ -399,7 +401,6 @@
       display: flex;
       align-items: center;
       flex-wrap: wrap;
-      margin-bottom: 25px;
       >div{
         margin-right: 15px;
         margin-bottom: 15px;
@@ -409,6 +410,11 @@
       /deep/.el-table{
         font-size: 14px;
         color: #000;
+        .el-table__body-wrapper{
+          td{
+            padding: 4px 0;
+          }
+        }
       }
       .ticket_order_id{
         cursor: pointer;

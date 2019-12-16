@@ -13,6 +13,7 @@
       <el-button class="login_submit" v-loading="loading" :disabled="loading"  @click="submitLogin">登录</el-button>
 
     </div>
+    <div class="footer"><a href="http://www.miit.gov.cn/" target="_blank">备案号 渝ICP 备 19016364 号-1</a></div>
   </div>
 </template>
 
@@ -116,6 +117,15 @@
 </script>
 
 <style scoped lang="less">
+  @media (max-width: 1410px) {
+    .login{
+      .main {
+        width: 80% !important;
+        padding: 10px 20px !important;
+        height: unset !important;
+      }
+    }
+  }
   .login{
     display: flex;
     align-items: center;
@@ -187,5 +197,19 @@
         cursor: pointer;
       }
     }
+  }
+  .footer{
+    >a{
+      color: #000;
+      &:hover{
+        color: #2699FB;
+      }
+    }
+    height: 30px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
   }
 </style>

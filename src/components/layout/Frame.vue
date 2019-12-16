@@ -28,6 +28,7 @@
     .router-tab-header{
       height: 30px;
       background: #eef7ff;
+      min-width: 1366px;
       .router-tab-scroll{
         .router-tab-nav{
           .router-tab-item{
@@ -49,5 +50,8 @@
         }
       }
     }
+  }
+  /deep/.router-tab-container{
+    min-width: 1366px;
   }
 </style>

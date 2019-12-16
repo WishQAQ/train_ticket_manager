@@ -1,8 +1,8 @@
 <template>
   <div class="statement" v-loading="loading">
     <div class="table_header">
-      <div>
-        <el-input clearable v-model="searchOrder" placeholder="请输入对账单号"/></div>
+      <el-input clearable v-model="searchOrder" placeholder="请输入对账单号"/>
+      <el-input clearable v-model="searchCustomOrder" placeholder="请输入自定义对账单号"/>
       <el-button @click="searchBtn">搜索</el-button>
     </div>
     <div class="table_main">
@@ -23,6 +23,10 @@
         <el-table-column
             prop="bill_number"
             label="对账单号">
+        </el-table-column>
+        <el-table-column
+            prop="custom_bill_number"
+            label="自定义对账单号">
         </el-table-column>
         <el-table-column
             prop="name"
@@ -83,6 +87,7 @@
       return {
         loading: true,
         searchOrder: '', // 对账单号搜索
+        searchCustomOrder: '',
         tableData: [], // 表格数据
       }
     },
@@ -109,7 +114,9 @@
       searchBtn(){
         if(this.searchOrder){
           this.tableData = this.tableData.filter(data => !this.searchOrder || data.bill_number.toLowerCase().includes(this.searchOrder.toLowerCase()))
-        }else {
+        }else if(this.searchCustomOrder){
+          this.tableData = this.tableData.filter(data => !this.searchCustomOrder || data.custom_bill_number.toLowerCase().includes(this.searchCustomOrder.toLowerCase()))
+        } else{
           this.getDataList()
         }
       },

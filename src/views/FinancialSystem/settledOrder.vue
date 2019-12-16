@@ -475,9 +475,12 @@
           :close-on-press-escape="false"
           :visible.sync="batchDialog">
         <div class="upload_dialog">
-          <el-form>
+          <el-form label-width="125px">
             <el-form-item label="实收款">
-              <el-input v-model="batchMessage"></el-input>
+              <el-input v-model="batchMessage"/>
+            </el-form-item>
+            <el-form-item label="自定义对账单号">
+              <el-input v-model="customBillOrder"/>
             </el-form-item>
           </el-form>
         </div>
@@ -610,6 +613,7 @@
 
         batchDialog: false, // 单个对账
         batchMessage: '', // 单个对账内容
+        customBillOrder: '', // 自定义对账单号
         batchId: '', // 对账ID
         submitLoading: true,
 
@@ -1057,6 +1061,7 @@
         this.orderId = val.order_sn
         this.batchMessage = ''
         this.batchId = ''
+        this.customBillOrder = ''
         this.batchDialog = true
         this.submitLoading = true
         this.$message.success('正在获取对账单号，请勿刷新页面')
@@ -1096,6 +1101,7 @@
         fileArr.push(fileForm)
 
         let data ={
+          custom_bill_number: this.customBillOrder,
           bill_number: this.batchId,
           orders: JSON.stringify(dataArr),
           bill_file: JSON.stringify(fileArr),

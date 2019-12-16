@@ -84,7 +84,7 @@
           <div :class="['main_list',{'is_top': item.is_top === 1}]" v-for="(item, index) in tableData" :key="index" @dblclick="doubleClickDetails(item)">
             <div class="list_num">
               <div style="width: 45px">{{parseInt(index)+1}}</div>
-              <div class="list_num_checked" style="width: 45px" :style="{'height':item.info.length * 50 + 'px'}">
+              <div class="list_num_checked" style="width: 45px" :style="{'height':item.info.length * 31 + 'px'}">
                 <el-checkbox :disabled="showAllChecked" ref="checkbox_box" @change="handleCheckChange(item)"/>
               </div>
               <div style="width: 130px">{{item.order_sn}}</div>
@@ -98,7 +98,7 @@
 
               </div>
             </div>
-            <div class="list_message" :style="{'height':item.info.length * 50 + 'px'}">
+            <div class="list_message" :style="{'height':item.info.length * 31 + 'px'}">
               <div>{{item.Cname}}</div>
               <div>{{item.fdName}}</div>
               <div style="width: 80px;flex-shrink: 0;font-weight: unset">
@@ -106,12 +106,14 @@
                 <span v-if="item.order_status === 1" style="color: green">已处理</span>
               </div>
               <div style="width: 80px;flex-shrink: 0;">{{item.finance_status}}</div>
-              <div v-if="roleType === 0 && viewsType !== 2" style="font-size: 12px">
-                <p v-if="item.desc.is_important === 1 || viewsType === 4">
-                  <span class="important_remarks">{{item.desc.remarks}}</span>
-                </p>
-<!--                <p v-if="viewsType === 4">{{item.desc.remarks}}</p>-->
-                <!--<span style="font-size: 10px; color: #bebebe">暂无重要备注</span>-->
+              <div v-if="roleType === 0 && viewsType !== 2" style="font-size: 12px;overflow:hidden;align-items: flex-start">
+                <el-tooltip class="item" effect="dark" :content="item.desc.remarks" placement="top">
+                  <p v-if="item.desc.is_important === 1 || viewsType === 4">
+                  <span class="important_remarks">
+                    {{item.desc.remarks}}
+                  </span>
+                  </p>
+                </el-tooltip>
               </div>
               <div v-if="viewsType === 2">{{item.reason}}</div>
             </div>
@@ -815,12 +817,11 @@
 
 <style scoped lang="less">
   .orderManagement{
-    padding: 20px 80px;
+    padding: 20px;
     .table_header{
       display: flex;
       align-items: center;
       flex-wrap: wrap;
-      margin-bottom: 20px;
       >div{
         margin-right: 15px;
         margin-bottom: 10px;
@@ -838,7 +839,7 @@
           border: 1px solid #ebeef5;
           >div{
             width: 100%;
-            height: 50px;
+            height: 30px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -856,7 +857,7 @@
           align-items: center;
           justify-content: center;
           flex-direction: column;
-          min-height: 50px;
+          min-height: 30px;
           .main_list{
             flex: 1;
             display: flex;
@@ -877,8 +878,8 @@
                 top: 0;
                 width: 0;
                 height: 0;
-                border-top: 30px solid red;
-                border-right: 30px solid transparent;
+                border-top: 20px solid red;
+                border-right: 20px solid transparent;
               }
             }
             &:hover{
@@ -898,7 +899,7 @@
                 align-items: center;
                 justify-content: center;
                 height: 100%;
-                min-height: 50px;
+                min-height: 30px;
                 &:last-child{
                   color: #000;
                   /*font-weight: bold;*/
@@ -931,7 +932,7 @@
                   display: flex;
                   align-items: center;
                   justify-content: center;
-                  height: 50px;
+                  height: 30px;
                   border-left: 1px solid #ebeef5;
                   padding: 0 5px;
                   color: #000;
