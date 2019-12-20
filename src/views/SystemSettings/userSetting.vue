@@ -239,7 +239,7 @@
         let data = {
           page: this.page || null,
         }
-        this.$axios.get('/api/user/showAccount/'+this.per_page || null,{params:data})
+        this.$axios.get('/user/showAccount/'+this.per_page || null,{params:data})
             .then(res =>{
               if(res.data.code === 0){
                 this.loading = false;
@@ -258,7 +258,7 @@
        * @date 2019/12/5
       */
       getCustomer(){
-        this.$axios.get('/api/user/customer/showAll')
+        this.$axios.get('/user/customer/showAll')
         .then(res =>{
           if(res.data.code === 0){
             this.customerList = res.data.result
@@ -282,7 +282,7 @@
           time: this.$dateToMs(this.searchForm.time / 1000) || '',
           page: this.page || null,
         }
-        this.$axios.post('/api/user/showAccount/'+this.per_page || null,data)
+        this.$axios.post('/user/showAccount/'+this.per_page || null,data)
             .then(res =>{
               if(res.data.code === 0){
                 this.loading = false;
@@ -329,7 +329,7 @@
           let data = {
             condition: this.userId
           };
-          this.$axios.post('/api/user/getOneAccount',data)
+          this.$axios.post('/user/getOneAccount',data)
               .then(res =>{
                 if(res.data.code === 0){
                   this.closeData()
@@ -387,7 +387,7 @@
       },
 
       editUserType(data){
-        this.$axios.post('/api/user/operateAccount',data)
+        this.$axios.post('/user/operateAccount',data)
             .then(res =>{
               if(res.data.code === 0){
                 this.$message.success('操作成功')
@@ -424,7 +424,7 @@
       */
       getRoleData(){
         this.formLoading = true;
-        this.$axios.get('/api/authority/role/show/0')
+        this.$axios.get('/authority/role/show/0')
             .then(res =>{
               if(res.data.code === 0){
                 this.formLoading = false;
@@ -439,7 +439,7 @@
       */
       getGroupData(){
         this.formLoading = true;
-        this.$axios.get('/api/user/group/obtain')
+        this.$axios.get('/user/group/obtain')
             .then(res =>{
               if(res.data.code === 0){
                 this.formLoading = false;
@@ -458,7 +458,7 @@
         this.userInfo['pertGroups'] = String(this.groupCheckList)
         this.userInfo['role_id'] = String(this.roleCheckList)
         if(this.addUserInfoStatic){  // 新增
-          this.$axios.post('/api/user/addAccount',this.userInfo)
+          this.$axios.post('/user/addAccount',this.userInfo)
               .then(res =>{
                 if(res.data.code === 0){
                   this.$message.success('保存成功')
@@ -474,7 +474,7 @@
           this.userInfo['condition'] = this.userInfo.target
           delete this.userInfo['target']
           this.userInfo.type = JSON.parse(JSON.stringify(this.userInfo.type))
-          this.$axios.post('/api/user/modifyAccount',this.userInfo)
+          this.$axios.post('/user/modifyAccount',this.userInfo)
               .then(res =>{
                 if(res.data.code === 0){
                   this.$message.success('保存成功')

@@ -276,7 +276,7 @@
       */
       downAllExcel(){
         this.$message.success('正在整理导出文件，开始导出，请勿刷新页面')
-        this.$axios.get('/api/excel/info/'+this.viewsType+'/all',{responseType: 'blob'})
+        this.$axios.get('/excel/info/'+this.viewsType+'/all',{responseType: 'blob'})
             .then(res =>{
               window.location.href = window.URL.createObjectURL(res.data);
             })
@@ -290,7 +290,7 @@
         console.log(this.selectList);
         if(this.selectList.length > 0){
           this.$message.success('正在整理导出文件，开始导出，请勿刷新页面')
-          this.$axios.get('/api/excel/info/'+this.viewsType+'/'+String(this.selectList),{responseType: 'blob'})
+          this.$axios.get('/excel/info/'+this.viewsType+'/'+String(this.selectList),{responseType: 'blob'})
               .then(res =>{
                 window.location.href = window.URL.createObjectURL(res.data);
               })
@@ -306,7 +306,7 @@
        * @date 2019/11/27
       */
       getClient(){
-        this.$axios.get('/api/user/customer/showAll')
+        this.$axios.get('/user/customer/showAll')
             .then(res =>{
               this.client = res.data.result;
             })
@@ -318,7 +318,7 @@
        * @date 2019/12/7
        */
       getIssuerData(){
-        this.$axios.get('/api/user/issuer/showAll/1')
+        this.$axios.get('/user/issuer/showAll/1')
             .then(res =>{
               if(res.data.code === 0){
                 this.issuerAllList = res.data.result
@@ -353,7 +353,7 @@
        * @date 2019/11/27
       */
       getCompanyAccount(){
-        this.$axios.get('/api/user/showCompanyAccount/1')
+        this.$axios.get('/user/showCompanyAccount/1')
             .then(res =>{
               if(res.data.code === 0){
                 this.companyAccount = res.data.result
@@ -395,7 +395,7 @@
 
 
 
-        this.$axios.post('/api/order/list/'+this.viewsType + '/'+ this.per_page,data)
+        this.$axios.post('/order/list/'+this.viewsType + '/'+ this.per_page,data)
             .then(res =>{
               this.loading = false;
               this.tableData = res.data.data
@@ -546,7 +546,7 @@
           order_sn: val.order_sn,
           is_top: val.is_top === 0 ? 1: 0
         }
-        this.$axios.post('/api/order/operateOrderTop',data)
+        this.$axios.post('/order/operateOrderTop',data)
             .then(res =>{
               if(res.data.code === 0){
                 this.$message.success('设置成功')
@@ -586,7 +586,7 @@
               order_sn: val.order_sn,
               type: type
             }
-            this.$axios.post('/api/order/operateOrderType',data)
+            this.$axios.post('/order/operateOrderType',data)
                 .then(res =>{
                   if(res.data.code === 0){
                     this.$message.success(
@@ -615,7 +615,7 @@
               type: type,
               reason: value
             }
-            this.$axios.post('/api/order/operateOrderType',data)
+            this.$axios.post('/order/operateOrderType',data)
                 .then(res =>{
                   if(res.data.code === 0){
                     this.$message.success(
@@ -648,7 +648,7 @@
               let data = {
                 order_sn: val.order_sn
               }
-              this.$axios.post('/api/order/delRecycleOrder',data)
+              this.$axios.post('/order/delRecycleOrder',data)
                 .then(res =>{
                   if(res.data.code === 0){
                     this.$message.success('删除成功')
@@ -670,7 +670,7 @@
         this.mergerOrder = ''
         this.$message.success('正在获取所有订单列表，请稍等')
         this.orderId = val.order_sn
-        this.$axios.get('/api/order/obtainList/0')
+        this.$axios.get('/order/obtainList/0')
             .then(res =>{
               if(res.data.code === 0){
                 this.mergerOrderDialog = true
@@ -692,7 +692,7 @@
             sourceOrder: this.orderId,
             targetOrder: this.mergerOrder
           }
-          this.$axios.post('/api/order/operateOrderMerge',data)
+          this.$axios.post('/order/operateOrderMerge',data)
               .then(res =>{
                 if(res.data.code === 0){
                   this.$message.success('合并成功')
@@ -740,7 +740,7 @@
           is_important: this.importantRemarks? 1:0,
           remarks: this.remarksInput
         }
-        this.$axios.post('/api/order/operateRemarks',data)
+        this.$axios.post('/order/operateRemarks',data)
             .then(res =>{
               if(res.data.code === 0){
                 this.$message.success('添加成功')
@@ -785,7 +785,7 @@
           let data ={
             orderList: val.order_sn,
           }
-         this.$axios.post('/api/order/restoreOrder',data)
+         this.$axios.post('/order/restoreOrder',data)
              .then(res =>{
                 if(res.data.code === 0){
                   this.$message.success('还原成功')

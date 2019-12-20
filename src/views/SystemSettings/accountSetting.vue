@@ -134,7 +134,7 @@
         let data = {
           page: this.page || null,
         }
-        this.$axios.get('/api/system/12306_account/show/'+this.per_page || null,{params:data})
+        this.$axios.get('/system/12306_account/show/'+this.per_page || null,{params:data})
             .then(res =>{
               this.loading = false;
               this.tableData = res.data.result.data
@@ -168,7 +168,7 @@
           let data = {
             accountList: String(this.selectList)
           }
-          this.$axios.post('/api/system/12306_account/del',data)
+          this.$axios.post('/system/12306_account/del',data)
               .then(res =>{
                 this.$message.success('删除成功')
                 this.getDataList()
@@ -205,7 +205,7 @@
           let data  = {
             accountList: this.uploadContent
           };
-          this.$axios.post('/api/system/12306_account/add',data)
+          this.$axios.post('/system/12306_account/add',data)
               .then(res =>{
                 this.uploadDialog = false
                 this.getDataList()
@@ -215,7 +215,7 @@
             accountList: String(this.selectList),
             user: this.assignSelect
           };
-          this.$axios.post('/api/system/12306_account/distribute',data)
+          this.$axios.post('/system/12306_account/distribute',data)
               .then(res =>{
                 this.assignDialog = false
                 this.getDataList()
@@ -231,7 +231,7 @@
       */
       openAssignDialog(){
         this.assignDialog = true;
-        this.$axios.get('/api/system/showDrawer')
+        this.$axios.get('/system/showDrawer')
             .then(res =>{
               this.assignList = res.data.result
             })

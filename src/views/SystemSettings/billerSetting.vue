@@ -138,7 +138,7 @@
         let data = {
           page: this.page || null,
         }
-        this.$axios.get('/api/user/issuer/show/'+this.per_page || null,{params:data})
+        this.$axios.get('/user/issuer/show/'+this.per_page || null,{params:data})
             .then(res =>{
               this.loading = false
               this.dataList = res.data.result.data
@@ -152,7 +152,7 @@
        * @date 2019/10/16
       */
       searchBtn(){
-        this.$axios.post('/api/user/issuer/search',this.searchForm)
+        this.$axios.post('/user/issuer/search',this.searchForm)
             .then(res =>{
               if(res.data.code === 0){
                 this.dataList = res.data.result.data
@@ -240,7 +240,7 @@
        * @date 2019/10/16
       */
       optionUserInfo(data,message){
-        this.$axios.post('/api/user/issuer/operation',data)
+        this.$axios.post('/user/issuer/operation',data)
             .then(res =>{
               if(res.data.code === 0){
                 this.getDataList()
@@ -264,7 +264,7 @@
             contact: this.telPhone,
             qq: this.qq
           }
-          this.$axios.post('/api/user/issuer/add',data)
+          this.$axios.post('/user/issuer/add',data)
               .then(res => {
                 if (res.data.code === 0) {
                   this.$message.success('添加成功')

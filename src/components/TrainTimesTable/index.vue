@@ -22,13 +22,13 @@
           {{scope.$index+1}}
         </template>
       </el-table-column>
-<!--      <el-table-column-->
-<!--          width="50"-->
-<!--          label="合并">-->
-<!--        <template slot-scope="scope">-->
-<!--          {{scope.row.is_merge === 0 ? '是' : '否'}}-->
-<!--        </template>-->
-<!--      </el-table-column>-->
+      <!--      <el-table-column-->
+      <!--          width="50"-->
+      <!--          label="合并">-->
+      <!--        <template slot-scope="scope">-->
+      <!--          {{scope.row.is_merge === 0 ? '是' : '否'}}-->
+      <!--        </template>-->
+      <!--      </el-table-column>-->
       <el-table-column
           show-overflow-tooltip
           min-width="287"
@@ -69,7 +69,7 @@
                 <el-option label="成人票" value="成人票"/>
                 <el-option label="儿童票" value="儿童票"/>
               </el-select>
-              <span v-else-if="scope.row.ticket_species !== '成人票'">{{scope.row.ticket_species}}</span>
+              <span v-else>{{scope.row.ticket_species}}</span>
             </div>
           </div>
         </template>
@@ -82,15 +82,15 @@
           {{scope.row.ticket_type === 0?'电子票':
           scope.row.ticket_type === 1?'网票':
           scope.row.ticket_type === 2?'纸票':scope.row.ticket_type}}
-<!--          <el-select-->
-<!--              v-model="scope.row.ticket_type === 0?'电子票':-->
-<!--                       scope.row.ticket_type === 1?'网票':-->
-<!--                       scope.row.ticket_type === 2?'纸票':scope.row.ticket_type"-->
-<!--              placeholder="请选择">-->
-<!--            <el-option label="电子票" value="0"></el-option>-->
-<!--            <el-option label="网票" value="1"></el-option>-->
-<!--            <el-option label="纸票" value="2"></el-option>-->
-<!--          </el-select>-->
+          <!--          <el-select-->
+          <!--              v-model="scope.row.ticket_type === 0?'电子票':-->
+          <!--                       scope.row.ticket_type === 1?'网票':-->
+          <!--                       scope.row.ticket_type === 2?'纸票':scope.row.ticket_type"-->
+          <!--              placeholder="请选择">-->
+          <!--            <el-option label="电子票" value="0"></el-option>-->
+          <!--            <el-option label="网票" value="1"></el-option>-->
+          <!--            <el-option label="纸票" value="2"></el-option>-->
+          <!--          </el-select>-->
         </template>
       </el-table-column>
       <el-table-column
@@ -152,7 +152,7 @@
       <el-table-column
           v-if="tableRoleStatus.ticket_status.show"
           show-overflow-tooltip
-          width="50"
+          width="70"
           label="状态">
         <template slot-scope="scope">
           <span v-if="scope.row.ticket_status === 0" style="color: red">未出票</span>
@@ -184,17 +184,17 @@
           v-if="showTableRows"
           label="出票时间">
         <template slot-scope="scope">
-<!--          <div v-if="tableModify === 'edit'">-->
-<!--            <el-date-picker-->
-<!--                size="mini"-->
-<!--                class="editTimeInput"-->
-<!--                v-model="dbTableData[scope.row.tableIndex].ticketing_time"-->
-<!--                type="date"-->
-<!--                value-format="timestamp"-->
-<!--                :placeholder="$getTimeYear(scope.row.ticketing_time * 1000) !== 0? String($getTimeYear(scope.row.ticketing_time * 1000)): '' || '选择日期'"-->
-<!--                @blur="loseFcous(tableData, scope.row, 'ticketing_time', scope.row.ticketing_time,dbTableData[scope.row.tableIndex].ticketing_time / 1000,scope.row.tableIndex)">-->
-<!--            </el-date-picker>-->
-<!--          </div>-->
+          <!--          <div v-if="tableModify === 'edit'">-->
+          <!--            <el-date-picker-->
+          <!--                size="mini"-->
+          <!--                class="editTimeInput"-->
+          <!--                v-model="dbTableData[scope.row.tableIndex].ticketing_time"-->
+          <!--                type="date"-->
+          <!--                value-format="timestamp"-->
+          <!--                :placeholder="$getTimeYear(scope.row.ticketing_time * 1000) !== 0? String($getTimeYear(scope.row.ticketing_time * 1000)): '' || '选择日期'"-->
+          <!--                @blur="loseFcous(tableData, scope.row, 'ticketing_time', scope.row.ticketing_time,dbTableData[scope.row.tableIndex].ticketing_time / 1000,scope.row.tableIndex)">-->
+          <!--            </el-date-picker>-->
+          <!--          </div>-->
 
           <span>{{$getTimeYear(scope.row.ticketing_time * 1000) || ''}}</span>
         </template>
@@ -353,7 +353,7 @@
     //     this.completeData = oVal
     //   },
     // },
-    beforeMount() {
+    mounted() {
       this.dataReorganization()
       // console.log(this.tableData);
       // console.log(this.tableRoleStatus);
@@ -367,13 +367,13 @@
        * @Description: 数据处理
        * @author Wish
        * @date 2019/12/4
-      */
+       */
       dataReorganization(){
         // this.completeData = JSON.parse(JSON.stringify(this.tableData))
-        console.log(this.dbTableData);
-        console.log(this.tableData);
+        // console.log(this.dbTableData);
+        // console.log(this.tableData);
         this.tableData.forEach((item,index) =>{
-          item.ticket_species = item.ticket_species === 0 ? '成人票': '儿童票'
+          item.ticket_species = item.ticket_species === 0 ? '成人票': item.ticket_species === 1 ? '儿童票' : item.ticket_species
           this.tableData[index]['tableIndex'] = index
           this.newDataForm.push({
             name: '',
@@ -390,7 +390,7 @@
           })
         })
         this.dbTableData.forEach(item =>{
-          item.ticket_species = item.ticket_species === 0 ? '成人票': '儿童票'
+          item.ticket_species = item.ticket_species === 0 ? '成人票': item.ticket_species === 1 ? '儿童票' : item.ticket_species
         })
       },
       /**
@@ -399,7 +399,7 @@
        * @date 2019/10/17
        */
       tableSelect(v,r){
-        console.log(v);
+        // console.log(v);
         let userId = [];
         userId = v.map(res =>{
           return res.id;
@@ -421,7 +421,7 @@
        * @Description: 清除选择框
        * @author Wish
        * @date 2019/11/18
-      */
+       */
       toggleSelection(){
         if(this.closedSelect){
           this.$refs.multipleTable.clearSelection();
@@ -432,7 +432,7 @@
        * @Description: 单元格修改
        * @author Wish
        * @date 2019/11/18
-      */
+       */
       loseFcous(orderData, data, rowName, row, newRow, rowIndex) {
         if(rowName === 'ticketing_time'){
           newRow = String(newRow) === '0'? '': parseInt(newRow)
@@ -502,7 +502,7 @@
        * @Description: 跳转12306购票网站
        * @author Wish
        * @date 2019/11/18
-      */
+       */
       jumpPayTicket(val){
         this.$emit('jumpPayTicket',val,this.orderInfo)
       },
@@ -511,7 +511,7 @@
        * @Description: 跳转12306退票or改签
        * @author Wish
        * @date 2019/11/21
-      */
+       */
       jumpEditTicket(val,type){
         this.$emit('jumpEditTicket',val,this.orderInfo,type)
       },

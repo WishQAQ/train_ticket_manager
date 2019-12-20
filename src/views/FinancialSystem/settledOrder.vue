@@ -133,26 +133,26 @@
           </el-table-column>
         </el-table-column>
 
-          <el-table-column
-              v-if="viewsType === 0 || viewsType === 3 || viewsType === 2"
-              prop="receivables"
-              align="center"
-              label="应收款">
-          </el-table-column>
+        <el-table-column
+            v-if="viewsType === 0 || viewsType === 3 || viewsType === 2"
+            prop="receivables"
+            align="center"
+            label="应收款">
+        </el-table-column>
         <el-table-column
             v-if="tableOrderRoleStatus.actual_receipts.show && viewsType !== 1"
             prop="actual_receipts"
             align="center"
             label="实收款">
         </el-table-column>
-          <el-table-column
-              v-if="viewsType === 0 || viewsType === 3 || viewsType === 2"
-              align="center"
-              label="债途">
-            <template slot-scope="scope">
-              {{$numberSubtract(scope.row.receivables,scope.row.actual_receipts)}}
-            </template>
-          </el-table-column>
+        <el-table-column
+            v-if="viewsType === 0 || viewsType === 3 || viewsType === 2"
+            align="center"
+            label="债途">
+          <template slot-scope="scope">
+            {{$numberSubtract(scope.row.receivables,scope.row.actual_receipts)}}
+          </template>
+        </el-table-column>
 
         <el-table-column
             v-if="roleType === 0"
@@ -164,14 +164,14 @@
               label="总出票费">
             <template slot-scope="scope">
               {{scope.row.verification_item.total_ticket_issue_fee}}
-<!--              <el-input-->
-<!--                  size="mini"-->
-<!--                  v-model="newDataForm[scope.row.tableIndex]['total_ticket_issue_fee']"-->
-<!--                  v-if="tableOrderRoleStatus.total_ticket_issue_fee.read"-->
-<!--                  :placeholder="scope.row.verification_item.total_ticket_issue_fee"-->
-<!--                  @blur="openEditInput(scope.row,'total_ticket_issue_fee',scope.row.verification_item.total_ticket_issue_fee,newDataForm[scope.row.tableIndex]['total_ticket_issue_fee'])">-->
-<!--              </el-input>-->
-<!--              <span v-else>{{scope.row.verification_item.total_ticket_issue_fee}}</span>-->
+              <!--              <el-input-->
+              <!--                  size="mini"-->
+              <!--                  v-model="newDataForm[scope.row.tableIndex]['total_ticket_issue_fee']"-->
+              <!--                  v-if="tableOrderRoleStatus.total_ticket_issue_fee.read"-->
+              <!--                  :placeholder="scope.row.verification_item.total_ticket_issue_fee"-->
+              <!--                  @blur="openEditInput(scope.row,'total_ticket_issue_fee',scope.row.verification_item.total_ticket_issue_fee,newDataForm[scope.row.tableIndex]['total_ticket_issue_fee'])">-->
+              <!--              </el-input>-->
+              <!--              <span v-else>{{scope.row.verification_item.total_ticket_issue_fee}}</span>-->
             </template>
           </el-table-column>
           <el-table-column
@@ -234,16 +234,16 @@
             prop="profit"
             align="center"
             label="利润">
-<!--          <template slot-scope="scope">-->
-<!--            <el-input-->
-<!--                size="mini"-->
-<!--                v-model="newDataForm[scope.row.tableIndex]['profit']"-->
-<!--                v-if="tableOrderRoleStatus.profit.read"-->
-<!--                :placeholder="scope.row.profit"-->
-<!--                @blur="openEditInput(scope.row,'profit',scope.row.profit,newDataForm[scope.row.tableIndex]['profit'])">-->
-<!--            </el-input>-->
-<!--            <span v-else>{{scope.row.profit}}</span>-->
-<!--          </template>-->
+          <!--          <template slot-scope="scope">-->
+          <!--            <el-input-->
+          <!--                size="mini"-->
+          <!--                v-model="newDataForm[scope.row.tableIndex]['profit']"-->
+          <!--                v-if="tableOrderRoleStatus.profit.read"-->
+          <!--                :placeholder="scope.row.profit"-->
+          <!--                @blur="openEditInput(scope.row,'profit',scope.row.profit,newDataForm[scope.row.tableIndex]['profit'])">-->
+          <!--            </el-input>-->
+          <!--            <span v-else>{{scope.row.profit}}</span>-->
+          <!--          </template>-->
         </el-table-column>
 
         <el-table-column
@@ -278,7 +278,7 @@
             width="80px"
             label="订单状态">
           <template slot-scope="scope">
-            <span v-if="scope.row.order_status === 0" style="font-weight:unset;color: red">未处理</span>
+            <span v-if="scope.row.order_status === 0" style="font-weight:unset;color: red">处理中</span>
             <span v-if="scope.row.order_status === 1" style="font-weight:unset;color: green">已处理</span>
           </template>
         </el-table-column>
@@ -468,8 +468,10 @@
 
       <!-- 单个对账 -->
       <el-dialog
+          v-dialogDrag
           title="对账"
           width="450px"
+          :lock-scroll="false"
           :show-close="false"
           :close-on-click-modal="false"
           :close-on-press-escape="false"
@@ -498,7 +500,6 @@
           <el-button style="margin-right: 10px" size="mini" type="text" @click="customizeSizeBtn(customizeSize)">确定</el-button>
           <Pagination
               ref="pagination"
-
               :customizeSize="customizeNum"
               :pageSize="pageSize"
               :pageData="paginationList"
@@ -647,7 +648,7 @@
           }
         }
 
-        this.$axios.post('/api/finance/getInfo/'+this.viewsType+'/'+this.per_page, data)
+        this.$axios.post('/finance/getInfo/'+this.viewsType+'/'+this.per_page, data)
             .then(res =>{
               this.tableData = res.data.data;
               this.paginationList = res.data;
@@ -662,9 +663,9 @@
                 item.bill_numbers?item.bill_numbers =item.bill_numbers.split(','): ''
               })
             })
-        .catch(() =>{
-          this.$message.error('数据获取失败，请稍后重试')
-        })
+            .catch(() =>{
+              this.$message.error('数据获取失败，请稍后重试')
+            })
       },
 
       customizeSizeBtn(val){
@@ -678,7 +679,7 @@
        * @Description: 跳转订单详情页
        * @author Wish
        * @date 2019/11/9
-      */
+       */
       jumpDetails(val){
         this.$router.push({
           name: 'orderDetails',
@@ -710,7 +711,7 @@
 
       //获取客户列表
       getClient(){
-        this.$axios.get('/api/user/customer/showAll')
+        this.$axios.get('/user/customer/showAll')
             .then(res =>{
               this.client = res.data.result;
             })
@@ -720,7 +721,7 @@
        * @Description: 选中客户商
        * @author Wish
        * @date 2019/11/21
-      */
+       */
       selectCustomer(val){
         this.searchForm.issuer = ''
         this.client.forEach(res =>{
@@ -734,7 +735,7 @@
        * @Description: 查看Q群信息
        * @author Wish
        * @date 2019/10/25
-      */
+       */
       openQDialog(val){
         this.groupDialog = true
         this.groupMessage = ''
@@ -745,7 +746,7 @@
        * @Description: 打开修改单元格
        * @author Wish
        * @date 2019/10/30
-      */
+       */
       openEditInput(data,dataName,row,newRow, rowIndex){
         console.log(data, dataName, row, newRow);
         if(row !== newRow && newRow !== '' && newRow !== undefined && newRow !== null){
@@ -761,7 +762,7 @@
               cancelButtonText: '取消',
               type: 'warning'
             }).then(() => {
-              this.$axios.post('/api/finance/editCellContent',param)
+              this.$axios.post('/finance/editCellContent',param)
                   .then(res =>{
                     if(res.data.code === 0){
                       this.$message.success('修改成功')
@@ -777,7 +778,7 @@
               this.newDataForm[rowIndex][dataName] = row
             });
           }else {
-            this.$axios.post('/api/finance/editCellContent',param)
+            this.$axios.post('/finance/editCellContent',param)
                 .then(res =>{
                   if(res.data.code === 0){
                     this.$message.success('修改成功')
@@ -797,7 +798,7 @@
        * @Description: 单元格文本框失去焦点提交数据
        * @author Wish
        * @date 2019/10/30
-      */
+       */
       closedEditTotal(){
 
       },
@@ -806,7 +807,7 @@
        * @Description: 打开对账单号弹窗
        * @author Wish
        * @date 2019/11/21
-      */
+       */
       viewBillNumberBtn(val){
         this.billNumberList = []
         this.billNumberList = val
@@ -817,7 +818,7 @@
        * @Description: 点击单号跳转对账详情页
        * @author Wish
        * @date 2019/10/30
-      */
+       */
       jumpOrderDetails(val){
         this.viewBillNumberDialog = false
         this.$router.push({
@@ -832,7 +833,7 @@
        * @Description: 打开详情弹窗
        * @author Wish
        * @date 2019/10/25
-      */
+       */
       openDetailsDialog(val){
         this.OrderDetailsTable = []
         this.OrderRemarkTable = []
@@ -846,12 +847,12 @@
        * @Description: 详情获取日志列表
        * @author Wish
        * @date 2019/10/28
-      */
+       */
       getDetailsData(){
         let data = {
           page: this.DetailsPage || null,
         }
-        this.$axios.get('/api/order/actionLog/'+this.orderId+ '/'+this.DetailsPer_page || null,{params:data})
+        this.$axios.get('/order/actionLog/'+this.orderId+ '/'+this.DetailsPer_page || null,{params:data})
             .then(res =>{
               if(res.data.code === 0){
                 this.OrderDetailsTable = res.data.result.data
@@ -863,7 +864,7 @@
        * @Description: 详情分页
        * @author Wish
        * @date 2019/10/28
-      */
+       */
       jumpDetailsSize(val){
         this.DetailsPer_page = val
         this.getDetailsData()
@@ -876,12 +877,12 @@
        * @Description: 详情获取备注列表
        * @author Wish
        * @date 2019/10/28
-      */
+       */
       getRemarkData(){
         let data = {
           page: this.RemarkPage || null,
         }
-        this.$axios.get('/api/order/trackingRemarks/'+this.orderId+ '/'+this.RemarkPer_page || null,{params:data})
+        this.$axios.get('/order/trackingRemarks/'+this.orderId+ '/'+this.RemarkPer_page || null,{params:data})
             .then(res =>{
               if(res.data.code === 0){
                 this.OrderRemarkTable = res.data.result.data
@@ -906,12 +907,12 @@
        * @Description: 获取收支汇款底单
        * @author Wish
        * @date 2019/10/28
-      */
+       */
       getBottomOrder(){
         let data ={
           condition: this.orderId
         }
-        this.$axios.post('/api/finance/getData/'+0,data)
+        this.$axios.post('/finance/getData/'+0,data)
             .then(res =>{
               if(res.data.code === 0){
                 this.detailsImages = res.data.result
@@ -927,7 +928,7 @@
        * @Description: 打开备注弹窗
        * @author Wish
        * @date 2019/10/28
-      */
+       */
       openRemarkDialog(val){
         this.remarkDialog = true
         this.remarkMessage = '';
@@ -937,14 +938,14 @@
        * @Description: 提交备注
        * @author Wish
        * @date 2019/10/28
-      */
+       */
       submitRemark(){
         let data ={
           order_sn: this.orderId,
           is_important: 0,
           remarks: this.remarkMessage
         }
-        this.$axios.post('/api/order/operateRemarks',data)
+        this.$axios.post('/order/operateRemarks',data)
             .then(res =>{
               if(res.data.code === 0){
                 this.remarkDialog = false
@@ -960,7 +961,7 @@
        * @Description: 打开上传弹窗
        * @author Wish
        * @date 2019/10/28
-      */
+       */
       openUploadDialog(index,data){
         console.log(index, data);
         this.orderId = data.order_sn
@@ -978,7 +979,7 @@
        * @Description: 上传图片返回值
        * @author Wish
        * @date 2019/10/28
-      */
+       */
       uploadImages(val){
         this.upload_image = val
       },
@@ -987,14 +988,14 @@
        * @Description: 确认上传
        * @author Wish
        * @date 2019/10/28
-      */
+       */
       submitUpload(){
         let index = this.uploadType?1:2
         let data = {
           info: this.upload_image,
           order_sn: this.orderId
         }
-        this.$axios.post('/api/finance/operateColumn/'+index,data) // 1：上传汇款凭证 2：上传付款凭证
+        this.$axios.post('/finance/operateColumn/'+index,data) // 1：上传汇款凭证 2：上传付款凭证
             .then(res =>{
               if(res.data.code === 0){
                 this.$message.success('上传成功')
@@ -1010,14 +1011,14 @@
        * @Description: 锁定or解除锁定订单
        * @author Wish
        * @date 2019/10/28
-      */
+       */
       changeOrderType(val){
         this.orderId = val.order_sn
         let data ={
           condition: this.orderId,
           is_lock: val.is_lock === 0 ? 1: 0
         }
-        this.$axios.post('/api/finance/editLock',data)
+        this.$axios.post('/finance/editLock',data)
             .then(res =>{
               if(res.data.code === 0){
                 this.$message.success('修改成功')
@@ -1032,7 +1033,7 @@
        * @Description: 跳转批量对账页面
        * @author Wish
        * @date 2019/10/28
-      */
+       */
       jumpBatchStatement(){
         let orderSn = [];
         let customerList = [];
@@ -1056,7 +1057,7 @@
        * @Description: 打开单个对账弹窗
        * @author Wish
        * @date 2019/10/29
-      */
+       */
       openBatchDialog(val){
         this.orderId = val.order_sn
         this.batchMessage = ''
@@ -1070,7 +1071,7 @@
           customer: val.customer,
           order_num: 1
         }
-        this.$axios.post('/api/finance/obtain',data)
+        this.$axios.post('/finance/obtain',data)
             .then(res =>{
               if(res.data.code === 0){
                 this.batchId = res.data.result
@@ -1085,7 +1086,7 @@
        * @Description: 单个对账提交
        * @author Wish
        * @date 2019/10/29
-      */
+       */
       submitBatch(){
         let dataForm = {
           order_sn: this.orderId
@@ -1106,7 +1107,7 @@
           orders: JSON.stringify(dataArr),
           bill_file: JSON.stringify(fileArr),
         }
-        this.$axios.post('/api/finance/batchBill',data)
+        this.$axios.post('/finance/batchBill',data)
             .then(res =>{
               if(res.data.code === 0){
                 this.batchDialog = false
@@ -1129,7 +1130,7 @@
        * @Description: 页面总价合计
        * @author Wish
        * @date 2019/10/28
-      */
+       */
       getDataTotal(){
         let TotalPrice = 0 // 总票价
         let MealFee = 0  // 总餐费
@@ -1151,12 +1152,12 @@
        * @Description: 表格导出
        * @author Wish
        * @date 2019/10/28
-      */
+       */
       exportOrder(type){
         if(type === 'all'){
           if(this.tableData.length >0){
             this.$message.success('正在整理导出文件，开始导出，请勿刷新页面')
-            this.$axios.get('/api/excel/billInfo/'+this.viewsType+'/all',{responseType: 'blob'})
+            this.$axios.get('/excel/billInfo/'+this.viewsType+'/all',{responseType: 'blob'})
                 .then(res =>{
                   window.location.href = window.URL.createObjectURL(res.data);
                 })
@@ -1171,7 +1172,7 @@
             this.selectDownList.forEach(downId =>{
               newArr.push(downId.order_sn)
             })
-            this.$axios.get('/api/excel/billInfo/'+this.viewsType+'/'+String(newArr),{responseType: 'blob'})
+            this.$axios.get('/excel/billInfo/'+this.viewsType+'/'+String(newArr),{responseType: 'blob'})
                 .then(res =>{
                   window.location.href = window.URL.createObjectURL(res.data);
                 })

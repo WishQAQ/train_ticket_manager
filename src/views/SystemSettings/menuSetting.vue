@@ -43,7 +43,7 @@
         </el-form-item>
 
         <el-form-item label="类型" v-show="false">
-          <el-select @change="changeSelectType" :disabled="showInput" v-model="menuType" placeholder="请选择">
+          <el-select @change="changeSelectType" :disabled="showInput && disabled" v-model="menuType" placeholder="请选择">
             <el-option label="菜单" value="菜单"></el-option>
             <el-option label="按钮" value="按钮"></el-option>
           </el-select>
@@ -89,7 +89,7 @@
     data(){
       return {
         loading: true, // 加载
-
+        disabled: false,
         menuList: [],  // 列表
 
         addTree: false,  // 新建菜单
@@ -123,7 +123,7 @@
       */
       getData(val){
         this.loading = true
-        this.$axios.get('/api/authority/menu/showAll')
+        this.$axios.get('/authority/menu/showAll')
             .then(res =>{
               if(res.data.code === 0){
                 this.menuList = res.data.result
@@ -177,6 +177,7 @@
           this.menuType = '按钮'
         }
         this.showInput = false;
+        this.showInput = data.menu_english_name === 'home'
       },
 
       /**
@@ -185,7 +186,11 @@
        * @date 2019/9/24
       */
       handleNodeClick(data, checked, indeterminate){
-        this.showDelete = !checked
+        if(checked && data.menu_english_name === 'home'){
+          this.$message.error('首页数据禁止更改或删除，请勿选中首页')
+          this.$refs.tree.setCheckedNodes([]);
+        }
+        this.showDelete = !checked || data.menu_english_name === 'home'
       },
 
       /**
@@ -206,7 +211,7 @@
           let data = {
             menuId: String(this.deleteId)
           }
-          this.$axios.post('/api/authority/menu/del',data)
+          this.$axios.post('/authority/menu/del',data)
               .then(res =>{
                 if(res.data.code === 0){
                   this.menuList= []
@@ -254,7 +259,7 @@
           this.menuMessage['menuId'] = this.menuMessage.menu_id
           delete this.menuMessage.menu_id
           if(this.addTree){  // 新增
-            this.$axios.post('/api/authority/menu/add',this.menuMessage)
+            this.$axios.post('/authority/menu/add',this.menuMessage)
                 .then(res =>{
                   if(res.data.code === 0){
                     this.showInput = true
@@ -267,7 +272,7 @@
                   }
                 })
           }else {  // 修改
-            this.$axios.post('/api/authority/menu/edit',this.menuMessage)
+            this.$axios.post('/authority/menu/edit',this.menuMessage)
                 .then(res =>{
                   if(res.data.code === 0){
                     this.showInput = false

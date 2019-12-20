@@ -115,12 +115,16 @@ router.beforeEach((to, from, next) => {
       //如果没有匹配到，证明没有权限
       if(String(JSON.stringify(list)).indexOf(to.name) === -1) {
         if(to.name !== 'login'){
-          Message.error('当前账号暂无权限，请联系管理员')
+          Message.error('当前账号暂无权限')
+          next('/login')
+          sessionStorage.clear()
         }
       }else {
         if (to.matched.length ===0) {
           from.name ? next({ name:from.name }) : next('/');
-          Message.error('当前账号暂无权限，请联系管理员')
+          Message.error('当前账号暂无权限')
+          next('/login')
+          sessionStorage.clear()
         } else {
           next();
         }

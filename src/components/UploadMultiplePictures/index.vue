@@ -38,7 +38,7 @@
 
       },
       handlePictureCardPreview(file) {
-        this.dialogImageUrl = 'http://oa.huimin.dev.cq1080.com/' + file.url;
+        this.dialogImageUrl = file.url;
         this.dialogVisible = true;
       },
       beforeUpload (file) {
@@ -46,10 +46,10 @@
         let uploadData = new FormData();
         uploadData.append('type', String(this.uploadType))
         uploadData.append('file', file)
-        this.$axios.post('/api/upload/graph/single',uploadData)
+        this.$axios.post('/upload/graph/single',uploadData)
             .then(res =>{
               if(res.data.code === 0){
-                this.dialogImageUrl = 'http://oa.huimin.dev.cq1080.com/'+res.data.result
+                this.dialogImageUrl = res.data.result
                 this.$emit('uploadAddress', res.data.result)
               }else {
                 this.dialogImageUrl = ''

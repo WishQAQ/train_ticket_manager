@@ -25,20 +25,20 @@ module.exports = {
       //   threshold: 10240,
       //   minRatio: 0.8,
       // }));
-      // config.plugins.push(
-      //     new UglifyJsPlugin({
-      //       uglifyOptions: {
-      //         compress: {
-      //           warnings: false,
-      //           drop_debugger: true, // 注释console
-      //           drop_console: true,
-      //           pure_funcs:['console.log'] // 移除console
-      //         },
-      //       },
-      //       sourceMap: false,
-      //       parallel: true,
-      //     }),
-      // );
+      config.plugins.push(
+          new UglifyJsPlugin({
+            uglifyOptions: {
+              compress: {
+                warnings: false,
+                drop_debugger: true, // 注释console
+                drop_console: true,
+                pure_funcs:['console.log'] // 移除console
+              },
+            },
+            sourceMap: false,
+            parallel: true,
+          }),
+      );
     }
   },
   css: {
@@ -54,20 +54,11 @@ module.exports = {
   publicPath: './',
   productionSourceMap: false,
   devServer: {
-    disableHostCheck:true,
-    proxy: {
-      "/api": {
-        target: "http://oa.huimin.dev.cq1080.com",
-        ws: true, // 是否启用websockets
-        changOrigin: true, // 开启跨域
-        pathRewrite: {
-          '^/api': ''
-        }
-      },
-    },
-    overlay: {
-      errors: true,
-      warnings: true
-    }
+    // disableHostCheck:true,
+    proxy: 'http://tohcp.cn',
+    // overlay: {
+    //   errors: true,
+    //   warnings: true
+    // }
   }
 }

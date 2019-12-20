@@ -1,13 +1,13 @@
 <template>
   <div class="statementInfo">
-    <el-form class="info_header" label-width="100px">
+    <el-form class="info_header" label-width="120px">
       <el-form-item label="对账单号">
         <div>{{$route.query.condition}}</div>
       </el-form-item>
-<!--      <el-form-item label="账期对账时间">-->
-<!--        <el-input v-model="searchTime"></el-input>-->
-<!--      </el-form-item>-->
-<!--      <div style="margin-left: 15px"><el-button @click="submitSearch">搜索</el-button></div>-->
+      <el-form-item style="margin-left: 80px" label="自定义对账单号">
+        <div>{{custom_bill_number}}</div>
+      </el-form-item>
+      <!--      <div style="margin-left: 15px"><el-button @click="submitSearch">搜索</el-button></div>-->
     </el-form>
 
 
@@ -224,6 +224,8 @@
         roleType: parseInt(sessionStorage.getItem('TYPE')),
         generalUser: sessionStorage.getItem('roleUserStatus'),
 
+        custom_bill_number: '', // 自定义单号
+
         searchTime: '', // 账期搜索
         tableData: [], // 账期数据
         receiptData: [], // 实收款数据
@@ -251,9 +253,9 @@
        * @Description: 获取账期数据
        * @author Wish
        * @date 2019/10/29
-      */
+       */
       getDataList(){
-        this.$axios.get('/api/finance/obtainAccountPeriod/'+this.$route.query.condition)
+        this.$axios.get('/finance/obtainAccountPeriod/'+this.$route.query.condition)
             .then(res =>{
               if(res.data.code === 0){
                 this.tableData = res.data.result
@@ -267,7 +269,7 @@
        * @Description: 搜索
        * @author Wish
        * @date 2019/11/28
-      */
+       */
       submitSearch(){
         if(this.searchTime){
           this.tableData = this.tableData.filter(data => !this.searchTime || data.begin.toLowerCase().includes(this.searchTime.toLowerCase()))
@@ -281,12 +283,14 @@
        * @Description: 获取实收款数据
        * @author Wish
        * @date 2019/10/29
-      */
+       */
       getReceiptList(){
-        this.$axios.get('/api/finance/obtainRecord/'+this.$route.query.condition)
+        this.$axios.get('/finance/obtainRecord/'+this.$route.query.condition)
             .then(res =>{
               if(res.data.code === 0){
                 this.receiptData = res.data.result
+                console.log(this.receiptData);
+                this.custom_bill_number = this.receiptData[0].custom_bill_number?this.receiptData[0].custom_bill_number:''
               }else {
                 this.$message.warning(res.data.msg)
               }
@@ -296,12 +300,12 @@
        * @Description: 获取订单凭证图片
        * @author Wish
        * @date 2019/10/29
-      */
+       */
       getOrderImage(){
         let data = {
           condition: this.$route.query.condition
         }
-        this.$axios.post('/api/finance/getData/1',data)
+        this.$axios.post('/finance/getData/1',data)
             .then(res =>{
               if(res.data.code === 0){
                 res.data.result.collection_voucher?this.receiptImage = res.data.result.collection_voucher.split(','): null
@@ -315,12 +319,12 @@
        * @Description: 获取账单备注列表
        * @author Wish
        * @date 2019/10/29
-      */
+       */
       getOrderRemarks(){
         let data = {
           page: this.remarksPage || null,
         }
-        this.$axios.get('/api/finance/obtainRemarks/'+this.$route.query.condition+'/'+this.remarksPer_page || null,{params:data})
+        this.$axios.get('/finance/obtainRemarks/'+this.$route.query.condition+'/'+this.remarksPer_page || null,{params:data})
             .then(res =>{
               this.orderRemarksData = res.data.data
               this.remarksPagination = res.data
@@ -330,7 +334,7 @@
        * @Description: 备注列表翻页
        * @author Wish
        * @date 2019/10/29
-      */
+       */
       remarksJumpSize(val){
         this.remarksPer_page = val
         this.getOrderRemarks()
@@ -343,12 +347,12 @@
        * @Description: 获取账单操作日志列表
        * @author Wish
        * @date 2019/10/29
-      */
+       */
       getOrderLog(){
         let data = {
           page: this.remarksPage || null,
         }
-        this.$axios.get('/api/finance/obtainActionLog/'+this.$route.query.condition+'/'+this.remarksPer_page || null,{params:data})
+        this.$axios.get('/finance/obtainActionLog/'+this.$route.query.condition+'/'+this.remarksPer_page || null,{params:data})
             .then(res =>{
               this.orderLogData = res.data.data
               this.logPagination = res.data
@@ -372,7 +376,7 @@
        * @Description: 打开添加实收款弹窗
        * @author Wish
        * @date 2019/10/29
-      */
+       */
       openReceiptDialog(val){
         this.receiptInfo = ''
         this.addReceiptDialog = true
@@ -383,7 +387,7 @@
        * @Description: 添加实收款表格数据
        * @author Wish
        * @date 2019/10/29
-      */
+       */
       submitAddReceipt(){
         if(this.addReceiptMessage){
           let newForm = {
@@ -394,7 +398,7 @@
             bill_number: this.receiptInfo.bill_number,
             info: JSON.stringify(newForm)
           }
-          this.$axios.post('/api/finance/operateOrder/0',data)
+          this.$axios.post('/finance/operateOrder/0',data)
               .then(res =>{
                 if(res.data.code === 0){
                   this.$message.success('添加成功')
@@ -412,7 +416,7 @@
        * @Description: 删除实收款数据
        * @author Wish
        * @date 2019/10/29
-      */
+       */
       deleteReceiptData(val,cVal){
         this.$confirm('此操作将永久删除此条数据, 是否继续?', '提示', {
           confirmButtonText: '确定',
@@ -427,7 +431,7 @@
             bill_number: val.bill_number,
             info: JSON.stringify(newForm)
           }
-          this.$axios.post('/api/finance/operateOrder/1',data)
+          this.$axios.post('/finance/operateOrder/1',data)
               .then(res =>{
                 if(res.data.code === 0){
                   this.$message.success('删除成功')
@@ -443,7 +447,7 @@
        * @Description: 上传收款凭证
        * @author Wish
        * @date 2019/10/29
-      */
+       */
       uploadReceiptImage(val){
         this.$refs.uploadReceiptImage.closedImage()
         if(val){
@@ -451,7 +455,7 @@
             info: val,
             bill_number: this.$route.query.condition
           }
-          this.$axios.post('/api/finance/operateBill/2',data)
+          this.$axios.post('/finance/operateBill/2',data)
               .then(res =>{
                 if(res.data.code === 0){
                   this.$message.success('上传成功')
@@ -466,7 +470,7 @@
        * @Description: 删除收款凭证
        * @author Wish
        * @date 2019/12/4
-      */
+       */
       deleteUserImage(val){
         console.log(val);
       },
@@ -474,7 +478,7 @@
        * @Description: 上传付款凭证
        * @author Wish
        * @date 2019/10/29
-      */
+       */
       uploadPaymentImage(val){
         this.$refs.uploadPaymentImage.closedImage()
         if(val){
@@ -482,7 +486,7 @@
             info: val,
             bill_number: this.$route.query.condition
           }
-          this.$axios.post('/api/finance/operateBill/1',data)
+          this.$axios.post('/finance/operateBill/1',data)
               .then(res =>{
                 if(res.data.code === 0){
                   this.$message.success('上传成功')

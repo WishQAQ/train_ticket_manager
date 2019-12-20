@@ -131,7 +131,7 @@
       getData(){
         this.loading = true
         this.showNote = false
-        this.$axios.get('/api/user/note/obtain/0')
+        this.$axios.get('/user/note/obtain/0')
             .then(res =>{
               if(res.data.code === 0){
                 this.loading = false
@@ -223,7 +223,7 @@
         let data = {
           id: val.id
         }
-        this.$axios.post('/api/user/note/del',data)
+        this.$axios.post('/user/note/del',data)
             .then(res =>{
               if(res.data.code === 0){
                 this.getData()
@@ -244,7 +244,7 @@
         if(this.editNote){  // 新增便签
           if(this.noteForm.title && this.noteForm.content){
             this.noteForm['type'] = 0
-            this.$axios.post('/api/user/note/operation',this.noteForm)
+            this.$axios.post('/user/note/operation',this.noteForm)
                 .then(res =>{
                   this.addDialog = false;
                   this.showSubmitAddBtn= false;
@@ -259,7 +259,7 @@
           if(this.noteForm.title && this.noteForm.content){
             this.noteForm['type'] = 1
             this.noteForm['noteId'] = this.noteId
-            this.$axios.post('/api/user/note/operation',this.noteForm)
+            this.$axios.post('/user/note/operation',this.noteForm)
                 .then(res =>{
                   this.addDialog = false;
                   this.showSubmitAddBtn= false;

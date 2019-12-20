@@ -68,10 +68,12 @@
           </template>
         </el-table-column>
         <el-table-column
-            min-width="230"
+            show-overflow-tooltip
+            min-width="220"
             label="乘客信息">
           <template slot-scope="scope">
-            {{scope.row.name + ' ' + scope.row.IDCard}}
+            {{scope.row.name + ' ' + scope.row.IDCard + ' '}}
+            {{scope.row.ticket_species === 1?'儿童票': ''}}
           </template>
         </el-table-column>
         <el-table-column
@@ -85,22 +87,26 @@
         </el-table-column>
         <el-table-column
             width="120"
+            show-overflow-tooltip
             prop="departure_station"
             label="发站">
         </el-table-column>
         <el-table-column
             width="120"
+            show-overflow-tooltip
             prop="arrival_station"
             label="到站">
         </el-table-column>
         <el-table-column
             width="80"
+            show-overflow-tooltip
             prop="trips_number"
             label="车次">
         </el-table-column>
         <el-table-column
             prop="fwName"
             width="200"
+            show-overflow-tooltip
             label="席别名称">
           <template slot-scope="scope">
             {{scope.row.fwName}}
@@ -110,6 +116,7 @@
         </el-table-column>
         <el-table-column
             width="80"
+            show-overflow-tooltip
             v-if="rulType === '0'"
             label="票类">
           <template slot-scope="scope">
@@ -119,6 +126,7 @@
           </template>
         </el-table-column>
         <el-table-column
+            show-overflow-tooltip
             width="90"
             v-if="rulType === '0'"
             sortable
@@ -126,6 +134,7 @@
             label="票价">
         </el-table-column>
         <el-table-column
+            show-overflow-tooltip
             width="90"
             v-if="rulType === '0'"
             sortable
@@ -133,6 +142,7 @@
             label="误餐费">
         </el-table-column>
         <el-table-column
+            show-overflow-tooltip
             width="90"
             v-if="rulType === '0'"
             sortable
@@ -140,6 +150,7 @@
             label="退票款">
         </el-table-column>
         <el-table-column
+            show-overflow-tooltip
             width="90"
             v-if="rulType === '0'"
             sortable
@@ -147,6 +158,7 @@
             label="出票款">
         </el-table-column>
         <el-table-column
+            show-overflow-tooltip
             width="120"
             v-if="rulType === '0'"
             label="出票时间">
@@ -155,6 +167,7 @@
           </template>
         </el-table-column>
         <el-table-column
+            show-overflow-tooltip
             width="80"
             label="车票状态">
           <template slot-scope="scope">
@@ -264,7 +277,7 @@
           this.searchForm.beginTime?data['begin'] = this.$dateToMs(this.searchForm.beginTime[0] / 1000): ''
           this.searchForm.beginTime?data['end'] = this.$dateToMs(this.searchForm.beginTime[1] / 1000): ''
         }
-        this.$axios.post('/api/system/passengerTicket/' + this.rulType + '/'+this.per_page || null,data)
+        this.$axios.post('/system/passengerTicket/' + this.rulType + '/'+this.per_page || null,data)
             .then(res =>{
               this.ticketData = res.data.result.data
               this.paginationList = res.data.result
@@ -318,7 +331,7 @@
       exportAllTable(data){
         this.$message.success('正在整理导出数据，导出中，请勿刷新页面')
         if(data === 0){
-          this.$axios.get('/api/excel/passengerSystem/'+this.rulType+'/all',{responseType: 'blob'})
+          this.$axios.get('/excel/passengerSystem/'+this.rulType+'/all',{responseType: 'blob'})
               .then(res =>{
                 window.location.href = window.URL.createObjectURL(res.data);
               })
@@ -327,7 +340,7 @@
             let data = {
               info: JSON.stringify(this.selectUserId)
             }
-            this.$axios.post('/api/excel/passengerSystem/'+this.urlType,data,{responseType: 'blob'})
+            this.$axios.post('/excel/passengerSystem/'+this.urlType,data,{responseType: 'blob'})
                 .then(res =>{
                   window.location.href = window.URL.createObjectURL(res.data);
                 })
@@ -336,7 +349,7 @@
           }
         }
         // this.$axios({
-        //   url: '/api/system/exportTicket/'+data,
+        //   url: '/system/exportTicket/'+data,
         //   method: 'get',
         //   responseType: 'blob'
         // }).then(res =>{

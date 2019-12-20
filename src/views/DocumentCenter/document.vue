@@ -345,7 +345,7 @@
           page: this.page || null,
           per_page: this.per_page
         }
-        this.$axios.get('/api/notice/show/'+this.viewAddressType+'/'+this.per_page,{params:data})
+        this.$axios.get('/notice/show/'+this.viewAddressType+'/'+this.per_page,{params:data})
             .then(res =>{
               this.loading = false
               this.helpTableData = res.data.data
@@ -373,7 +373,7 @@
         let data = {
           keyWords: this.searchInput
         }
-        this.$axios.post('/api/notice/search/'+this.viewAddressType,data)
+        this.$axios.post('/notice/search/'+this.viewAddressType,data)
             .then(res =>{
               this.loading = false
               this.helpTableData = res.data.data
@@ -459,7 +459,7 @@
             this.detailForm['is_show'] = this.detailForm.is_show
           }
           if(this.editDialogStatus){
-            this.$axios.post('/api/notice/add',this.detailForm)
+            this.$axios.post('/notice/add',this.detailForm)
               .then(res =>{
                 if(res.data.code === 0){
                   this.$message.success('保存成功')
@@ -474,7 +474,7 @@
               })
           }else {
             console.log(this.detailForm.id);
-            this.$axios.post('/api/notice/edit',this.detailForm)
+            this.$axios.post('/notice/edit',this.detailForm)
               .then(res =>{
                 if(res.data.code === 0){
                   this.$message.success('修改成功')
@@ -500,7 +500,7 @@
        * @date 2019/11/28
       */
       getUserList(){
-        this.$axios.get('/api/user/group/obtain')
+        this.$axios.get('/user/group/obtain')
             .then(res =>{
               if(res.data.code === 0){
                 this.groupList = res.data.result
@@ -537,7 +537,7 @@
         let postData ={
           group_id: data.id
         }
-        this.$axios.post('/api/user/group/obtainMembers',postData)
+        this.$axios.post('/user/group/obtainMembers',postData)
             .then(res =>{
               if(res.data.code === 0){
                 this.showPersonnelText = true
@@ -645,7 +645,7 @@
             condition: val.id,
             type: this.viewAddressType
           }
-          this.$axios.post('/api/notice/del',data)
+          this.$axios.post('/notice/del',data)
               .then(res =>{
                 if(res.data.code === 0){
                   this.$message.success('删除成功')
@@ -701,7 +701,7 @@
        * @date 2019/11/4
       */
       getOrderMessage(){
-        this.$axios.get('/api/order/obtainList/0')
+        this.$axios.get('/order/obtainList/0')
             .then(res =>{
               if(res.data.code === 0){
                 this.orderInfo = res.data.result

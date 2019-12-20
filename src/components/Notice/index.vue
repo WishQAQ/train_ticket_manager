@@ -96,7 +96,7 @@
     methods:{
       getData(){
         this.loading = true
-        this.$axios.get('/api/user/note/showNotice')
+        this.$axios.get('/user/note/showNotice')
             .then(res =>{
               if(res.data.code === 0){
                 this.loading = false
@@ -115,7 +115,7 @@
           type: 1,
           notice_id: val.id,
         }
-        this.$axios.post('/api/user/note/modifyNotice',data)
+        this.$axios.post('/user/note/modifyNotice',data)
             .then(res =>{
               if(res.data.code === 0){
                 this.loading = false
@@ -174,7 +174,7 @@
         this.showSubmitAddBtn= true
         if(this.editNote){  // 新增便签
           if(this.noteForm.title && this.noteForm.content){
-            this.$axios.post('/api/user/note/publishNotice',this.noteForm)
+            this.$axios.post('/user/note/publishNotice',this.noteForm)
                 .then(res =>{
                   this.addDialog = false;
                   this.showSubmitAddBtn= false;
@@ -192,7 +192,7 @@
           if(this.noteForm.title && this.noteForm.content){
             this.noteForm['type'] = 0
             this.noteForm['notice_id'] = this.noteId
-            this.$axios.post('/api/user/note/modifyNotice',this.noteForm)
+            this.$axios.post('/user/note/modifyNotice',this.noteForm)
                 .then(res =>{
                   this.addDialog = false;
                   this.showSubmitAddBtn= false;

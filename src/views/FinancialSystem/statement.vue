@@ -94,7 +94,7 @@
     methods:{
       getDataList(){
         this.loading = true
-        this.$axios.get('/api/finance/getStatementData')
+        this.$axios.get('/finance/getStatementData')
             .then(res =>{
               if(res.data.code === 0){
                 this.loading = false

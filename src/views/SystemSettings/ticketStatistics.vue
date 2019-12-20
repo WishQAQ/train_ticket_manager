@@ -198,7 +198,7 @@
           }
         }
 
-        this.$axios.post('/api/system/ticketType/'+this.urlType+'/'+this.per_page,data)
+        this.$axios.post('/system/ticketType/'+this.urlType+'/'+this.per_page,data)
             .then(res =>{
               this.ticketData = res.data.result.data
               this.loading = false
@@ -214,7 +214,7 @@
        * @date 2019/11/27
        */
       getClient(){
-        this.$axios.get('/api/user/customer/showAll')
+        this.$axios.get('/user/customer/showAll')
             .then(res =>{
               this.client = res.data.result;
             })
@@ -226,7 +226,7 @@
        * @date 2019/11/27
        */
       getCompanyAccount(){
-        this.$axios.get('/api/user/showCompanyAccount/1')
+        this.$axios.get('/user/showCompanyAccount/1')
             .then(res =>{
               if(res.data.code === 0){
                 this.companyAccount = res.data.result
@@ -243,7 +243,7 @@
        * @date 2019/11/15
       */
       downAllExcel(){
-        this.$axios.get('/api/excel/ticketType/'+this.urlType + '/all',{responseType: 'blob'})
+        this.$axios.get('/excel/ticketType/'+this.urlType + '/all',{responseType: 'blob'})
             .then(res =>{
               window.location.href = window.URL.createObjectURL(res.data);
             })
@@ -275,7 +275,7 @@
           let data = {
             info: JSON.stringify(this.selectUserId)
           }
-          this.$axios.post('/api/excel/ticketType/'+this.urlType,data,{responseType: 'blob'})
+          this.$axios.post('/excel/ticketType/'+this.urlType,data,{responseType: 'blob'})
               .then(res =>{
                 window.location.href = window.URL.createObjectURL(res.data);
               })

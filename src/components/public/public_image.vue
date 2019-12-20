@@ -3,7 +3,7 @@
     <el-image
         @click="openPreviewIndex(url)"
         class="public_image"
-        :src="isNaN(url) ? 'http://oa.huimin.dev.cq1080.com/'+url: ''"
+        :src="isNaN(url) ? url: ''"
         :preview-src-list="preview_list"
         :fit="fit">
       <div slot="error" class="image-slot">
@@ -52,7 +52,7 @@
         if(this.preview){
           this.preview_list= []
           this.previewList.map(res =>{
-            this.preview_list.push('http://oa.huimin.dev.cq1080.com/'+ res)
+            this.preview_list.push(res)
           })
         }
       }
@@ -77,11 +77,11 @@
       openPreviewIndex(val){
         this.preview_list= []
         this.previewList.map(res =>{
-          this.preview_list.push('http://oa.huimin.dev.cq1080.com/'+ res)
+          this.preview_list.push(res)
         })
         this.preview_list.forEach((item,index) =>{
           let thisIndex
-          if(item === 'http://oa.huimin.dev.cq1080.com/'+val){
+          if(item === val){
             thisIndex = index
             if(thisIndex > 0){
               for (let i = 0; i < thisIndex; i++){
@@ -100,7 +100,7 @@
       if(this.preview){
         this.preview_list= []
         this.previewList.map(res =>{
-          this.preview_list.push('http://oa.huimin.dev.cq1080.com/'+ res)
+          this.preview_list.push(res)
         })
       }
     }

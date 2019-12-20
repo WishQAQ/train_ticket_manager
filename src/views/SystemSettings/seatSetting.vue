@@ -119,7 +119,7 @@
         let data = {
           page: this.page || null,
         }
-        this.$axios.get('/api/system/'+urlAddress+'/show/'+this.per_page || null,{params:data})
+        this.$axios.get('/system/'+urlAddress+'/show/'+this.per_page || null,{params:data})
             .then(res =>{
               if(res.data.code === 0){
                 this.loading = false
@@ -147,7 +147,7 @@
           name: this.searchSeatName || null,
           status: searchStatus || 0
         }
-        this.$axios.post('/api/system/'+urlAddress+'/show',data)
+        this.$axios.post('/system/'+urlAddress+'/show',data)
             .then(res =>{
               this.loading = false
               this.seatTableData = res.data.result.data
@@ -195,7 +195,7 @@
             status: type === 0 ?1:0,
             condition: this.seatId
           }
-          this.$axios.post('/api/system/'+urlAddress+'/operation',data)
+          this.$axios.post('/system/'+urlAddress+'/operation',data)
               .then(res =>{
                 this.$message.success('状态修改成功')
                 this.getDataList()
@@ -221,7 +221,7 @@
             type: 2,
             condition: this.seatId
           }
-          this.$axios.post('/api/system/'+urlAddress+'/operation',data)
+          this.$axios.post('/system/'+urlAddress+'/operation',data)
               .then(res =>{
                 this.$message.success('删除成功')
                 this.getDataList()
@@ -245,7 +245,7 @@
               name: this.seatName,
               condition: this.seatId
             };
-            this.$axios.post('/api/system/'+urlAddress+'/operation',data)
+            this.$axios.post('/system/'+urlAddress+'/operation',data)
                 .then(res =>{
                   if(res.data.code === 0){
                     this.submitLoading = false
@@ -260,7 +260,7 @@
             let data ={
               name: this.seatName
             };
-            this.$axios.post('/api/system/'+urlAddress+'/add',data)
+            this.$axios.post('/system/'+urlAddress+'/add',data)
                 .then(res =>{
                   if(res.data.code === 0){
                     this.submitLoading = false

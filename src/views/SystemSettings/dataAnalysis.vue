@@ -436,7 +436,7 @@
        * @date 2019/11/13
       */
       getClientList(){
-        this.$axios.get('/api/user/customer/showAll')
+        this.$axios.get('/user/customer/showAll')
             .then(res =>{
               if(res.data.code === 0){
                 this.clientList = res.data.result
@@ -452,7 +452,7 @@
        * @date 2019/11/13
       */
       getConductorList(){
-        this.$axios.get('/apiuser/showCompanyAccount/1')
+        this.$axios.get('/user/showCompanyAccount/1')
             .then(res =>{
               if(res.data.code === 0){
                 this.conductorList = res.data.result
@@ -468,7 +468,7 @@
        * @date 2019/11/13
       */
       getBillerList(){
-        this.$axios.get('/api/user/issuer/showAll/1')
+        this.$axios.get('/user/issuer/showAll/1')
             .then(res =>{
               if(res.data.code === 0){
                 this.billerList = res.data.result
@@ -567,7 +567,7 @@
       getChartsData(type,data){
         console.log(this.searchForm.statisticType);
         this.loading = true
-        this.$axios.post('/api/census/getData/'+type,data)
+        this.$axios.post('/census/getData/'+type,data)
             .then(res =>{
               if(res.data.code === 0){
                 console.log(res);

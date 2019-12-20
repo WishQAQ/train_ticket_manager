@@ -7,7 +7,7 @@ import bus from '../utlis/bus'
 import {Message} from 'element-ui'
 
 export function loginByUserInfo(username, password) {
-   axios.post('http://oa.huimin.dev.cq1080.com/account/login', username, password).then(res =>{
+   axios.post('/account/login', username, password).then(res =>{
      sessionStorage.setItem('CSRF', res.data.result.csrf);
      sessionStorage.setItem('FieldInfo', JSON.stringify(res.data.result.fieldInfo))
      sessionStorage.setItem('FieldInfoAll', JSON.stringify(res.data.result.fieldAllInfo))

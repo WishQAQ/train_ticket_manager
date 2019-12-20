@@ -46,7 +46,7 @@
         handler(nv, ov) {
           console.log(nv, ov);
           this.default_photo = this.defaultPhoto || ''
-          this.imageUrl = this.default_photo?'http://oa.huimin.dev.cq1080.com/'+this.default_photo:''
+          this.imageUrl = this.default_photo?this.default_photo:''
         }
       }
     },
@@ -59,7 +59,7 @@
         fileList: [],  // 上传文件列表
         showUploadBox: true, // 是否显示上传框
 
-        uploadUrl: '/api/upload/graph/single',
+        uploadUrl: '/upload/graph/single',
         imageUrl: '', // 图片地址
 
         submitBtnLoading: true, // 上传按钮
@@ -89,13 +89,13 @@
         let uploadData = new FormData();
         uploadData.append('type', String(this.uploadType))
         uploadData.append('file', file)
-        this.$axios.post('/api/upload/graph/single',uploadData)
+        this.$axios.post('/upload/graph/single',uploadData)
             .then(res =>{
               if(res.data.code === 0){
                 let endName = String(res.data.result.split('.').pop())
                 console.log(endName);
                 if(endName === 'png' || endName === 'PNG' || endName === 'jpg' || endName === 'JPG' || endName === 'jpeg'|| endName === 'JPEG'){
-                  this.imageUrl = 'http://oa.huimin.dev.cq1080.com/'+res.data.result
+                  this.imageUrl = res.data.result
                   this.$emit('uploadAddress', res.data.result)
                   this.showTxtDiv = false
                 }else {
@@ -120,7 +120,7 @@
     mounted() {
       if(this.defaultPhoto){
         this.default_photo = this.defaultPhoto
-        this.imageUrl = 'http://oa.huimin.dev.cq1080.com/'+this.default_photo
+        this.imageUrl = this.default_photo
       }
     }
   }

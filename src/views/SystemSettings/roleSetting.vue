@@ -210,7 +210,7 @@
           per_page: this.per_page
         }
 
-        this.$axios.get('/api/authority/role/show/'+'1',{params:data})
+        this.$axios.get('/authority/role/show/'+'1',{params:data})
             .then(res =>{
               if(res.data.code === 0){
                 this.loading = false
@@ -230,7 +230,7 @@
           let data = {
             role_name: this.searchUserName
           }
-          this.$axios.post('/api/authority/role/show/'+'1',data)
+          this.$axios.post('/authority/role/show/'+'1',data)
               .then(res =>{
                 if(res.status === 200){
                   this.userData = res.data.result.data
@@ -282,7 +282,7 @@
           let data ={
             condition: val.role_id
           }
-          this.$axios.post('/api/authority/role/del',data)
+          this.$axios.post('/authority/role/del',data)
               .then(res =>{
                 if(res.data.code === 0){
                   this.$message.success('删除成功')
@@ -312,7 +312,7 @@
           status: roleStatus,
           condition: val.role_id
         }
-        this.$axios.post('/api/authority/role/edit',data)
+        this.$axios.post('/authority/role/edit',data)
             .then(res =>{
               if(res.data.code === 0){
                 this.getDataList()
@@ -330,7 +330,7 @@
        * @date 2019/9/25
       */
       getData(){
-        this.$axios.get('/api/authority/menu/showAll')
+        this.$axios.get('/authority/menu/showAll')
             .then(res =>{
               if(res.data.code === 0){
                 this.roleLoading = false
@@ -365,7 +365,7 @@
 
         if(val){
           this.userRoleId = val.role_id
-          this.$axios.get('/api/authority/role/showOne/'+this.userRoleId)
+          this.$axios.get('/authority/role/showOne/'+this.userRoleId)
               .then(res =>{
                 if(res.data.code === 0){
                   this.showRoleData = false
@@ -437,7 +437,7 @@
 
       getRoleData(){
         this.treeLoading = true
-        this.$axios.post('/api/authority/role/getRoleField')
+        this.$axios.post('/authority/role/getRoleField')
             .then(res =>{
               if(res.data.code === 0){
                 this.treeLoading = false
@@ -471,7 +471,7 @@
             this.submitLoading = true
             this.treeLoading = true
             this.userInfo['permissionList'] = String(this.checkedRoleList)
-            this.$axios.post('/api/authority/role/add',this.userInfo)
+            this.$axios.post('/authority/role/add',this.userInfo)
                 .then(res =>{
                   if(res.data.code === 0){
                     this.$refs.singleTable.setCurrentRow();
@@ -494,7 +494,7 @@
             this.userInfo['condition'] = this.userInfo['role_id']
             this.userInfo['permissionList'] = String(this.checkedRoleList)
             this.userInfo['type'] = 1
-            this.$axios.post('/api/authority/role/edit',this.userInfo)
+            this.$axios.post('/authority/role/edit',this.userInfo)
                 .then(res =>{
                   if(res.data.code === 0){
                     this.getDataList()

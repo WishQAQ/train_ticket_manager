@@ -95,7 +95,7 @@
             let data = {}
             data['oldPwd'] = this.ruleForm['oldPassword']
             data['newPwd'] = this.ruleForm['confirmPassword']
-            this.$axios.post('/api/user/revise',data)
+            this.$axios.post('/user/revise',data)
                 .then(res =>{
                   this.loading = false
                   if(res.data.code === 0){

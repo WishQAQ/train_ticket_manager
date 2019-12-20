@@ -93,7 +93,7 @@
         let data = {
           page: this.page || null,
         }
-        this.$axios.get('/api/system/12306_account/showMe/'+this.per_page || null,{params:data})
+        this.$axios.get('/system/12306_account/showMe/'+this.per_page || null,{params:data})
             .then(res =>{
               this.loading = false
               this.tableData = res.data.result.data
@@ -123,7 +123,7 @@
           account_id: this.accountInfo.account_id,
           remarks: this.accountRemarks,
         };
-        this.$axios.post('/api/system/12306_account/addRemark',data)
+        this.$axios.post('/system/12306_account/addRemark',data)
             .then(res =>{
               this.remarksDialog = false
               this.accountInfo = {}

@@ -2,34 +2,34 @@
   <div class="nav">
     <div class="nav_logo" @click="getHomeBtn()">To Hcp 车票管理系统</div>
     <div class="nav_menu" v-if="newrouter">
-<!--      <div @click="getHomeBtn" :class="['nav_item',{'active': indexActive}]"><img class="nav_icon" src="../../assets/images/nav_home.png" alt="">首页</div>-->
+      <!--      <div @click="getHomeBtn" :class="['nav_item',{'active': indexActive}]"><img class="nav_icon" src="../../assets/images/nav_home.png" alt="">首页</div>-->
       <div :class="['nav_item',{'active': index ==current && isIndexActive}]"
            v-for="(item,index) in newrouter"
            :key="index"
            v-if="item.menuName"
-            @click.stop="navClick(item,index)">
-        <span class="nav_icon"><i :class="['iconfont',item.icon]"></i></span>
+           @click.stop="navClick(item,index)">
+        <span class="nav_icon"><i :class="['iconfont',item.icon]"/></span>
         {{item.menuName}}
-        <transition name="el-fade-in">
+<!--        <transition name="el-fade-in">-->
           <div class="nav_menu_more" v-show="navDrawer">
             <div @click.stop="jumpAddress(cItem)"
                  class="more_list"
                  v-if="index === current && cItem.menuName && !cItem.meta.hidden"
                  v-for="(cItem,cIndex) in childrenList"
                  :key="cIndex">
-              <span class="more_icon"><i :class="['iconfont',cItem.icon]"></i></span>{{cItem.menuName}}
+              <span class="more_icon"><i :class="['iconfont',cItem.icon]"/></span>{{cItem.menuName}}
             </div>
           </div>
-        </transition>
+<!--        </transition>-->
       </div>
 
 
-      <div class="nav_item" @click="jumpTicket"><span class="nav_icon"><i class="iconfont icon-huochezhan"></i></span>铁路官网</div>
+      <div class="nav_item" @click="jumpTicket"><span class="nav_icon"><i class="iconfont icon-huochezhan"/></span>铁路官网</div>
     </div>
 
     <el-dropdown class="nav_info" :tabindex="99" trigger="click">
       <div class="nav_message">
-        <div class="info_avatar"><i class="el-icon-user-solid"></i></div>
+        <div class="info_avatar"><i class="el-icon-user-solid"/></div>
         <div class="info_userName">{{userName || '未命名'}}</div>
       </div>
       <el-dropdown-menu slot="dropdown" class="nav_info_btn">
@@ -38,12 +38,12 @@
       </el-dropdown-menu>
     </el-dropdown>
 
-    <transition name="el-fade-in">
+<!--    <transition name="el-fade-in">-->
       <div class="nav_mask" v-if="navDrawer">
         <div class="nav_list_mask" :style="{height: navDrawerHeight}"></div>
         <div class="nav_mask_click" @click="closeNavMenu"></div>
       </div>
-    </transition>
+<!--    </transition>-->
 
 
 
@@ -95,6 +95,7 @@
           this.current = index;  // 获取下标
           this.indexActive = true
           this.isIndexActive = true
+          this.navDrawer = false;  // 打开菜单详单
         }else {
           this.childrenList= []
           this.current = index;  // 获取下标
@@ -146,7 +147,7 @@
           name: 'login'
         })
         userExit()
-        this.$axios.get('/api/user/exit')
+        this.$axios.get('/user/exit')
             .then(res =>{
 
             })
@@ -156,7 +157,7 @@
        * @Description: 跳转12306登录页
        * @author Wish
        * @date 2019/11/7
-      */
+       */
       jumpTicket(){
         window.open("https://kyfw.12306.cn/otn/resources/login.html",'_blank')
       },
@@ -285,7 +286,7 @@
           top: 56px;
           width: 100%;
           z-index: 2002;
-          max-height: 260px;
+          max-height: 280px;
           display: flex;
           flex-direction: column;
           flex-wrap: wrap;
@@ -364,7 +365,7 @@
       .nav_list_mask{
         background:rgba(238,247,255,.9);
         flex-shrink: 0;
-        max-height: 260px;
+        max-height: 300px;
         transition: all .3s;
 
       }

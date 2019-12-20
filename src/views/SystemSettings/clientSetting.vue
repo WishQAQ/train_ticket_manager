@@ -156,7 +156,7 @@
           time: this.searchForm.time? this.$dateToDate(this.searchForm.time) || null: null
         }
 
-        this.$axios.post('/api/user/customer/show/'+this.per_page || null,data)
+        this.$axios.post('/user/customer/show/'+this.per_page || null,data)
             .then(res =>{
               if(res.data.code === 0){
                 this.loading = false
@@ -194,7 +194,7 @@
       submitAdd(){
         if(this.dialogType){  // 新建
           if(this.addDataForm.name){
-            this.$axios.post('/api/user/customer/add',this.addDataForm)
+            this.$axios.post('/user/customer/add',this.addDataForm)
                 .then(res =>{
                   if(res.data.code === 0){
                     this.$message.success('保存成功')
@@ -211,7 +211,7 @@
         }else { // 修改
           this.addDataForm['type'] = 0
           if(this.addDataForm.name){
-            this.$axios.post('/api/user/customer/operation',this.addDataForm)
+            this.$axios.post('/user/customer/operation',this.addDataForm)
                 .then(res =>{
                   if(res.data.code === 0){
                     this.$message.success('保存成功')
@@ -264,7 +264,7 @@
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-          this.$axios.post('/api/user/customer/operation',data)
+          this.$axios.post('/user/customer/operation',data)
               .then(res =>{
                 if(res.data.code === 0){
                   this.$message.success('状态修改成功')
@@ -291,7 +291,7 @@
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-          this.$axios.post('/api/user/customer/operation',data)
+          this.$axios.post('/user/customer/operation',data)
               .then(res =>{
                 if(res.data.code === 0){
                   this.$message.success('删除成功')

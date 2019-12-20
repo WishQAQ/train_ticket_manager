@@ -97,7 +97,7 @@
         let data = {
           page: this.page || null,
         }
-        this.$axios.get('/api/system/log/show/'+this.per_page || null,{params:data})
+        this.$axios.get('/system/log/show/'+this.per_page || null,{params:data})
             .then(res =>{
               this.loading = false
               this.tableData = res.data.result.data
@@ -112,7 +112,7 @@
       */
       searchBtn(){
         this.loading = true
-        this.$axios.post('/api/system/log/show',this.searchForm)
+        this.$axios.post('/system/log/show',this.searchForm)
             .then(res =>{
               this.loading = false
               this.tableData = res.data.result.data

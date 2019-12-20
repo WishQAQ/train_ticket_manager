@@ -172,7 +172,7 @@
       */
       getDocumentData(){
         this.dLoading = true
-        this.$axios.get('/api/notice/show/0/5')
+        this.$axios.get('/notice/show/0/5')
             .then(res =>{
               if(res.status === 200){
                 this.dLoading = false
@@ -187,7 +187,7 @@
       */
       getNewData(){
         this.nLoading = true
-        this.$axios.get('/api/notice/show/1/5')
+        this.$axios.get('/notice/show/1/5')
             .then(res =>{
               if(res.status === 200){
                 this.nLoading = false

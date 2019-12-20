@@ -96,7 +96,7 @@
       */
       getDataList(){
         this.loading = true
-        this.$axios.get('/api/user/group/obtain')
+        this.$axios.get('/user/group/obtain')
             .then(res =>{
               if(res.data.code === 0){
                 this.loading = false
@@ -115,7 +115,7 @@
           this.groupId = key
           this.addMailBtn = false
           this.tableLoading = true
-          this.$axios.get('/api/user/mailList/obtain/'+key)
+          this.$axios.get('/user/mailList/obtain/'+key)
               .then(res =>{
                 if(res.data.code === 0){
                   this.tableLoading = false
@@ -142,7 +142,7 @@
       submitAddMail(){
         this.addMailForm.contact = this.$telPhone(this.addMailForm.contact)
         if(this.addMailForm.name && this.addMailForm.contact){
-          this.$axios.post('/api/user/mailList/addOutside',this.addMailForm)
+          this.$axios.post('/user/mailList/addOutside',this.addMailForm)
               .then(res =>{
                 if(res.data.code === 0){
                   this.addDialog = false

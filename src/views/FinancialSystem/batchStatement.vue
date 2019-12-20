@@ -110,7 +110,7 @@
           customer: this.orderInfo.customer,
           order_num: this.orderInfo.order_num
         }
-        this.$axios.post('/api/finance/obtain',data)
+        this.$axios.post('/finance/obtain',data)
             .then(res =>{
               if(res.data.code === 0){
                 this.orderId = res.data.result
@@ -155,7 +155,7 @@
             import_data: this.orderFile,
             available_data: this.orderInfo.orderId
           }
-          this.$axios.post('/api/finance/contrast',data)
+          this.$axios.post('/finance/contrast',data)
               .then(res =>{
                 if(res.data.code === 0){
                   this.uploadOrderFile = false
@@ -203,7 +203,7 @@
         }
 
         if(this.orderFile){
-          this.$axios.post('/api/finance/batchBill',data)
+          this.$axios.post('/finance/batchBill',data)
               .then(res =>{
                 if(res.data.code === 0){
                   this.$message.success('保存成功')
