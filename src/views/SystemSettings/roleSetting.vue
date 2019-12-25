@@ -255,6 +255,12 @@
         this.roleCheckedList = []
         this.$refs.tree.setCheckedKeys([]);
         this.treeLoading = false
+        if(this.roleList.length > 0){
+          this.roleList.forEach(res =>{
+            res['is_read_in'] = false
+            res['is_show'] = false
+          })
+        }
         roleArray = []
       },
 
@@ -358,6 +364,7 @@
        * @date 2019/9/25
       */
       handleCurrentChange(val) {
+        console.log(val);
         this.initialization()
         this.showAddForm = false
         this.treeLoading = true
@@ -416,7 +423,6 @@
        * @date 2019/10/12
       */
       roleSwitch(val){
-        console.log(val);
         if(!val.is_show){
           val.is_read_in = false
         }
@@ -455,7 +461,15 @@
        * @date 2019/9/25
       */
       submitBtn(){
+        if(roleArray.length> 0){
+          roleArray.forEach(res =>{
+            res['is_read_in'] = res.is_read_in? 0: 1
+            res['is_show'] = res.is_show? 0: 1
+            res['field_id'] = res.id
+          })
+        }
         if(this.userInfo.role_name){
+          this.checkedRoleList.push('QGOLRoe7')
           let roleListData = this.userInfo.permission_field?JSON.parse(JSON.stringify(this.userInfo.permission_field)): []
 
           roleListData.map(res =>{
@@ -465,12 +479,13 @@
           })
 
 
-          this.userInfo['permission_field'] = JSON.stringify(roleListData)
+          this.userInfo['permission_field'] = JSON.stringify(roleArray)
           console.log(this.userInfo['permission_field']);
           if(this.showAddForm){
-            this.submitLoading = true
-            this.treeLoading = true
-            this.userInfo['permissionList'] = String(this.checkedRoleList)
+            // this.submitLoading = true
+            // this.treeLoading = true
+            this.userInfo['permissionList'] = this.checkedRoleList.length< 1 ? '' : String([...new Set(this.checkedRoleList)])
+            console.log(this.userInfo);
             this.$axios.post('/authority/role/add',this.userInfo)
                 .then(res =>{
                   if(res.data.code === 0){
@@ -492,9 +507,10 @@
             this.submitLoading = true
             this.treeLoading = true
             this.userInfo['condition'] = this.userInfo['role_id']
-            this.userInfo['permissionList'] = String(this.checkedRoleList)
+            this.userInfo['permissionList'] = this.checkedRoleList.length< 1 ? String(this.userInfo['permissionList']) : String([...new Set(this.checkedRoleList)])
             this.userInfo['type'] = 1
-            this.$axios.post('/authority/role/edit',this.userInfo)
+            console.log(this.userInfo);
+              this.$axios.post('/authority/role/edit',this.userInfo)
                 .then(res =>{
                   if(res.data.code === 0){
                     this.getDataList()

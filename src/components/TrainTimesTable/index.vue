@@ -69,7 +69,7 @@
                 <el-option label="成人票" value="成人票"/>
                 <el-option label="儿童票" value="儿童票"/>
               </el-select>
-              <span v-else>{{scope.row.ticket_species}}</span>
+              <span v-else-if="scope.row.ticket_species !== '成人票'">{{scope.row.ticket_species}}</span>
             </div>
           </div>
         </template>

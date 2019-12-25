@@ -2338,19 +2338,12 @@
        * @data 2019/11/7
        */
       editTableRows(orderInfo, data, rowName, row ){
+        console.log(orderInfo, data, rowName, row);
         /**
          * @Description: 遍历数组对比相同乘客路线，输出当前路线id
          * @author Wish
          * @data 2019/11/7
          */
-        let routeId
-        orderInfo.route_config.forEach(item =>{
-          item.passengers.data.forEach(cItem =>{
-            if(cItem.id === data.id){
-              routeId = item.id
-            }
-          })
-        })
         let infoData = {}
         infoData['passenger_id'] = data.id
         infoData['field'] = rowName === 'account' ? '12306_account': rowName
@@ -2358,7 +2351,7 @@
         let param ={
           order_sn: orderInfo.order_sn,
           token: orderInfo.parent_id,
-          route_id: routeId,
+          route_id: data.route,
           info: JSON.stringify(infoData),
         }
         this.$axios.post('/order/editCellValue/0',param)
@@ -2385,14 +2378,6 @@
          * @author Wish
          * @data 2019/11/7
          */
-        let routeId
-        orderInfo.route_config.forEach(item =>{
-          item.passengers.data.forEach(cItem =>{
-            if(cItem.id === data.id){
-              routeId = item.id
-            }
-          })
-        })
         let infoData = {}
         // infoData['passenger_id'] = data.id
         infoData['field'] = rowName === 'account' ? '12306_account': rowName
@@ -2400,7 +2385,7 @@
         let param ={
           order_sn: orderInfo.order_sn,
           token: orderInfo.parent_id,
-          route: routeId,
+          route: data.route,
           passenger_id: data.id,
           info: JSON.stringify(infoData),
         }
@@ -2840,6 +2825,7 @@
         this.routeStatus = status
         this.editRouteInfo = route  // 获取原路线信息
         this.editRouteData = editData  // 获取当前输入框数据
+        console.log(this.editRouteData);
 
         this.dbEditRouteData = this.dbBatchEditInfo[rowIndex]
         console.log(this.editRouteInfo);
@@ -3464,7 +3450,7 @@
        * @date 2019/10/22
        */
       allAddSubmit(){
-        this.allAddSubmitLoading = true
+        // this.allAddSubmitLoading = true
         let orderList = []
         orderList = JSON.parse(JSON.stringify(this.addTrainTableArray))
         // console.log(orderList);
@@ -3490,8 +3476,8 @@
         let data ={
           order_sn: this.orderInfo.order_sn, // 主订单号
           old_order_sn: this.orderInfo.old_order_sn,  // 旧订单号
-          customer: customerName, // 客户商标识
-          issuer: issuingClerkName, // 发单人标识
+          customer: customerName || this.orderInfo.cname, // 客户商标识
+          issuer: issuingClerkName || this.orderInfo.dName, // 发单人标识
           receiving_address: this.orderInfo.receiving_address,  // 发货地址
           origin_data: this.saveGroupMessage, // Q群原始信息
           route_type: 0,

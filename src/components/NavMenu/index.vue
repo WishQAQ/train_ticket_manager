@@ -160,6 +160,7 @@
        */
       jumpTicket(){
         window.open("https://kyfw.12306.cn/otn/resources/login.html",'_blank')
+        // this.$routerTab.openIframe('https://kyfw.12306.cn/otn/resources/login.html')
       },
       // /**
       //  * @Description: 跳转原系统后台
