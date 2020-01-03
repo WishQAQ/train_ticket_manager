@@ -183,6 +183,7 @@
       */
       openUploadBtn(){
         this.uploadDialog = true
+        this.uploadContent = ''
       },
       /**
        * @Description: 关闭弹窗
@@ -209,6 +210,7 @@
               .then(res =>{
                 this.uploadDialog = false
                 this.getDataList()
+                this.closeDialog()
               })
         }else if(val === 'assign'){
           let data  = {
@@ -219,6 +221,7 @@
               .then(res =>{
                 this.assignDialog = false
                 this.getDataList()
+                this.closeDialog()
               })
         }
 
@@ -262,7 +265,7 @@
   .accountSetting{
     display: flex;
     flex-direction: column;
-    padding: 80px 15%;
+    padding: 20px 5%;
     .table_header{
       display: flex;
       align-items: center;

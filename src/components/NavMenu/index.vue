@@ -72,6 +72,7 @@
         navDrawerHeight: '', //
 
         clientMenu: {}, // 客户后台
+        ticketMenu: {}, // 12306官网
       }
     },
     methods:{
@@ -121,8 +122,8 @@
       },
       // 菜单跳转
       jumpAddress(val){
-        console.log(val);
         if(val.status){
+          // this.$routerTab.openIframe(val.path,val.menu_name)
           window.open('http://' + val.path,'_blank')
         }else {
           bus.$emit('getNavStatus',val);
@@ -160,7 +161,7 @@
        */
       jumpTicket(){
         window.open("https://kyfw.12306.cn/otn/resources/login.html",'_blank')
-        // this.$routerTab.openIframe('https://kyfw.12306.cn/otn/resources/login.html')
+        // this.$routerTab.openIframe('https://kyfw.12306.cn/otn/resources/login.html','铁路官网')
       },
       // /**
       //  * @Description: 跳转原系统后台

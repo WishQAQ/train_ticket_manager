@@ -3,15 +3,15 @@
     <div class="ticket_header">
       <div>
         <el-input clearable v-model="searchForm.name" placeholder="请输入乘客姓名"/></div>
-      <div>
+      <div v-if="tableRoleStatus.payment_account.show">
         <el-input clearable v-model="searchForm.pay_account" placeholder="请输入支付账号"/></div>
-      <div>
+      <div v-if="tableRoleStatus.payment_flow_number.show">
         <el-input clearable v-model="searchForm.running_account" placeholder="请输入流水号"/></div>
-      <div>
+      <div v-if="tableRoleStatus['12306_account'].show">
         <el-input clearable v-model="searchForm.train_account" placeholder="请输入12306账号"/></div>
       <div>
         <el-input clearable v-model="searchForm.order" placeholder="请输入订单号"/></div>
-      <div><el-select style="width: 120px" clearable v-model="searchForm.ticket_status" placeholder="车票状态">
+      <div v-if="tableRoleStatus.ticket_status.show"><el-select style="width: 120px" clearable v-model="searchForm.ticket_status" placeholder="车票状态">
         <el-option label="未出票" value="5"/>
         <el-option label="已出票" value="1"/>
         <el-option label="已取消票" value="2"/>
@@ -144,7 +144,7 @@
         <el-table-column
             show-overflow-tooltip
             width="90"
-            v-if="rulType === '0'"
+            v-if="rulType === '0' && tableRoleStatus.refund_fee.show"
             sortable
             prop="refund_fee"
             label="退票款">
@@ -152,7 +152,7 @@
         <el-table-column
             show-overflow-tooltip
             width="90"
-            v-if="rulType === '0'"
+            v-if="rulType === '0' && tableRoleStatus.ticket_fare.show"
             sortable
             prop="ticket_fare"
             label="出票款">
@@ -169,6 +169,7 @@
         <el-table-column
             show-overflow-tooltip
             width="80"
+            v-if="tableRoleStatus.ticket_status.show"
             label="车票状态">
           <template slot-scope="scope">
             <span v-if="scope.row.ticket_status === 0" style="font-weight:unset;color: red">未出票</span>
@@ -253,6 +254,9 @@
         pageSize: [this.customizeNum || 30],
         customizeSize: 30,
         customizeNum: null,
+        tableRoleStatus: {},
+
+        token: '',
       }
     },
     methods:{
@@ -329,21 +333,28 @@
        * @date 2019/10/18
       */
       exportAllTable(data){
-        this.$message.success('正在整理导出数据，导出中，请勿刷新页面')
         if(data === 0){
-          this.$axios.get('/excel/passengerSystem/'+this.rulType+'/all',{responseType: 'blob'})
-              .then(res =>{
-                window.location.href = window.URL.createObjectURL(res.data);
-              })
+          this.$message.success('正在整理导出数据，导出中，请勿刷新页面')
+          window.location.href = 'https://tohcp.cn/excel/passengerSystem/'+this.rulType  + '/' + this.token + '/all'
+          // this.$axios.get('/excel/passengerSystem/'+this.rulType+'/all',{responseType: 'blob'})
+          //     .then(res =>{
+          //       window.location.href = window.URL.createObjectURL(res.data);
+          //     })
         }else {
           if(this.selectUserId.length > 0){
-            let data = {
-              info: JSON.stringify(this.selectUserId)
-            }
-            this.$axios.post('/excel/passengerSystem/'+this.urlType,data,{responseType: 'blob'})
-                .then(res =>{
-                  window.location.href = window.URL.createObjectURL(res.data);
-                })
+            this.$message.success('正在整理导出数据，导出中，请勿刷新页面')
+            let newId = []
+            this.selectUserId.forEach(item =>{
+              newId.push(item.passenger_id)
+            })
+            window.location.href = 'https://tohcp.cn/excel/passengerSystem/'+this.rulType + '/' + this.token +'/' + String(newId)
+            // let data = {
+            //   info: JSON.stringify(this.selectUserId)
+            // }
+            // this.$axios.post('/excel/passengerSystem/'+this.urlType,data,{responseType: 'blob'})
+            //     .then(res =>{
+            //       window.location.href = window.URL.createObjectURL(res.data);
+            //     })
           }else {
             this.$message.warning('请至少选择一条数据')
           }
@@ -400,6 +411,25 @@
     //   },
     // },
     created() {
+      const FieldInfoAll  = JSON.parse(sessionStorage.getItem('FieldInfoAll'))
+      const FieldInfo = JSON.parse(sessionStorage.getItem('FieldInfo'))
+      FieldInfoAll.forEach(item =>{
+        this.tableRoleStatus[item.field] = {
+          show: false,
+          read: false
+        }
+        FieldInfo.forEach(cItem =>{
+          if(item.field === cItem.field){
+            if(item.type === 0){
+              this.tableRoleStatus[item.field] = {
+                show: true,
+                read: true
+              }
+            }
+          }
+        })
+      })
+      this.token = sessionStorage.getItem('CSRF')
       this.getData()
     }
   }

@@ -296,11 +296,11 @@
       */
       jumpSize(val){
         this.per_page = val
-        this.getData()
+        this.getDataList()
       },
       jumpPage(val){
         this.page = val
-        this.getData()
+        this.getDataList()
       },
 
     },
@@ -314,7 +314,7 @@
   .billerSetting{
     display: flex;
     flex-direction: column;
-    padding: 80px 15%;
+    padding: 20px 5%;
     .table_header{
       display: flex;
       align-items: center;

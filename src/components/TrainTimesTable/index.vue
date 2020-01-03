@@ -137,7 +137,7 @@
           v-if="tableRoleStatus.ticket_fare.show"
           show-overflow-tooltip
           width="80"
-          label="出票费">
+          label="出票款">
         <template slot-scope="scope">
           <el-input
               size="mini"
@@ -379,7 +379,7 @@
             name: '',
             IDCard: '',
             refund_fee: '',  // 退票款
-            ticket_fare: '', // 出票费
+            ticket_fare: '', // 出票款
             db_auftragsnummer: '', // 取票号
             ticketing_time: '', // 出票时间
             payment_account: '', // 支付账号

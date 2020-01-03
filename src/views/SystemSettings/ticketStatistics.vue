@@ -175,6 +175,8 @@
         paginationList: {},
         per_page: 10,
         page: '',
+
+        token: '',
       }
     },
     methods:{
@@ -214,7 +216,7 @@
        * @date 2019/11/27
        */
       getClient(){
-        this.$axios.get('/user/customer/showAll')
+        this.$axios.get('/user/customer/showAll/1')
             .then(res =>{
               this.client = res.data.result;
             })
@@ -243,10 +245,11 @@
        * @date 2019/11/15
       */
       downAllExcel(){
-        this.$axios.get('/excel/ticketType/'+this.urlType + '/all',{responseType: 'blob'})
-            .then(res =>{
-              window.location.href = window.URL.createObjectURL(res.data);
-            })
+        window.location.href = 'https://tohcp.cn/excel/ticketType/'+this.urlType  + '/' + this.token + '/all'
+        // this.$axios.get('/excel/ticketType/'+this.urlType + '/all',{responseType: 'blob'})
+        //     .then(res =>{
+        //       window.location.href = window.URL.createObjectURL(res.data);
+        //     })
       },
 
       /**
@@ -271,14 +274,20 @@
        * @date 2019/11/15
       */
       downSelectExcel(){
+
         if(this.selectUserId.length > 0){
-          let data = {
-            info: JSON.stringify(this.selectUserId)
-          }
-          this.$axios.post('/excel/ticketType/'+this.urlType,data,{responseType: 'blob'})
-              .then(res =>{
-                window.location.href = window.URL.createObjectURL(res.data);
-              })
+          // let data = {
+          //   info: JSON.stringify(this.selectUserId)
+          // }
+          let newId = []
+          this.selectUserId.forEach(item =>{
+            newId.push(item.passenger_id)
+          })
+          window.location.href = 'https://tohcp.cn/excel/ticketType/'+this.urlType + '/' + this.token +'/' + String(newId)
+          // this.$axios.post('/excel/ticketType/'+this.urlType,data,{responseType: 'blob'})
+          //     .then(res =>{
+          //       window.location.href = window.URL.createObjectURL(res.data);
+          //     })
         }else {
           this.$message.warning('请至少选择一条数据')
         }
@@ -317,6 +326,11 @@
     //     this.getDataList();
     //   },
     // },
+    mounted() {
+      this.token = sessionStorage.getItem('CSRF')
+
+      console.log('https://tohcp.cn/excel/ticketType/' + this.urlType + '/' + this.token + '/all');
+    },
     created() {
       this.getDataList()
     }

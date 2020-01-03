@@ -3,7 +3,8 @@
     <div class="left_main">
       <div class="left_header">
         <el-button class="addUserBtn" type="primary" @click="addUserInfo">新增用户</el-button>
-        <div><el-input clearable v-model="searchForm.name" placeholder="用户名/账号"></el-input></div>
+        <div>
+          <el-input clearable v-model="searchForm.name" placeholder="用户名/账号"/></div>
         <el-select clearable v-model="searchForm.role_id" placeholder="请选择角色">
           <el-option
               v-for="item in roleList"
@@ -13,8 +14,8 @@
           </el-option>
         </el-select>
         <div><el-select clearable v-model="searchForm.status" placeholder="请选择用户状态">
-          <el-option label="有效" value="0"></el-option>
-          <el-option label="停用" value="1"></el-option>
+          <el-option label="有效" value="2"/>
+          <el-option label="停用" value="1"/>
           </el-select></div>
         <div><el-date-picker
             v-model="searchForm.time"
@@ -146,7 +147,7 @@
         </el-form-item>
 
         <el-form-item label="选择角色">
-          <el-select clearable v-model="roleCheckList" placeholder="请选择">
+          <el-select @input="change($event)" clearable v-model="roleCheckList" placeholder="请选择">
             <el-option
                 v-for="item in roleList"
                 :key="item.role_id"
@@ -157,26 +158,26 @@
         </el-form-item>
 
         <el-form-item label="所属旅行社" v-if="userInfo.type === '1'">
-          <el-select v-model="userInfo.pertTravel" placeholder="请选择所属旅行社">
+          <el-select @input="change($event)" v-model="userInfo.pertTravel" placeholder="请选择所属旅行社">
             <el-option v-for="(item,index) in customerList" :key="index" :label="item.name" :value="item.identity"/>
           </el-select>
         </el-form-item>
 
-<!--        <el-form-item label="所属组">-->
-<!--          <el-cascader-panel-->
-<!--              @change="cascaderClick"-->
-<!--              v-model="groupCheckList"-->
-<!--              :options="groupList"-->
-<!--              :show-all-levels="false"-->
-<!--              :props="{-->
-<!--                multiple: true,-->
-<!--                checkStrictly: true,-->
-<!--                label:'group_name',-->
-<!--                children:'subGroup',-->
-<!--                value:'id',-->
-<!--                emitPath: false,}">-->
-<!--          </el-cascader-panel>-->
-<!--        </el-form-item>-->
+        <el-form-item label="所属组">
+          <el-cascader-panel
+              @change="cascaderClick"
+              v-model="groupCheckList"
+              :options="groupList"
+              :show-all-levels="false"
+              :props="{
+                multiple: true,
+                checkStrictly: true,
+                label:'group_name',
+                children:'subGroup',
+                value:'id',
+                emitPath: false,}">
+          </el-cascader-panel>
+        </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="submitBtn">保存</el-button>
         </el-form-item>
@@ -228,6 +229,9 @@
       }
     },
     methods:{
+      change(e){
+        this.$forceUpdate()
+      },
       /**
        * @Description: 获取用户列表
        * @author Wish
@@ -258,7 +262,7 @@
        * @date 2019/12/5
       */
       getCustomer(){
-        this.$axios.get('/user/customer/showAll')
+        this.$axios.get('/user/customer/showAll/1')
         .then(res =>{
           if(res.data.code === 0){
             this.customerList = res.data.result
@@ -302,6 +306,7 @@
         this.$refs.singleTable.setCurrentRow();
         this.userInfo = {}
         this.roleCheckList = ''
+        this.groupCheckList = []
       },
 
       /**
@@ -338,6 +343,7 @@
                   this.userInfo = res.data.result[0]
                   this.userInfo.type = String(this.userInfo.type)
                   this.userInfo['pertTravel'] = this.userInfo.customer_mark?this.userInfo.customer_mark:''
+                  console.log(this.userInfo.groups);
                   if(this.userInfo.groups){
                     this.userInfo.groups.map(item =>{
                       this.groupCheckList.push(item.id)
@@ -414,7 +420,9 @@
        * @author Wish
        * @date 2019/9/29
       */
-      cascaderClick(){
+      cascaderClick(val){
+        console.log(val);
+
       },
 
       /**

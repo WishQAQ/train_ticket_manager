@@ -180,7 +180,7 @@
         <el-option label="柱状图" value="柱状图"/>
       </el-select></div>
 
-      <div><el-button @click="submitSearch" v-loading="loading">统计</el-button></div>
+      <div><el-button @click="submitSearch" :disabled="loading" v-loading="loading">统计</el-button></div>
     </div>
 
     <div class="data_content">
@@ -436,7 +436,7 @@
        * @date 2019/11/13
       */
       getClientList(){
-        this.$axios.get('/user/customer/showAll')
+        this.$axios.get('/user/customer/showAll/1')
             .then(res =>{
               if(res.data.code === 0){
                 this.clientList = res.data.result

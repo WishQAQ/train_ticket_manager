@@ -6,7 +6,7 @@
       </div>
       <div>
         <el-select v-model="searchForm.order_status"  placeholder="任务进度" clearable>
-          <el-option value="0" label="未处理"/>
+          <el-option value="2" label="处理中"/>
           <el-option value="1" label="已处理"/>
         </el-select>
       </div>
@@ -29,18 +29,11 @@
       </div>
       <div class="block">
         <el-date-picker
-            clearable
-            v-model="searchForm.begin"
-            type="date"
-            placeholder="开始时间">
-        </el-date-picker>
-      </div>
-      <div class="block">
-        <el-date-picker
-            clearable
-            v-model="searchForm.end"
-            type="date"
-            placeholder="结束时间">
+            v-model="searchForm.ridingTime"
+            type="daterange"
+            range-separator="至"
+            start-placeholder="订单提交时间"
+            end-placeholder="订单结束时间">
         </el-date-picker>
       </div>
       <div style="display: flex">
@@ -563,8 +556,7 @@
           customer: '',
           loss_status: '',
           issuer: '',
-          begin: '',
-          end: '',
+          ridingTime: [],
         },
 
         selectDownList: [], // 下载列表
@@ -639,8 +631,10 @@
         let data
         if(type === 'search'){
           data = JSON.parse(JSON.stringify(this.searchForm))
-          data.begin?data.begin = this.$dateToDate(data.begin): ''
-          data.end?data.end = this.$dateToDate(data.end): ''
+          console.log(data);
+          data.ridingTime[0]?data['begin'] = this.$dateToDate(data.ridingTime[0]): ''
+          data.ridingTime[1]?data['end'] = this.$dateToDate(data.ridingTime[1]): ''
+          delete data.ridingTime
           data['page'] = this.page || null
         }else {
           data = {
@@ -711,7 +705,7 @@
 
       //获取客户列表
       getClient(){
-        this.$axios.get('/user/customer/showAll')
+        this.$axios.get('/user/customer/showAll/1')
             .then(res =>{
               this.client = res.data.result;
             })
@@ -1157,10 +1151,11 @@
         if(type === 'all'){
           if(this.tableData.length >0){
             this.$message.success('正在整理导出文件，开始导出，请勿刷新页面')
-            this.$axios.get('/excel/billInfo/'+this.viewsType+'/all',{responseType: 'blob'})
-                .then(res =>{
-                  window.location.href = window.URL.createObjectURL(res.data);
-                })
+            window.location.href = 'https://tohcp.cn/excel/billInfo/'+this.viewsType + '/all'
+            // this.$axios.get('/excel/billInfo/'+this.viewsType+'/all',{responseType: 'blob'})
+            //     .then(res =>{
+            //       window.location.href = window.URL.createObjectURL(res.data);
+            //     })
           }else {
             this.$message.warning('暂无数据，无法导出')
           }
@@ -1172,10 +1167,11 @@
             this.selectDownList.forEach(downId =>{
               newArr.push(downId.order_sn)
             })
-            this.$axios.get('/excel/billInfo/'+this.viewsType+'/'+String(newArr),{responseType: 'blob'})
-                .then(res =>{
-                  window.location.href = window.URL.createObjectURL(res.data);
-                })
+            window.location.href = 'https://tohcp.cn/excel/billInfo/'+this.viewsType + '/' + String(newArr)
+            // this.$axios.get('/excel/billInfo/'+this.viewsType+'/'+String(newArr),{responseType: 'blob'})
+            //     .then(res =>{
+            //       window.location.href = window.URL.createObjectURL(res.data);
+            //     })
           }else {
             this.$message.warning('请选择需要下载的数据')
           }

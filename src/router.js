@@ -7,7 +7,8 @@ Vue.use(Router)
 import Frame from './components/layout/Frame.vue'
 // 异步加载页面组件
 const importPage = view => () => import(/* webpackChunkName: "p-[request]" */ `./views/${view}.vue`)
-
+// RouterTab 内置路由
+import { RouterTabRoutes } from 'vue-router-tab'
 
 export default new Router({
   routes: [
@@ -25,10 +26,11 @@ export default new Router({
 export function powerRouterLazy(name) {
   switch (name) {
     case 'home':
-      return {path: '/', name: 'home', component: Frame,children: [{path: '/', name: 'home',component: importPage(/* webpackPrefetch: true */ 'index'),meta:{title: '首页',aliveId: 'home'}}]}
+      return {path: '/', name: 'home', component: Frame,children: [...RouterTabRoutes,{path: '/', name: 'home',component: importPage(/* webpackPrefetch: true */ 'index'),meta:{title: '首页',aliveId: 'home'}}]}
       break;
     case 'documentSystem':  // 文档中心
       return {path: '/documentSystem', name: 'documentSystem', component: Frame,children: [
+          ...RouterTabRoutes,
           {path: '/setting', name: 'setting', component: importPage('DocumentCenter/userSetting'),meta:{hidden: false,title: '个人设置',aliveId: 'setting'}},  // 个人设置
           {path: '/addressBook', name: 'addressBook', component: importPage('DocumentCenter/addressBook'),meta:{hidden: false,title: '内部通讯录',aliveId: 'addressBook'}},  // 内部通讯录
           {path: '/helpDocument', name: 'helpDocument', component: importPage('DocumentCenter/document'),meta:{hidden: false,title: '帮助文档',aliveId: 'helpDocument'}},  // 帮助文档
@@ -37,6 +39,7 @@ export function powerRouterLazy(name) {
       break;
     case 'orderSystem':  // 订单系统
       return {path: '/orderSystem', name: 'orderSystem',component: Frame,children: [
+          ...RouterTabRoutes,
           {path: '/orderManagement', name: 'orderManagement', component: importPage('OrderSystem/orderManagement'),meta:{name: '订单管理',hidden: false,title: '订单管理',aliveId: 'orderManagement'}},  // 订单管理
           {path: '/orderDetails', name: 'orderDetails', component: importPage('OrderSystem/orderDetails'),meta:{name: '订单详情',hidden: true,title: '订单详情',aliveId: 'orderDetails'}},  // 订单详情
           {path: '/addOrder', name: 'addOrder', component: importPage('OrderSystem/orderDetails'),meta:{name: '新增订单',hidden: false,title: '新增订单',aliveId: 'addOrder'}},  // 新增订单
@@ -49,6 +52,7 @@ export function powerRouterLazy(name) {
       break;
     case 'financialSystem':  // 财务系统
       return { path: '/financialSystem', name: 'financialSystem', component: Frame,children: [
+          ...RouterTabRoutes,
           { path: '/settledOrder', name: 'settledOrder', component: importPage('FinancialSystem/settledOrder'),meta:{name: '已结算订单',hidden: false,title: '已结算订单',aliveId: 'settledOrder'}},  // 已结算订单
           { path: '/openOrder', name: 'openOrder', component: importPage('FinancialSystem/settledOrder'),meta:{name: '待结算订单',hidden: false,title: '待结算订单',aliveId: 'openOrder'}},  // 待结算订单
           { path: '/chargeOffOrder', name: 'chargeOffOrder', component: importPage('FinancialSystem/settledOrder'),meta:{name: '出账中订单',hidden: false,title: '出账中订单',aliveId: 'chargeOffOrder'}},  // 出账中订单
@@ -60,12 +64,14 @@ export function powerRouterLazy(name) {
       break;
     case 'passengerSystem':  // 乘客系统
       return { path: '/passengerSystem', name: 'passengerSystem', component: Frame,children: [
+          ...RouterTabRoutes,
           { path: '/allTickets', name: 'allTickets', component: importPage('PassengerSystem/allTickets'),meta:{name: '全部车票',hidden: false,title: '全部车票',aliveId: 'allTickets'}},  // 全部车票
           { path: '/notIssued', name: 'notIssued', component: importPage('PassengerSystem/allTickets'),meta:{name: '未出票订单',hidden: false,title: '未出票订单',aliveId: 'notIssued'}},  // 未出票订单
         ]};
       break;
     case 'systemSetting':  // 系统配置
       return { path: '/systemSetting', name: 'systemSetting', component: Frame,children: [
+          ...RouterTabRoutes,
           {path: '/menuSetting', name: 'menuSetting', component: importPage('SystemSettings/menuSetting'),meta:{hidden: false,title: '菜单管理',aliveId: 'menuSetting'}},  // 菜单管理
           {path: '/userSetting', name: 'userSetting', component: importPage('SystemSettings/userSetting'),meta:{hidden: false,title: '用户管理',aliveId: 'userSetting'}},  // 用户管理
           {path: '/roleSetting', name: 'roleSetting', component: importPage('SystemSettings/roleSetting'),meta:{hidden: false,title: '权限管理',aliveId: 'roleSetting'}},  // 权限管理

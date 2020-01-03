@@ -53,5 +53,6 @@
   }
   /deep/.router-tab-container{
     min-width: 1366px;
+    min-height: calc(100vh - 75px);
   }
 </style>

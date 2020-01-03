@@ -28,7 +28,7 @@
             <span class="el-icon-close" v-if="item.id === noteId" @click="deleteNote(item)"/>
           </div>
           <div class="content">{{item.content}}</div>
-          <div class="time">{{$timestampFormat(Date.parse(item.time)/1000)}}</div>
+          <div class="time"><span>{{item.publisher}} --- </span>{{$timestampFormat(Date.parse(item.time)/1000)}}</div>
         </div>
 
         <div v-if="item.id === noteId" class="bottom_btn">
@@ -83,7 +83,7 @@
           <div class="content">{{noteForm.content}}</div>
           <el-divider/>
           <div class="bottom">
-            <p>{{noteForm.time}}</p>
+            <p><span style="margin-right: 25px">{{noteForm.publisher}}</span>{{noteForm.time}}</p>
           </div>
         </div>
       </el-dialog>
@@ -385,6 +385,7 @@
             -webkit-box-orient: vertical;
             margin-bottom: 10px;
             transition: all .3s;
+            white-space: pre-wrap;
           }
           .user_name{
             margin-bottom: 10px;

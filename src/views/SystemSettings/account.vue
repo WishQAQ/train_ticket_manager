@@ -157,7 +157,7 @@
 
 <style scoped lang="less">
   .account{
-    padding: 80px 15%;
+    padding: 20px 5%;
     .addRemarks{
       cursor: pointer;
     }

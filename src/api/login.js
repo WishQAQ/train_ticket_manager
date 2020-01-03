@@ -7,21 +7,22 @@ import bus from '../utlis/bus'
 import {Message} from 'element-ui'
 
 export function loginByUserInfo(username, password) {
-   axios.post('/account/login', username, password).then(res =>{
-     sessionStorage.setItem('CSRF', res.data.result.csrf);
-     sessionStorage.setItem('FieldInfo', JSON.stringify(res.data.result.fieldInfo))
-     sessionStorage.setItem('FieldInfoAll', JSON.stringify(res.data.result.fieldAllInfo))
-     if(res.data.result.permission.isHighest){
-       sessionStorage.setItem('isHighest', '超级管理员');
-     }
-     if(res.data.result.permission.role_name === '普通用户'){
-       sessionStorage.setItem('roleUserStatus', '[\'paa47tbjsoje\',\'dju63yicid7h\']');
-     }
-
+  axios.post('/account/login', username, password).then(res =>{
+    console.log(res.data);
     if(res.data.code === 0){
+      sessionStorage.setItem('CSRF', res.data.result.csrf);
+      sessionStorage.setItem('FieldInfo', JSON.stringify(res.data.result.fieldInfo))
+      sessionStorage.setItem('FieldInfoAll', JSON.stringify(res.data.result.fieldAllInfo))
+      if(res.data.result.permission.isHighest){
+        sessionStorage.setItem('isHighest', '超级管理员');
+      }
+      if(res.data.result.permission.role_name === '普通用户'){
+        sessionStorage.setItem('roleUserStatus', '[\'paa47tbjsoje\',\'dju63yicid7h\']');
+      }
       // 页面跳转
-      Message.success({
-        message: '登录成功'
+      Message({
+        message: '登录成功',
+        type: 'success'
       })
       setTimeout(() =>{
         router.push({
@@ -29,7 +30,7 @@ export function loginByUserInfo(username, password) {
         });
       },300)
     }else {
-      Message.error({
+      Message({
         message: res.data.msg,
         type: "error"
       })
@@ -42,14 +43,15 @@ export function loginByUserInfo(username, password) {
     }).catch(() => {
 
     })
-     return res.data.result
-  }).catch(() =>{
-         Message.error({
-           message: '登录失败，请稍后重试',
-           type: "error"
-         })
-     bus.$emit('loginError', 'error')
-       })
+    return res.data.result
+  }).catch((res,data) =>{
+    console.log(res, data);
+    Message({
+      message: res.data.msg,
+      type: "error"
+    })
+    bus.$emit('loginError', 'error')
+  })
 }
 
 

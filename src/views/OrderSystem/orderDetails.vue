@@ -139,7 +139,7 @@
         <!--        <UploadLeaflet v-on:uploadAddress="uploadUserData" :messageText="'证件照片'"/>-->
 
       </div>
-      <div class="info_upload" v-if="urlType === 'edit' || orderInfo.ticket_photos.length > 0 && roleType === 0">
+      <div class="info_upload" v-if="urlType === 'edit' || orderInfo.ticket_photos.length > 0">
         <div class="upload_image_main">
           <PublicImage
               :preview="orderInfo.ticket_photos.length > 0"
@@ -151,7 +151,7 @@
               :url="item || null">
           </PublicImage>
           <UploadLeaflet
-              v-if="urlType === 'edit'"
+              v-if="urlType === 'edit' && roleType === 0"
               ref="uploadImage"
               v-on:uploadAddress="uploadIdTicketPhoto"
               :messageText="'车票照片'"/>
@@ -464,10 +464,11 @@
                 检票口：
                 <el-input
                     size="mini"
-                    v-model="newEditTableRouteForm[cItem.cItemIndex].ticket_check"
+                    @input="change($event)"
+                    v-model="cItem.ticketCheck"
                     v-if="urlType === 'edit' && tableRoleStatus.ticket_check.read"
                     :placeholder="cItem.ticket_check"
-                    @blur="editTableHeaderBows(item, cItem, 'ticket_check', cItem.ticket_check, newEditTableRouteForm[cItem.cItemIndex].ticket_check)"/>
+                    @blur="editTableHeaderBows(item, cItem, 'ticket_check', cItem.ticket_check, cItem.ticketCheck)"/>
                 <span v-else>{{cItem.ticket_check}}</span>
               </div>
               <div v-if="tableRoleStatus.ticket_check.show">
@@ -521,6 +522,9 @@
           </div>
         </div>
       </div>
+
+      <div style="border: 1px solid #DCDFE6;margin-bottom: 20px;padding: 30px 0; text-align: center; color: gray;font-size: 12px" v-if="passengerInfo.length < 1">暂无数据</div>
+
 
       <div class="order_add_remarks" v-if="urlType !== 'add' && roleType === 0">
         <div style="flex: 1">
@@ -876,9 +880,9 @@
             </div>
           </div>
           <div class="main_box">
-            <div class="main_box_title">出票费</div>
+            <div class="main_box_title">出票款</div>
             <div class="main_box_content">
-              <el-input size="mini" clearable @input="change($event)" v-model="item.ticket_fare" placeholder="请输入出票费"/>
+              <el-input size="mini" clearable @input="change($event)" v-model="item.ticket_fare" placeholder="请输入出票款"/>
             </div>
           </div>
           <div class="main_box">
@@ -1707,9 +1711,10 @@
                 item.route_config.forEach((cItem,cIndex) =>{
                   this.paginationUserOrderList = cItem.passengers
                   item.route_config[cIndex]['cItemIndex'] = cIndex
-                  this.newEditTableRouteForm.push({
-                    ticket_check: '',  // 检票口
-                  })
+                  item.route_config[cIndex]['ticketCheck'] = ''
+                  // this.newEditTableRouteForm.push({
+                  //   ticket_check: '',  // 检票口
+                  // })
 
                   if(cIndex < item.route_config.length){
                     ticketNumber += cItem.numberSheet
@@ -1738,8 +1743,8 @@
         this.loading = true;
         this.showTrainTable = false
         this.showPassengersTable = false
-        this.passengerSearch['trip_time'] = JSON.parse(JSON.stringify(this.passengerSearch.newTripTime / 1000))
-        this.passengerSearch['draw_bill_time'] = JSON.parse(JSON.stringify(this.passengerSearch.newDrawBillTime / 1000))
+        this.passengerSearch['trip_time'] = JSON.parse(JSON.stringify(this.passengerSearch.newTripTime / 1000)) || ""
+        this.passengerSearch['draw_bill_time'] = JSON.parse(JSON.stringify(this.passengerSearch.newDrawBillTime / 1000)) || ""
         this.$axios.post('/order/detailsRoute/'+this.orderSn,this.passengerSearch)
             .then(res =>{
               this.showTrainTable = true
@@ -1763,9 +1768,10 @@
                 item.refund_fare = item.refund_fare?item.refund_fare: '0.00'
                 item.route_config.forEach((cItem,cIndex) =>{
                   item.route_config[cIndex]['cItemIndex'] = cIndex
-                  this.newEditTableRouteForm.push({
-                    ticket_check: '',  // 检票口
-                  })
+                  item.route_config[cIndex]['ticketCheck'] = ''
+                  // this.newEditTableRouteForm.push({
+                  //   ticket_check: '',  // 检票口
+                  // })
 
                   if(cIndex < item.route_config.length){
                     ticketNumber += cItem.numberSheet
@@ -2062,7 +2068,7 @@
        * @date 2019/10/30
        */
       getCustomerData(){
-        this.$axios.get('/user/customer/showAll')
+        this.$axios.get('/user/customer/showAll/1')
             .then(res =>{
               if(res.data.code === 0){
                 this.customerList = res.data.result

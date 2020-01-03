@@ -22,7 +22,7 @@
           <div class="main_content" v-loading="dLoading">
             <div class="main_list" v-for="(item,index) in documentList" :key="index" @click="openDetailsDialog(item,'document')">
               <p>{{item.created_at.split(' ')[0]}}</p>
-              <p>公告通知：{{item.title}}</p>
+              <p>{{item.title}}</p>
             </div>
 
           </div>
@@ -35,7 +35,7 @@
           <div class="main_content" v-loading="nLoading">
             <div class="main_list" v-for="(item,index) in newList" :key="index" @click="openDetailsDialog(item,'news')">
               <p>{{item.created_at.split(' ')[0]}}</p>
-              <p>通知公告：{{item.title}}</p>
+              <p>{{item.title}}</p>
             </div>
 
           </div>

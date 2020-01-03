@@ -29,7 +29,7 @@
         </el-select>
       </div>
       <div>
-        <el-select style="width: 120px" v-model="orderSearch.issuer" placeholder="发单人" clearable>
+        <el-select @input="change($event)" style="width: 120px" v-model="orderSearch.issuer" placeholder="发单人" clearable>
           <el-option v-for="item in issuerList" :key="item.id" :label="item.name" :value="item.id"/>
         </el-select>
       </div>
@@ -269,6 +269,9 @@
       }
     },
     methods:{
+      change(e){
+        this.$forceUpdate()
+      },
       /**
        * @Description: 导出全部
        * @author Wish
@@ -276,10 +279,22 @@
       */
       downAllExcel(){
         this.$message.success('正在整理导出文件，开始导出，请勿刷新页面')
-        this.$axios.get('/excel/info/'+this.viewsType+'/all',{responseType: 'blob'})
-            .then(res =>{
-              window.location.href = window.URL.createObjectURL(res.data);
-            })
+        window.location.href = 'https://tohcp.cn/excel/info/'+this.viewsType+'/all'
+        // this.$axios.get('/excel/info/'+this.viewsType+'/all',{responseType: 'blob'})
+        //     .then(res =>{
+            //   let link = document.createElement('a');
+            //   link.style.display = 'none';
+            //
+            //   link.href = URL.createObjectURL(res.data); //创建一个指向该参数对象的URL
+            //   link.download = this.$getTime(this.$dateToMs(new Date()))+ '.xls';
+            //   link.click(); // 触发下载
+            //   URL.revokeObjectURL(link.href);
+            //   this.loading = false
+            // })
+            // .catch(() =>{
+            //   this.loading = false
+            //   this.$message.error('下载失败')
+            // })
       },
       /**
        * @Description: 导出所选项
@@ -290,10 +305,11 @@
         console.log(this.selectList);
         if(this.selectList.length > 0){
           this.$message.success('正在整理导出文件，开始导出，请勿刷新页面')
-          this.$axios.get('/excel/info/'+this.viewsType+'/'+String(this.selectList),{responseType: 'blob'})
-              .then(res =>{
-                window.location.href = window.URL.createObjectURL(res.data);
-              })
+          window.location.href = 'https://tohcp.cn/excel/info/'+this.viewsType+'/'+String(this.selectList)
+          // this.$axios.get('/excel/info/'+this.viewsType+'/'+String(this.selectList),{responseType: 'blob'})
+          //     .then(res =>{
+          //       window.location.href = window.URL.createObjectURL(res.data);
+          //     })
         }else {
           this.$message.warning('请选择需要导出的数据')
         }
@@ -306,7 +322,7 @@
        * @date 2019/11/27
       */
       getClient(){
-        this.$axios.get('/user/customer/showAll')
+        this.$axios.get('/user/customer/showAll/1')
             .then(res =>{
               this.client = res.data.result;
             })

@@ -54,7 +54,7 @@ module.exports = {
   publicPath: './',
   productionSourceMap: false,
   devServer: {
-    // disableHostCheck:true,
+    disableHostCheck:true,
     proxy: 'http://oa.huimin.dev.cq1080.com',
     // overlay: {
     //   errors: true,
