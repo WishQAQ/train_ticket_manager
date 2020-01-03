@@ -620,7 +620,9 @@
         page: '',
         pageSize: [this.customizeNum || 30],
         customizeSize: 30,
-        customizeNum: null
+        customizeNum: null,
+
+        token: '',
       }
     },
     methods:{
@@ -1151,11 +1153,24 @@
         if(type === 'all'){
           if(this.tableData.length >0){
             this.$message.success('正在整理导出文件，开始导出，请勿刷新页面')
-            window.location.href = 'https://tohcp.cn/excel/billInfo/'+this.viewsType + '/all'
-            // this.$axios.get('/excel/billInfo/'+this.viewsType+'/all',{responseType: 'blob'})
-            //     .then(res =>{
-            //       window.location.href = window.URL.createObjectURL(res.data);
-            //     })
+            // window.location.href = 'https://tohcp.cn/excel/billInfo/'+this.viewsType +'/' + this.token + '/all'
+            this.$axios.get('/excel/billInfo/'+this.viewsType+'/all',{responseType: 'blob'})
+                .then(res =>{
+                  let link = document.createElement('a');
+                  link.style.display = 'none';
+
+                  link.href = URL.createObjectURL(res.data); //创建一个指向该参数对象的URL
+                  link.download = this.$getTime(this.$dateToMs(new Date()))+ '.xls';
+                  link.click(); // 触发下载
+                  URL.revokeObjectURL(link.href);
+                  this.loading = false
+                  this.downLoadOrderFile = false
+                })
+                .catch(() =>{
+                  this.loading = false
+                  this.downLoadOrderFile = false
+                  this.$message.error('下载失败')
+                })
           }else {
             this.$message.warning('暂无数据，无法导出')
           }
@@ -1167,11 +1182,24 @@
             this.selectDownList.forEach(downId =>{
               newArr.push(downId.order_sn)
             })
-            window.location.href = 'https://tohcp.cn/excel/billInfo/'+this.viewsType + '/' + String(newArr)
-            // this.$axios.get('/excel/billInfo/'+this.viewsType+'/'+String(newArr),{responseType: 'blob'})
-            //     .then(res =>{
-            //       window.location.href = window.URL.createObjectURL(res.data);
-            //     })
+            // window.location.href = 'https://tohcp.cn/excel/billInfo/'+this.viewsType + '/'  + this.token + '/' + String(newArr)
+            this.$axios.get('/excel/billInfo/'+this.viewsType+'/'+String(newArr),{responseType: 'blob'})
+                .then(res =>{
+                  let link = document.createElement('a');
+                  link.style.display = 'none';
+
+                  link.href = URL.createObjectURL(res.data); //创建一个指向该参数对象的URL
+                  link.download = this.$getTime(this.$dateToMs(new Date()))+ '.xls';
+                  link.click(); // 触发下载
+                  URL.revokeObjectURL(link.href);
+                  this.loading = false
+                  this.downLoadOrderFile = false
+                })
+                .catch(() =>{
+                  this.loading = false
+                  this.downLoadOrderFile = false
+                  this.$message.error('下载失败')
+                })
           }else {
             this.$message.warning('请选择需要下载的数据')
           }
@@ -1228,6 +1256,7 @@
                   this.$route.meta.name === '出账中订单'? 2: this.$route.meta.name
       this.getData();
       this.getClient();
+      this.token = sessionStorage.getItem('CSRF')
     }
   }
 </script>

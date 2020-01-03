@@ -66,7 +66,7 @@
           type="month"
           placeholder="选择月份">
       </el-date-picker></div>
-      <div v-if="showTimeType !== 1 && showDate || showMonth"><el-select
+      <div v-if="showDate && showTimeType !== 1 || showMonth && showTimeType !== 1"><el-select
           v-model="searchForm.statisticType"
           placeholder="请选择统计类型">
         <el-option label="车票张数" value="totalTicket"/>

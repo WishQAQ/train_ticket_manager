@@ -214,7 +214,7 @@
         <el-form-item label="内容">
           <el-input type="textarea" :rows="8" v-model="detailForm.content"/>
         </el-form-item>
-        <el-radio-group style="margin-bottom: 15px" @change="openOrderIdShow(detailForm.is_show)" v-model="detailForm.is_show">
+        <el-radio-group style="margin-bottom: 15px" @input="change($event)" @change="openOrderIdShow(detailForm.is_show)" v-model="detailForm.is_show">
           <el-radio label="1">显示</el-radio>
           <el-radio label="0">不显示</el-radio>
         </el-radio-group>
@@ -333,6 +333,10 @@
       }
     },
     methods:{
+      change(e){
+        this.$forceUpdate()
+      },
+
       /**
        * @Description: 获取帮助文档数据
        * @author Wish
@@ -398,6 +402,8 @@
         this.detailForm.objects? this.selectPersonnelList = this.detailForm.objects: ''
         val.order_detail_show === 0?this.detailForm['is_show'] = '0':
             val.order_detail_show === 1?this.detailForm['is_show'] = '1': ''
+
+        this.showOrderIdSelect = val.order_detail_show === 1
       },
 
       /**
@@ -455,7 +461,7 @@
               })
             }
 
-            this.detailForm['relation_order'] = String(this.detailForm.orderMessage)
+            this.detailForm['relation_order'] = String(this.detailForm.orderMessage) || ''
             this.detailForm['is_show'] = this.detailForm.is_show
           }
           if(this.editDialogStatus){
