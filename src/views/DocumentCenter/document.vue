@@ -49,6 +49,13 @@
               label="日期">
           </el-table-column>
           <el-table-column
+              v-if="viewAddressType === 1"
+              label="类型">
+            <template slot-scope="scope">
+              {{scope.row.notice_type === 1 ? '通知公告' : scope.row.notice_type === 2 ? '规则制度': scope.row.notice_type === 3 ? '知识信息':scope.row.notice_type === 4?  '奖惩' : ''}}
+            </template>
+          </el-table-column>
+          <el-table-column
               label="状态"
               width="80">
             <template slot-scope="scope">
@@ -194,8 +201,11 @@
           <el-input v-model="detailForm.title"/>
         </el-form-item>
         <el-form-item label="类型名称">
-          <el-select v-model="detailForm.typeName" placeholder="请选择">
+          <el-select @input="change($event)" v-model="detailForm.noticeType" placeholder="请选择">
+            <el-option label="通知公告" value="通知公告"/>
+            <el-option label="规则制度" value="规则制度"/>
             <el-option label="知识信息" value="知识信息"/>
+            <el-option label="奖惩" value="奖惩"/>
           </el-select>
         </el-form-item>
         <el-form-item label="查看权限">
@@ -399,6 +409,11 @@
         this.editDialogStatus = false
         this.detailForm = JSON.parse(JSON.stringify(val))
         this.detailForm['condition'] = this.detailForm.id
+        this.detailForm.notice_type = this.detailForm.notice_type === 0 ? '':
+            this.detailForm.notice_type === 1? this.detailForm['noticeType'] = '通知公告':
+                this.detailForm.notice_type === 2?this.detailForm['noticeType'] = '规则制度':
+                    this.detailForm.notice_type === 3?this.detailForm['noticeType'] = '知识信息':
+                        this.detailForm.notice_type === 4?this.detailForm['noticeType'] = '奖惩' : ''
         this.detailForm.objects? this.selectPersonnelList = this.detailForm.objects: ''
         val.order_detail_show === 0?this.detailForm['is_show'] = '0':
             val.order_detail_show === 1?this.detailForm['is_show'] = '1': ''
@@ -463,6 +478,12 @@
 
             this.detailForm['relation_order'] = String(this.detailForm.orderMessage) || ''
             this.detailForm['is_show'] = this.detailForm.is_show
+          }
+          if(this.detailForm.noticeType){
+            this.detailForm.notice_type = this.detailForm.noticeType === '通知公告' ? 1:
+                this.detailForm.noticeType === '规则制度' ? 1:
+                    this.detailForm.noticeType === '知识信息' ? 1:
+                        this.detailForm.noticeType === '奖惩' ? 4: ''
           }
           if(this.editDialogStatus){
             this.$axios.post('/notice/add',this.detailForm)

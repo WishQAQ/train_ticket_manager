@@ -2723,7 +2723,7 @@
                   }
                 })
           }else {
-            this.$message.warning('只可选择一个行程类型下的乘客')
+            this.$message.warning('只可选择一个行程下的乘客')
           }
         }else {
           this.$message.warning('请选择需要修改的数据')
