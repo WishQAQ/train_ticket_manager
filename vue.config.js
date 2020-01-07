@@ -55,7 +55,8 @@ module.exports = {
   productionSourceMap: false,
   devServer: {
     disableHostCheck:true,
-    proxy: 'https://tohcp.cn',
+    proxy: 'http://oa.huimin.dev.cq1080.com',
+    // changeOrigin: true,
     // overlay: {
     //   errors: true,
     //   warnings: true

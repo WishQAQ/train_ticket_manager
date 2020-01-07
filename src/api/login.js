@@ -7,6 +7,7 @@ import bus from '../utlis/bus'
 import {Message} from 'element-ui'
 
 export function loginByUserInfo(username, password) {
+  console.log(username, password);
   axios.post('/account/login', username, password).then(res =>{
     console.log(res.data);
     if(res.data.code === 0){
@@ -19,6 +20,8 @@ export function loginByUserInfo(username, password) {
       if(res.data.result.permission.role_name === '普通用户'){
         sessionStorage.setItem('roleUserStatus', '[\'paa47tbjsoje\',\'dju63yicid7h\']');
       }
+      sessionStorage.setItem('userAccount',JSON.stringify(username))
+
       // 页面跳转
       Message({
         message: '登录成功',

@@ -399,7 +399,7 @@
        * @date 2019/10/17
        */
       tableSelect(v,r){
-        // console.log(v);
+        console.log(v);
         let userId = [];
         userId = v.map(res =>{
           return res.id;

@@ -132,7 +132,7 @@
                 :key="tag.target"
                 @close="handleClose(tag)"
                 closable>
-              {{tag.account || tag.user_name}}
+              {{tag.nickname || tag.account}}
             </el-tag>
           </div>
         </el-form-item>
@@ -217,7 +217,7 @@
                 :key="tag.target"
                 @close="handleClose(tag)"
                 closable>
-              {{tag.account || tag.user_name}}
+              {{tag.nickname || tag.account}}
             </el-tag>
           </div>
         </el-form-item>

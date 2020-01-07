@@ -12,10 +12,27 @@
       </div>
 
       <!-- 根据客户筛选 -->
+      <div v-if="showSelectTime"><el-select
+          v-model="searchForm.clientTime"
+          @change="selectClientTime(searchForm.clientTime)"
+          placeholder="请选择">
+        <el-option label="按月" value="2"/>
+        <el-option label="按年" value="1"/>
+      </el-select></div>
+      <div v-if="clientTimeM && showSelectTime"><el-date-picker
+          v-model="searchForm.clientMonth"
+          type="month"
+          placeholder="选择月份">
+      </el-date-picker></div>
+      <div v-if="clientTimeY && showSelectTime"><el-date-picker
+          v-model="searchForm.clientYear"
+          type="year"
+          placeholder="选择年份">
+      </el-date-picker></div>
       <div v-if="showClient"><el-select
             v-model="searchForm.client"
             placeholder="请选择客户">
-<!--          <el-option label="所有客户" value="0"></el-option>-->
+          <el-option label="所有客户" value="0"/>
           <el-option
               v-for="item in clientList"
               :key="item.identity"
@@ -23,6 +40,7 @@
               :value="item.identity">
           </el-option>
         </el-select></div>
+
       <div v-if="showClient"><el-select
           v-model="searchForm.statisticType"
           placeholder="请选择统计类型">
@@ -89,7 +107,7 @@
       <div v-if="showBiller"><el-select
           v-model="searchForm.biller"
           placeholder="请选择发单人">
-<!--        <el-option label="所有发单人" value="0"></el-option>-->
+        <el-option label="所有发单人" value="0"/>
         <el-option
             v-for="item in billerList"
             :key="item.id"
@@ -111,7 +129,7 @@
       <div v-if="showTicket"><el-select
           v-model="searchForm.ticket"
           :placeholder="showTicketType? '请选择创建人': '请选择出票员'">
-<!--        <el-option :label="showTicketType? '所有创建人': '所有出票员'" value="all"></el-option>-->
+        <el-option :label="showTicketType? '所有创建人': '所有出票员'" value="0"/>
         <el-option
             v-for="item in conductorList"
             :key="item.target"
@@ -139,11 +157,6 @@
           v-model="searchForm.statisticType"
           placeholder="请选择统计类型">
         <el-option label="车票张数" value="totalTicket"/>
-        <el-option label="误餐费合计" value="totalMissMeals"/>
-        <el-option label="退票合计" value="totalRefundTicket"/>
-        <el-option label="优惠合计" value="totalDiscount"/>
-        <el-option label="利润合计" value="totalProfit"/>
-        <el-option label="应收款合计" value="totalReceivables"/>
       </el-select></div>
 
       <!-- 根据票种 -->
@@ -153,12 +166,17 @@
         <el-option label="成人票" value="0"/>
         <el-option label="儿童票" value="1"/>
       </el-select></div>
+      <div v-if="showTicketTypeInput"><el-select
+          v-model="searchForm.statisticType"
+          placeholder="请选择统计类型">
+        <el-option label="车票张数" value="totalTicket"/>
+      </el-select></div>
 
       <!-- 根据用户登录 -->
       <div v-if="showLogin"><el-select
           v-model="searchForm.selectUser"
           placeholder="请选择用户">
-<!--        <el-option label="全部用户" value="all"></el-option>-->
+        <el-option label="所有用户" value="0"/>
         <el-option
             v-for="item in conductorList"
             :key="item.target"
@@ -185,42 +203,42 @@
 
     <div class="data_content">
       <div class="data_charts">
-        <ve-line :height="'600px'" v-if="searchForm.chartsType === '折线图' && chartData.rows.length > 0"
+        <ve-line :settings="chartSettings" :height="'800px'" v-if="searchForm.chartsType === '折线图' && chartData.rows.length > 0"
                  :data-empty="dataEmpty" :data="chartData"/>
-        <Ve-pie :settings="chartSettings" :height="'600px'"
+        <Ve-pie :settings="chartSettings" :height="'800px'"
                 v-if="searchForm.chartsType === '饼图' && chartData.rows.length > 0" :data-empty="dataEmpty"
                 :data="chartData"/>
-        <Ve-histogram :height="'600px'" v-if="searchForm.chartsType === '柱状图' && chartData.rows.length > 0"
+        <Ve-histogram :settings="chartSettings" :height="'800px'" v-if="searchForm.chartsType === '柱状图' && chartData.rows.length > 0"
                       :data-empty="dataEmpty" :data="chartData"/>
       </div>
       <transition name="el-fade-in-linear">
         <div class="data_table" v-if="chartData.rows.length > 0">
-        <el-table
-            :data="tableData.rows"
-            border
-            stripe
-            style="width: 100%">
-          <el-table-column
-              label="序号"
-              align="center"
-              width="50px">
-            <template slot-scope="scope">
-              {{scope.$index+1}}
-            </template>
-          </el-table-column>
-          <el-table-column label="用户名">
-            <template slot-scope="scope">
-              {{scope.row.object}}
-            </template>
-          </el-table-column>
-          <el-table-column label="数值">
-            <template slot-scope="scope">
-              {{scope.row.value}}
-            </template>
-          </el-table-column>
+          <el-table
+              :data="tableData.rows"
+              border
+              stripe
+              style="width: 100%">
+            <el-table-column
+                label="序号"
+                align="center"
+                width="50px">
+              <template slot-scope="scope">
+                {{scope.$index+1}}
+              </template>
+            </el-table-column>
+            <el-table-column label="用户名">
+              <template slot-scope="scope">
+                {{scope.row.object}}
+              </template>
+            </el-table-column>
+            <el-table-column label="数值">
+              <template slot-scope="scope">
+                {{scope.row.value}}
+              </template>
+            </el-table-column>
 
-        </el-table>
-      </div>
+          </el-table>
+        </div>
       </transition>
     </div>
 
@@ -236,17 +254,32 @@
       'VeHistogram': () => import('v-charts/lib/histogram.common')
     },
     data(){
-      this.chartSettings = {
-        radius: 200,
-        offsetY: 350
-      }
 
       return {
+        chartSettings: {
+          aria: {
+            show: true
+          },
+          radius: 200,
+          offsetY: 400,
+          toolbox: {
+            show: false
+          },
+        },
         loading: false,
+
+        showSelectTime: false, // 年月选择框
+
+        clientTimeM: false,  // 客户选择月份
+        clientTimeY: false, // 客户选择年份
 
         module: [], // 一级模块
         searchForm: {
           client: '',  // 客户筛选
+          clientTime: '', // 年月状态
+          clientMonth: '',  // 选择月
+          clientYear: '',  // 选择年
+
           statisticType: '', // 统计类型
           conductor: '', // 售票员筛选
 
@@ -278,14 +311,7 @@
           }]
         },{
           value: '订单提交时间',
-          label: '订单提交时间',
-          children: [{
-            value: '每日',
-            label: '每日'
-          },{
-            value: '每月',
-            label: '每月'
-          }]
+          label: '订单提交时间'
         },{
           value: '发单人',
           label: '发单人',
@@ -382,7 +408,22 @@
       }
     },
     methods:{
+      change(e){
+        this.$forceUpdate()
+      },
+      /**
+       * @Description: 客户选择显示时间
+       * @author Wish
+       * @date 2020/1/7
+      */
+      selectClientTime(val){
+        this.clientTimeM = val === '2'
+        this.clientTimeY = val === '1'
+      },
+
+
       handleChange(val){
+        console.log(val);
         if(val.length < 1){
           this.showClient = false // 显示客户列表搜索框
           this.showConductor = false // 显示售票员列表搜索框
@@ -395,13 +436,18 @@
           this.showTicketTypeInput = false // 显示票种选择器
           this.showLogin = false // 显示用户登录选择器
           this.showTimeType = 0 // true车票时间 false订单提交时间
-
         }
+        this.showSelectTime = val.length > 0
+        if(val[1] === '乘车日期' || val[1] === '出票时间'){
+          this.showSelectTime = false
+        }
+        console.log(this.showSelectTime);
         val.forEach((item, index) =>{
           if(index === 0){
             this.showTimeType = item === '车票' ? 0 :
                 item === '订单提交时间' ? 1 : 3
           }
+          this.showOrderTime = item === '订单提交时间'
           this.showClient = item === '客户'
           this.showConductor = item === '售票员'
           this.showDate = item === '每日'
@@ -413,21 +459,6 @@
           this.showTicketTypeInput = item === '票种'
           this.showLogin = item === '用户'
         })
-
-        /**
-         * @Description: 获取客户列表
-         * @author Wish
-         * @date 2019/11/13
-        */
-        if(this.showClient){
-          this.getClientList()
-        }
-        if(this.showConductor || this.showTicketType === false || this.showLogin){
-          this.getConductorList()
-        }
-        if(this.showBiller){
-          this.getBillerList()
-        }
       },
 
       /**
@@ -503,7 +534,7 @@
                     item === '每日' ? 0 :
                         item === '每月' ? 0 :
                             item === '创建人' ? 0 :
-                                item === '出票员' ? 0 :
+                                item === '出票员' ? 1 :
                                     item === '发站' ? 2 :
                                         item === '到站' ? 3 :
                                             item === '乘车日期' ? 4 :
@@ -515,10 +546,6 @@
             searchForm['sign'] = this.searchForm.client || '0'
           }else if(item === '售票员'){
             searchForm['sign'] = this.searchForm.conductor || '0'
-          }else if(item === '每日'){
-            searchForm['sign'] = this.$dateToMs(this.searchForm.date) / 1000 + ',d'
-          }else if(item === '每月'){
-            searchForm['sign'] = this.$dateToMs(this.searchForm.month) / 1000 + ',m'
           }else if(item === '发单人'){
             searchForm['sign'] = this.searchForm.biller || '0'
           }else if(item === '创建人' || item === '出票员'){
@@ -542,7 +569,14 @@
 
         let data = {
           oneLevel: LevelType,
-          info: JSON.stringify(searchForm)
+          twoLevel: this.searchForm.clientTime === '2'?this.$dateToMs(this.searchForm.clientMonth) / 1000:
+              this.searchForm.clientTime === '1'?this.$dateToMs(this.searchForm.clientYear) /1000:
+          this.showDate? this.$dateToMs(this.searchForm.date) /1000:
+          this.showMonth? this.$dateToMs(this.searchForm.month) /1000: null,
+          type: this.showDate?1:this.showMonth?2: this.searchForm.clientTime || null,
+          totalItem: this.searchForm.statisticType || null,
+          sign: searchForm.sign || null,
+
         }
         console.log(this.module);
         if(this.module.length > 0){
@@ -565,17 +599,17 @@
        * @date 2019/11/13
       */
       getChartsData(type,data){
+        console.log(type, data);
         console.log(this.searchForm.statisticType);
         this.loading = true
         this.$axios.post('/census/getData/'+type,data)
             .then(res =>{
               if(res.data.code === 0){
-                console.log(res);
-
                 this.$message.success('获取成功')
                 this.tableData = res.data.result
 
                 this.chartData = this.tableData
+
                 this.chartData.rows.length?this.dataEmpty = !this.chartData.rows.length:''
                 this.loading = false
               }else {
@@ -588,6 +622,11 @@
       },
 
     },
+    mounted() {
+      this.getClientList()
+      this.getConductorList()
+      this.getBillerList()
+    }
   }
 </script>
 

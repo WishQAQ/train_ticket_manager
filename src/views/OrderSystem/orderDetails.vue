@@ -1855,15 +1855,15 @@
         if(ticketNumber > 5){
           this.$message.warning('批量购票最多仅支持5人')
         }else {
-          if(this.extensionsId) {
+          // if(this.extensionsId) {
             this.userOrderInfo = {
               order_sn: this.orderId,
               info: JSON.stringify(this.batchEditList)
             }
             this.getUserAccountList()
-          }else {
-            this.extensionsDialog = true
-          }
+          // }else {
+          //   this.extensionsDialog = true
+          // }
         }
       },
 
@@ -1950,37 +1950,58 @@
        * @date 2019/11/18
        */
       handleCurrentChange(val) {
+        console.log(val);
         this.$axios.post('/plug/getData',this.userOrderInfo)
             .then(res =>{
               if(res.data.code === 0){
-                console.log(res.data.result);
-                res.data.result.forEach((item,index) =>{
-                  item['toSiteCode'] = ''
-                  item['formSiteCode'] = ''
-                  GetTicketData.forEach(citem =>{
-                    if(citem.name === item.departure_station){
-                      item['toSiteCode'] = citem.code
-                    }
-                    if(citem.name === item.arrival_station){
-                      item['formSiteCode'] = citem.code
-                    }
-                  })
-                })
+                // console.log(res);
+                // res.data.result.forEach((item,index) =>{
+                //   item['toSiteCode'] = ''
+                //   item['formSiteCode'] = ''
+                //   GetTicketData.forEach(citem =>{
+                //     if(citem.name === item.departure_station){
+                //       item['toSiteCode'] = citem.code
+                //     }
+                //     if(citem.name === item.arrival_station){
+                //       item['formSiteCode'] = citem.code
+                //     }
+                //   })
+                // })
                 let userAccount = {}
+                let backendAccount = JSON.parse(sessionStorage.getItem('userAccount'))
                 userAccount['account'] = val.account
                 userAccount['password'] = val.password
+                userAccount['userAcc'] = backendAccount.account
+                userAccount['userPas'] = backendAccount.password
+                userAccount['csrf'] = sessionStorage.getItem('CSRF')
+                console.log(userAccount['csrf']);
                 userAccount['info'] = res.data.result
-                let _that = this
-                window.open("https://kyfw.12306.cn/otn/resources/login.html",'_blank')
-                _that.selectTicketMessage = false
-                chrome.runtime.sendMessage(this.extensionsId, {data:{action:"buy",order:userAccount}},
-                    function(response) {
-                    });
+                console.log(userAccount);
+
+
+
+                let config = {
+                  headers : {
+                    'Content-Type':'application/json;charset=UTF-8'
+                  },
+                };
+                this.$axios.post('http://127.0.0.1:3000/post',userAccount,config)
+                    .then(data =>{
+                      console.log(data);
+                    })
+
+
+
+                // let _that = this
+                // window.open("https://kyfw.12306.cn/otn/resources/login.html",'_blank')
+                // _that.selectTicketMessage = false
+                // chrome.runtime.sendMessage(this.extensionsId, {data:{action:"buy",order:userAccount}},
+                //     function(response) {
+                //     });
               }else {
                 this.$message.warning(res.data.msg)
               }
             })
-
       },
 
 
@@ -2550,6 +2571,7 @@
        * @date 2019/10/30
        */
       checkTableList(userId,userRoute, routeIndex, tableIndex,orderId, token, userTicketPrice){
+        console.log(userId, userRoute, routeIndex, tableIndex, orderId, token, userTicketPrice);
         this.checkedTableList[String(routeIndex)+String(tableIndex)] = userId
         this.checkedRouteList[String(routeIndex)+String(tableIndex)] = userRoute
         this.editOrderToken[String(routeIndex)+String(tableIndex)] = token
@@ -3345,7 +3367,7 @@
                           dItem['ticket_species'] = dItem.is_child === 0 ? '成人票' :'儿童票'   // 车票类型
                           dItem['ticket_type'] = ''
                           dItem['remarks'] = ''  // 备注
-                          dItem['missed_meals_money'] = '0'  // 误餐费
+                          dItem['missed_meals_money'] = ''  // 误餐费
                           delete dItem.card
                           delete dItem.is_child
                         })
@@ -3366,7 +3388,7 @@
                         dItem['ticket_species'] = dItem.is_child === 0 ? '成人票' :'儿童票'   // 车票类型
                         dItem['ticket_type'] = this.addDataList.ticketType
                         dItem['remarks'] = ''  // 备注
-                        dItem['missed_meals_money'] = '0'  // 误餐费
+                        dItem['missed_meals_money'] = ''  // 误餐费
                         delete dItem.card
                         delete dItem.is_child
                       })
@@ -3511,12 +3533,26 @@
             })
       },
 
+      /**
+       * @Description: 获取票种列表
+       * @author Wish
+       * @date 2020/1/6
+      */
+      getTicketType(){
+        this.$axios.get('/system/species/getList')
+            .then(res =>{
+              console.log(res);
+            })
+      },
+
     },
     created() {
 
       this.urlTypeSelect()
 
       this.getCustomerData()  // 获取客户商列表
+
+      // this.getTicketType()  // 获取票种列表
     },
     mounted() {
       if(this.$route.query.type === 'edit'){

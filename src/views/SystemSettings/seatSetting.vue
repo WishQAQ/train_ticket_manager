@@ -3,11 +3,11 @@
     <div class="left_main">
       <div class="table_header">
         <el-input v-model="searchSeatName" :placeholder="urlType?'输入席别名称':'输入票种名称'"></el-input>
-        <el-select v-model="searchSeatStatus" placeholder="请选择">
-          <el-option label="全部状态" value="-1"></el-option>
-          <el-option label="有效" value="0"></el-option>
-          <el-option label="停用" value="1"></el-option>
-        </el-select>
+<!--        <el-select v-model="searchSeatStatus" placeholder="请选择">-->
+<!--          <el-option label="全部状态" value="-1"></el-option>-->
+<!--          <el-option label="有效" value="0"></el-option>-->
+<!--          <el-option label="停用" value="1"></el-option>-->
+<!--        </el-select>-->
         <el-button @click="searchBtn">搜索</el-button>
         <el-button @click="addSeatBtn" type="primary">新增{{urlType?'席别':'票种'}}</el-button>
       </div>

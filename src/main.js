@@ -27,6 +27,7 @@ import axios from "axios";
 Vue.prototype.$axios = axios;
 
 import qs from 'qs'
+Vue.prototype.$qs = qs
 axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
 // 请求拦截器
 axios.interceptors.request.use(
@@ -40,7 +41,6 @@ axios.interceptors.request.use(
       return config;
     },
     error => {
-      console.log('111');
       return Promise.reject(error);
     });
 
