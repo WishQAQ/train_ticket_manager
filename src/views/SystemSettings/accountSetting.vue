@@ -247,11 +247,11 @@
       */
       jumpSize(val){
         this.per_page = val
-        this.getData()
+        this.getDataList()
       },
       jumpPage(val){
         this.page = val
-        this.getData()
+        this.getDataList()
       },
 
     },

@@ -55,6 +55,7 @@
             label="订单号">
         </el-table-column>
         <el-table-column
+            min-width="250px"
             label="乘客信息">
           <template slot-scope="scope">
             {{scope.row.name + ' ' + scope.row.IDCard}}

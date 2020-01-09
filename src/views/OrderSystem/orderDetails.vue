@@ -341,6 +341,10 @@
           <el-input v-model="passengerSearch.train_number" clearable placeholder="请输入车次"/>
           <el-input v-model="passengerSearch.departure_station" clearable placeholder="请输入发站地址"/>
           <el-input v-model="passengerSearch.arrive_station" clearable placeholder="请输入到站地址"/>
+          <el-select v-model="passengerSearch.ticket_species" clearable placeholder="请选择票种">
+            <el-option label="成人票" value="2"/>
+            <el-option label="儿童票" value="1"/>
+          </el-select>
           <el-date-picker
               v-model="passengerSearch.newTripTime"
               type="date"
@@ -1343,6 +1347,7 @@
           newDrawBillTime: '',
           ticket_type: '',
           ticket_status: '',
+          ticket_species: '',
         },
 
         addDataList: [], // 新增获取车次信息
@@ -1954,7 +1959,9 @@
         this.$axios.post('/plug/getData',this.userOrderInfo)
             .then(res =>{
               if(res.data.code === 0){
-                // console.log(res);
+                console.log(res);
+
+                console.log(this.userOrderInfo);
                 // res.data.result.forEach((item,index) =>{
                 //   item['toSiteCode'] = ''
                 //   item['formSiteCode'] = ''
@@ -1967,15 +1974,34 @@
                 //     }
                 //   })
                 // })
+
+
                 let userAccount = {}
+                let userInfo = []
                 let backendAccount = JSON.parse(sessionStorage.getItem('userAccount'))
+                let payOrderMessage = JSON.parse(this.userOrderInfo.info)
                 userAccount['account'] = val.account
                 userAccount['password'] = val.password
                 userAccount['userAcc'] = backendAccount.account
                 userAccount['userPas'] = backendAccount.password
                 userAccount['csrf'] = sessionStorage.getItem('CSRF')
-                console.log(userAccount['csrf']);
-                userAccount['info'] = res.data.result
+                res.data.result.forEach((datares,index) => {
+                  userAccount['start'] = datares.departure_station
+                  userAccount['end'] = datares.arrival_station
+                  userAccount['time'] = this.$getTimeYear(datares.riding_time * 1000)
+                  userAccount['ticketNumber'] = datares.trips_number
+                  userInfo.push({
+                    userName: datares.name,
+                    userId: datares.IDCard,
+                    userType: datares.ticket_species === 0 ? '成人票': datares.ticket_species === 1 ? '儿童票': '成人票',
+                    ticketType: datares.fwName,
+                    order_sn: datares.order_sn,
+                    token: datares.token,
+                    route_id: datares.route_id,
+                    passenger_id: datares.passenger_id,
+                  })
+                })
+                userAccount['info'] = userInfo
                 console.log(userAccount);
 
 

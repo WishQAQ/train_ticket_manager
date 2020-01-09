@@ -22,6 +22,11 @@
         <el-input clearable style="width: 120px" v-model="searchForm.departure" placeholder="发站"/></div>
       <div>
         <el-input clearable style="width: 120px" v-model="searchForm.arrive" placeholder="到站"/></div>
+      <div>
+        <el-select clearable v-model="searchForm.customer_identity" placeholder="客户商">
+          <el-option v-for="item in customerList" :key="item.id" :label="item.name" :value="item.identity"/>
+        </el-select>
+      </div>
       <div><el-date-picker
           style="width: 260px"
           v-model="searchForm.ridingTime"
@@ -238,11 +243,14 @@
           train_account: '',
           order: '',
           ticket_status: '',
+          customer_identity: '',
           departure: '',
           arrive: '',
           ridingTime: [],
           beginTime: [],
         },
+
+        customerList: [],
 
         rulType: '',  // 页面类型
 
@@ -269,6 +277,7 @@
           name: this.searchForm.name || null,
           pay_account: this.searchForm.pay_account || null,
           running_account: this.searchForm.running_account || null,
+          customer_identity: this.searchForm.customer_identity || null,
           '12306_account': this.searchForm.train_account || null,
           order: this.searchForm.order || null,
           ticket_status: this.searchForm.ticket_status || null,
@@ -294,6 +303,20 @@
         this.customizeNum =  val>0?parseInt(val):30
         this.page = 1
         this.getData()
+      },
+
+      /**
+       * @Description: 获取客户商列表
+       * @author Wish
+       * @date 2020/1/8
+      */
+      getCustomerData(){
+        this.$axios.get('/user/customer/showAll/1')
+            .then(res =>{
+              if(res.data.code === 0){
+                this.customerList = res.data.result
+              }
+            })
       },
 
       /**
@@ -410,6 +433,9 @@
     //     this.getData();
     //   },
     // },
+    mounted() {
+      this.getCustomerData()
+    },
     created() {
       const FieldInfoAll  = JSON.parse(sessionStorage.getItem('FieldInfoAll'))
       const FieldInfo = JSON.parse(sessionStorage.getItem('FieldInfo'))

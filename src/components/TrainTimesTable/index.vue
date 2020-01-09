@@ -74,9 +74,10 @@
           </div>
         </template>
       </el-table-column>
+<!--      width="65"-->
       <el-table-column
           show-overflow-tooltip
-          width="65"
+
           label="票类">
         <template slot-scope="scope">
           {{scope.row.ticket_type === 0?'电子票':
@@ -93,9 +94,10 @@
           <!--          </el-select>-->
         </template>
       </el-table-column>
+<!--       width="160"-->
       <el-table-column
           show-overflow-tooltip
-          width="160"
+          min-width="100px"
           label="席别/席位号">
         <template slot-scope="scope">
           <div>
@@ -105,22 +107,25 @@
           </div>
         </template>
       </el-table-column>
+<!--        width="80"-->
       <el-table-column
           show-overflow-tooltip
-          width="80"
+
           prop="ticket_price"
           label="票价">
       </el-table-column>
+<!--      width="80"-->
       <el-table-column
           show-overflow-tooltip
-          width="80"
+
           prop="missed_meals_money"
           label="误餐费">
       </el-table-column>
+<!--         width="80"-->
       <el-table-column
           v-if="tableRoleStatus.refund_fee.show"
           show-overflow-tooltip
-          width="80"
+
           label="退票款">
         <template slot-scope="scope">
           <el-input
@@ -133,10 +138,11 @@
           <span style="margin-left: 10px" v-else>{{scope.row.refund_fee}}</span>
         </template>
       </el-table-column>
+<!--         width="80"-->
       <el-table-column
           v-if="tableRoleStatus.ticket_fare.show"
           show-overflow-tooltip
-          width="80"
+
           label="出票款">
         <template slot-scope="scope">
           <el-input
@@ -149,10 +155,11 @@
           <span style="margin-left: 10px" v-else>{{scope.row.ticket_fare}}</span>
         </template>
       </el-table-column>
+<!--        width="70"-->
       <el-table-column
           v-if="tableRoleStatus.ticket_status.show"
           show-overflow-tooltip
-          width="70"
+
           label="状态">
         <template slot-scope="scope">
           <span v-if="scope.row.ticket_status === 0" style="color: red">未出票</span>
@@ -162,10 +169,11 @@
           <span v-if="scope.row.ticket_status === 4" style="color: #000">已退票</span>
         </template>
       </el-table-column>
+<!--       width="130"-->
       <el-table-column
           v-if="tableRoleStatus.db_auftragsnummer.show"
           show-overflow-tooltip
-          width="130"
+
           label="取票号">
         <template slot-scope="scope">
           <el-input
@@ -178,9 +186,10 @@
           <span v-else>{{$aliPayOrTelPhone(scope.row.db_auftragsnummer)}}</span>
         </template>
       </el-table-column>
+<!--          width="122"-->
       <el-table-column
           show-overflow-tooltip
-          width="122"
+
           v-if="showTableRows"
           label="出票时间">
         <template slot-scope="scope">
@@ -199,8 +208,9 @@
           <span>{{$getTimeYear(scope.row.ticketing_time * 1000) || ''}}</span>
         </template>
       </el-table-column>
+<!--         width="130"-->
       <el-table-column
-          width="130"
+
           show-overflow-tooltip
           v-if="tableRoleStatus.payment_account.show && showTableRows"
           label="支付账号">
@@ -215,8 +225,9 @@
           <span v-else>{{$aliPayOrTelPhone(scope.row.payment_account)}}</span>
         </template>
       </el-table-column>
+<!--         width="130"-->
       <el-table-column
-          width="130"
+
           show-overflow-tooltip
           v-if="tableRoleStatus.payment_flow_number.show && showTableRows"
           label="支付流水">
@@ -231,8 +242,9 @@
           <span v-else>{{scope.row.payment_flow_number}}</span>
         </template>
       </el-table-column>
+<!--         width="130"-->
       <el-table-column
-          width="130"
+
           v-if="tableRoleStatus['12306_account'].show && showTableRows"
           show-overflow-tooltip
           label="1230账号">
@@ -247,8 +259,9 @@
           <span v-else>{{scope.row.account}}</span>
         </template>
       </el-table-column>
+<!--       width="130"-->
       <el-table-column
-          width="130"
+
           show-overflow-tooltip
           v-if="tableRoleStatus['12306_account'].show && showTableRows"
           label="1230密码">
@@ -263,9 +276,10 @@
           <span v-else>{{scope.row.password}}</span>
         </template>
       </el-table-column>
+<!--        width="80"-->
       <el-table-column
           show-overflow-tooltip
-          width="80"
+
           label="乘客备注">
         <template slot-scope="scope">
           <el-input
