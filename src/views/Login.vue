@@ -117,7 +117,7 @@
 </script>
 
 <style scoped lang="less">
-  @media (max-width: 1410px) {
+  @media (max-width: 1210px) {
     .login{
       .main {
         width: 80% !important;

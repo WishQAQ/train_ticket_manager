@@ -29,6 +29,7 @@ Vue.prototype.$axios = axios;
 import qs from 'qs'
 Vue.prototype.$qs = qs
 axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
+// axios.defaults.withCredentials = true
 // 请求拦截器
 axios.interceptors.request.use(
     config => {
