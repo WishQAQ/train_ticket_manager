@@ -1980,6 +1980,7 @@
                 let userInfo = []
                 let backendAccount = JSON.parse(sessionStorage.getItem('userAccount'))
                 let payOrderMessage = JSON.parse(this.userOrderInfo.info)
+                userAccount['order_sn'] = this.orderSn
                 userAccount['account'] = val.account
                 userAccount['password'] = val.password
                 userAccount['userAcc'] = backendAccount.account
