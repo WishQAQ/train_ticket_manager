@@ -1167,7 +1167,7 @@
               @jumpSize="userJumpSize"
               @jumpPage="userJumpPage">
           </Pagination>
-          <el-button size="mini" type="primary" @click="extensionsDialog = true">修改插件ID</el-button>
+<!--          <el-button size="mini" type="primary" @click="extensionsDialog = true">修改插件ID</el-button>-->
         </div>
       </div>
     </el-dialog>
@@ -1878,7 +1878,7 @@
        * @date 2019/11/18
        */
       jumpPayTicket(userInfo,orderInfo){
-        if(this.extensionsId){
+        // if(this.extensionsId){
           let info = []
           info.push({
             "token": orderInfo.parent_id, //行程标识
@@ -1892,9 +1892,9 @@
           console.log(this.userOrderInfo);
           this.$message.success('正在整理您的12306账号列表，请勿刷新页面')
           this.getUserAccountList()
-        }else {
-          this.extensionsDialog = true
-        }
+        // }else {
+        //   this.extensionsDialog = true
+        // }
 
       },
 
