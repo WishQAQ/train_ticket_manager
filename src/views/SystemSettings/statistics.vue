@@ -151,9 +151,9 @@
                       :data-empty="dataEmpty" :data="chartData"/>
       </div>
       <transition name="el-fade-in-linear">
-        <div class="data_table" v-if="chartData.rows.length > 0">
+        <div class="data_table" v-if="tableData.length > 0">
           <el-table
-              :data="chartData.rows"
+              :data="tableData"
               border
               stripe
               style="width: 100%">
@@ -162,7 +162,7 @@
                 align="center"
                 width="50px">
               <template slot-scope="scope">
-                {{scope.$index+1}}
+                {{scope.row.object !== '总和' ?scope.$index+1: ''}}
               </template>
             </el-table-column>
             <el-table-column label="用户名">
@@ -227,6 +227,8 @@
         },
 
         loading: false,  // 加载
+
+        tableData: [], // 表格数据
 
         sun: 0, // 总和
 
@@ -530,6 +532,12 @@
                     percentage: this.$percentage(item.count,this.sun)
                   })
                 })
+                this.tableData = JSON.parse(JSON.stringify(this.chartData.rows))
+                this.tableData.push({
+                  value: this.sun,
+                  object: '总和',
+                  percentage: ''
+                })
               }
             })
       },
@@ -553,7 +561,12 @@
                     percentage: this.$percentage(item.count,this.sun)
                   })
                 })
-                console.log(this.chartData);
+                this.tableData = JSON.parse(JSON.stringify(this.chartData.rows))
+                this.tableData.push({
+                  value: this.sun,
+                  object: '总和',
+                  percentage: ''
+                })
               }
             })
       },
@@ -577,7 +590,12 @@
                     percentage: this.$percentage(item.count,this.sun)
                   })
                 })
-                console.log(this.chartData);
+                this.tableData = JSON.parse(JSON.stringify(this.chartData.rows))
+                this.tableData.push({
+                  value: this.sun,
+                  object: '总和',
+                  percentage: ''
+                })
               }
             })
       },
@@ -601,7 +619,12 @@
                     percentage: this.$percentage(item.count,this.sun)
                   })
                 })
-                console.log(this.chartData);
+                this.tableData = JSON.parse(JSON.stringify(this.chartData.rows))
+                this.tableData.push({
+                  value: this.sun,
+                  object: '总和',
+                  percentage: ''
+                })
               }
             })
       },
@@ -625,7 +648,12 @@
                     percentage: this.$percentage(item.count,this.sun)
                   })
                 })
-                console.log(this.chartData);
+                this.tableData = JSON.parse(JSON.stringify(this.chartData.rows))
+                this.tableData.push({
+                  value: this.sun,
+                  object: '总和',
+                  percentage: ''
+                })
               }
             })
       },
@@ -649,7 +677,12 @@
                     percentage: this.$percentage(item.count,this.sun)
                   })
                 })
-                console.log(this.chartData);
+                this.tableData = JSON.parse(JSON.stringify(this.chartData.rows))
+                this.tableData.push({
+                  value: this.sun,
+                  object: '总和',
+                  percentage: ''
+                })
               }
             })
       },
