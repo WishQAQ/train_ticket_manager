@@ -179,3 +179,19 @@ Vue.prototype.$aliPayOrTelPhone = (data) =>{
     return data
   }
 }
+
+
+/**
+ * @Description: 计算百分比方法
+ * @author Wish
+ * @date 2020/1/14
+*/
+Vue.prototype.$percentage = (num,total) =>{
+  num = parseFloat(num);
+  total = parseFloat(total);
+  console.log(num, total);
+  if (isNaN(num) || isNaN(total)) {
+    return "-";
+  }
+  return total <= 0 ? "0%" : (Math.round(num / total * 10000) / 100.00)+"%";
+}

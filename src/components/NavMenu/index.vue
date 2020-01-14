@@ -147,10 +147,9 @@
         this.$router.push({
           name: 'login'
         })
-        userExit()
         this.$axios.get('/user/exit')
             .then(res =>{
-
+              userExit()
             })
       },
 

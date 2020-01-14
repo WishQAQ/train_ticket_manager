@@ -81,7 +81,8 @@ export function powerRouterLazy(name) {
           {path: '/ticketStatistics', name: 'ticketStatistics', component: importPage('SystemSettings/ticketStatistics'),meta:{name: '网票统计',hidden: false,title: '网票统计',aliveId: 'ticketStatistics'}},  // 网票统计
           {path: '/paperTicket', name: 'paperTicket', component: importPage('SystemSettings/ticketStatistics'),meta:{name: '纸票统计',hidden: false,title: '纸票统计',aliveId: 'paperTicket'}},  // 纸票统计
           {path: '/eTicket', name: 'eTicket', component: importPage('SystemSettings/ticketStatistics'),meta:{name: '电子票统计',hidden: false,title: '电子票统计',aliveId: 'eTicket'}},  // 电子票统计
-          {path: '/dataAnalysis', name: 'dataAnalysis', component: importPage('SystemSettings/dataAnalysis'),meta:{name: '数据分析',hidden: false,title: '数据分析',aliveId: 'dataAnalysis'}},  // 数据分析
+          // {path: '/dataAnalysis', name: 'dataAnalysis', component: importPage('SystemSettings/dataAnalysis'),meta:{name: '数据分析',hidden: false,title: '数据分析',aliveId: 'dataAnalysis'}},  // 数据分析
+          {path: '/statistics', name: 'statistics', component: importPage('SystemSettings/statistics'),meta:{name: '数据分析',hidden: false,title: '数据分析',aliveId: 'dataAnalysis'}},  // 数据分析
           {path: '/accountSetting', name: 'accountSetting', component: importPage('SystemSettings/accountSetting'),meta:{name: '账号管理',hidden: false,title: '账号管理',aliveId: 'accountSetting'}},  // 12306账号管理
           {path: '/account', name: 'account', component: importPage('SystemSettings/account'),meta:{hidden: false,title: '12306账号',aliveId: 'account'}},  // 12306账号
           {path: '/billerSetting', name: 'billerSetting', component: importPage('SystemSettings/billerSetting'),meta:{hidden: false,title: '发单人配置',aliveId: 'billerSetting'}},  // 发单人配置
