@@ -165,7 +165,7 @@
                 {{scope.row.object !== '总和' ?scope.$index+1: ''}}
               </template>
             </el-table-column>
-            <el-table-column label="用户名">
+            <el-table-column label="项目">
               <template slot-scope="scope">
                 {{scope.row.object}}
               </template>

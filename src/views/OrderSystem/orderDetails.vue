@@ -379,7 +379,7 @@
             <el-button type="warning"
                        @click="openBatchEdit"
                        :loading="batchEditLoading"
-                       v-if="urlType === 'edit' && roleType === 0">
+                       v-if="urlType === 'edit' && roleType === 0 && tableRoleStatus['batch_editing'].show || false">
               批量修改</el-button>
             <el-button type="danger"
                        @click="deleteOrderList"
@@ -403,20 +403,20 @@
              :key="index">
           <div class="train_message">
             <div>合计票款：{{item.ticketPrice || '0.00'}} 元</div>
-            <div style="display: inline-flex;align-items: center" v-if="tableRoleStatus.express_fee.show">
+            <div style="display: inline-flex;align-items: center" v-if="tableRoleStatus['express_fee'].show || false">
               快递费：
               <el-input
                   size="mini"
-                  v-if="urlType === 'edit' && tableRoleStatus.express_fee.read"
+                  v-if="urlType === 'edit' && tableRoleStatus['express_fee'].read || false"
                   :placeholder="item.express_fee"
                   v-model="newEditTableForm[item.itemIndex].express_fee"
                   @blur="editTableHeaderRows(item, 'express_fee', item.express_fee, newEditTableForm[item.itemIndex].express_fee)"/>
               <span v-else>{{item.express_fee || '0.00'}}</span>&nbsp;元
             </div>
-            <div style="display: inline-flex;align-items: center" v-if="tableRoleStatus.refund_fare.show">
+            <div style="display: inline-flex;align-items: center" v-if="tableRoleStatus['refund_fare'].show || false">
               退改交通费：
               <el-input
-                  v-if="urlType === 'edit' && tableRoleStatus.refund_fare.read"
+                  v-if="urlType === 'edit' && tableRoleStatus['refund_fare'].read || false"
                   size="mini"
                   :placeholder="item.refund_fare"
                   v-model="newEditTableForm[item.itemIndex].refund_fare"
@@ -464,18 +464,18 @@
                 </el-tooltip>
 
               </div>
-              <div v-if="tableRoleStatus.ticket_check.show">
+              <div v-if="tableRoleStatus['ticket_check'].show || false">
                 检票口：
                 <el-input
                     size="mini"
                     @input="change($event)"
                     v-model="cItem.ticketCheck"
-                    v-if="urlType === 'edit' && tableRoleStatus.ticket_check.read"
+                    v-if="urlType === 'edit' && tableRoleStatus['ticket_check'].read || false"
                     :placeholder="cItem.ticket_check"
                     @blur="editTableHeaderBows(item, cItem, 'ticket_check', cItem.ticket_check, cItem.ticketCheck)"/>
                 <span v-else>{{cItem.ticket_check}}</span>
               </div>
-              <div v-if="tableRoleStatus.ticket_check.show">
+              <div v-if="tableRoleStatus['ticket_check'].show || false">
                 发到站时间：
                 <!--                <el-input-->
                 <!--                    size="mini"-->
@@ -3608,7 +3608,7 @@
           }
         })
       })
-
+      console.log(this.tableRoleStatus);
     }
   }
 </script>
