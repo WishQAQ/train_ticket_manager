@@ -38,7 +38,7 @@
       </div>
       <div style="display: flex">
         <el-button type="primary" @click="getData('search')">搜索</el-button>
-        <el-button v-if="viewsType !== 1 && roleType === 0" :disabled="selectList.length < 1" type="primary" @click="jumpBatchStatement()">批量对账</el-button>
+        <el-button v-if="viewsType !== 1 && roleType === 0" type="primary" @click="jumpBatchStatement()">批量对账</el-button>
       </div>
     </div>
     <div class="center" v-if="showTable">
@@ -1063,11 +1063,11 @@
         this.submitLoading = true
         this.$message.success('正在获取对账单号，请勿刷新页面')
 
-        let data ={
-          customer: val.customer,
-          order_num: 1
-        }
-        this.$axios.post('/finance/obtain',data)
+        // let data ={
+        //   customer: val.customer,
+        //   order_num: 1
+        // }
+        this.$axios.get('/finance/obtain')
             .then(res =>{
               if(res.data.code === 0){
                 this.batchId = res.data.result

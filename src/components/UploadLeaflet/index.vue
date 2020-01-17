@@ -1,6 +1,6 @@
 <template>
   <!-- 单张上传 -->
-  <div class="UploadLeaflet">
+  <div class="UploadLeaflet" @mouseenter.stop="uploadImage">
     <el-upload
         class="upload_main"
         ref="upload"
@@ -78,13 +78,37 @@
         console.log(res, file);
       },
 
+      uploadImage(){
+        // console.log('111');
+        // const _that = this;
+        // document.addEventListener('paste', function (event) {
+        //   event.preventDefault();
+        //   console.log("paste")
+        //   const items = event.clipboardData && event.clipboardData.items;
+        //   let file = null;
+        //   debugger
+        //   if (items && items.length) {
+        //     // 检索剪切板items
+        //     for (let i = 0; i < items.length; i++) {
+        //       if (items[i].type.indexOf('image') !== -1) {
+        //         file = [...items].pop().getAsFile();
+        //       break;
+        //       }
+        //     }
+        //   }
+        //   console.log(file);
+        //   if(file){
+        //     _that.beforeUpload(file)
+        //   }
+        // });
+      },
+
       /**
        * @Description: 开始上传
        * @author Wish
        * @date 2019/10/10
        */
       beforeUpload (file) {
-        console.log(file);
         this.$message.success('上传中，请勿刷新页面')
         let uploadData = new FormData();
         uploadData.append('type', String(this.uploadType))

@@ -19,13 +19,13 @@
           </el-date-picker>
         </div>
       </div>
-      <div class="table_row" style="height: 170px;">
+      <div class="table_row">
         <div class="table_title">上传收款凭证</div>
         <div class="table_content">
           <UploadImage style="width: 300px;height: 150px;" @uploadAddress="uploadPayment" ref="uploadImage"/>
         </div>
       </div>
-      <div class="table_row" style="height: 170px;">
+      <div class="table_row">
         <div class="table_title">上传付款凭证</div>
         <div class="table_content">
           <UploadImage style="width: 300px;height: 150px;" @uploadAddress="uploadReceipt" ref="uploadImage"/>
@@ -35,9 +35,10 @@
         <div class="table_title">导入账单文件</div>
         <div class="table_content">
           <el-button type="primary" @click="openOrderDialog">导入</el-button>
+
         </div>
       </div>
-      <div class="table_row">
+      <div class="table_row" style="border-bottom: 1px solid #ebebeb;">
         <div class="table_title">备注</div>
         <div class="table_content">
           <el-input
@@ -48,9 +49,23 @@
           </el-input>
         </div>
       </div>
+      <el-button class="submit" @click="submitOrderInfo">提交</el-button>
+
     </div>
 
-    <el-button class="submit" @click="submitOrderInfo">提交</el-button>
+    <el-table
+        border
+        v-if="orderFileData.length > 0"
+        class="batchTable"
+        :data="orderFileData">
+      <el-table-column
+          prop="order_sn"
+          label="订单号"/>
+      <el-table-column
+          prop="actual_receipts"
+          label="对账金额"/>
+    </el-table>
+
 
 
     <el-dialog
@@ -64,6 +79,11 @@
           type="textarea"
           resize="none"
           :rows="15"
+          placeholder="
+请遵循以下格式:
+订单号1,实收款
+订单号2,实收款
+订单号3,实收款"
           v-model="orderFile">
       </el-input>
       <div slot="footer" class="dialog-footer">
@@ -106,11 +126,11 @@
       */
       getOrderId(){
         this.orderInfo = this.$route.params
-        let data ={
-          customer: this.orderInfo.customer,
-          order_num: this.orderInfo.order_num
-        }
-        this.$axios.post('/finance/obtain',data)
+        // let data ={
+        //   customer: this.orderInfo.customer,
+        //   order_num: this.orderInfo.order_num
+        // }
+        this.$axios.get('/finance/obtain')
             .then(res =>{
               if(res.data.code === 0){
                 this.orderId = res.data.result
@@ -161,12 +181,12 @@
                   this.uploadOrderFile = false
                   this.orderFileData = res.data.result
                   this.$message.success('提交成功')
-                  this.$route.push({
-                    name: 'statementInfo',
-                    query: {
-                      condition: this.orderId
-                    }
-                  })
+                  // this.$route.push({
+                  //   name: 'statementInfo',
+                  //   query: {
+                  //     condition: this.orderId
+                  //   }
+                  // })
                 }else {
                   this.$message.warning(res.data.msg)
                 }
@@ -183,17 +203,17 @@
        * @date 2019/10/28
       */
       submitOrderInfo(){
-        let dataId = this.orderInfo.orderId.split(',')
-        let dataArr = []
-        for(let i=0;i< dataId.length; i++){
-          dataArr.push({
-            order_sn:  dataId[i]
-          })
-        }
+        // let dataId = this.orderInfo.orderId.split(',')
+        // let dataArr = []
+        // for(let i=0;i< dataId.length; i++){
+        //   dataArr.push({
+        //     order_sn:  dataId[i]
+        //   })
+        // }
         let data ={
           bill_number: this.orderId,
           custom_bill_number: this.edit_order_id,
-          orders: JSON.stringify(dataArr),
+          // orders: JSON.stringify(dataArr),
           bill_file: JSON.stringify(this.orderFileData),
           receivables: this.upload_receipt,
           payment: this.upload_payment,
@@ -226,45 +246,55 @@
 <style scoped lang="less">
   .batchStatement{
     display: flex;
-    flex-direction: column;
-    padding: 20px 5%;
+    align-items: flex-start;
+    /*flex-direction: column;*/
+    padding: 20px 3%;
     .batchStatement_table{
-      border:1px solid #ebebeb;
-      width: 100%;
+      flex: 1;
       .table_row{
-        height: 75px;
         display: flex;
+        align-items: center;
+        border:1px solid #ebebeb;
         &:not(:last-child){
-          .table_title,.table_content{
-            border-bottom: 1px solid #ebebeb;
-          }
+          border-bottom: unset;
         }
         .table_title{
           width: 135px;
           height: 100%;
+          min-height: 60px;
           display: flex;
           align-items: center;
           justify-content: center;
           flex-shrink: 0;
-          border-right: 1px solid #ebebeb;
         }
         .table_content{
           width: 100%;
           height: 100%;
+          min-height: 60px;
           display: flex;
           align-items: center;
+          border-left: 1px solid #ebebeb;
           padding: 10px 15px;
           /deep/.upload_main{
             max-width: 150px;
             max-height: 150px;
           }
+          /deep/.batchTable{
+            width: 500px;
+          }
         }
       }
     }
     .submit{
+      display: block;
       width: 135px;
       margin-top: 40px;
       margin-left: auto;
+    }
+    /deep/.batchTable{
+      max-width: 350px;
+      flex: 1;
+      margin-left: 15px;
     }
   }
 </style>
