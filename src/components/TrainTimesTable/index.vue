@@ -298,12 +298,12 @@
           v-if="tableModify !== 'add' && roleType === 0 "
           label="操作">
         <template slot-scope="scope">
-          <el-dropdown trigger="click" v-if="scope.row.ticket_status === 0 || scope.row.ticket_status === 3 || scope.row.ticket_status === 4">
+          <el-dropdown trigger="click">
             <el-button size="mini">操作</el-button>
             <el-dropdown-menu slot="dropdown">
               <el-dropdown-item><el-button class="jumpTicketWeb" size="mini" type="text" @click="jumpPayTicket(scope.row,scope.$index)" v-if="scope.row.ticket_status === 0 || scope.row.ticket_status === 3 || scope.row.ticket_status === 4">购票</el-button></el-dropdown-item>
-<!--              <el-dropdown-item><el-button class="jumpTicketWeb" size="mini" type="text" @click="jumpEditTicket(scope.row,'refund')" v-if="scope.row.ticket_status === 1 || scope.row.ticket_status === 3">退票</el-button></el-dropdown-item>-->
-<!--              <el-dropdown-item><el-button class="jumpTicketWeb" size="mini" type="text" @click="jumpEditTicket(scope.row,'change')" v-if="scope.row.ticket_status === 1 || scope.row.ticket_status === 4">改签</el-button></el-dropdown-item>-->
+              <el-dropdown-item><el-button class="jumpTicketWeb" size="mini" type="text" @click="jumpEditTicket(scope.row,'refund')" v-if="scope.row.ticket_status === 1 || scope.row.ticket_status === 3">退票</el-button></el-dropdown-item>
+              <el-dropdown-item><el-button class="jumpTicketWeb" size="mini" type="text" @click="jumpEditTicket(scope.row,'change')" v-if="scope.row.ticket_status === 1 || scope.row.ticket_status === 4">改签</el-button></el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
 

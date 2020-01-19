@@ -81,9 +81,7 @@
             <el-input v-model="userName"></el-input>
           </el-form-item>
           <el-form-item label="联系方式">
-            <el-input   maxlength="11"
-                        show-word-limit
-                        v-model="telPhone"></el-input>
+            <el-input v-model="telPhone"></el-input>
           </el-form-item>
           <el-form-item label="QQ">
             <el-input v-model="qq"></el-input>

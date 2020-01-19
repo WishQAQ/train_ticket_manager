@@ -38,7 +38,7 @@
       </div>
       <div style="display: flex">
         <el-button type="primary" @click="getData('search')">搜索</el-button>
-        <el-button v-if="viewsType !== 1 && roleType === 0" type="primary" @click="jumpBatchStatement()">批量对账</el-button>
+        <el-button v-if="tableOrderRoleStatus['batch_reconciliation'].show && viewsType !== 1 && roleType === 0" type="primary" @click="jumpBatchStatement()">批量对账</el-button>
       </div>
     </div>
     <div class="center" v-if="showTable">
@@ -290,8 +290,8 @@
                 <el-dropdown-item><div @click="openUploadDialog(1,scope.row)">上传汇款凭证</div></el-dropdown-item>
                 <el-dropdown-item><div @click="openUploadDialog(2,scope.row)">上传收款凭证</div></el-dropdown-item>
                 <el-dropdown-item><div @click="toggleSelection(scope.row)">移除多选</div></el-dropdown-item>
-                <el-dropdown-item v-if="!generalUser"><div @click="changeOrderType(scope.row)">{{scope.row.is_lock === 1? '解除锁定': '锁定'}}</div></el-dropdown-item>
-                <el-dropdown-item v-if="viewsType !== 1 && $numberSubtract(scope.row.receivables,scope.row.actual_receipts) > 0 && !generalUser">
+                <el-dropdown-item v-if="tableOrderRoleStatus['locking'].show && !generalUser"><div @click="changeOrderType(scope.row)">{{scope.row.is_lock === 1? '解除锁定': '锁定'}}</div></el-dropdown-item>
+                <el-dropdown-item v-if="tableOrderRoleStatus['reconciliation'].show && viewsType !== 1 && $numberSubtract(scope.row.receivables,scope.row.actual_receipts) > 0 && !generalUser">
                   <div @click="openBatchDialog(scope.row)">对账</div>
                 </el-dropdown-item>
               </el-dropdown-menu>

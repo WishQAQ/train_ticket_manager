@@ -77,8 +77,9 @@
             </el-select>
           </div>
           <div v-if="urlType !== 'add'">
-            <span>新订单号</span>
+            <span style="flex-shrink: 0">新订单号</span>
             <el-input
+                style="width: 100%"
                 @input="change($event)"
                 :placeholder="inputDisabled?'':'请输入新订单号'"
                 v-model="orderInfo.old_order_sn"
@@ -1903,15 +1904,58 @@
        * @author Wish
        * @date 2019/11/21
        */
-      jumpEditTicket(userInfo,orderInfo,type){
-        if(this.extensionsId){
-          userInfo['type'] = type
-          window.chrome.runtime.sendMessage(this.extensionsId, {data:{action:type,order:userInfo}},
-              function(response) {});
-          window.open("https://kyfw.12306.cn/otn/resources/login.html",'_blank')
-        }else {
-          this.extensionsDialog = true
-        }
+      jumpEditTicket(user,orderInfo,type){
+        console.log(user, orderInfo, type);
+        // if(this.extensionsId){
+        //   userInfo['type'] = type
+        //   window.chrome.runtime.sendMessage(this.extensionsId, {data:{action:type,order:userInfo}},
+        //       function(response) {});
+        //   window.open("https://kyfw.12306.cn/otn/resources/login.html",'_blank')
+        // }else {
+        //   this.extensionsDialog = true
+        // }
+
+
+        let userAccount = {}
+        let userInfo = []
+        let backendAccount = JSON.parse(sessionStorage.getItem('userAccount'))
+        // let payOrderMessage = JSON.parse(this.userOrderInfo.info)
+        userAccount['order_sn'] = this.orderSn
+        userAccount['account'] = user.account
+        userAccount['password'] = user.password
+        userAccount['userAcc'] = backendAccount.account
+        userAccount['userPas'] = backendAccount.password
+        userAccount['order_type'] = type === 'refund'? '退票': type === 'change'? '改签': type
+        userAccount['csrf'] = sessionStorage.getItem('CSRF')
+        userAccount['start'] = orderInfo.route_config[0].departure_station
+        userAccount['end'] = orderInfo.route_config[0].arrival_station
+        userAccount['time'] = this.$getTimeYear(orderInfo.route_config[0].riding_time * 1000)
+        userAccount['ticketNumber'] = orderInfo.route_config[0].trips_number
+        userInfo.push({
+          userName: user.name,
+          userId: user.IDCard,
+          userType: user.ticket_species === 0 ? '成人票': orderInfo.route_config[0].ticket_species === 1 ? '儿童票': '成人票',
+          ticketType: user.fwName,
+          order_sn: this.orderSn,
+          token: orderInfo.parent_id,
+          route_id: user.route,
+          passenger_id: user.id,
+        })
+        userAccount['info'] = userInfo
+        console.log(userAccount);
+
+
+
+        let config = {
+          headers : {
+            'Content-Type':'application/json;charset=UTF-8'
+          },
+        };
+        this.$axios.post('http://127.0.0.1:3000/post',userAccount,config)
+            .then(data =>{
+              console.log(data);
+            })
+
       },
 
       /**
@@ -1985,6 +2029,7 @@
                 userAccount['password'] = val.password
                 userAccount['userAcc'] = backendAccount.account
                 userAccount['userPas'] = backendAccount.password
+                userAccount['order_type'] = '未购票'
                 userAccount['csrf'] = sessionStorage.getItem('CSRF')
                 res.data.result.forEach((datares,index) => {
                   userAccount['start'] = datares.departure_station
