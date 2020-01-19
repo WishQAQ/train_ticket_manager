@@ -1,6 +1,6 @@
 <template>
   <!-- 单张上传 -->
-  <div class="UploadLeaflet" @mouseenter.stop="uploadImage">
+  <div class="UploadLeaflet" ref="UploadLeaflet" @mouseenter.stop="uploadImage">
     <el-upload
         class="upload_main"
         ref="upload"
@@ -78,29 +78,46 @@
         console.log(res, file);
       },
 
+
+      /**
+       * @Description: 复制剪切板图片并进行上传
+       * @author Wish
+       * @date 2020/1/19
+      */
+      paste(event){
+        var items = (event.clipboardData || window.clipboardData).items;
+          console.log(items);
+          var file = null;
+          if (items && items.length) {
+            // 搜索剪切板items
+            for (var i = 0; i < items.length; i++) {
+              if (items[i].type.indexOf('image') !== -1) {
+                file = items[i].getAsFile();
+                break;
+              }
+            }
+          } else {
+            console.log('当前浏览器不支持');
+            return;
+          }
+          if (!file) {
+            console.log('粘贴内容非图片');
+            return;
+          }
+          if(file){
+            this.beforeUpload(file)
+          }
+      },
+
+      /**
+       * @Description: 执行剪切板图片上传方法，先移除该方法，在创建新方法进行
+       * @author Wish
+       * @date 2020/1/19
+      */
       uploadImage(){
-        // console.log('111');
-        // const _that = this;
-        // document.addEventListener('paste', function (event) {
-        //   event.preventDefault();
-        //   console.log("paste")
-        //   const items = event.clipboardData && event.clipboardData.items;
-        //   let file = null;
-        //   debugger
-        //   if (items && items.length) {
-        //     // 检索剪切板items
-        //     for (let i = 0; i < items.length; i++) {
-        //       if (items[i].type.indexOf('image') !== -1) {
-        //         file = [...items].pop().getAsFile();
-        //       break;
-        //       }
-        //     }
-        //   }
-        //   console.log(file);
-        //   if(file){
-        //     _that.beforeUpload(file)
-        //   }
-        // });
+        this.$refs.UploadLeaflet.removeEventListener('paste',this.paste)
+
+        this.$refs.UploadLeaflet.addEventListener('paste',this.paste)
       },
 
       /**
