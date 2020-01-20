@@ -120,7 +120,7 @@
                 </el-switch>
 
                 <el-switch
-                    v-if="item.name !== '批量编辑' && item.name !== '批量对账' && item.name !== '对账' && item.name !== '锁定'"
+                    v-if="item.name !== '批量编辑' && item.name !== '批量对账' && item.name !== '对账' && item.name !== '锁定' && item.name !== '误餐费'"
                     @input="change($event)"
                     @change="roleSwitch(item)"
                     v-model="item.is_read_in"

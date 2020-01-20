@@ -1,6 +1,6 @@
 <template>
   <!-- 单张上传 -->
-  <div class="UploadLeaflet" ref="UploadLeaflet" @mouseenter.stop="uploadImage">
+  <div class="UploadLeaflet" ref="UploadLeaflet" @mouseenter.stop="uploadImage($event)">
     <el-upload
         class="upload_main"
         ref="upload"
@@ -85,12 +85,11 @@
        * @date 2020/1/19
       */
       paste(event){
-        var items = (event.clipboardData || window.clipboardData).items;
-          console.log(items);
-          var file = null;
-          if (items && items.length) {
+        const items = (event.clipboardData || window.clipboardData).items;
+        let file = null;
+        if (items && items.length) {
             // 搜索剪切板items
-            for (var i = 0; i < items.length; i++) {
+            for (let i = 0; i < items.length; i++) {
               if (items[i].type.indexOf('image') !== -1) {
                 file = items[i].getAsFile();
                 break;
@@ -114,7 +113,7 @@
        * @author Wish
        * @date 2020/1/19
       */
-      uploadImage(){
+      uploadImage(e){
         this.$refs.UploadLeaflet.removeEventListener('paste',this.paste)
 
         this.$refs.UploadLeaflet.addEventListener('paste',this.paste)

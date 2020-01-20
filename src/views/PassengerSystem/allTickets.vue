@@ -479,6 +479,9 @@
       /deep/.el-table{
         font-size: 14px;
         color: #000;
+        th{
+          padding: unset;
+        }
         .el-table__body-wrapper{
           td{
             padding: 4px 0;

@@ -400,18 +400,21 @@
   }
 
   /*新闻or文档弹窗*/
-  .detail_dialog{
+  /deep/.detail_dialog{
+    .el-dialog__body{
+      padding-top: 5px;
+    }
     .detail_main{
       .title{
-        font-size:24px;
+        font-size:20px;
         color:rgba(51,148,250,1);
         text-align: center;
-        margin-bottom: 35px;
+        margin-bottom: 10px;
       }
       .info{
         display: flex;
         align-items: center;
-        margin-bottom: 15px;
+        margin-bottom: 10px;
         .time{
           margin-left: 15px;
           font-size:16px;
@@ -419,7 +422,7 @@
         }
       }
       .content{
-        font-size:18px;
+        font-size:16px;
         color:rgba(38,153,251,1);
         height: 300px;
         overflow-y: auto;

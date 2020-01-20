@@ -117,13 +117,13 @@
 <!--      width="80"-->
       <el-table-column
           show-overflow-tooltip
-
+          v-if="tableRoleStatus.missed_meals_money.show || false"
           prop="missed_meals_money"
           label="误餐费">
       </el-table-column>
 <!--         width="80"-->
       <el-table-column
-          v-if="tableRoleStatus.refund_fee.show"
+          v-if="tableRoleStatus.refund_fee.show || false"
           show-overflow-tooltip
 
           label="退票款">
@@ -143,7 +143,7 @@
           v-if="tableRoleStatus.ticket_fare.show"
           show-overflow-tooltip
 
-          label="出票款">
+          label="出票费">
         <template slot-scope="scope">
           <el-input
               size="mini"
@@ -393,7 +393,7 @@
             name: '',
             IDCard: '',
             refund_fee: '',  // 退票款
-            ticket_fare: '', // 出票款
+            ticket_fare: '', // 出票费
             db_auftragsnummer: '', // 取票号
             ticketing_time: '', // 出票时间
             payment_account: '', // 支付账号

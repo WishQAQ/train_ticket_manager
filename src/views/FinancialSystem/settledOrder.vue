@@ -121,6 +121,7 @@
           </el-table-column>
           <el-table-column
               align="center"
+              width="95px"
               label="退改交通费">
             <template slot-scope="scope">{{scope.row.verification_item.refund_fare}}</template>
           </el-table-column>
@@ -153,7 +154,7 @@
             label="成本项">
           <el-table-column
               align="center"
-              v-if="tableOrderRoleStatus.total_ticket_issue_fee.show"
+              v-if="tableOrderRoleStatus.total_ticket_issue_fee.show || false"
               label="总出票费">
             <template slot-scope="scope">
               {{scope.row.verification_item.total_ticket_issue_fee}}
@@ -169,7 +170,7 @@
           </el-table-column>
           <el-table-column
               align="center"
-              v-if="tableOrderRoleStatus.compensation_fee.show"
+              v-if="tableOrderRoleStatus.compensation_fee.show || false"
               label="总赔付费">
             <template slot-scope="scope">
               <el-input
@@ -184,7 +185,7 @@
           </el-table-column>
           <el-table-column
               align="center"
-              v-if="tableOrderRoleStatus.total_discount.show"
+              v-if="tableOrderRoleStatus.total_discount.show || false"
               label="优惠总额">
             <template slot-scope="scope">
               <el-input
@@ -198,7 +199,7 @@
             </template>
           </el-table-column>
           <el-table-column
-              v-if="tableOrderRoleStatus.finance_express_fee.show"
+              v-if="tableOrderRoleStatus.finance_express_fee.show || false"
               align="center"
               label="快递支出">
             <template slot-scope="scope">

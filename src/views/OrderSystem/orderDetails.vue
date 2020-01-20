@@ -76,7 +76,7 @@
               </el-option>
             </el-select>
           </div>
-          <div v-if="urlType !== 'add'">
+          <div>
             <span style="flex-shrink: 0">新订单号</span>
             <el-input
                 style="width: 100%"
@@ -389,7 +389,7 @@
             <el-button type="primary" v-if="urlType === 'edit' && roleType === 0" @click="addStrokeBtn">添加行程</el-button>
           </div>
           <div>
-            <el-button v-if="urlType === 'details' && roleType === 0 && orderInfo.ticket_photos.length > 0" :disabled="downLoadOrderFile" v-loading="downLoadOrderFile" type="primary" @click="downAllPhoto"><a>下载所有图片</a></el-button>
+            <el-button v-if="urlType === 'details' && roleType === 0 && orderInfo.ticket_photos.length > 0" :disabled="downLoadOrderFile" v-loading="downLoadOrderFile" @click="downAllPhoto"><a>下载所有图片</a></el-button>
 
             <el-button v-if="urlType !== 'add' && roleType === 0" @click="downloadAll()" :disabled="downLoadOrderFile" v-loading="downLoadOrderFile">导出账单</el-button>
           </div>
@@ -721,21 +721,23 @@
         :visible.sync="addUserDialog">
       <div class="dialog_main">
         <div ref="add_user_table_header" class="order_table_header" v-for="(item,index) in userListHeader.info" :key="index">
+<!--          <div>-->
+<!--            行程类型：-->
+<!--            {{userListHeader.route_type === 0 ?'单程' :-->
+<!--            userListHeader.route_type === 1 ?'往返' :-->
+<!--            userListHeader.route_type === 2 ?'中转' :-->
+<!--            userListHeader.route_type === 3 ?'中转往返' :''}}-->
+<!--          </div>-->
           <div>
-            行程类型：
-            {{userListHeader.route_type === 0 ?'单程' :
-            userListHeader.route_type === 1 ?'往返' :
-            userListHeader.route_type === 2 ?'中转' :
-            userListHeader.route_type === 3 ?'中转往返' :''}}
-          </div>
-          <div>行程时间：<span>{{$getTimeYear(item.riding_time * 1000)}}</span></div>
+<!--            行程时间：-->
+            <span>{{$getTimeYear(item.riding_time * 1000)}}</span></div>
           <div>
-            乘车区间：
+<!--            乘车区间：-->
             <span>{{item.departure_station}}</span>
             <p>{{item.trips_number}}</p>
             <span>{{item.arrival_station}}</span>
           </div>
-          <div>车次：{{item.trips_number}}</div>
+<!--          <div>车次：{{item.trips_number}}</div>-->
           <el-button
               style="margin-left: auto"
               v-if="userListHeader.info.length > 1"
@@ -885,9 +887,9 @@
             </div>
           </div>
           <div class="main_box">
-            <div class="main_box_title">出票款</div>
+            <div class="main_box_title">出票费</div>
             <div class="main_box_content">
-              <el-input size="mini" clearable @input="change($event)" v-model="item.ticket_fare" placeholder="请输入出票款"/>
+              <el-input size="mini" clearable @input="change($event)" v-model="item.ticket_fare" placeholder="请输入出票费"/>
             </div>
           </div>
           <div class="main_box">
@@ -1533,9 +1535,13 @@
         if(this.strokeTableType === '中转往返'){
           let newInitialStation = JSON.parse(JSON.stringify(this.addStrokeArr[0].stop_station))
           let newStopStation = JSON.parse(JSON.stringify(this.addStrokeArr[0].initial_station))
+          let newInitialStationTwo = JSON.parse(JSON.stringify(this.addStrokeArr[1].stop_station))
+          let newStopStationTwo = JSON.parse(JSON.stringify(this.addStrokeArr[1].initial_station))
           this.addStrokeArr[3].initial_station = this.addStrokeArr[3].initial_station?this.addStrokeArr[3].initial_station.replace(/\s+/g, ""):JSON.parse(JSON.stringify(newInitialStation)).replace(/\s+/g, "")
           this.addStrokeArr[3].stop_station = this.addStrokeArr[3].stop_station?this.addStrokeArr[3].stop_station.replace(/\s+/g, ""):JSON.parse(JSON.stringify(newStopStation)).replace(/\s+/g, "")
 
+          this.addStrokeArr[2].initial_station = this.addStrokeArr[2].initial_station?this.addStrokeArr[2].initial_station.replace(/\s+/g, ""):JSON.parse(JSON.stringify(newInitialStationTwo)).replace(/\s+/g, "")
+          this.addStrokeArr[2].stop_station = this.addStrokeArr[2].stop_station?this.addStrokeArr[2].stop_station.replace(/\s+/g, ""):JSON.parse(JSON.stringify(newStopStationTwo)).replace(/\s+/g, "")
         }
       },
 
