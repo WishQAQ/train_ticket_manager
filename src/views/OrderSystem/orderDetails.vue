@@ -623,7 +623,7 @@
                   prop="field">
               </el-table-column>
               <el-table-column
-                  show-overflow-tooltip
+
                   label="写入值"
                   prop="read_in">
               </el-table-column>
@@ -2067,6 +2067,9 @@
                     .then(data =>{
                       console.log(data);
                     })
+
+
+                this.selectTicketMessage = false
 
 
 
@@ -4358,17 +4361,17 @@
     }
 
     .order_details_bottom{
-      display: flex;
+      /*display: flex;*/
       .order_bottom_table{
-        width: 50%;
+        /*width: 50%;*/
         /deep/.orderRemarksTable{
-          border: 2px solid red;
+          /*border: 2px solid red;*/
           td{
             font-size: 12px;
           }
         }
         /deep/.orderLogTable{
-          border: 2px solid blue;
+          /*border: 2px solid blue;*/
           td{
             font-size: 12px;
             padding: unset;
@@ -4378,8 +4381,13 @@
           margin-bottom: 10px;
         }
 
+        &:not(:last-child){
+          margin-bottom: 30px;
+        }
+
         &:last-child{
-          margin-left: 40px;
+          /*margin-bottom: 20px;*/
+          /*margin-left: 40px;*/
         }
       }
     }

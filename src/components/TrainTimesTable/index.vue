@@ -77,7 +77,7 @@
 <!--      width="65"-->
       <el-table-column
           show-overflow-tooltip
-
+          align="center"
           label="票类">
         <template slot-scope="scope">
           {{scope.row.ticket_type === 0?'电子票':
@@ -98,6 +98,7 @@
       <el-table-column
           show-overflow-tooltip
           min-width="100px"
+          align="center"
           label="席别/席位号">
         <template slot-scope="scope">
           <div>
@@ -110,7 +111,7 @@
 <!--        width="80"-->
       <el-table-column
           show-overflow-tooltip
-
+          align="center"
           prop="ticket_price"
           label="票价">
       </el-table-column>
@@ -119,13 +120,14 @@
           show-overflow-tooltip
           v-if="tableRoleStatus.missed_meals_money.show || false"
           prop="missed_meals_money"
+          align="center"
           label="误餐费">
       </el-table-column>
 <!--         width="80"-->
       <el-table-column
           v-if="tableRoleStatus.refund_fee.show || false"
           show-overflow-tooltip
-
+          align="center"
           label="退票款">
         <template slot-scope="scope">
           <el-input
@@ -142,7 +144,7 @@
       <el-table-column
           v-if="tableRoleStatus.ticket_fare.show"
           show-overflow-tooltip
-
+          align="center"
           label="出票费">
         <template slot-scope="scope">
           <el-input
@@ -159,7 +161,7 @@
       <el-table-column
           v-if="tableRoleStatus.ticket_status.show"
           show-overflow-tooltip
-
+          align="center"
           label="状态">
         <template slot-scope="scope">
           <span v-if="scope.row.ticket_status === 0" style="color: red">未出票</span>
@@ -173,7 +175,7 @@
       <el-table-column
           v-if="tableRoleStatus.db_auftragsnummer.show"
           show-overflow-tooltip
-
+          align="center"
           label="取票号">
         <template slot-scope="scope">
           <el-input
@@ -189,7 +191,7 @@
 <!--          width="122"-->
       <el-table-column
           show-overflow-tooltip
-
+          align="center"
           v-if="showTableRows"
           label="出票时间">
         <template slot-scope="scope">
@@ -210,7 +212,7 @@
       </el-table-column>
 <!--         width="130"-->
       <el-table-column
-
+          align="center"
           show-overflow-tooltip
           v-if="tableRoleStatus.payment_account.show && showTableRows"
           label="支付账号">
@@ -227,7 +229,7 @@
       </el-table-column>
 <!--         width="130"-->
       <el-table-column
-
+          align="center"
           show-overflow-tooltip
           v-if="tableRoleStatus.payment_flow_number.show && showTableRows"
           label="支付流水">
@@ -244,7 +246,7 @@
       </el-table-column>
 <!--         width="130"-->
       <el-table-column
-
+          align="center"
           v-if="tableRoleStatus['12306_account'].show && showTableRows"
           show-overflow-tooltip
           label="1230账号">
@@ -261,7 +263,7 @@
       </el-table-column>
 <!--       width="130"-->
       <el-table-column
-
+          align="center"
           show-overflow-tooltip
           v-if="tableRoleStatus['12306_account'].show && showTableRows"
           label="1230密码">
@@ -279,7 +281,7 @@
 <!--        width="80"-->
       <el-table-column
           show-overflow-tooltip
-
+          align="center"
           label="乘客备注">
         <template slot-scope="scope">
           <el-input

@@ -9,6 +9,7 @@
       <div class="table_main">
         <el-table
             stripe
+            @row-dblclick="openDetails"
             :data="helpTableData"
             border
             style="width: 100%">
@@ -21,18 +22,19 @@
           </el-table-column>
           <el-table-column
               prop="title"
+              width="400px"
               show-overflow-tooltip
               label="标题">
           </el-table-column>
-          <el-table-column
-              label="内容"
-              show-overflow-tooltip>
-            <template slot-scope="scope">
-              <div style="max-width: 300px;overflow: hidden;white-space: nowrap;text-overflow: ellipsis;">
-                {{scope.row.content}}
-              </div>
-            </template>
-          </el-table-column>
+<!--          <el-table-column-->
+<!--              label="内容"-->
+<!--              show-overflow-tooltip>-->
+<!--            <template slot-scope="scope">-->
+<!--              <div style="max-width: 300px;overflow: hidden;white-space: nowrap;text-overflow: ellipsis;">-->
+<!--                {{scope.row.content}}-->
+<!--              </div>-->
+<!--            </template>-->
+<!--          </el-table-column>-->
           <el-table-column
               prop="source"
               label="来源">
@@ -374,6 +376,8 @@
               })
               this.paginationList = res.data
               this.getUserList()
+              console.log(this.helpTableData);
+
             })
       },
 
@@ -651,7 +655,7 @@
        * @author Wish
        * @date 2019/9/26
       */
-      openDetails(val){
+      openDetails(val, column, cell, event){
         this.detailDialog = true
         this.detailMessage = val
         console.log(this.detailMessage.content);
@@ -776,12 +780,15 @@
     }
   }
   .detail_dialog{
+    /deep/.el-dialog__body{
+      padding-top: 5px;
+    }
     .detail_main{
       .title{
-        font-size:24px;
+        font-size:20px;
         color:rgba(51,148,250,1);
         text-align: center;
-        margin-bottom: 35px;
+        margin-bottom: 10px;
       }
       .info{
         display: flex;
@@ -794,7 +801,7 @@
         }
       }
       .content{
-        font-size:18px;
+        font-size:16px;
         color:rgba(38,153,251,1);
         max-height: 600px;
         height: 100%;

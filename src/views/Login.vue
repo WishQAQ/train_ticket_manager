@@ -13,7 +13,7 @@
       <el-button class="login_submit" v-loading="loading" :disabled="loading"  @click="submitLogin">登录</el-button>
 
     </div>
-    <div class="footer"><a href="http://www.miit.gov.cn/" target="_blank">备案号 渝ICP 备 19016364 号-1</a></div>
+    <div class="footer"><a href="http://www.miit.gov.cn/" target="_blank">渝ICP 备 19016364 号</a></div>
   </div>
 </template>
 

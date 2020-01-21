@@ -59,6 +59,14 @@
         class="batchTable"
         :data="orderFileData">
       <el-table-column
+          label="序"
+          align="center"
+          width="50px">
+        <template slot-scope="scope">
+          {{scope.$index+1}}
+        </template>
+      </el-table-column>
+      <el-table-column
           prop="order_sn"
           label="订单号"/>
       <el-table-column

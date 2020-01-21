@@ -103,7 +103,7 @@
             label="到站">
         </el-table-column>
         <el-table-column
-            width="80"
+            width="110"
             show-overflow-tooltip
             prop="trips_number"
             label="车次">
