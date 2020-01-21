@@ -4363,6 +4363,10 @@
     .order_details_bottom{
       /*display: flex;*/
       .order_bottom_table{
+        /deep/.table_pagination{
+          margin-top: 10px;
+          text-align: right;
+        }
         /*width: 50%;*/
         /deep/.orderRemarksTable{
           /*border: 2px solid red;*/
@@ -4382,7 +4386,7 @@
         }
 
         &:not(:last-child){
-          margin-bottom: 30px;
+          margin-bottom: 10px;
         }
 
         &:last-child{
@@ -4396,7 +4400,7 @@
     .order_add_remarks{
       display: flex;
       align-items: center;
-      margin-bottom: 30px;
+      margin-bottom: 10px;
       /deep/.el-button{
         margin-left: 15px;
       }
