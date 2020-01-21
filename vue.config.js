@@ -25,20 +25,20 @@ module.exports = {
       //   threshold: 10240,
       //   minRatio: 0.8,
       // }));
-      config.plugins.push(
-          new UglifyJsPlugin({
-            uglifyOptions: {
-              compress: {
-                warnings: false,
-                drop_debugger: true, // 注释console
-                drop_console: true,
-                pure_funcs:['console.log'] // 移除console
-              },
-            },
-            sourceMap: false,
-            parallel: true,
-          }),
-      );
+      // config.plugins.push(
+      //     new UglifyJsPlugin({
+      //       uglifyOptions: {
+      //         compress: {
+      //           warnings: false,
+      //           drop_debugger: true, // 注释console
+      //           drop_console: true,
+      //           pure_funcs:['console.log'] // 移除console
+      //         },
+      //       },
+      //       sourceMap: false,
+      //       parallel: true,
+      //     }),
+      // );
     }
   },
   css: {

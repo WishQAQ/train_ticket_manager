@@ -540,8 +540,8 @@
       <div class="order_details_bottom" v-if="roleType === 0">
         <!-- 订单备注表格 -->
         <div class="order_bottom_table">
-          <div class="table_header">备注信息</div>
-          <div class="table_main">
+          <div class="table_header" @click="showOrderRemarks = !showOrderRemarks"><p>备注信息</p><span>{{showOrderRemarks?'点击收起':'点击展开'}}</span></div>
+          <div class="table_main" v-if="showOrderRemarks">
             <el-table
                 stripe
                 width="100%"
@@ -586,10 +586,13 @@
 
         </div>
 
+
+
+
         <!-- 订单操作日志表格 -->
         <div class="order_bottom_table">
-          <div class="table_header">操作日志</div>
-          <div class="table_main">
+          <div class="table_header" @click="showOrderLog = !showOrderLog"><p>操作日志</p><span>{{showOrderLog?'点击收起':'点击展开'}}</span></div>
+          <div class="table_main" v-if="showOrderLog">
             <el-table
                 stripe
                 width="100%"
@@ -1265,6 +1268,10 @@
     },
     data(){
       return {
+
+        showOrderRemarks: true, // 订单备注显示隐藏
+        showOrderLog: false, // 订单操作日志显示隐藏
+
         roleType: parseInt(sessionStorage.getItem('TYPE')),
 
         GetTicketData: GetTicketData,  // 12306行程代码
@@ -4382,7 +4389,16 @@
           }
         }
         .table_header{
-          margin-bottom: 10px;
+          /*margin-bottom: 10px;*/
+          background: #ebf4fc78;
+          padding: 5px 10px;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          >span{
+            font-size: 12px;
+          }
         }
 
         &:not(:last-child){
