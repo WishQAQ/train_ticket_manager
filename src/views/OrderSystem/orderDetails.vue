@@ -578,6 +578,7 @@
             </el-table>
           </div>
           <Pagination
+              v-if="showOrderRemarks"
               ref="pagination"
               :pageData="paginationRemarksList"
               @jumpSize="jumpRemarksSize"
@@ -641,6 +642,7 @@
           </div>
           <Pagination
               ref="pagination"
+              v-if="showOrderLog"
               :pageData="paginationLogList"
               @jumpSize="jumpLogSize"
               @jumpPage="jumpLogPage">
@@ -2152,6 +2154,7 @@
               if(res.data.code === 0){
                 this.orderLog = res.data.result.data
                 this.paginationLogList = res.data.result
+                console.log(this.paginationLogList);
               }else {
                 this.$message.warning(res.data.msg)
               }

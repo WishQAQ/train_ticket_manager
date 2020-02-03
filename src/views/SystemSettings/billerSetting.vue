@@ -6,7 +6,7 @@
       <el-input clearable v-model="searchForm.contact" placeholder="联系方式搜索"></el-input>
       <el-select clearable v-model="searchForm.target" placeholder="请选择客户商">
         <el-option
-            v-for="item in dataList"
+            v-for="item in targetList"
             :key="item.identity"
             :label="item.name"
             :value="item.identity">
@@ -110,6 +110,8 @@
         loading: true,
         dataList: [],
 
+        targetList: [],
+
         searchForm: { // 搜索
           name: '',
           target: '',
@@ -145,15 +147,33 @@
       },
 
       /**
+       * @Description: 获取客户商列表
+       * @author Wish
+       * @data 2020/2/3
+      */
+      getTargetList(){
+        this.$axios.get('user/customer/showAll/1')
+        .then(res =>{
+          if(res.data.code === 0){
+            this.targetList = res.data.result
+          }
+        })
+      },
+
+      /**
        * @Description: 搜索按钮
        * @author Wish
        * @date 2019/10/16
       */
       searchBtn(){
-        this.$axios.post('/user/issuer/search',this.searchForm)
+        this.loading = true
+        this.searchForm['page'] = this.page || null
+        this.$axios.post('/user/issuer/show/'+this.per_page,this.searchForm)
             .then(res =>{
               if(res.data.code === 0){
+                this.loading = false
                 this.dataList = res.data.result.data
+                this.paginationList = res.data.result
               }else {
                 this.$message.warning(res.data.msg)
               }
@@ -304,6 +324,9 @@
     },
     created() {
       this.getDataList()
+    },
+    mounted() {
+      this.getTargetList()
     }
   }
 </script>
