@@ -68,6 +68,7 @@ let generaMenu = (obj,data) =>{
     obj.push(powerRouterLazy(v.menu_english_name))
     obj.forEach((res, index) =>{
       if(res.name === v.menu_english_name){
+        console.log(v);
         res['menuName'] = v.menu_name
         res['icon'] = v.icon
         if(res.children){

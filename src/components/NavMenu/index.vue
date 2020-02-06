@@ -180,9 +180,10 @@
       })
       let clientBackend = JSON.parse(sessionStorage.getItem('ROLE'))
       clientBackend.forEach(item =>{
+        console.log(item);
         if(item.menu_name === '客户后台' || item.menu_english_name === 'clientBackEnd'){
           this.clientMenu = item
-          item.childrenMenu.forEach(cItem =>{
+          item.childrenMenu.forEach(cItem =>{;
             newChildrenMenu.push({
               status: true,
               path: cItem.menu_english_name,
@@ -196,7 +197,6 @@
               }
             })
           })
-          console.log(this.newrouter);
           this.newrouter.push({
             path: item.menu_english_name,
             name: item.menu_english_name,

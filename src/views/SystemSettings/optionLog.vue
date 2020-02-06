@@ -3,7 +3,7 @@
     <div class="table_header">
       <el-input v-model="searchForm.user_name" placeholder="操作人搜索"/>
       <el-input v-model="searchForm.remark" placeholder="备注搜索"/>
-      <el-button @click="searchBtn">搜索</el-button>
+      <el-button @click="searchBtn(1)">搜索</el-button>
     </div>
     <div class="table_main">
       <el-table
@@ -110,9 +110,10 @@
        * @author Wish
        * @date 2019/10/16
       */
-      searchBtn(){
+      searchBtn(val){
         this.loading = true
-        this.$axios.post('/system/log/show',this.searchForm)
+        this.searchForm['page'] = val? 1: this.page || null
+        this.$axios.post('/system/log/show/'+this.per_page || null,this.searchForm)
             .then(res =>{
               this.loading = false
               this.tableData = res.data.result.data
@@ -127,11 +128,11 @@
       */
       jumpSize(val){
         this.per_page = val
-        this.getData()
+        this.searchBtn()
       },
       jumpPage(val){
         this.page = val
-        this.getData()
+        this.searchBtn()
       },
 
     },

@@ -129,21 +129,22 @@
 
         paginationList: {},
         per_page: 10,
-        page: '',
+        page: 1,
       }
     },
     methods:{
       getDataList(){
         this.loading = true
-        let data = {
-          page: this.page || null,
-        }
-        this.$axios.get('/user/issuer/show/'+this.per_page || null,{params:data})
-            .then(res =>{
+        this.$axios.post('/user/issuer/show/'+this.page+'/'+this.per_page || null,this.searchForm)
+          .then(res =>{
+            if(res.data.code === 0){
               this.loading = false
               this.dataList = res.data.result.data
               this.paginationList = res.data.result
-            })
+            }else {
+              this.$message.warning(res.data.msg)
+            }
+          })
       },
 
       /**
@@ -166,18 +167,8 @@
        * @date 2019/10/16
       */
       searchBtn(){
-        this.loading = true
-        this.searchForm['page'] = this.page || null
-        this.$axios.post('/user/issuer/show/'+this.per_page,this.searchForm)
-            .then(res =>{
-              if(res.data.code === 0){
-                this.loading = false
-                this.dataList = res.data.result.data
-                this.paginationList = res.data.result
-              }else {
-                this.$message.warning(res.data.msg)
-              }
-            })
+        this.page = 1
+        this.getDataList()
       },
 
       closeInfo(){

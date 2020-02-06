@@ -22,7 +22,7 @@
             type="date"
             placeholder="请选择创建日期">
         </el-date-picker></div>
-        <el-button @click="searchBtn">搜索</el-button>
+        <el-button @click="searchBtn(1)">搜索</el-button>
       </div>
 
       <div class="user_table">
@@ -116,7 +116,7 @@
             <el-option label="客户商账号" value="1"/>
           </el-select>
         </el-form-item>
-        <el-form-item label="用户名">
+        <el-form-item label="用户名称">
           <el-input
               maxlength="10"
               show-word-limit
@@ -126,6 +126,7 @@
         <el-form-item label="账号">
           <el-input
               maxlength="10"
+              autocomplete="off"
               show-word-limit
               v-model="userInfo.user_name">
           </el-input>
@@ -133,6 +134,7 @@
         <el-form-item label="账号密码">
           <el-input
               show-password
+              autocomplete="new-password"
               maxlength="6"
               show-word-limit
               v-model="userInfo.password">
@@ -277,14 +279,14 @@
        * @author Wish
        * @date 2019/11/11
       */
-      searchBtn(){
+      searchBtn(val){
         this.loading = true;
         let data = {
           name: this.searchForm.name,
           status: this.searchForm.status,
           role_id: this.searchForm.role_id,
           time: this.$dateToMs(this.searchForm.time / 1000) || '',
-          page: this.page || null,
+          page: val?1:this.page || null,
         }
         this.$axios.post('/user/showAccount/'+this.per_page || null,data)
             .then(res =>{
@@ -507,11 +509,11 @@
       */
       jumpSize(val){
         this.per_page = val
-        this.getData()
+        this.searchBtn()
       },
       jumpPage(val){
         this.page = val
-        this.getData()
+        this.searchBtn()
       },
 
     },
