@@ -5,7 +5,6 @@ const CompressionWebpackPlugin = require('compression-webpack-plugin');
 // 要压缩的文件
 const productionGzipExtensions = ['js', 'css'];
 // const productionGzipExtensions = /\.(js|css|json|txt|html|ico|svg)(\?.*)?$/i;
-
 const env = process.env.NODE_ENV;
 
 module.exports = {
