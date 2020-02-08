@@ -172,7 +172,7 @@
             </el-table-column>
             <el-table-column label="数值">
               <template slot-scope="scope">
-                {{scope.row.value}}
+                {{scope.row.value.toFixed(2)}}
               </template>
             </el-table-column>
             <el-table-column label="比例">
@@ -463,7 +463,8 @@
        * @date 2020/1/14
       */
       beginStatistics(){
-        this.loading = this.totalSelect[0]
+          console.log(this.totalSelect);
+          this.loading = this.totalSelect[0] !== ''
 
         this.chartData.rows = []
         let data

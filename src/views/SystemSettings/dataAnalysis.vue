@@ -607,6 +607,8 @@
               if(res.data.code === 0){
                 this.$message.success('获取成功')
                 this.tableData = res.data.result
+                  console.log(this.tableData);
+                  // .toFixed(2)
 
                 this.chartData = this.tableData
 

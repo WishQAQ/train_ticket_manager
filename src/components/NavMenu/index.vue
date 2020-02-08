@@ -180,7 +180,6 @@
       })
       let clientBackend = JSON.parse(sessionStorage.getItem('ROLE'))
       clientBackend.forEach(item =>{
-        console.log(item);
         if(item.menu_name === '客户后台' || item.menu_english_name === 'clientBackEnd'){
           this.clientMenu = item
           item.childrenMenu.forEach(cItem =>{;
@@ -190,6 +189,7 @@
               name: cItem.menu_english_name,
               menuName: cItem.menu_name,
               icon: cItem.icon,
+              sort: cItem.sort,
               meta: {
                 hidden: false,
                 title: cItem.menu_name,
@@ -202,10 +202,42 @@
             name: item.menu_english_name,
             menuName: item.menu_name,
             icon: item.icon,
+            sort: item.sort,
             children: [...new Set(newChildrenMenu)]
           })
         }
       })
+
+      function compare(pro) {
+        return function (obj1, obj2) {
+          var val1 = obj1[pro];
+          var val2 = obj2[pro];
+          if (val1 > val2 ) { //正序
+            return 1;
+          } else if (val1 < val2 ) {
+            return -1;
+          } else {
+            return 0;
+          }
+        }
+      }
+
+      clientBackend.forEach((item,index) =>{
+        this.newrouter.forEach((cItem,cIndex) =>{
+          if(cItem.name === item.menu_english_name){
+            cItem['sort'] = item.sort
+            cItem.children.forEach((dItem,dIndex) =>{
+              item.childrenMenu.forEach(eItem =>{
+                if(dItem.menuName === eItem.menu_name){
+                  dItem['sort'] = eItem.sort
+                }
+              })
+              cItem.children.sort(compare('sort'))
+            })
+          }
+        })
+      })
+      this.newrouter = this.newrouter.sort(compare('sort'))
     }
   }
 </script>

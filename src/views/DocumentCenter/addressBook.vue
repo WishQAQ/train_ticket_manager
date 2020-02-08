@@ -32,13 +32,14 @@
             label="昵称">
         </el-table-column>
         <el-table-column
+                prop="contact"
+                label="联系方式">
+        </el-table-column>
+        <el-table-column
             prop="group_name"
             label="旅行社/组">
         </el-table-column>
-        <el-table-column
-            prop="contact"
-            label="联系方式">
-        </el-table-column>
+
       </el-table>
     </div>
 

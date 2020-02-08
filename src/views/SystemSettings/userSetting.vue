@@ -22,7 +22,7 @@
             type="date"
             placeholder="请选择创建日期">
         </el-date-picker></div>
-        <el-button @click="searchBtn(1)">搜索</el-button>
+        <el-button @click="getData(1)">搜索</el-button>
       </div>
 
       <div class="user_table">
@@ -142,7 +142,6 @@
         </el-form-item>
         <el-form-item label="联系方式">
           <el-input
-              maxlength="11"
               show-word-limit
               v-model="userInfo.contact">
           </el-input>
@@ -227,7 +226,7 @@
 
         paginationList: {},
         per_page: 10,
-        page: '',
+        page: 1,
       }
     },
     methods:{
@@ -239,13 +238,16 @@
        * @author Wish
        * @date 2019/9/29
       */
-      getData(){
-        this.closeData()
+      getData(val){
+        this.closeData(val)
         this.loading = true;
         let data = {
-          page: this.page || null,
+          name: this.searchForm.name,
+          status: this.searchForm.status,
+          role_id: this.searchForm.role_id,
+          time: this.$dateToMs(this.searchForm.time / 1000) || '',
         }
-        this.$axios.get('/user/showAccount/'+this.per_page || null,{params:data})
+        this.$axios.post('/user/showAccount/'+(val?1:this.page)+'/'+this.per_page || null,data)
             .then(res =>{
               if(res.data.code === 0){
                 this.loading = false;
@@ -509,11 +511,11 @@
       */
       jumpSize(val){
         this.per_page = val
-        this.searchBtn()
+        this.getData()
       },
       jumpPage(val){
         this.page = val
-        this.searchBtn()
+        this.getData()
       },
 
     },

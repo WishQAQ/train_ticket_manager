@@ -104,7 +104,7 @@
           <el-input v-model="addDataForm.customerId"></el-input>
         </el-form-item>
         <el-form-item label="联系方式">
-          <el-input  maxlength="11" show-word-limit v-model="addDataForm.contact"></el-input>
+          <el-input  show-word-limit v-model="addDataForm.contact"></el-input>
         </el-form-item>
         <el-form-item label="地址">
           <el-input v-model="addDataForm.address"></el-input>

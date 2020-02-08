@@ -9,6 +9,7 @@ import {Message} from 'element-ui'
 export function loginByUserInfo(username, password) {
   axios.post('/account/login', username, password).then(res =>{
     if(res.data.code === 0){
+      console.log(res.data.result);
       sessionStorage.setItem('CSRF', res.data.result.csrf);
       sessionStorage.setItem('FieldInfo', JSON.stringify(res.data.result.fieldInfo))
       sessionStorage.setItem('FieldInfoAll', JSON.stringify(res.data.result.fieldAllInfo))

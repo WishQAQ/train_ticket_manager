@@ -12,7 +12,7 @@
             :value="item.identity">
         </el-option>
       </el-select>
-      <el-button @click="searchBtn">搜索</el-button>
+      <el-button @click="getDataList(1)">搜索</el-button>
     </div>
     <div class="table_main">
       <div class="main_header">
@@ -133,9 +133,9 @@
       }
     },
     methods:{
-      getDataList(){
+      getDataList(val){
         this.loading = true
-        this.$axios.post('/user/issuer/show/'+this.page+'/'+this.per_page || null,this.searchForm)
+        this.$axios.post('/user/issuer/show/'+(val?1:this.page)+'/'+this.per_page || null,this.searchForm)
           .then(res =>{
             if(res.data.code === 0){
               this.loading = false
@@ -166,9 +166,17 @@
        * @author Wish
        * @date 2019/10/16
       */
-      searchBtn(){
-        this.page = 1
-        this.getDataList()
+      searchBtn(val){
+        this.$axios.post('/user/issuer/show/'+(val?1:this.page||null)+'/'+this.per_page || null,this.searchForm)
+                .then(res =>{
+                  if(res.data.code === 0){
+                    this.loading = false
+                    this.dataList = res.data.result.data
+                    this.paginationList = res.data.result
+                  }else {
+                    this.$message.warning(res.data.msg)
+                  }
+                })
       },
 
       closeInfo(){
@@ -308,6 +316,7 @@
         this.getDataList()
       },
       jumpPage(val){
+        console.log(val);
         this.page = val
         this.getDataList()
       },
