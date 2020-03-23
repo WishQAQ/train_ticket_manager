@@ -317,7 +317,7 @@
             .content{
               padding: 0 15px;
               font-size:14px;
-              color:rgba(38,153,251,1);
+              /*color:rgba(38,153,251,1);*/
               text-align: justify;
               display: -webkit-box;
               overflow: hidden;

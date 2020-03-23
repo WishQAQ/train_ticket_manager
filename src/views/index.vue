@@ -423,7 +423,7 @@
       }
       .content{
         font-size:16px;
-        color:rgba(38,153,251,1);
+        /*color:rgba(38,153,251,1);*/
         height: 300px;
         overflow-y: auto;
         white-space: pre-wrap;

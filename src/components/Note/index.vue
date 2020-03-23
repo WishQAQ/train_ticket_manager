@@ -429,7 +429,7 @@
       }
       .content{
         font-size:14px;
-        color:rgba(38,153,251,1);
+        /*color:rgba(38,153,251,1);*/
         margin-bottom: 50px;
         text-indent: 2em;
         max-height: 500px;

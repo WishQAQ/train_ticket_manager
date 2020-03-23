@@ -140,7 +140,16 @@
         </el-form-item>
         <el-divider></el-divider>
         <el-form-item label="内容">
-          <el-input type="textarea" :rows="10" v-model="detailForm.content"></el-input>
+          <quill-editor
+            class="editor"
+            ref="myQuillEditor"
+            :value="detailForm.content"
+            :options="editorOption"
+            @change="onEditorChange"
+            @blur="onEditorBlur($event)"
+            @focus="onEditorFocus($event)"
+            @ready="onEditorReady($event)"
+          />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -293,9 +302,13 @@
 </template>
 
 <script>
+  import { quillEditor } from 'vue-quill-editor'
+  import 'quill/dist/quill.core.css'
+  import 'quill/dist/quill.snow.css'
   export default {
     components:{
-      'Pagination': () => import('@/components/Pagination')
+      'Pagination': () => import('@/components/Pagination'),
+      quillEditor
     },
     name: "document",
     data(){
@@ -342,6 +355,29 @@
         paginationList: {},
         per_page: 10,
         page: '',
+
+
+        editorOption: {
+          modules: {
+            toolbar: [
+              ['bold', 'italic', 'underline', 'strike'],
+              ['blockquote', 'code-block'],
+              // [{ 'header': 1 }, { 'header': 2 }],
+              [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+              [{ 'script': 'sub' }, { 'script': 'super' }],
+              [{ 'indent': '-1' }, { 'indent': '+1' }],
+              // [{ 'direction': 'rtl' }],
+              [{ 'size': ['small', false, 'large', 'huge'] }],
+              // [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+              // [{ 'font': [] }],
+              [{ 'color': [] }, { 'background': [] }],
+              [{ 'align': [] }],
+              // ['clean'],
+              ['link', 'image', 'video']
+            ],
+            content: '',
+          }
+        },
       }
     },
     methods:{
@@ -463,7 +499,7 @@
        * @date 2019/9/26
       */
       submitAddDialog(){
-        if(this.detailForm.title && this.detailForm.content){
+        if(this.detailForm.title){
           this.showSubmitAddBtn = true
           let personnelId = []
           this.selectPersonnelList.map(res =>{
@@ -490,6 +526,7 @@
                         this.detailForm.noticeType === '奖惩' ? 4: ''
           }
           if(this.editDialogStatus){
+            console.log(this.detailForm);
             this.$axios.post('/notice/add',this.detailForm)
               .then(res =>{
                 if(res.data.code === 0){
@@ -743,7 +780,25 @@
       //     this.$refs.personnelTree.filter(val);
       //   },
 
+      onEditorBlur(editor) {
+        console.log('editor blur!', editor)
+      },
+      onEditorFocus(editor) {
+        console.log('editor focus!', editor)
+      },
+      onEditorReady(editor) {
+        console.log('editor ready!', editor)
+      },
+      onEditorChange({ editor, html, text }) {
+        console.log('editor change!', editor, html, text)
+        this.detailForm.content = html
+      }
 
+    },
+    computed: {
+      editor() {
+        return this.$refs.myQuillEditor.quill
+      }
     },
     watch: {
       // personnelText(val) {
@@ -802,7 +857,7 @@
       }
       .content{
         font-size:16px;
-        color:rgba(38,153,251,1);
+        /*color:rgba(38,153,251,1);*/
         max-height: 600px;
         height: 100%;
         overflow-y: auto;
@@ -857,5 +912,8 @@
       }
 
     }
+  }
+  .editor{
+    height: 400px;
   }
 </style>

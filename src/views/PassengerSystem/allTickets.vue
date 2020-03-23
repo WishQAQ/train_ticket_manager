@@ -23,8 +23,13 @@
       <div>
         <el-input clearable style="width: 120px" v-model="searchForm.arrive" placeholder="到站"/></div>
       <div>
-        <el-select clearable v-model="searchForm.customer_identity" placeholder="客户商">
+        <el-select clearable v-model="searchForm.customer_identity" placeholder="客户商" @change="selectCustomer(searchForm.customer_identity)">
           <el-option v-for="item in customerList" :key="item.id" :label="item.name" :value="item.identity"/>
+        </el-select>
+      </div>
+      <div>
+        <el-select v-model="searchForm.issuer_identity" placeholder="发单人选择" clearable>
+          <el-option v-for="item in issuerList" :key="item.id" :label="item.name" :value="item.id"/>
         </el-select>
       </div>
       <div><el-date-picker
@@ -110,7 +115,7 @@
         </el-table-column>
         <el-table-column
             prop="fwName"
-            width="200"
+            width="120"
             show-overflow-tooltip
             label="席别名称">
           <template slot-scope="scope">
@@ -160,7 +165,7 @@
             v-if="rulType === '0' && tableRoleStatus.ticket_fare.show"
             sortable
             prop="ticket_fare"
-            label="出票款">
+            label="出票费">
         </el-table-column>
         <el-table-column
             show-overflow-tooltip
@@ -244,6 +249,7 @@
           order: '',
           ticket_status: '',
           customer_identity: '',
+          issuer_identity: '',
           departure: '',
           arrive: '',
           ridingTime: [],
@@ -251,6 +257,8 @@
         },
 
         customerList: [],
+        issuerList: [], // 发单人列表
+
 
         rulType: '',  // 页面类型
 
@@ -278,6 +286,7 @@
           pay_account: this.searchForm.pay_account || null,
           running_account: this.searchForm.running_account || null,
           customer_identity: this.searchForm.customer_identity || null,
+          issuer_identity: this.searchForm.issuer_identity || null,
           '12306_account': this.searchForm.train_account || null,
           order: this.searchForm.order || null,
           ticket_status: this.searchForm.ticket_status || null,
@@ -320,6 +329,23 @@
       },
 
       /**
+       * @Description: 选中客户商
+       * @author Wish
+       * @date 2019/11/21
+       */
+      selectCustomer(val){
+        console.log(val);
+        this.searchForm.issuerList = ''
+        this.searchForm.issuer_identity = ''
+        this.customerList.forEach(res =>{
+          if(res.identity === val){
+            this.issuerList = res.issuer
+          }
+        })
+        console.log(this.issuerList);
+      },
+
+      /**
        * @Description: 跳转订单详情页
        * @author Wish
        * @date 2019/11/9
@@ -333,6 +359,8 @@
           }
         })
       },
+
+
 
       /**
        * @Description: 表格勾选
