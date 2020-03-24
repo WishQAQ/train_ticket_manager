@@ -16,28 +16,9 @@ module.exports = {
     config.plugins.delete('preload');
   },
   // 代码压缩 console移除
-  configureWebpack: (config) => {
-    if (env !== 'development' || env !== 'test') {
-      // config.plugins.push(new CompressionWebpackPlugin({
-      //   algorithm: 'gzip',
-      //   test: new RegExp(`\\.(${productionGzipExtensions.join('|')})$`),
-      //   threshold: 10240,
-      //   minRatio: 0.8,
-      // }));
-      config.plugins.push(
-          new UglifyJsPlugin({
-            uglifyOptions: {
-              compress: {
-                warnings: false,
-                drop_debugger: true, // 注释console
-                drop_console: true,
-                pure_funcs:['console.log'] // 移除console
-              },
-            },
-            sourceMap: false,
-            parallel: true,
-          }),
-      );
+  configureWebpack(config) {
+    if (process.env.NODE_ENV === 'production') {
+      config.optimization.minimizer[0].options.terserOptions.compress.drop_console = true
     }
   },
   css: {

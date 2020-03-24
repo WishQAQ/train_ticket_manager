@@ -913,7 +913,10 @@
 
     }
   }
-  .editor{
-    height: 400px;
+  /deep/.ql-editor{
+    height: 300px;
+  }
+  /deep/.el-dialog__body{
+    padding-bottom: unset;
   }
 </style>
